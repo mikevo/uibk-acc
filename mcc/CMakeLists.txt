@@ -1,26 +1,24 @@
 cmake_minimum_required(VERSION 2.8)
+project (mcc)
 
 set(PROJECT_NAME mcc)
 
 include_directories(
-	./include/
+    ../mC/
+    include/
 )
 
-set(HEADERS
-	./include/ast.h
-	./include/basics.h
-	./include/parser.h
-	./include/stream_utils.h
-	./include/string_utils.h
-	./include/test_utils.h
-)
+file(GLOB_RECURSE mcc_incs include/*.h)
+file(GLOB_RECURSE mcc_srcs src/*.cpp)
 
-set(SOURCES
-	./src/main.cpp
-	./src/ast.cpp
-	./src/parser.cpp
-	./src/stream_utils.cpp
-	./src/string_utils.cpp
+set(HEADERS ${mC_incs} ${mcc_incs})
+set(SOURCES 
+    ../mC/ast.cpp
+    ../mC/parser.cpp
+    ../mC/stream_utils.cpp
+    ../mC/string_utils.cpp
+    ${mcc_srcs}
+
 )
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
