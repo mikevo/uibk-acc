@@ -3,6 +3,6 @@
 *.json
 Makefile
 CMakeCache.txt
-./CMakeFiles
-./bin
+/CMakeFiles
+/bin
 

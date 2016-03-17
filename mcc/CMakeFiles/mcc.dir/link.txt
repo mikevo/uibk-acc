@@ -1,1 +1,0 @@
-/usr/bin/g++    -Wall -std=c++14 -g -g3 -gdwarf-2   CMakeFiles/mcc.dir/src/main.cpp.o CMakeFiles/mcc.dir/src/ast.cpp.o CMakeFiles/mcc.dir/src/parser.cpp.o CMakeFiles/mcc.dir/src/stream_utils.cpp.o CMakeFiles/mcc.dir/src/string_utils.cpp.o  -o bin/mcc -rdynamic 
