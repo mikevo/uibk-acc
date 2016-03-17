@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="mC" displayName="mC" projectFiles="true">
+        <itemPath>../mC/ast.h</itemPath>
+        <itemPath>../mC/basics.h</itemPath>
+        <itemPath>../mC/parser.h</itemPath>
+        <itemPath>../mC/stream_utils.h</itemPath>
+        <itemPath>../mC/string_utils.h</itemPath>
+        <itemPath>../mC/test_utils.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="mcc" displayName="mcc" projectFiles="true">
+        <itemPath>include/mcc/main.h</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="mC" displayName="mC" projectFiles="true">
+        <itemPath>../mC/ast.cpp</itemPath>
+        <itemPath>../mC/parser.cpp</itemPath>
+        <itemPath>../mC/stream_utils.cpp</itemPath>
+        <itemPath>../mC/string_utils.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="src" displayName="src" projectFiles="true">
+        <itemPath>src/main.cc</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>src</Elem>
+    <Elem>include</Elem>
+    <Elem>../mC</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <standard>10</standard>
+          <warningLevel>3</warningLevel>
+        </cTool>
+        <ccTool>
+          <architecture>2</architecture>
+          <standard>11</standard>
+          <incDir>
+            <pElem>../mC</pElem>
+            <pElem>include</pElem>
+          </incDir>
+          <warningLevel>3</warningLevel>
+        </ccTool>
+      </compileType>
+      <item path="../mC/ast.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/ast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/basics.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/parser.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/parser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/stream_utils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/stream_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/string_utils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/string_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/test_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/mcc/main.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/main.cc" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="../mC/ast.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/ast.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/basics.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/parser.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/parser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/stream_utils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/stream_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/string_utils.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="../mC/string_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="../mC/test_utils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/mcc/main.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/main.cc" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
