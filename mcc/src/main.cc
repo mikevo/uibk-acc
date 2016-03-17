@@ -2,10 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "ast.h"
-#include "parser.h"
-#include "test_utils.h"
-#include "stream_utils.h"
+#include "mcc/main.h"
 
 void test_parser() {
 	string str_test{"test"};
