@@ -1,0 +1,8 @@
+## CMake created files:
+*.cmake
+*.json
+Makefile
+CMakeCache.txt
+/CMakeFiles
+/bin
+
