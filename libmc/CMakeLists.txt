@@ -14,7 +14,7 @@ set(SOURCES
 add_library(mc STATIC ${SOURCES})
 
 target_include_directories(mc PUBLIC
-    ./include/
+    include/
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14 -g")
