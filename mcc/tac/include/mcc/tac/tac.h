@@ -20,7 +20,7 @@ namespace mcc {
     class Tac {
     public:
       Tac();
-      void convertAst(ast::node &n);
+      void convertAst(std::shared_ptr<ast::node> n);
       void addLine(std::shared_ptr<Operand> operand);
       std::string toString() const;
 

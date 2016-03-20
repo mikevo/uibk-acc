@@ -2,6 +2,9 @@
 
 #include "mcc/tac/tac.h"
 
+#include <memory>
+#include <string>
+
 #include "ast.h"
 
 namespace mcc {
@@ -9,7 +12,7 @@ namespace mcc {
 
     TEST(Tac, IntLiteral) {
       int testValue = 42;
-      ast::int_literal i = ast::int_literal(testValue);
+      auto i = std::make_shared<ast::int_literal>(testValue);
       
       Tac tac;
       tac.convertAst(i);
@@ -19,7 +22,7 @@ namespace mcc {
     
     TEST(Tac, FloatLiteral) {
       float testValue = 42.0;
-      ast::float_literal f = ast::float_literal(testValue);
+      auto f = std::make_shared<ast::float_literal>(testValue);
       
       Tac tac;
       tac.convertAst(f);
@@ -29,10 +32,9 @@ namespace mcc {
     
     TEST(Tac, Variable) {
       std::string testValue = "a";
+      auto type = std::make_shared<ast::int_type>();
       
-      ast::variable var = ast::variable(
-              std::make_shared<ast::int_type>(),
-              testValue);
+      auto var = std::make_shared<ast::variable>(type, testValue);
       
       Tac tac;
       tac.convertAst(var);
