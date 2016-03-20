@@ -10,7 +10,6 @@
 #include <string>
 #include <memory>
 
-#include "mcc/tac/tac.h"
 #include "mcc/tac/operator.h"
 #include "mcc/tac/operand.h"
 
@@ -19,14 +18,15 @@ namespace mcc {
 
         class Triple : public Operand {
         public:
-            Triple(Operator &op, std::shared_ptr<Operand> arg);
-            Triple(Operator &op, std::shared_ptr<Operand> arg1,
+            Triple(Operator op, std::shared_ptr<Operand> arg);
+            Triple(Operator op, std::shared_ptr<Operand> arg1,
                     std::shared_ptr<Operand> arg2);
             std::shared_ptr<Operand> arg1, arg2;
-            Operator &op;
+            Operator op;
             unsigned basicBlockId;
             unsigned getId() const;
             virtual std::string getValue() const;
+            virtual std::string toString() const;
 
         private:
             static unsigned nextId;

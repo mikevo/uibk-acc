@@ -2,6 +2,8 @@
 
 #include "mcc/tac/operator.h"
 
+#include <string>
+
 namespace mcc {
     namespace tac {
 
@@ -13,6 +15,15 @@ namespace mcc {
                 {OperatorName::LABLE, OperatorType::UNARY},
                 {OperatorName::MUL, OperatorType::BINARY},
                 {OperatorName::SUB, OperatorType::BINARY}
+            };
+            
+            const std::map<OperatorName, std::string> operatorName{
+                {OperatorName::ADD, " + "},
+                {OperatorName::ASSIGN, "ASSIGN "},
+                {OperatorName::JUMP, "JUMP "},
+                {OperatorName::LABLE, "LABLE "},
+                {OperatorName::MUL, " * "},
+                {OperatorName::SUB, " - "}
             };
         }
 
@@ -27,6 +38,10 @@ namespace mcc {
 
         OperatorType Operator::getType() const {
             return type;
+        }
+        
+        std::string Operator::toString() const {
+          return operatorName.at(name);
         }
     }
 }

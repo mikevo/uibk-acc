@@ -9,10 +9,13 @@
 
 #include <string>
 
-#include "mcc/tac/tac.h"
-
 namespace mcc {
     namespace tac {
+
+        enum Type {
+            NONE, INT, FLOAT, BOOL
+        };
+
         class Operand {
         public:
             Operand(Type t);

@@ -7,15 +7,27 @@
 #ifndef MCC_TAC_H
 #define MCC_TAC_H
 
-#include <vector>
+#include <list>
+#include <memory>
+#include <string>
+
+#include "mcc/tac/triple.h"
+#include "ast.h"
 
 namespace mcc {
-    namespace tac {
+  namespace tac {
 
-        enum Type {
-            NONE, INT, FLOAT, BOOL
-        };
-    }
+    class Tac {
+    public:
+      Tac();
+      void convertAst(ast::node &n);
+      void addLine(std::shared_ptr<Triple> triple);
+      std::string toString() const;
+
+    private:
+      std::list<std::shared_ptr<Triple>> codeLines;
+    };
+  }
 }
 
 #endif /* MCC_TAC_H */

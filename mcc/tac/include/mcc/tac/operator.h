@@ -8,6 +8,8 @@
 #ifndef MCC_TAC_OPERATION_H
 #define MCC_TAC_OPERATION_H
 
+#include <string>
+
 namespace mcc {
     namespace tac {
 
@@ -25,6 +27,7 @@ namespace mcc {
             Operator(OperatorName name);
             OperatorType getType() const;
             OperatorName getName() const;
+            std::string toString() const;
 
         private:
             const OperatorName name;
