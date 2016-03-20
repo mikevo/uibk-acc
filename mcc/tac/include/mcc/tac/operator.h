@@ -14,12 +14,12 @@ namespace mcc {
     namespace tac {
 
         enum OperatorType {
-            UNARY, BINARY
+            LINE, UNARY, BINARY
         };
 
         enum OperatorName {
             // INFO: add mapping in operatorMap (operator.cpp)
-            ADD, SUB, MUL, ASSIGN, LABLE, JUMP
+            NOP, ADD, SUB, MUL, ASSIGN, LABLE, JUMP
         };
 
         class Operator {

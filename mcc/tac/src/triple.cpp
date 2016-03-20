@@ -6,6 +6,11 @@ namespace mcc {
   namespace tac {
     unsigned Triple::nextId = 0;
 
+    Triple::Triple(std::shared_ptr<Operand> arg) :
+    Triple(Operator(OperatorName::NOP), arg) {
+      // TODO: check if it is a terminal
+    }
+    
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg) :
     Triple(op, arg, NULL) {
       // TODO: check if it is an unary operator;
@@ -39,7 +44,7 @@ namespace mcc {
     std::string Triple::toString() const {
       std::string output;
 
-      if (op.getType() == OperatorType::UNARY) {
+      if (op.getType() != OperatorType::BINARY) {
         output.append(op.toString());
         output.append(arg1.get()->getValue());
       }

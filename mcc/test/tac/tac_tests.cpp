@@ -14,7 +14,7 @@ namespace mcc {
       Tac tac;
       tac.convertAst(i);
 
-      EXPECT_EQ("ASSIGN " + std::to_string(testValue), tac.toString());
+      EXPECT_EQ(std::to_string(testValue), tac.toString());
     }
     
     TEST(Tac, FloatLiteral) {
@@ -24,7 +24,20 @@ namespace mcc {
       Tac tac;
       tac.convertAst(f);
 
-      EXPECT_EQ("ASSIGN " + std::to_string(testValue), tac.toString());
+      EXPECT_EQ(std::to_string(testValue), tac.toString());
+    }
+    
+    TEST(Tac, Variable) {
+      std::string testValue = "a";
+      
+      ast::variable var = ast::variable(
+              std::make_shared<ast::int_type>(),
+              testValue);
+      
+      Tac tac;
+      tac.convertAst(var);
+
+      EXPECT_EQ(testValue, tac.toString());
     }
   }
 }

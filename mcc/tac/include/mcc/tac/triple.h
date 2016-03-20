@@ -18,6 +18,7 @@ namespace mcc {
 
         class Triple : public Operand {
         public:
+            Triple(std::shared_ptr<Operand> arg);
             Triple(Operator op, std::shared_ptr<Operand> arg);
             Triple(Operator op, std::shared_ptr<Operand> arg1,
                     std::shared_ptr<Operand> arg2);

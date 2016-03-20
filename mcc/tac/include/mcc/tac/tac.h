@@ -21,7 +21,7 @@ namespace mcc {
     public:
       Tac();
       void convertAst(ast::node &n);
-      void addLine(std::shared_ptr<Triple> triple);
+      void addLine(std::shared_ptr<Operand> operand);
       std::string toString() const;
 
     private:
