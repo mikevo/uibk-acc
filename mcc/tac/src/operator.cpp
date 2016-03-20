@@ -22,7 +22,8 @@ namespace mcc {
         {OperatorName::JUMP, OperatorType::UNARY},
         {OperatorName::LABLE, OperatorType::UNARY},
         {OperatorName::MUL, OperatorType::BINARY},
-        {OperatorName::SUB, OperatorType::BINARY}
+        {OperatorName::SUB, OperatorType::BINARY},
+        {OperatorName::MINUS, OperatorType::UNARY}
       };
 
       const std::map<OperatorName, Type> operatorResultType{
@@ -39,7 +40,8 @@ namespace mcc {
         {OperatorName::JUMP, Type::NONE},
         {OperatorName::LABLE, Type::NONE},
         {OperatorName::MUL, Type::NONE},
-        {OperatorName::SUB, Type::NONE}
+        {OperatorName::SUB, Type::NONE},
+        {OperatorName::MINUS, Type::NONE}
       };
 
       const std::map<OperatorName, std::string> operatorName{
@@ -56,7 +58,8 @@ namespace mcc {
         {OperatorName::JUMP, "JUMP "},
         {OperatorName::LABLE, "LABLE "},
         {OperatorName::MUL, " * "},
-        {OperatorName::SUB, " - "}
+        {OperatorName::SUB, " - "},
+        {OperatorName::MINUS, "-"}
       };
     }
 

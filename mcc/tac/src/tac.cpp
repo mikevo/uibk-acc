@@ -16,7 +16,7 @@ namespace mcc {
   namespace tac {
     namespace {
 
-      static const std::map<ast::binary_operand, OperatorName> operatorMap{
+      static const std::map<ast::binary_operand, OperatorName> binaryOperatorMap{
         {ast::binary_operand::ADD, OperatorName::ADD},
         {ast::binary_operand::SUB, OperatorName::SUB},
         {ast::binary_operand::MUL, OperatorName::MUL},
@@ -28,6 +28,10 @@ namespace mcc {
         {ast::binary_operand::LT, OperatorName::LT},
         {ast::binary_operand::GT, OperatorName::GT},
         {ast::binary_operand::ASSIGN, OperatorName::ASSIGN}
+      };
+      
+      static const std::map<ast::unary_operand, OperatorName> unaryOperatorMap {
+        {ast::unary_operand::MINUS, OperatorName::MINUS}
       };
 
       Type convertType(ast::type& type) {
@@ -74,9 +78,22 @@ namespace mcc {
           auto rhs = convertNode(tac, v.get()->rhs);
 
           auto var = std::make_shared<Triple>(
-                  Operator(operatorMap.at(*v.get()->op.get())),
+                  Operator(binaryOperatorMap.at(*v.get()->op.get())),
                   lhs,
                   rhs);
+          
+          tac->addLine(var);
+
+          return var;
+        }
+        
+        if (typeid (*n.get()) == typeid (ast::unary_operation)) {
+          auto v = std::dynamic_pointer_cast<ast::unary_operation> (n);
+          auto lhs = convertNode(tac, v.get()->sub);
+
+          auto var = std::make_shared<Triple>(
+                  Operator(unaryOperatorMap.at(*v.get()->op.get())),
+                  lhs);
           
           tac->addLine(var);
 

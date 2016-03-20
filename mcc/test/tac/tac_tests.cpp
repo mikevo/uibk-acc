@@ -155,6 +155,18 @@ namespace mcc {
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::FLOAT, tac.codeLines.back().get()->getType());
     }
+    
+    TEST(Tac, Minus) {
+      auto tree = parser::parse(R"(-2;)");
+      
+      std::string expectedValue = "-2";
+       
+      Tac tac;
+      tac.convertAst(tree);
+
+      EXPECT_EQ(expectedValue, tac.toString());
+      EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
+    }
   }
 }
 
