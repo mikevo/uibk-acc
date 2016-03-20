@@ -10,30 +10,34 @@
 
 #include <string>
 
+#include "mcc/tac/type.h"
+
 namespace mcc {
-    namespace tac {
+  namespace tac {
 
-        enum OperatorType {
-            LINE, UNARY, BINARY
-        };
+    enum OperatorType {
+      LINE, UNARY, BINARY
+    };
 
-        enum OperatorName {
-            // INFO: add mapping in operatorMap (operator.cpp)
-            NOP, ADD, SUB, MUL, ASSIGN, LABLE, JUMP
-        };
+    enum OperatorName {
+      // INFO: add mapping in operatorMap (operator.cpp)
+      NOP, ADD, SUB, MUL, ASSIGN, LABLE, JUMP, DIV, EQ, NE, LE, GE, LT, GT
+    };
 
-        class Operator {
-        public:
-            Operator(OperatorName name);
-            OperatorType getType() const;
-            OperatorName getName() const;
-            std::string toString() const;
+    class Operator {
+    public:
+      Operator(OperatorName name);
+      OperatorType getType() const;
+      OperatorName getName() const;
+      Type getResultType() const;
+      std::string toString() const;
 
-        private:
-            const OperatorName name;
-            const OperatorType type;
-        };
-    }
+    private:
+      const OperatorName name;
+      const OperatorType type;
+      const Type resultType;
+    };
+  }
 }
 
 #endif /* MCC_TAC_OPERATION_H */

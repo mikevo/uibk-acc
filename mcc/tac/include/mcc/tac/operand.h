@@ -9,23 +9,23 @@
 
 #include <string>
 
+#include "mcc/tac/operator.h"
+#include "mcc/tac/type.h"
+
 namespace mcc {
-    namespace tac {
+  namespace tac {
 
-        enum Type {
-            NONE, INT, FLOAT, BOOL
-        };
-
-        class Operand {
-        public:
-            Operand(Type t);
-            virtual Type getType() const;
-            virtual void setType(Type t);
-            virtual std::string getValue() const = 0;
-        private:
-            Type t;
-        };
-    }
+    class Operand {
+    public:
+      Operand(Type t);
+      virtual void updateResultType(Operator op);
+      virtual Type getType() const;
+      virtual void setType(Type t);
+      virtual std::string getValue() const = 0;
+    private:
+      Type t;
+    };
+  }
 }
 
 #endif /* MCC_TAC_OPERAND_H */

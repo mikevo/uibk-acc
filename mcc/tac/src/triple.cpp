@@ -24,6 +24,8 @@ namespace mcc {
     op(op),
     basicBlockId(0),
     id(++nextId) {
+      this->updateResultType(op);
+      
       if (arg1 == NULL) {
         assert(false && "Missing argument");
       }

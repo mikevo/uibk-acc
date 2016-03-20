@@ -6,40 +6,64 @@
 #include <string>
 
 #include "ast.h"
+#include "parser.h"
 
 namespace mcc {
   namespace tac {
-
-    TEST(Tac, IntLiteral) {
-      int testValue = 42;
-      auto i = std::make_shared<ast::int_literal>(testValue);
+    
+    TEST(Tac, ADD) {
+      auto tree = parser::parse(R"(1 + 2;)");
       
+      std::string expectedValue = "1 + 2";
+       
       Tac tac;
-      tac.convertAst(i);
+      tac.convertAst(tree);
 
-      EXPECT_EQ(std::to_string(testValue), tac.toString());
+      EXPECT_EQ(expectedValue, tac.toString());
     }
     
-    TEST(Tac, FloatLiteral) {
-      float testValue = 42.0;
-      auto f = std::make_shared<ast::float_literal>(testValue);
+    TEST(Tac, SUB) {
+      auto tree = parser::parse(R"(1 - 2;)");
       
+      std::string expectedValue = "1 - 2";
+       
       Tac tac;
-      tac.convertAst(f);
+      tac.convertAst(tree);
 
-      EXPECT_EQ(std::to_string(testValue), tac.toString());
+      EXPECT_EQ(expectedValue, tac.toString());
     }
     
-    TEST(Tac, Variable) {
-      std::string testValue = "a";
-      auto type = std::make_shared<ast::int_type>();
+    TEST(Tac, MUL) {
+      auto tree = parser::parse(R"(1 * 2;)");
       
-      auto var = std::make_shared<ast::variable>(type, testValue);
-      
+      std::string expectedValue = "1 * 2";
+       
       Tac tac;
-      tac.convertAst(var);
+      tac.convertAst(tree);
 
-      EXPECT_EQ(testValue, tac.toString());
+      EXPECT_EQ(expectedValue, tac.toString());
+    }
+    
+    TEST(Tac, DIV) {
+      auto tree = parser::parse(R"(1 / 2;)");
+      
+      std::string expectedValue = "1 / 2";
+       
+      Tac tac;
+      tac.convertAst(tree);
+
+      EXPECT_EQ(expectedValue, tac.toString());
+    }
+    
+    TEST(Tac, Declatration) {
+      auto tree = parser::parse(R"(int a = 1;)");
+      
+      std::string expectedValue = "a = 1";
+       
+      Tac tac;
+      tac.convertAst(tree);
+
+      EXPECT_EQ(expectedValue, tac.toString());
     }
   }
 }
