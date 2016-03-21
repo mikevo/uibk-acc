@@ -108,6 +108,12 @@ namespace mcc {
 
           return convertNode(tac, v.get()->sub);
         }
+        
+        if (typeid (*n.get()) == typeid (ast::paren_expr)) {
+          auto v = std::dynamic_pointer_cast<ast::paren_expr> (n);
+
+          return convertNode(tac, v.get()->sub);
+        }
 
         if (typeid (*n.get()) == typeid (ast::decl_stmt)) {
           auto v = std::dynamic_pointer_cast<ast::decl_stmt> (n);
