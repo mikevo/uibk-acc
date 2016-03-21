@@ -4,14 +4,15 @@
  * Created on March 18, 2016, 11:02 PM
  */
 
-#ifndef MCC_TACTRIPLE_H
-#define MCC_TACTRIPLE_H
+#ifndef MCC_TAC_TRIPLE_H
+#define MCC_TAC_TRIPLE_H
 
 #include <string>
 #include <memory>
 
 #include "mcc/tac/operator.h"
 #include "mcc/tac/operand.h"
+#include "mcc/tac/operator.h"
 
 namespace mcc {
     namespace tac {
@@ -19,6 +20,7 @@ namespace mcc {
         class Triple : public Operand {
         public:
             Triple(std::shared_ptr<Operand> arg);
+            Triple(OperatorName op);
             Triple(Operator op, std::shared_ptr<Operand> arg);
             Triple(Operator op, std::shared_ptr<Operand> arg1,
                     std::shared_ptr<Operand> arg2);
@@ -40,6 +42,5 @@ namespace mcc {
     }
 }
 
-
-#endif /* MCC_TACTRIPLE_H */
+#endif /* MCC_TAC_TRIPLE_H */
 

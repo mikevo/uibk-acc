@@ -238,7 +238,7 @@ namespace mcc {
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(1, tac.codeLines.size());
     }
-    
+
     TEST(Tac, Parenthesis) {
       auto tree = parser::parse(R"(int a = (1 + 2) + 3;)");
 
@@ -257,7 +257,7 @@ namespace mcc {
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(2, tac.codeLines.size());
     }
-    
+
     TEST(Tac, Compound) {
       auto tree = parser::parse(R"({int a = 1 + 2; int b = 3;})");
 
@@ -272,6 +272,40 @@ namespace mcc {
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(2, tac.codeLines.size());
+    }
+
+    TEST(Tac, If) {
+      auto tree = parser::parse(R"(
+        {
+          int a = 0;
+          if( 1 <= 2) {
+            a = 1;
+          } else {
+            a = 2;
+          }
+        })");
+
+      Tac tac;
+      tac.convertAst(tree);
+
+      auto elem = tac.codeLines.begin();
+      elem++;
+
+      auto tempId = elem->get()->getId();
+      auto temp = "$t" + std::to_string(tempId);
+      auto label = "$L" + std::to_string(tempId + 1);
+
+
+
+      std::string expectedValue = "a = 0\n";
+      expectedValue.append(temp + " = 1 <= 2\n");
+      expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
+      expectedValue.append("a = 1\n");
+      expectedValue.append("LABEL " + label + "\n");
+      expectedValue.append("a = 2");
+
+      EXPECT_EQ(expectedValue, tac.toString());
+      EXPECT_EQ(6, tac.codeLines.size());
     }
   }
 }

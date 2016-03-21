@@ -31,8 +31,8 @@ namespace mcc {
       EXPECT_EQ(name, op.getName());
     }
 
-    TEST(Operator, LABLE) {
-      OperatorName name = OperatorName::LABLE;
+    TEST(Operator, LABEL) {
+      OperatorName name = OperatorName::LABEL;
       Operator op = Operator(name);
 
       EXPECT_EQ(OperatorType::UNARY, op.getType());

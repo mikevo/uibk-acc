@@ -13,11 +13,11 @@ namespace mcc {
       std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
       Operator op = Operator(OperatorName::ASSIGN);
 
-      Triple t1 = Triple(op, i);
+      Triple t1 = Triple(OperatorName::JUMP);
       Triple t2 = Triple(op, i);
-
-      EXPECT_EQ(1, t1.getId());
-      EXPECT_EQ(2, t2.getId());
+      
+      EXPECT_LT(0, t1.getId());
+      EXPECT_EQ(t1.getId() + 1, t2.getId());
     }
 
     TEST(Triple, Leaf) {
@@ -45,6 +45,15 @@ namespace mcc {
       Triple t = Triple(op, i);
 
       EXPECT_EQ("$t" + std::to_string(t.getId()), t.getValue());
+    }
+    
+    TEST(Triple, Type) {
+      std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+      Operator op = Operator(OperatorName::ASSIGN);
+
+      Triple t = Triple(op, i);
+
+      EXPECT_EQ(Type::INT, t.getType());
     }
   }
 }

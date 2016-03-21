@@ -17,6 +17,7 @@ namespace mcc {
 
     class Operand {
     public:
+      Operand();
       Operand(Type t);
       virtual void updateResultType(Operator op);
       virtual Type getType() const;

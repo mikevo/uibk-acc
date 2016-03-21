@@ -11,6 +11,7 @@
 #include "mcc/tac/int_literal.h"
 #include "mcc/tac/float_literal.h"
 #include "mcc/tac/variable.h"
+#include "mcc/tac/label.h"
 
 namespace mcc {
   namespace tac {
@@ -156,6 +157,31 @@ namespace mcc {
           return lhs;
         }
 
+        if (typeid (*n.get()) == typeid (ast::if_stmt)) {
+          auto stmt = std::dynamic_pointer_cast<ast::if_stmt> (n);
+
+          auto condition = convertNode(tac, stmt.get()->condition);
+
+          auto label = std::make_shared<Label>();
+          auto var = std::make_shared<Triple>(
+                  Operator(OperatorName::JUMPFALSE),
+                  condition,
+                  label
+                  );
+
+          tac->addLine(var);
+
+          convertNode(tac, stmt.get()->then_stmt);
+
+          tac->addLine(label);
+
+          if (stmt.get()->else_stmt != NULL) {
+            convertNode(tac, stmt.get()->else_stmt);
+          }
+
+          return NULL;
+        }
+
         std::cout << typeid (*n.get()).name() << std::endl;
         assert(false && "Unknown node type");
         return NULL;
@@ -170,15 +196,15 @@ namespace mcc {
     }
 
     void Tac::addLine(std::shared_ptr<Operand> operand) {
-      std::shared_ptr<Triple> line;
+      addLine(std::make_shared<Triple>(operand));
+    }
 
-      if (typeid (*operand.get()) == typeid (Triple)) {
-        line = std::dynamic_pointer_cast<Triple>(operand);
-      } else {
-        line = std::make_shared<Triple>(operand);
-      }
-
-      codeLines.push_back(line);
+    void Tac::addLine(std::shared_ptr<Triple> line) {
+      this->codeLines.push_back(line);
+    }
+    
+    void Tac::addLine(std::shared_ptr<Label> line) {
+      this->codeLines.push_back(line);
     }
 
     std::string Tac::toString() const {

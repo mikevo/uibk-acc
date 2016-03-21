@@ -20,7 +20,8 @@ namespace mcc {
         {OperatorName::LT, OperatorType::BINARY},
         {OperatorName::GT, OperatorType::BINARY},
         {OperatorName::JUMP, OperatorType::UNARY},
-        {OperatorName::LABLE, OperatorType::UNARY},
+        {OperatorName::JUMPFALSE, OperatorType::BINARY},
+        {OperatorName::LABEL, OperatorType::UNARY},
         {OperatorName::MUL, OperatorType::BINARY},
         {OperatorName::SUB, OperatorType::BINARY},
         {OperatorName::MINUS, OperatorType::UNARY}
@@ -37,8 +38,9 @@ namespace mcc {
         {OperatorName::GE, Type::BOOL},
         {OperatorName::LT, Type::BOOL},
         {OperatorName::GT, Type::BOOL},
-        {OperatorName::JUMP, Type::NONE},
-        {OperatorName::LABLE, Type::NONE},
+        {OperatorName::JUMP, Type::BOOL},
+        {OperatorName::JUMPFALSE, Type::BOOL},
+        {OperatorName::LABEL, Type::BOOL},
         {OperatorName::MUL, Type::NONE},
         {OperatorName::SUB, Type::NONE},
         {OperatorName::MINUS, Type::NONE}
@@ -56,7 +58,8 @@ namespace mcc {
         {OperatorName::LT, " < "},
         {OperatorName::GT, " > "},
         {OperatorName::JUMP, "JUMP "},
-        {OperatorName::LABLE, "LABLE "},
+        {OperatorName::JUMPFALSE, "JUMPFALSE "},
+        {OperatorName::LABEL, "LABEL "},
         {OperatorName::MUL, " * "},
         {OperatorName::SUB, " - "},
         {OperatorName::MINUS, "-"}

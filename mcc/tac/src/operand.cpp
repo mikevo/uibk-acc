@@ -3,6 +3,10 @@
 
 namespace mcc {
   namespace tac {
+    
+    Operand::Operand() : Operand(Type::NONE) {
+      
+    }
 
     Operand::Operand(Type t) : t(t) {
     }
