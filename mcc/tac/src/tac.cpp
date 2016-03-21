@@ -117,12 +117,23 @@ namespace mcc {
           if (initStmt != NULL) {
             auto rhs = convertNode(tac, v.get()->init_expr);
 
-            auto var = std::make_shared<Triple>(
-                    Operator(OperatorName::ASSIGN), lhs, rhs);
+            if (rhs.get()->isLeaf()) {
+              auto var = std::make_shared<Triple>(
+                      Operator(OperatorName::ASSIGN), lhs, rhs);
 
-            tac->addLine(var);
+              tac->addLine(var);
+              return var;
+            } else {
+              if (typeid (*rhs.get()) == typeid (Triple)) {
+                auto var = std::dynamic_pointer_cast<Triple> (rhs);
+                var.get()->setName(lhs.get()->getValue());
+                return var;
+              } else {
+                assert(false && "Unknown subtype");
+                return lhs;
+              }
+            }
 
-            return var;
           }
 
           tac->addLine(lhs);

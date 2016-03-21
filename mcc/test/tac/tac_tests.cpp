@@ -88,7 +88,7 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 != 2");
 
@@ -102,7 +102,7 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 <= 2");
 
@@ -116,7 +116,7 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 >= 2");
 
@@ -130,7 +130,7 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 < 2");
 
@@ -144,7 +144,7 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 > 2");
 
@@ -152,15 +152,15 @@ namespace mcc {
       EXPECT_EQ(Type::BOOL, tac.codeLines.back().get()->getType());
       EXPECT_EQ(1, tac.codeLines.size());
     }
-    
+
     TEST(Tac, DeclatrationInt) {
       auto tree = parser::parse(R"(int a;)");
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       auto tempVarName = tac.codeLines.front().get()->getValue();
-      
+
       std::string expectedValue = tempVarName;
 
       EXPECT_EQ(expectedValue, tac.toString());
@@ -175,7 +175,7 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(1, tac.codeLines.size());
@@ -186,14 +186,26 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
+      auto expectedValue = "a = 1 + 2";
+
+      EXPECT_EQ(expectedValue, tac.toString());
+      EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
+      EXPECT_EQ(1, tac.codeLines.size());
+    }
+
+    TEST(Tac, DeclatrationIntWithPlus2) {
+      auto tree = parser::parse(R"(int a = 1 + 2 + 3;)");
+
+      Tac tac;
+      tac.convertAst(tree);
+
       auto tempVarName = tac.codeLines.front().get()->getValue();
-      
+
       std::string expectedValue = tempVarName;
-      expectedValue.append(" = 1 + 2\n");
-      expectedValue.append("a = ");
+      expectedValue.append(" = 2 + 3\n");
+      expectedValue.append("a = 1 + ");
       expectedValue.append(tempVarName);
-//      auto expectedValue = "a = 1 + 2";
 
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
@@ -218,7 +230,7 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      
+
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = -2");
 
