@@ -7,6 +7,11 @@
 namespace mcc {
   namespace tac {
 
+    TEST(Variable, Leaf) {
+      Variable v = Variable(Type::INT, "testVar");
+      EXPECT_EQ(true, v.isLeaf());
+    }
+
     TEST(Variable, Type) {
       Variable v = Variable(Type::INT, "testVar");
       EXPECT_EQ(Type::INT, v.getType());

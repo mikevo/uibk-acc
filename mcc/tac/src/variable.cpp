@@ -5,6 +5,10 @@ namespace mcc {
 
     Variable::Variable(Type t, std::string name) : Operand(t), name(name) {
     }
+    
+    bool Variable::isLeaf() const {
+      return true;
+    }
 
     std::string Variable::getName() const {
       return name;

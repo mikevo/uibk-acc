@@ -16,6 +16,7 @@ namespace mcc {
         public:
             IntLiteral(int value);
             virtual std::string getValue() const;
+            virtual bool isLeaf() const;
             int value;
         };
     }

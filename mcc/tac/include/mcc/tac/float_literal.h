@@ -16,6 +16,7 @@ namespace mcc {
         public:
             FloatLiteral(float value);
             virtual std::string getValue() const;
+            virtual bool isLeaf() const;
             float value;
         };
     }

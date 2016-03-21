@@ -46,6 +46,10 @@ namespace mcc {
         this->name = name;
       }
     }
+    
+    bool Triple::isLeaf() const {
+      return false;
+    }
 
     unsigned Triple::getId() const {
       return id;
@@ -53,6 +57,11 @@ namespace mcc {
 
     std::string Triple::getName() const {
       return name;
+    }
+    
+    void Triple::setName(const std::string name) {
+      this->id = 0;
+      this->name = name;
     }
 
     std::string Triple::getValue() const {

@@ -22,6 +22,7 @@ namespace mcc {
       virtual Type getType() const;
       virtual void setType(Type t);
       virtual std::string getValue() const = 0;
+      virtual bool isLeaf() const = 0;
     private:
       Type t;
     };

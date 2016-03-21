@@ -19,6 +19,7 @@ namespace mcc {
             Variable(Type t, std::string name);
             virtual std::string getName() const;
             virtual std::string getValue() const;
+            virtual bool isLeaf() const;
             std::string name;
         };
     }

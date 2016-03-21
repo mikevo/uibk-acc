@@ -26,7 +26,9 @@ namespace mcc {
             Operator op;
             unsigned basicBlockId;
             std::string getName() const;
+            void setName(const std::string name);
             unsigned getId() const;
+            virtual bool isLeaf() const;
             virtual std::string getValue() const;
             virtual std::string toString() const;
 
