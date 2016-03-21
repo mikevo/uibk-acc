@@ -29,8 +29,8 @@ namespace mcc {
         {ast::binary_operand::GT, OperatorName::GT},
         {ast::binary_operand::ASSIGN, OperatorName::ASSIGN}
       };
-      
-      static const std::map<ast::unary_operand, OperatorName> unaryOperatorMap {
+
+      static const std::map<ast::unary_operand, OperatorName> unaryOperatorMap{
         {ast::unary_operand::MINUS, OperatorName::MINUS}
       };
 
@@ -49,6 +49,8 @@ namespace mcc {
 
       std::shared_ptr<Operand> convertNode(Tac *tac,
               std::shared_ptr<ast::node> n) {
+        //        std::cout << typeid (*n.get()).name() << std::endl;
+
         if (typeid (*n.get()) == typeid (ast::int_literal)) {
           int v = std::dynamic_pointer_cast<ast::int_literal> (n).get()->value;
 
@@ -63,6 +65,7 @@ namespace mcc {
         }
 
         if (typeid (*n.get()) == typeid (ast::variable)) {
+
           auto v = std::dynamic_pointer_cast<ast::variable> (n);
 
           auto var = std::make_shared<Variable>(
@@ -81,12 +84,12 @@ namespace mcc {
                   Operator(binaryOperatorMap.at(*v.get()->op.get())),
                   lhs,
                   rhs);
-          
+
           tac->addLine(var);
 
           return var;
         }
-        
+
         if (typeid (*n.get()) == typeid (ast::unary_operation)) {
           auto v = std::dynamic_pointer_cast<ast::unary_operation> (n);
           auto lhs = convertNode(tac, v.get()->sub);
@@ -94,35 +97,38 @@ namespace mcc {
           auto var = std::make_shared<Triple>(
                   Operator(unaryOperatorMap.at(*v.get()->op.get())),
                   lhs);
-          
+
           tac->addLine(var);
 
           return var;
         }
-        
+
         if (typeid (*n.get()) == typeid (ast::expr_stmt)) {
           auto v = std::dynamic_pointer_cast<ast::expr_stmt> (n);
 
           return convertNode(tac, v.get()->sub);
         }
-        
+
         if (typeid (*n.get()) == typeid (ast::decl_stmt)) {
           auto v = std::dynamic_pointer_cast<ast::decl_stmt> (n);
-          
+
           auto lhs = convertNode(tac, v.get()->var);
-          auto rhs = convertNode(tac, v.get()->init_expr);
+          auto initStmt = v.get()->init_expr;
+          if (initStmt != NULL) {
+            auto rhs = convertNode(tac, v.get()->init_expr);
 
-          auto var = std::make_shared<Triple>(
-                  Operator(OperatorName::ASSIGN),
-                  lhs,
-                  rhs);
-          
-          tac->addLine(var);
+            auto var = std::make_shared<Triple>(
+                    Operator(OperatorName::ASSIGN), lhs, rhs);
 
-          return var;
+            tac->addLine(var);
+
+            return var;
+          }
+
+          tac->addLine(lhs);
+
+          return lhs;
         }
-        
-        std::cout << typeid(*n.get()).name() << std::endl;
 
         assert(false && "Unknown node type");
         return NULL;
@@ -133,7 +139,7 @@ namespace mcc {
     }
 
     void Tac::convertAst(std::shared_ptr<ast::node> n) {
-      std::shared_ptr<Operand> operand = convertNode(this, n);
+      convertNode(this, n);
     }
 
     void Tac::addLine(std::shared_ptr<Operand> operand) {
@@ -156,7 +162,7 @@ namespace mcc {
               [&](auto const &line) {
                 output.append(line.get()->toString());
 
-                if (count > 0) {
+                if (codeLines.size() > 1 && count < codeLines.size() - 1) {
                   output.append("\n");
                 }
 

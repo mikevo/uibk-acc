@@ -23,7 +23,7 @@ namespace mcc {
       void convertAst(std::shared_ptr<ast::node> n);
       void addLine(std::shared_ptr<Operand> operand);
       std::string toString() const;
-      
+
       std::list<std::shared_ptr<Triple>> codeLines;
     };
   }

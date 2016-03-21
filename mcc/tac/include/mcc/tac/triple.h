@@ -25,13 +25,15 @@ namespace mcc {
             std::shared_ptr<Operand> arg1, arg2;
             Operator op;
             unsigned basicBlockId;
+            std::string getName() const;
             unsigned getId() const;
             virtual std::string getValue() const;
             virtual std::string toString() const;
 
         private:
             static unsigned nextId;
-            const unsigned id;
+            unsigned id;
+            std::string name;
         };
     }
 }

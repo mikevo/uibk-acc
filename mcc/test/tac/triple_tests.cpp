@@ -34,7 +34,7 @@ namespace mcc {
             
             Triple t = Triple(op, i);
             
-            EXPECT_EQ("t" + std::to_string(t.getId()), t.getValue());
+            EXPECT_EQ("$t" + std::to_string(t.getId()), t.getValue());
         }
     }
 }
