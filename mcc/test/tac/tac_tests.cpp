@@ -257,6 +257,22 @@ namespace mcc {
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(2, tac.codeLines.size());
     }
+    
+    TEST(Tac, Compound) {
+      auto tree = parser::parse(R"({int a = 1 + 2; int b = 3;})");
+
+      Tac tac;
+      tac.convertAst(tree);
+
+      auto tempVarName = tac.codeLines.front().get()->getValue();
+
+      std::string expectedValue = "a = 1 + 2\n";
+      expectedValue.append("b = 3");
+
+      EXPECT_EQ(expectedValue, tac.toString());
+      EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
+      EXPECT_EQ(2, tac.codeLines.size());
+    }
   }
 }
 

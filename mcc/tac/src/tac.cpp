@@ -49,8 +49,6 @@ namespace mcc {
 
       std::shared_ptr<Operand> convertNode(Tac *tac,
               std::shared_ptr<ast::node> n) {
-        //        std::cout << typeid (*n.get()).name() << std::endl;
-
         if (typeid (*n.get()) == typeid (ast::int_literal)) {
           int v = std::dynamic_pointer_cast<ast::int_literal> (n).get()->value;
 
@@ -108,11 +106,22 @@ namespace mcc {
 
           return convertNode(tac, v.get()->sub);
         }
-        
+
         if (typeid (*n.get()) == typeid (ast::paren_expr)) {
           auto v = std::dynamic_pointer_cast<ast::paren_expr> (n);
 
           return convertNode(tac, v.get()->sub);
+        }
+
+        if (typeid (*n.get()) == typeid (ast::compound_stmt)) {
+          auto v = std::dynamic_pointer_cast<ast::compound_stmt> (n);
+          auto statements = v.get()->statements;
+
+          std::for_each(statements.begin(), statements.end(), [&](auto const &s) {
+            convertNode(tac, s);
+          });
+
+          return NULL;
         }
 
         if (typeid (*n.get()) == typeid (ast::decl_stmt)) {
@@ -147,6 +156,7 @@ namespace mcc {
           return lhs;
         }
 
+        std::cout << typeid (*n.get()).name() << std::endl;
         assert(false && "Unknown node type");
         return NULL;
       }
