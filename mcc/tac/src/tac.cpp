@@ -49,21 +49,20 @@ namespace mcc {
       std::shared_ptr<Operand> convertNode(Tac *tac,
           std::shared_ptr<ast::node> n) {
         if (typeid (*n.get()) == typeid(ast::int_literal)) {
-          int v = std::dynamic_pointer_cast<ast::int_literal>(n).get()->value;
+          int v = std::static_pointer_cast<ast::int_literal>(n).get()->value;
 
           return std::make_shared<IntLiteral>(v);
         }
 
         if (typeid (*n.get()) == typeid(ast::float_literal)) {
-          float v =
-              std::dynamic_pointer_cast<ast::float_literal>(n).get()->value;
+          float v = std::static_pointer_cast<ast::float_literal>(n).get()->value;
 
           return std::make_shared<FloatLiteral>(v);
         }
 
         if (typeid (*n.get()) == typeid(ast::variable)) {
 
-          auto v = std::dynamic_pointer_cast<ast::variable>(n);
+          auto v = std::static_pointer_cast<ast::variable>(n);
 
           auto var = std::make_shared<Variable>(
               convertType(*v.get()->var_type.get()), v.get()->name);
@@ -72,7 +71,7 @@ namespace mcc {
         }
 
         if (typeid (*n.get()) == typeid(ast::binary_operation)) {
-          auto v = std::dynamic_pointer_cast<ast::binary_operation>(n);
+          auto v = std::static_pointer_cast<ast::binary_operation>(n);
 
           auto lhs = convertNode(tac, v.get()->lhs);
           auto rhs = convertNode(tac, v.get()->rhs);
@@ -86,7 +85,7 @@ namespace mcc {
         }
 
         if (typeid (*n.get()) == typeid(ast::unary_operation)) {
-          auto v = std::dynamic_pointer_cast<ast::unary_operation>(n);
+          auto v = std::static_pointer_cast<ast::unary_operation>(n);
           auto lhs = convertNode(tac, v.get()->sub);
 
           auto var = std::make_shared<Triple>(
@@ -98,19 +97,19 @@ namespace mcc {
         }
 
         if (typeid (*n.get()) == typeid(ast::expr_stmt)) {
-          auto v = std::dynamic_pointer_cast<ast::expr_stmt>(n);
+          auto v = std::static_pointer_cast<ast::expr_stmt>(n);
 
           return convertNode(tac, v.get()->sub);
         }
 
         if (typeid (*n.get()) == typeid(ast::paren_expr)) {
-          auto v = std::dynamic_pointer_cast<ast::paren_expr>(n);
+          auto v = std::static_pointer_cast<ast::paren_expr>(n);
 
           return convertNode(tac, v.get()->sub);
         }
 
         if (typeid (*n.get()) == typeid(ast::compound_stmt)) {
-          auto v = std::dynamic_pointer_cast<ast::compound_stmt>(n);
+          auto v = std::static_pointer_cast<ast::compound_stmt>(n);
           auto statements = v.get()->statements;
 
           std::for_each(statements.begin(), statements.end(),
@@ -122,7 +121,7 @@ namespace mcc {
         }
 
         if (typeid (*n.get()) == typeid(ast::decl_stmt)) {
-          auto v = std::dynamic_pointer_cast<ast::decl_stmt>(n);
+          auto v = std::static_pointer_cast<ast::decl_stmt>(n);
 
           auto lhs = convertNode(tac, v.get()->var);
           auto initStmt = v.get()->init_expr;
@@ -137,7 +136,7 @@ namespace mcc {
               return var;
             } else {
               if (typeid (*rhs.get()) == typeid(Triple)) {
-                auto var = std::dynamic_pointer_cast<Triple>(rhs);
+                auto var = std::static_pointer_cast<Triple>(rhs);
                 var.get()->setName(lhs.get()->getValue());
                 return var;
               } else {
@@ -154,7 +153,7 @@ namespace mcc {
         }
 
         if (typeid (*n.get()) == typeid(ast::if_stmt)) {
-          auto stmt = std::dynamic_pointer_cast<ast::if_stmt>(n);
+          auto stmt = std::static_pointer_cast<ast::if_stmt>(n);
 
           auto condition = convertNode(tac, stmt.get()->condition);
 
@@ -204,7 +203,7 @@ namespace mcc {
       std::string output;
 
       unsigned count = 0;
-      std::for_each(codeLines.begin(), codeLines.end(),
+      std::for_each(std::begin(codeLines), std::end(codeLines),
           [&](std::shared_ptr<Triple> const &line) {
             output.append(line.get()->toString());
 
@@ -212,7 +211,8 @@ namespace mcc {
               output.append("\n");
             }
 
-            count++;
+            ++count;
+            
           });
 
       return output;

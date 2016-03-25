@@ -3,8 +3,9 @@
 namespace mcc {
   namespace tac {
 
-    IntLiteral::IntLiteral(int value) : Operand(Type::INT) {
-      this->value = value;
+    IntLiteral::IntLiteral(int value) : 
+        Operand(Type::INT),
+        value(value) {
     }
 
     bool IntLiteral::isLeaf() const {
