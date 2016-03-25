@@ -18,8 +18,8 @@ namespace mcc {
         public:
             Variable(Type t, std::string name);
             virtual std::string getName() const;
-            virtual std::string getValue() const;
-            virtual bool isLeaf() const;
+            virtual std::string getValue() const override;
+            virtual bool isLeaf() const override;
             std::string name;
         };
     }

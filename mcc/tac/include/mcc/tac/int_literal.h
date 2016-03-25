@@ -15,8 +15,8 @@ namespace mcc {
         class IntLiteral : public Operand {
         public:
             IntLiteral(int value);
-            virtual std::string getValue() const;
-            virtual bool isLeaf() const;
+            virtual std::string getValue() const override final;
+            virtual bool isLeaf() const override final;
             int value;
         };
     }

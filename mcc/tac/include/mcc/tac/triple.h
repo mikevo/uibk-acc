@@ -30,8 +30,8 @@ namespace mcc {
             std::string getName() const;
             void setName(const std::string name);
             unsigned getId() const;
-            virtual bool isLeaf() const;
-            virtual std::string getValue() const;
+            virtual bool isLeaf() const override;
+            virtual std::string getValue() const override;
             virtual std::string toString() const;
 
         private:

@@ -17,7 +17,7 @@ namespace mcc {
         class Label : public Triple {
         public:
             Label();
-            virtual bool isLeaf() const;
+            virtual bool isLeaf() const override final;
         };
     }
 }

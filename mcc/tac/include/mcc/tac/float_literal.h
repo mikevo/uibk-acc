@@ -15,8 +15,8 @@ namespace mcc {
         class FloatLiteral : public Operand {
         public:
             FloatLiteral(float value);
-            virtual std::string getValue() const;
-            virtual bool isLeaf() const;
+            virtual std::string getValue() const override final;
+            virtual bool isLeaf() const override final;
             float value;
         };
     }
