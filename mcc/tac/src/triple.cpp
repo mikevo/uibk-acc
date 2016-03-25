@@ -15,12 +15,12 @@ namespace mcc {
       // TODO: check if it is a terminal
     }
 
-    Triple::Triple(OperatorName op) : Triple(Operator(op), NULL) {
+    Triple::Triple(OperatorName op) : Triple(Operator(op), nullptr) {
 
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg) :
-    Triple(op, arg, NULL) {
+    Triple(op, arg, nullptr) {
       // TODO: check if it is an unary operator;
     }
 
@@ -31,17 +31,17 @@ namespace mcc {
     op(op),
     basicBlockId(0),
     id(0) {
-      if (arg1 != NULL) {
+      if (arg1 != nullptr) {
         this->setType(arg1->getType());
       }
 
       this->updateResultType(op);
 
-      if (arg2 != NULL) {
+      if (arg2 != nullptr) {
         assert((arg1->getType() == arg2->getType()) && "Type miss match");
       }
 
-      if (arg1 != NULL) {
+      if (arg1 != nullptr) {
         if (typeid (*arg1.get()) == typeid (Variable)) {
           this->name = arg1.get()->getValue();
         } else {
@@ -73,6 +73,14 @@ namespace mcc {
     std::string Triple::getValue() const {
       return getName();
     }
+    
+     unsigned Triple::getBasicBlockId() const {
+         return basicBlockId;
+     }
+     
+     void Triple::setBasicBlockId(unsigned blockId) {
+         basicBlockId = blockId;
+     }
 
     std::string Triple::toString() const {
       std::string output;
@@ -95,7 +103,7 @@ namespace mcc {
       }
 
       if ((name != arg1.get()->getValue())
-              || ((op.getName() != OperatorName::ASSIGN) && (arg2 != NULL))) {
+              || ((op.getName() != OperatorName::ASSIGN) && (arg2 != nullptr))) {
         output.append(name);
         auto assignOp = Operator(OperatorName::ASSIGN);
         output.append(assignOp.toString());
@@ -104,11 +112,11 @@ namespace mcc {
       if (op.getType() != OperatorType::BINARY) {
         output.append(op.toString());
         output.append(arg1.get()->getValue());
-      } else if (arg2 == NULL) {
+      } else if (arg2 == nullptr) {
         output.append(arg1.get()->getValue());
       }
 
-      if (arg2 != NULL) {
+      if (arg2 != nullptr) {
         output.append(arg1.get()->getValue());
         output.append(op.toString());
         output.append(arg2.get()->getValue());

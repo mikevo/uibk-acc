@@ -139,7 +139,7 @@ namespace mcc {
                                 convertNode(tac, s);
                             });
 
-                    return NULL;
+                    return nullptr;
                 }
 
                 if (typeid (*n.get()) == typeid (ast::decl_stmt)) {
@@ -147,7 +147,7 @@ namespace mcc {
 
                     auto lhs = convertNode(tac, v.get()->var);
                     auto initStmt = v.get()->init_expr;
-                    if (initStmt != NULL) {
+                    if (initStmt != nullptr) {
                         auto rhs = convertNode(tac, v.get()->init_expr);
 
                         if (rhs.get()->isLeaf()) {
@@ -182,27 +182,30 @@ namespace mcc {
                     auto label = std::make_shared<Label>();
                     auto var = std::make_shared<Triple>(Operator(OperatorName::JUMPFALSE),
                             condition, label);
-
+                    
+                    
                     tac->addLine(var);
+                    tac->nextBasicBlock();
 
                     convertNode(tac, stmt.get()->then_stmt);
-
+                    
                     tac->addLine(label);
+                    tac->nextBasicBlock();
 
-                    if (stmt.get()->else_stmt != NULL) {
+                    if (stmt.get()->else_stmt != nullptr) {
                         convertNode(tac, stmt.get()->else_stmt);
                     }
 
-                    return NULL;
+                    return nullptr;
                 }
 
                 std::cout << typeid (*n.get()).name() << std::endl;
                 assert(false && "Unknown node type");
-                return NULL;
+                return nullptr;
             }
         }
 
-        Tac::Tac() {
+        Tac::Tac() : currBasicBlockId(0) {
         }
 
         void Tac::convertAst(std::shared_ptr<ast::node> n) {
@@ -214,17 +217,23 @@ namespace mcc {
         }
 
         void Tac::addLine(std::shared_ptr<Triple> line) {
+            line->setBasicBlockId(currBasicBlockId);
             this->codeLines.push_back(line);
         }
 
         void Tac::addLine(std::shared_ptr<Label> line) {
+            line->setBasicBlockId(currBasicBlockId);
             this->codeLines.push_back(line);
+        }
+        
+        void Tac::nextBasicBlock() {
+            ++currBasicBlockId;
         }
 
         std::string Tac::toString() const {
-            std::string output;
+        std::string output;
 
-            unsigned count = 0;
+        unsigned count = 0;
 
             for (auto &line : codeLines) {
                 output.append(line.get()->toString());

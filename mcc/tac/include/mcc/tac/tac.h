@@ -26,9 +26,13 @@ namespace mcc {
       void addLine(std::shared_ptr<Operand> line);
       void addLine(std::shared_ptr<Triple> line);
       void addLine(std::shared_ptr<Label> line);
+      void nextBasicBlock();
+      
       std::string toString() const;
-
       std::list<std::shared_ptr<Triple>> codeLines;
+      
+    private:
+        unsigned currBasicBlockId;
     };
   }
 }
