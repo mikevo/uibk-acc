@@ -273,8 +273,8 @@ namespace mcc {
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(2, tac.codeLines.size());
     }
-
-    TEST(Tac, If) {
+    
+     TEST(Tac, If) {
       auto tree = parser::parse(R"(
         {
           int a = 0;
@@ -294,18 +294,26 @@ namespace mcc {
       auto tempId = elem->get()->getId();
       auto temp = "$t" + std::to_string(tempId);
       auto label = "$L" + std::to_string(tempId + 1);
-
-
+      
+      elem++;
+      elem++;
+      elem++;
+      
+      auto tempId2 = elem->get()->getId();
+      auto temp2 = "$t" + std::to_string(tempId2);
+      auto label2 = "$L" + std::to_string(tempId2 - 1);
 
       std::string expectedValue = "a = 0\n";
       expectedValue.append(temp + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
       expectedValue.append("a = 1\n");
+      expectedValue.append(temp2 + " = JUMP " + label2 + "\n");
       expectedValue.append("LABEL " + label + "\n");
-      expectedValue.append("a = 2");
+      expectedValue.append("a = 2\n");
+      expectedValue.append("LABEL " + label2);
 
       EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(6, tac.codeLines.size());
+      EXPECT_EQ(8, tac.codeLines.size());
     }
   }
 }

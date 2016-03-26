@@ -179,9 +179,9 @@ namespace mcc {
 
                     auto condition = convertNode(tac, stmt.get()->condition);
 
-                    auto label = std::make_shared<Label>();
+                    auto falseLabel = std::make_shared<Label>();
                     auto var = std::make_shared<Triple>(Operator(OperatorName::JUMPFALSE),
-                            condition, label);
+                            condition, falseLabel);
                     
                     
                     tac->addLine(var);
@@ -189,11 +189,23 @@ namespace mcc {
 
                     convertNode(tac, stmt.get()->then_stmt);
                     
-                    tac->addLine(label);
+                    std::shared_ptr<Label> trueLabel;
+                    
+                    if (stmt.get()->else_stmt != nullptr) {
+                        trueLabel = std::make_shared<Label>();
+                        auto trueJump = std::make_shared<Triple>(Operator(OperatorName::JUMP), trueLabel);
+                        tac->addLine(trueJump);
+                    }
+                    
+                   
+                    tac->addLine(falseLabel);
                     tac->nextBasicBlock();
+
 
                     if (stmt.get()->else_stmt != nullptr) {
                         convertNode(tac, stmt.get()->else_stmt);
+                        tac->addLine(trueLabel);
+                        tac->nextBasicBlock();
                     }
 
                     return nullptr;
@@ -225,15 +237,37 @@ namespace mcc {
             line->setBasicBlockId(currBasicBlockId);
             this->codeLines.push_back(line);
         }
-        
+
         void Tac::nextBasicBlock() {
             ++currBasicBlockId;
         }
 
-        std::string Tac::toString() const {
-        std::string output;
+        void Tac::createBasicBlockIndex() {
 
-        unsigned count = 0;
+            basicBlockIndex.clear();
+
+            std::shared_ptr<Triple> blockBegin = codeLines.front();
+            std::shared_ptr<Triple> lastTriple;
+            
+            for(auto& triple : codeLines) {
+                if(triple.get()->basicBlockId != blockBegin.get()->basicBlockId) {
+                    basicBlockIndex.push_back(BasicBlock(blockBegin, lastTriple));
+                    blockBegin = triple;
+                }
+                
+                lastTriple = triple;
+                
+            }
+            
+            //Add last block
+            basicBlockIndex.push_back(BasicBlock(blockBegin, codeLines.back()));
+           
+        }
+
+        std::string Tac::toString() const {
+            std::string output;
+
+            unsigned count = 0;
 
             for (auto &line : codeLines) {
                 output.append(line.get()->toString());
@@ -246,6 +280,14 @@ namespace mcc {
             }
 
             return output;
+        }
+        
+        unsigned Tac::basicBlockCount() {
+            return basicBlockIndex.size();
+        }
+        
+        const std::vector<BasicBlock>& Tac::getBasicBlockIndex() const {
+            return basicBlockIndex;
         }
     }
 }
