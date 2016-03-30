@@ -85,11 +85,23 @@ namespace mcc {
                 if (typeid (*n.get()) == typeid (ast::variable)) {
 
                     auto v = std::static_pointer_cast<ast::variable>(n);
+                    signed scopeLevel = tac->getCurrentScope();
 
-                    auto var = std::make_shared<Variable>(
-                            convertType(*v.get()->var_type.get()), v.get()->name);
+                    while (scopeLevel >= 0) {
 
-                    return var;
+                        auto key = std::make_pair(v->name, scopeLevel);
+                        auto mapVar = tac->getVarTable().find(key);
+
+                        if (mapVar != tac->getVarTable().end()) {
+                            return mapVar->second;
+                        }
+
+                        --scopeLevel;
+
+                    }
+                    
+                    assert(false && "Usage of undeclared variabel");
+
                 }
 
                 if (typeid (*n.get()) == typeid (ast::binary_operation)) {
@@ -126,11 +138,11 @@ namespace mcc {
 
                 if (typeid (*n.get()) == typeid (ast::paren_expr)) {
                     auto v = std::static_pointer_cast<ast::paren_expr>(n);
-
                     return convertNode(tac, v.get()->sub);
                 }
 
                 if (typeid (*n.get()) == typeid (ast::compound_stmt)) {
+                    tac->enterScope();
                     auto v = std::static_pointer_cast<ast::compound_stmt>(n);
                     auto statements = v.get()->statements;
 
@@ -139,13 +151,19 @@ namespace mcc {
                                 convertNode(tac, s);
                             });
 
+                    tac->leaveScope();
                     return nullptr;
                 }
 
                 if (typeid (*n.get()) == typeid (ast::decl_stmt)) {
                     auto v = std::static_pointer_cast<ast::decl_stmt>(n);
+                    auto tempVar = v.get()->var;
 
-                    auto lhs = convertNode(tac, v.get()->var);
+                    auto lhs =  std::make_shared<Variable>(
+                            convertType(*tempVar.get()->var_type.get()), tempVar.get()->name);
+                    
+                    tac->addToVarTable(std::make_pair(lhs->getName(),tac->getCurrentScope()), lhs);
+                    
                     auto initStmt = v.get()->init_expr;
                     if (initStmt != nullptr) {
                         auto rhs = convertNode(tac, v.get()->init_expr);
@@ -182,25 +200,23 @@ namespace mcc {
                     auto falseLabel = std::make_shared<Label>();
                     auto var = std::make_shared<Triple>(Operator(OperatorName::JUMPFALSE),
                             condition, falseLabel);
-                    
-                    
+
+
                     tac->addLine(var);
                     tac->nextBasicBlock();
 
                     convertNode(tac, stmt.get()->then_stmt);
-                    
+
                     std::shared_ptr<Label> trueLabel;
-                    
+
                     if (stmt.get()->else_stmt != nullptr) {
                         trueLabel = std::make_shared<Label>();
                         auto trueJump = std::make_shared<Triple>(Operator(OperatorName::JUMP), trueLabel);
                         tac->addLine(trueJump);
                     }
-                    
-                   
+
                     tac->addLine(falseLabel);
                     tac->nextBasicBlock();
-
 
                     if (stmt.get()->else_stmt != nullptr) {
                         convertNode(tac, stmt.get()->else_stmt);
@@ -217,7 +233,7 @@ namespace mcc {
             }
         }
 
-        Tac::Tac() : currBasicBlockId(0) {
+        Tac::Tac() : currentBasicBlock(0), currentScope(0) {
         }
 
         void Tac::convertAst(std::shared_ptr<ast::node> n) {
@@ -229,17 +245,25 @@ namespace mcc {
         }
 
         void Tac::addLine(std::shared_ptr<Triple> line) {
-            line->setBasicBlockId(currBasicBlockId);
+            line->setBasicBlockId(currentBasicBlock);
             this->codeLines.push_back(line);
         }
 
         void Tac::addLine(std::shared_ptr<Label> line) {
-            line->setBasicBlockId(currBasicBlockId);
+            line->setBasicBlockId(currentBasicBlock);
             this->codeLines.push_back(line);
         }
 
         void Tac::nextBasicBlock() {
-            ++currBasicBlockId;
+            ++currentBasicBlock;
+        }
+
+        void Tac::enterScope() {
+            ++currentScope;
+        }
+
+        void Tac::leaveScope() {
+            --currentScope;
         }
 
         void Tac::createBasicBlockIndex() {
@@ -248,20 +272,20 @@ namespace mcc {
 
             std::shared_ptr<Triple> blockBegin = codeLines.front();
             std::shared_ptr<Triple> lastTriple;
-            
-            for(auto& triple : codeLines) {
-                if(triple.get()->basicBlockId != blockBegin.get()->basicBlockId) {
+
+            for (auto& triple : codeLines) {
+                if (triple.get()->basicBlockId != blockBegin.get()->basicBlockId) {
                     basicBlockIndex.push_back(BasicBlock(blockBegin, lastTriple));
                     blockBegin = triple;
                 }
-                
+
                 lastTriple = triple;
-                
+
             }
-            
+
             //Add last block
             basicBlockIndex.push_back(BasicBlock(blockBegin, codeLines.back()));
-           
+
         }
 
         std::string Tac::toString() const {
@@ -281,13 +305,26 @@ namespace mcc {
 
             return output;
         }
-        
+
         unsigned Tac::basicBlockCount() {
             return basicBlockIndex.size();
         }
-        
+
         const std::vector<BasicBlock>& Tac::getBasicBlockIndex() const {
             return basicBlockIndex;
+        }
+
+        const std::map<VarTableKey, VarTableValue>& Tac::getVarTable() {
+            return varTable;
+        }
+
+        void Tac::addToVarTable(VarTableKey key, VarTableValue value) {
+
+            varTable.insert(std::make_pair(key, value));
+        }
+
+        signed Tac::getCurrentScope() {
+            return currentScope;
         }
     }
 }
