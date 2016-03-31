@@ -15,7 +15,7 @@ namespace ast {
 		virtual bool operator==(const node& other) const = 0;
 		virtual std::ostream& print_to(std::ostream& stream) const = 0;
 
-		bool operator!=(const node& other) const;;
+		bool operator!=(const node& other) const;
 	};
 
 	struct type : public node {};
@@ -87,7 +87,8 @@ namespace ast {
 	};
 
 	enum class unary_operand {
-		MINUS
+		MINUS,
+		NOT
 	};
 
 	// non-terminals ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
