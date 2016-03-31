@@ -140,7 +140,7 @@ namespace ast {
 		sptr<statement> else_stmt;
 		if_stmt(sptr<expression> condition, sptr<statement> then_stmt, sptr<statement> else_stmt)
 			: condition(condition), then_stmt(then_stmt), else_stmt(else_stmt) {}
-		if_stmt(sptr<expression> condition, sptr<statement> then_stmt) : if_stmt(condition, then_stmt, std::make_shared<compound_stmt>()) {}
+		if_stmt(sptr<expression> condition, sptr<statement> then_stmt) : if_stmt(condition, then_stmt, nullptr) {}
 		virtual bool operator==(const node& other) const;
 		virtual std::ostream& print_to(std::ostream& stream) const;
 	};

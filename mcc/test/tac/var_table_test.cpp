@@ -55,7 +55,6 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      std::cout << tac.toString();
 
       EXPECT_EQ(tac.getVarTable().size(), 3);
       
@@ -64,7 +63,7 @@ namespace mcc {
       auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[2]->arg1);
      
       EXPECT_NE(x1.get(), x2.get());
-      EXPECT_NE(x1.get(), x2.get());
+      EXPECT_NE(x1.get(), x3.get());
       EXPECT_NE(x2.get(), x3.get());
       
       EXPECT_EQ(Type::INT, x1->getType());

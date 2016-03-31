@@ -209,7 +209,7 @@ namespace mcc {
 
                     std::shared_ptr<Label> trueLabel;
 
-                    if (stmt.get()->else_stmt != nullptr) {
+                    if (stmt->else_stmt != nullptr) {
                         trueLabel = std::make_shared<Label>();
                         auto trueJump = std::make_shared<Triple>(Operator(OperatorName::JUMP), trueLabel);
                         tac->addLine(trueJump);
@@ -218,7 +218,7 @@ namespace mcc {
                     tac->addLine(falseLabel);
                     tac->nextBasicBlock();
 
-                    if (stmt.get()->else_stmt != nullptr) {
+                    if (stmt->else_stmt != nullptr) {
                         convertNode(tac, stmt.get()->else_stmt);
                         tac->addLine(trueLabel);
                         tac->nextBasicBlock();
