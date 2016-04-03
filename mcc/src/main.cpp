@@ -3,6 +3,9 @@
 #include <sstream>
 
 #include "mcc/main.h"
+#include "mcc/tac/tac.h"
+
+using namespace mcc::tac;
 
 int main(int argc, char** argv) {
 
@@ -20,4 +23,10 @@ int main(int argc, char** argv) {
 
 	formatted_ostream out(std::cout);
 	out << "Parsed:\n" << tree << "\n";
+    
+    // three adress code
+    Tac tac;
+    tac.convertAst(tree);
+	std::cout << "Three-Adress Code:" << std::endl;
+    std::cout << tac.toString() << std::endl;
 }

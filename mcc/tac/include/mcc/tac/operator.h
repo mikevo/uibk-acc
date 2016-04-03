@@ -21,7 +21,7 @@ namespace mcc {
 
     enum class OperatorName {
       // INFO: add mapping in operatorMap (operator.cpp)
-      NOP, ADD, SUB, MUL, ASSIGN, LABEL, JUMP, JUMPFALSE, DIV, EQ, NE, LE, GE, LT, GT, MINUS
+      NOP, ADD, SUB, MUL, ASSIGN, LABEL, JUMP, JUMPFALSE, DIV, EQ, NE, LE, GE, LT, GT, MINUS, NOT
     };
 
     class Operator {

@@ -239,6 +239,31 @@ namespace mcc {
       EXPECT_EQ(1, tac.codeLines.size());
     }
 
+    TEST(Tac, Not) {
+      auto tree = parser::parse(R"(!(1==2);)");
+
+      Tac tac;
+      tac.convertAst(tree);
+
+      auto elem = tac.codeLines.begin();
+      
+      auto tempId = elem->get()->getId();
+      auto temp = "$t" + std::to_string(tempId);
+      elem++;
+      auto tempId2 = elem->get()->getId();
+      auto temp2 = "$t" + std::to_string(tempId2);
+      
+      std::string expectedValue = temp;
+      expectedValue.append(" = 1 == 2\n");
+      expectedValue.append(temp2);
+      expectedValue.append(" = !");
+      expectedValue.append(temp);
+
+      EXPECT_EQ(expectedValue, tac.toString());
+      EXPECT_EQ(Type::BOOL, tac.codeLines.back().get()->getType());
+      EXPECT_EQ(2, tac.codeLines.size());
+    }
+
     TEST(Tac, Parenthesis) {
       auto tree = parser::parse(R"(int a = (1 + 2) + 3;)");
 

@@ -5,14 +5,13 @@ namespace mcc {
   namespace tac {
     
     Operand::Operand() : Operand(Type::NONE) {
-      
     }
 
     Operand::Operand(Type t) : t(t) {
     }
 
     void Operand::updateResultType(Operator op) {
-      if (op.getResultType() != Type::NONE) {
+      if (op.getResultType() != Type::AUTO) {
         t = op.getResultType();
       }
     }

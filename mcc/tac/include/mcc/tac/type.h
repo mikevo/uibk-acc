@@ -17,7 +17,7 @@ namespace mcc {
   namespace tac {
 
     enum Type {
-      NONE, INT, FLOAT, BOOL
+      NONE, AUTO, INT, FLOAT, BOOL
     };
   }
 }

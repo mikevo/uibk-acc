@@ -16,7 +16,6 @@ namespace mcc {
     }
 
     Triple::Triple(OperatorName op) : Triple(Operator(op), nullptr) {
-
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg) :
@@ -26,6 +25,7 @@ namespace mcc {
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg1,
             std::shared_ptr<Operand> arg2) :
+    Operand(),
     arg1(arg1),
     arg2(arg2),
     op(op),
@@ -38,12 +38,12 @@ namespace mcc {
       this->updateResultType(op);
 
       if (arg2 != nullptr) {
-        assert((arg1->getType() == arg2->getType()) && "Type miss match");
+        assert((arg1->getType() == arg2->getType()) && "Type mismatch");
       }
 
       if (arg1 != nullptr) {
         if (typeid (*arg1.get()) == typeid (Variable)) {
-          this->name = arg1.get()->getValue();
+          this->name = arg1.get()->getValue(); // in this case getValue returns the variable name
         } else {
           id = ++nextId;
           this->name = "$t" + std::to_string(id);

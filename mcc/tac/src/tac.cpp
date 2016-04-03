@@ -18,41 +18,22 @@ namespace mcc {
         namespace {
 
             static const std::map<ast::binary_operand, OperatorName> binaryOperatorMap{
-                { ast::binary_operand::ADD, OperatorName::ADD},
-                {
-                    ast::binary_operand::SUB, OperatorName::SUB
-                },
-                {
-                    ast::binary_operand::MUL, OperatorName::MUL
-                },
-                {
-                    ast::binary_operand::DIV, OperatorName::DIV
-                },
-                {
-                    ast::binary_operand::EQ, OperatorName::EQ
-                },
-                {
-                    ast::binary_operand::NE, OperatorName::NE
-                },
-                {
-                    ast::binary_operand::LE, OperatorName::LE
-                },
-                {
-                    ast::binary_operand::GE, OperatorName::GE
-                },
-                {
-                    ast::binary_operand::LT, OperatorName::LT
-                },
-                {
-                    ast::binary_operand::GT, OperatorName::GT
-                },
-                {
-                    ast::binary_operand::ASSIGN, OperatorName::ASSIGN
-                }
+                { ast::binary_operand::ADD, OperatorName::ADD },
+                { ast::binary_operand::SUB, OperatorName::SUB },
+                { ast::binary_operand::MUL, OperatorName::MUL },
+                { ast::binary_operand::DIV, OperatorName::DIV },
+                { ast::binary_operand::EQ, OperatorName::EQ },
+                { ast::binary_operand::NE, OperatorName::NE },
+                { ast::binary_operand::LE, OperatorName::LE },
+                { ast::binary_operand::GE, OperatorName::GE },
+                { ast::binary_operand::LT, OperatorName::LT },
+                { ast::binary_operand::GT, OperatorName::GT },
+                { ast::binary_operand::ASSIGN, OperatorName::ASSIGN }
             };
 
             static const std::map<ast::unary_operand, OperatorName> unaryOperatorMap{
-                { ast::unary_operand::MINUS, OperatorName::MINUS}
+                { ast::unary_operand::MINUS, OperatorName::MINUS },
+                { ast::unary_operand::NOT, OperatorName::NOT }
             };
 
             Type convertType(ast::type& type) {
@@ -92,16 +73,15 @@ namespace mcc {
                         auto key = std::make_pair(v->name, scopeLevel);
                         auto mapVar = tac->getVarTable().find(key);
 
+                        // if variable found
                         if (mapVar != tac->getVarTable().end()) {
                             return mapVar->second;
                         }
 
                         --scopeLevel;
-
                     }
                     
-                    assert(false && "Usage of undeclared variabel");
-
+                    assert(false && "Usage of undeclared variable");
                 }
 
                 if (typeid (*n.get()) == typeid (ast::binary_operation)) {
@@ -175,20 +155,20 @@ namespace mcc {
                             tac->addLine(var);
                             return var;
                         } else {
+                            // if rhs is an expression
                             if (typeid (*rhs.get()) == typeid (Triple)) {
                                 auto var = std::static_pointer_cast<Triple>(rhs);
                                 var.get()->setName(lhs.get()->getValue());
                                 return var;
                             } else {
                                 assert(false && "Unknown subtype");
-                                return lhs;
                             }
                         }
 
                     }
 
+                    // add variable
                     tac->addLine(lhs);
-
                     return lhs;
                 }
 
@@ -200,7 +180,6 @@ namespace mcc {
                     auto falseLabel = std::make_shared<Label>();
                     auto var = std::make_shared<Triple>(Operator(OperatorName::JUMPFALSE),
                             condition, falseLabel);
-
 
                     tac->addLine(var);
                     tac->nextBasicBlock();
@@ -267,7 +246,6 @@ namespace mcc {
         }
 
         void Tac::createBasicBlockIndex() {
-
             basicBlockIndex.clear();
 
             std::shared_ptr<Triple> blockBegin = codeLines.front();
@@ -280,12 +258,10 @@ namespace mcc {
                 }
 
                 lastTriple = triple;
-
             }
 
-            //Add last block
+            // Add last block
             basicBlockIndex.push_back(BasicBlock(blockBegin, codeLines.back()));
-
         }
 
         std::string Tac::toString() const {

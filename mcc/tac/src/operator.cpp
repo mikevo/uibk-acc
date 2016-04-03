@@ -24,26 +24,28 @@ namespace mcc {
         {OperatorName::LABEL, OperatorType::UNARY},
         {OperatorName::MUL, OperatorType::BINARY},
         {OperatorName::SUB, OperatorType::BINARY},
-        {OperatorName::MINUS, OperatorType::UNARY}
+        {OperatorName::MINUS, OperatorType::UNARY},
+        {OperatorName::NOT, OperatorType::UNARY}
       };
 
       const std::map<OperatorName, Type> operatorResultType{
-        {OperatorName::NOP, Type::NONE},
-        {OperatorName::ADD, Type::NONE},
-        {OperatorName::ASSIGN, Type::NONE},
-        {OperatorName::DIV, Type::NONE},
+        {OperatorName::NOP, Type::AUTO},
+        {OperatorName::ADD, Type::AUTO},
+        {OperatorName::ASSIGN, Type::AUTO},
+        {OperatorName::DIV, Type::AUTO},
         {OperatorName::EQ, Type::BOOL},
         {OperatorName::NE, Type::BOOL},
         {OperatorName::LE, Type::BOOL},
         {OperatorName::GE, Type::BOOL},
         {OperatorName::LT, Type::BOOL},
         {OperatorName::GT, Type::BOOL},
-        {OperatorName::JUMP, Type::BOOL},
-        {OperatorName::JUMPFALSE, Type::BOOL},
-        {OperatorName::LABEL, Type::BOOL},
-        {OperatorName::MUL, Type::NONE},
-        {OperatorName::SUB, Type::NONE},
-        {OperatorName::MINUS, Type::NONE}
+        {OperatorName::JUMP, Type::AUTO},
+        {OperatorName::JUMPFALSE, Type::AUTO},
+        {OperatorName::LABEL, Type::BOOL}, // TODO: check what causes fail when changed to AUTO!
+        {OperatorName::MUL, Type::AUTO},
+        {OperatorName::SUB, Type::AUTO},
+        {OperatorName::MINUS, Type::AUTO},
+        {OperatorName::NOT, Type::AUTO}
       };
 
       const std::map<OperatorName, std::string> operatorName{
@@ -62,7 +64,8 @@ namespace mcc {
         {OperatorName::LABEL, "LABEL "},
         {OperatorName::MUL, " * "},
         {OperatorName::SUB, " - "},
-        {OperatorName::MINUS, "-"}
+        {OperatorName::MINUS, "-"},
+        {OperatorName::NOT, "!"}
       };
     }
 

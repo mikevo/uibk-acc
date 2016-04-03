@@ -23,6 +23,7 @@
 namespace mcc {
     namespace tac {
 
+        // pair of name and scope level
         typedef std::pair<std::string, unsigned> VarTableKey;
         typedef std::shared_ptr<Variable> VarTableValue;
 
