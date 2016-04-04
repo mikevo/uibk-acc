@@ -8,7 +8,7 @@
 
 namespace mcc {
   namespace tac {
-    unsigned Triple::nextId = 1;
+    unsigned Triple::nextId = 0;
 
     Triple::Triple(std::shared_ptr<Operand> arg) :
     Triple(Operator(OperatorName::NOP), arg) {
@@ -41,16 +41,15 @@ namespace mcc {
         assert((arg1->getType() == arg2->getType()) && "Type mismatch");
       }
 
-      if (arg1 != nullptr) {
-        if (typeid (*arg1.get()) == typeid (Variable)) {
-          this->name = arg1.get()->getValue(); // in this case getValue returns the variable name
-        } else {
-          id = ++nextId;
-          this->name = "$t" + std::to_string(id);
-        }
-      } else {
-        id = ++nextId;
-        this->name = "$t" + std::to_string(id);
+      switch(op.getName()) {
+          case OperatorName::ASSIGN:
+          case OperatorName::JUMPFALSE:
+          case OperatorName::JUMP:
+          case OperatorName::NOP:
+              break;
+          default:
+            id = ++nextId;
+            this->name = "$t" + std::to_string(id);
       }
     }
 
@@ -87,10 +86,13 @@ namespace mcc {
 
       switch (op.getName()) {
         case OperatorName::JUMPFALSE:
+        case OperatorName::JUMP:
           output.append(op.toString());
           output.append(arg1.get()->getValue());
-          output.append(" ");
-          output.append(arg2.get()->getValue());
+          if(arg2 != nullptr) {   
+            output.append(" ");
+            output.append(arg2.get()->getValue());
+          }
 
           return output;
 
@@ -99,30 +101,32 @@ namespace mcc {
           output.append(getName());
 
           return output;
-        default:;
-      }
+          
+        case OperatorName::NOP:
+            output.append(arg1.get()->getValue());
 
-      if ((name != arg1.get()->getValue())
-              || ((op.getName() != OperatorName::ASSIGN) && (arg2 != nullptr))) {
-        output.append(name);
-        auto assignOp = Operator(OperatorName::ASSIGN);
-        output.append(assignOp.toString());
+            return output;
+        
+        default:
+            if (op.getName() != OperatorName::ASSIGN) {   
+                output.append(name);
+                output.append(" = ");
+            }
+            
+            switch(op.getType()) {
+                case OperatorType::UNARY:
+                    output.append(op.toString());
+                    output.append(arg1.get()->getValue());
+                    break;
+                default:
+                    output.append(arg1.get()->getValue());
+                    output.append(op.toString());
+                    if(arg2 != nullptr) {
+                      output.append(arg2.get()->getValue());
+                    }
+            }
+            return output;
       }
-
-      if (op.getType() != OperatorType::BINARY) {
-        output.append(op.toString());
-        output.append(arg1.get()->getValue());
-      } else if (arg2 == nullptr) {
-        output.append(arg1.get()->getValue());
-      }
-
-      if (arg2 != nullptr) {
-        output.append(arg1.get()->getValue());
-        output.append(op.toString());
-        output.append(arg2.get()->getValue());
-      }
-
-      return output;
     }
   }
 }

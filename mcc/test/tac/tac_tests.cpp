@@ -153,22 +153,20 @@ namespace mcc {
       EXPECT_EQ(1, tac.codeLines.size());
     }
 
-    TEST(Tac, DeclatrationInt) {
+    TEST(Tac, DeclarationInt) {
       auto tree = parser::parse(R"(int a;)");
 
       Tac tac;
       tac.convertAst(tree);
 
-      auto tempVarName = tac.codeLines.front().get()->getValue();
-
-      std::string expectedValue = tempVarName;
+      std::string expectedValue = "a";
 
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(1, tac.codeLines.size());
     }
 
-    TEST(Tac, DeclatrationInt2) {
+    TEST(Tac, DeclarationInt2) {
       auto tree = parser::parse(R"(int a = 1;)");
 
       std::string expectedValue = "a = 1";
@@ -181,7 +179,7 @@ namespace mcc {
       EXPECT_EQ(1, tac.codeLines.size());
     }
 
-    TEST(Tac, DeclatrationIntWithPlus) {
+    TEST(Tac, DeclarationIntWithPlus) {
       auto tree = parser::parse(R"(int a = 1 + 2;)");
 
       Tac tac;
@@ -194,7 +192,7 @@ namespace mcc {
       EXPECT_EQ(1, tac.codeLines.size());
     }
 
-    TEST(Tac, DeclatrationIntWithPlus2) {
+    TEST(Tac, DeclarationIntWithPlus2) {
       auto tree = parser::parse(R"(int a = 1 + 2 + 3;)");
 
       Tac tac;
@@ -212,7 +210,7 @@ namespace mcc {
       EXPECT_EQ(2, tac.codeLines.size());
     }
 
-    TEST(Tac, DeclatrationFloat) {
+    TEST(Tac, DeclarationFloat) {
       auto tree = parser::parse(R"(float b = 1.0;)");
 
       std::string expectedValue = "b = " + std::to_string(1.0);
@@ -319,20 +317,13 @@ namespace mcc {
       auto tempId = elem->get()->getId();
       auto temp = "$t" + std::to_string(tempId);
       auto label = "$L" + std::to_string(tempId + 1);
+      auto label2 = "$L" + std::to_string(tempId + 2);
       
-      elem++;
-      elem++;
-      elem++;
-      
-      auto tempId2 = elem->get()->getId();
-      auto temp2 = "$t" + std::to_string(tempId2);
-      auto label2 = "$L" + std::to_string(tempId2 - 1);
-
       std::string expectedValue = "a = 0\n";
       expectedValue.append(temp + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
       expectedValue.append("a = 1\n");
-      expectedValue.append(temp2 + " = JUMP " + label2 + "\n");
+      expectedValue.append("JUMP " + label2 + "\n");
       expectedValue.append("LABEL " + label + "\n");
       expectedValue.append("a = 2\n");
       expectedValue.append("LABEL " + label2);
