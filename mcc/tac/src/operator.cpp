@@ -32,7 +32,7 @@ namespace mcc {
         {OperatorName::NOP, Type::AUTO},
         {OperatorName::ADD, Type::AUTO},
         {OperatorName::ASSIGN, Type::AUTO},
-        {OperatorName::DIV, Type::AUTO},
+        {OperatorName::DIV, Type::FLOAT},
         {OperatorName::EQ, Type::BOOL},
         {OperatorName::NE, Type::BOOL},
         {OperatorName::LE, Type::BOOL},
