@@ -120,7 +120,7 @@ namespace mcc {
       Operator op = Operator(name);
 
       EXPECT_EQ(OperatorType::UNARY, op.getType());
-      EXPECT_EQ(Type::BOOL, op.getResultType());
+      EXPECT_EQ(Type::AUTO, op.getResultType());
       EXPECT_EQ(name, op.getName());
     }
 

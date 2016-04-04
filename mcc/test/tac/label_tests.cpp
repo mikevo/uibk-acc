@@ -38,7 +38,7 @@ namespace mcc {
     TEST(Label, Type) {
       Label t = Label();
 
-      EXPECT_EQ(Type::BOOL, t.getType());
+      EXPECT_EQ(Type::NONE, t.getType());
     }
     
     TEST(Label, OpType) {

@@ -41,7 +41,7 @@ namespace mcc {
         {OperatorName::GT, Type::BOOL},
         {OperatorName::JUMP, Type::AUTO},
         {OperatorName::JUMPFALSE, Type::AUTO},
-        {OperatorName::LABEL, Type::BOOL}, // TODO: check what causes fail when changed to AUTO!
+        {OperatorName::LABEL, Type::AUTO},
         {OperatorName::MUL, Type::AUTO},
         {OperatorName::SUB, Type::AUTO},
         {OperatorName::MINUS, Type::AUTO},

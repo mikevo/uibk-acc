@@ -12,15 +12,21 @@ namespace mcc {
 
     Triple::Triple(std::shared_ptr<Operand> arg) :
     Triple(Operator(OperatorName::NOP), arg) {
-      // TODO: check if it is a terminal
+      // check if it is a terminal
+      assert(arg.get()->isLeaf() && "Operand is non-terminal!");
     }
 
+    // constructor needed for Label
     Triple::Triple(OperatorName op) : Triple(Operator(op), nullptr) {
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg) :
     Triple(op, arg, nullptr) {
-      // TODO: check if it is an unary operator;
+      // check if operator is UNARY or LINE (NOP)
+      assert((
+              op.getType() == OperatorType::LINE ||
+              op.getType() == OperatorType::UNARY
+             ) && "Operator not unary!");
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg1,
@@ -38,7 +44,11 @@ namespace mcc {
       this->updateResultType(op);
 
       if (arg2 != nullptr) {
-        assert((arg1->getType() == arg2->getType()) && "Type mismatch");
+        assert((
+                op.getName() == OperatorName::JUMPFALSE ||
+                arg1->getType() == arg2->getType()
+               ) && 
+               "Type mismatch");
       }
 
       switch(op.getName()) {
