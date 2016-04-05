@@ -145,11 +145,10 @@ namespace mcc {
                             convertType(*tempVar.get()->var_type.get()), tempVar.get()->name);
                     lhs->setScope(tac->getCurrentScope());
                     
-                    tac->addToVarTable(std::make_pair(lhs->getName(),tac->getCurrentScope()), lhs);
-                    
                     auto initStmt = v.get()->init_expr;
                     if (initStmt != nullptr) {
                         auto rhs = convertNode(tac, v.get()->init_expr);
+                        tac->addToVarTable(std::make_pair(lhs->getName(),tac->getCurrentScope()), lhs);
 
                         if (rhs.get()->isLeaf()) {
                             auto var = std::make_shared<Triple>(
@@ -168,6 +167,9 @@ namespace mcc {
                             }
                         }
 
+                    }
+                    else {
+                        tac->addToVarTable(std::make_pair(lhs->getName(),tac->getCurrentScope()), lhs);
                     }
 
                     // add variable
