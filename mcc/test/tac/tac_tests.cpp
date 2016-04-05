@@ -65,7 +65,7 @@ namespace mcc {
       expectedValue.append(" = 1 / 2");
 
       EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
+      EXPECT_EQ(Type::FLOAT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(1, tac.codeLines.size());
     }
 

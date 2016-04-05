@@ -149,9 +149,13 @@ namespace ast {
 		stream << "if(";
 		condition->print_to(stream);
 		stream << ") ";
-		then_stmt->print_to(stream);
-		stream << "else ";
-		return else_stmt->print_to(stream);
+        then_stmt->print_to(stream);
+        if (else_stmt) {
+            stream << "else ";
+            return else_stmt->print_to(stream);
+        } else {
+            return stream;
+        }
 	}
 
 	bool decl_stmt::operator==(const node& other) const {
