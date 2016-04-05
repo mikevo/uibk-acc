@@ -20,7 +20,14 @@ namespace mcc {
             virtual std::string getName() const;
             virtual std::string getValue() const override;
             virtual bool isLeaf() const override;
+            int getScope() const;
+            void setScope(int scope);
+            
             std::string name;
+            
+        private:
+            int scope;
+            
         };
     }
 }

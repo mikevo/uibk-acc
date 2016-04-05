@@ -81,6 +81,8 @@ namespace mcc {
                         --scopeLevel;
                     }
                     
+                    std::cout << v->name << std::endl;
+                    std::cout << tac->getCurrentScope() << std::endl;
                     assert(false && "Usage of undeclared variable");
                 }
 
@@ -141,6 +143,7 @@ namespace mcc {
 
                     auto lhs =  std::make_shared<Variable>(
                             convertType(*tempVar.get()->var_type.get()), tempVar.get()->name);
+                    lhs->setScope(tac->getCurrentScope());
                     
                     tac->addToVarTable(std::make_pair(lhs->getName(),tac->getCurrentScope()), lhs);
                     

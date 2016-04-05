@@ -159,7 +159,7 @@ namespace mcc {
       Tac tac;
       tac.convertAst(tree);
 
-      std::string expectedValue = "a";
+      std::string expectedValue = "a:0";
 
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
@@ -169,7 +169,7 @@ namespace mcc {
     TEST(Tac, DeclarationInt2) {
       auto tree = parser::parse(R"(int a = 1;)");
 
-      std::string expectedValue = "a = 1";
+      std::string expectedValue = "a:0 = 1";
 
       Tac tac;
       tac.convertAst(tree);
@@ -185,7 +185,7 @@ namespace mcc {
       Tac tac;
       tac.convertAst(tree);
 
-      auto expectedValue = "a = 1 + 2";
+      auto expectedValue = "a:0 = 1 + 2";
 
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
@@ -202,7 +202,7 @@ namespace mcc {
 
       std::string expectedValue = tempVarName;
       expectedValue.append(" = 2 + 3\n");
-      expectedValue.append("a = 1 + ");
+      expectedValue.append("a:0 = 1 + ");
       expectedValue.append(tempVarName);
 
       EXPECT_EQ(expectedValue, tac.toString());
@@ -213,7 +213,7 @@ namespace mcc {
     TEST(Tac, DeclarationFloat) {
       auto tree = parser::parse(R"(float b = 1.0;)");
 
-      std::string expectedValue = "b = " + std::to_string(1.0);
+      std::string expectedValue = "b:0 = " + std::to_string(1.0);
 
       Tac tac;
       tac.convertAst(tree);
@@ -272,7 +272,7 @@ namespace mcc {
 
       std::string expectedValue = tempVarName;
       expectedValue.append(" = 1 + 2\n");
-      expectedValue.append("a = ");
+      expectedValue.append("a:0 = ");
       expectedValue.append(tempVarName);
       expectedValue.append(" + 3");
 
@@ -289,8 +289,8 @@ namespace mcc {
 
       auto tempVarName = tac.codeLines.front().get()->getValue();
 
-      std::string expectedValue = "a = 1 + 2\n";
-      expectedValue.append("b = 3");
+      std::string expectedValue = "a:1 = 1 + 2\n";
+      expectedValue.append("b:1 = 3");
 
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
@@ -319,13 +319,13 @@ namespace mcc {
       auto label = "$L" + std::to_string(tempId + 1);
       auto label2 = "$L" + std::to_string(tempId + 2);
       
-      std::string expectedValue = "a = 0\n";
+      std::string expectedValue = "a:1 = 0\n";
       expectedValue.append(temp + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
-      expectedValue.append("a = 1\n");
+      expectedValue.append("a:1 = 1\n");
       expectedValue.append("JUMP " + label2 + "\n");
       expectedValue.append("LABEL " + label + "\n");
-      expectedValue.append("a = 2\n");
+      expectedValue.append("a:1 = 2\n");
       expectedValue.append("LABEL " + label2);
 
       EXPECT_EQ(expectedValue, tac.toString());
@@ -351,10 +351,10 @@ namespace mcc {
       auto temp = "$t" + std::to_string(tempId);
       auto label = "$L" + std::to_string(tempId + 1);
       
-      std::string expectedValue = "a = 0\n";
+      std::string expectedValue = "a:1 = 0\n";
       expectedValue.append(temp + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
-      expectedValue.append("a = 1\n");
+      expectedValue.append("a:1 = 1\n");
       expectedValue.append("LABEL " + label);
 
       EXPECT_EQ(expectedValue, tac.toString());

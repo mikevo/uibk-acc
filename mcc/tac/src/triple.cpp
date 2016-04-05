@@ -125,8 +125,10 @@ namespace mcc {
             
             switch(op.getType()) {
                 case OperatorType::UNARY:
+                    
                     output.append(op.toString());
                     output.append(arg1.get()->getValue());
+                    
                     break;
                 default:
                     output.append(arg1.get()->getValue());

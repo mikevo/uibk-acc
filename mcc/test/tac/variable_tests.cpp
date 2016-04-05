@@ -18,9 +18,9 @@ namespace mcc {
     }
 
     TEST(Variable, Value) {
-      std::string testValue = "testVar";
+      std::string testValue = "testVar:0";
 
-      Variable v = Variable(Type::FLOAT, testValue);
+      Variable v = Variable(Type::FLOAT, "testVar");
 
       EXPECT_EQ(testValue, v.getValue());
     }
