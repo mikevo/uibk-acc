@@ -30,7 +30,7 @@ namespace mcc {
                 line.get()->arg1);
 
             boost::add_edge(line.get()->basicBlockId,
-                label.get()->basicBlockId + 1, graph);
+                label.get()->basicBlockId, graph);
           } else {
             assert(false && "Unknown jump destination");
           }
@@ -45,16 +45,12 @@ namespace mcc {
                 line.get()->basicBlockId + 1, graph);
 
             boost::add_edge(line.get()->basicBlockId,
-                label.get()->basicBlockId + 1, graph);
+                label.get()->basicBlockId, graph);
           } else {
             assert(false && "Unknown jump destination");
           }
         }
       }
-
-      // TODO: find a better solution
-      std::ofstream outf("/tmp/min.gv");
-      boost::write_graphviz(outf, graph);
     }
 
   }

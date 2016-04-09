@@ -32,15 +32,30 @@ namespace mcc {
 
       mcc::tac::Tac tac;
       tac.convertAst(tree);
-      auto graph = new Cfg(tac);
+      auto graph = std::make_shared<Cfg>(tac);
 
-      // TODO: find a better solution
-      std::ofstream outf("/tmp/min.tac");
-      tac.createBasicBlockIndex();
+      std::string expected =
+          R"(digraph G {
+0;
+1;
+2;
+3;
+4;
+5;
+6;
+0->1 ;
+0->2 ;
+1->3 ;
+3->4 ;
+3->5 ;
+4->6 ;
+}
+)";
 
-      for (auto block : tac.getBasicBlockIndex()) {
-        outf << block.get()->toString();
-      }
+      std::ostringstream out;
+      boost::write_graphviz(out, graph->graph);
+
+      EXPECT_EQ(expected, out.str());
     }
   }
 }
