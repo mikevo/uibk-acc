@@ -11,23 +11,23 @@ namespace mcc {
       auto tree =
           parser::parse(
               R"(
-                    {
-                        int x=1;
-                        float y = 3.0;
+                  {
+                      int x=1;
+                      float y = 3.0;
 
-                        if(x > 0) {
-                y = y * 1.5;
-                        } else {
-                y = y + 2.0;
-                        }
+                      if(x > 0) {
+                         y = y * 1.5;
+                      } else {
+                         y = y + 2.0;
+                      }
 
-                        int a = 0;
+                      int a = 0;
 
-                        if( 1 <= 2) {
-                            a = 1;
-                        } else {
-                            a = 2;
-                        }
+                      if( 1 <= 2) {
+                          a = 1;
+                      } else {
+                          a = 2;
+                      }
                     })");
 
       mcc::tac::Tac tac;
@@ -52,10 +52,7 @@ namespace mcc {
 }
 )";
 
-      std::ostringstream out;
-      boost::write_graphviz(out, graph->graph);
-
-      EXPECT_EQ(expected, out.str());
+      EXPECT_EQ(expected, graph->toDot());
     }
   }
 }

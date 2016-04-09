@@ -15,9 +15,13 @@ namespace mcc {
       public:
         Cfg();
         Cfg(mcc::tac::Tac tac);
+        std::string toDot() const;
+        void storeDot(std::string fileName) const;
 
+      private:
         boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
             std::shared_ptr<mcc::tac::BasicBlock> > graph;
+
     };
   }
 }

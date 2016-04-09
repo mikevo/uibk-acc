@@ -29,8 +29,8 @@ namespace mcc {
             auto label = std::static_pointer_cast<mcc::tac::Label>(
                 line.get()->arg1);
 
-            boost::add_edge(line.get()->basicBlockId,
-                label.get()->basicBlockId, graph);
+            boost::add_edge(line.get()->basicBlockId, label.get()->basicBlockId,
+                graph);
           } else {
             assert(false && "Unknown jump destination");
           }
@@ -44,13 +44,25 @@ namespace mcc {
             boost::add_edge(line.get()->basicBlockId,
                 line.get()->basicBlockId + 1, graph);
 
-            boost::add_edge(line.get()->basicBlockId,
-                label.get()->basicBlockId, graph);
+            boost::add_edge(line.get()->basicBlockId, label.get()->basicBlockId,
+                graph);
           } else {
             assert(false && "Unknown jump destination");
           }
         }
       }
+    }
+
+    std::string Cfg::toDot() const {
+      std::ostringstream out;
+      boost::write_graphviz(out, graph);
+      return out.str();
+    }
+
+    void Cfg::storeDot(std::string fileName) const {
+      std::ofstream outf(fileName);
+
+      outf << toDot();
     }
 
   }
