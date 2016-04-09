@@ -254,13 +254,13 @@ namespace mcc {
     void Tac::createBasicBlockIndex() {
       basicBlockIndex.clear();
 
-      auto currentBasicBlock = std::make_shared<BasicBlock>();
+      auto currentBasicBlock = std::make_shared<BasicBlock>(0);
       auto currentBasicBlockId = codeLines.front().get()->basicBlockId;
 
       for (auto& triple : codeLines) {
         if (triple.get()->basicBlockId != currentBasicBlockId) {
           basicBlockIndex.push_back(currentBasicBlock);
-          currentBasicBlock = std::make_shared<BasicBlock>();
+          currentBasicBlock = std::make_shared<BasicBlock>(triple.get()->basicBlockId);
           currentBasicBlockId = triple.get()->basicBlockId;
         }
 
