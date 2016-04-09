@@ -199,13 +199,13 @@ namespace mcc {
             tac->addLine(trueJump);
           }
 
-          tac->addLine(falseLabel);
           tac->nextBasicBlock();
+          tac->addLine(falseLabel);
 
           if (stmt->else_stmt != nullptr) {
             convertNode(tac, stmt.get()->else_stmt);
-            tac->addLine(trueLabel);
             tac->nextBasicBlock();
+            tac->addLine(trueLabel);
           }
 
           return nullptr;

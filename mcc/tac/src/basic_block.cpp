@@ -40,6 +40,10 @@ namespace mcc {
       return blockMembers.size();
     }
 
+    std::vector<std::shared_ptr<Triple>> BasicBlock::getBlockMembers() const {
+      return blockMembers;
+    }
+
     std::string BasicBlock::toString() const {
       std::string output;
 

@@ -27,6 +27,7 @@ namespace mcc {
         void push_back(const std::shared_ptr<Triple> line);
         std::vector<std::shared_ptr<Triple>>::size_type size() const;
         std::string toString() const;
+        std::vector<std::shared_ptr<Triple>> getBlockMembers() const;
 
       private:
         std::vector<std::shared_ptr<Triple>> blockMembers;
