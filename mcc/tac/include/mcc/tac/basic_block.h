@@ -9,26 +9,28 @@
 #define BASIC_BLOCK_H
 
 #include "mcc/tac/triple.h"
+
 #include <memory>
+#include <vector>
 
 namespace mcc {
-    namespace tac {
-        class BasicBlock {
-        public:
-            BasicBlock();
-            BasicBlock(std::shared_ptr<Triple> start, std::shared_ptr<Triple> end);
-            std::shared_ptr<Triple> getStart();
-            std::shared_ptr<Triple> getEnd();
-            
-        private:
-            std::shared_ptr<Triple> blockStart, blockEnd;
-            
-          
-        };
-    }
+  namespace tac {
+    class BasicBlock {
+      public:
+        BasicBlock();
+        std::shared_ptr<Triple> getStart();
+        std::shared_ptr<Triple> getEnd();
+
+        std::shared_ptr<Triple>& front();
+        std::shared_ptr<Triple>& back();
+        void push_back(const std::shared_ptr<Triple> line);
+        std::vector<std::shared_ptr<Triple>>::size_type size() const;
+
+      private:
+        std::vector<std::shared_ptr<Triple>> blockMembers;
+    };
+  }
 }
-
-
 
 #endif /* BASIC_BLOCK_H */
 

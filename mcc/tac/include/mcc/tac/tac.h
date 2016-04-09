@@ -41,7 +41,7 @@ namespace mcc {
             unsigned basicBlockCount();
             signed getCurrentScope();
 
-            const std::vector<BasicBlock>& getBasicBlockIndex() const;
+        const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex() const;
             const std::map<VarTableKey, VarTableValue>& getVarTable();
             void addToVarTable(VarTableKey key, VarTableValue value);
 
@@ -52,7 +52,7 @@ namespace mcc {
         private:
             unsigned currentBasicBlock;
             signed currentScope;
-            std::vector<BasicBlock> basicBlockIndex;
+            std::vector<std::shared_ptr<BasicBlock>> basicBlockIndex;
             std::map<VarTableKey, VarTableValue> varTable;
         };
     }
