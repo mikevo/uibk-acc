@@ -13,6 +13,7 @@
 #include "mcc/tac/operator.h"
 #include "mcc/tac/operand.h"
 #include "mcc/tac/operator.h"
+#include "mcc/tac/variable.h"
 
 namespace mcc {
     namespace tac {
@@ -35,8 +36,11 @@ namespace mcc {
             virtual bool isLeaf() const override;
             virtual std::string getValue() const override;
             virtual std::string toString() const;
+            void setTargetVariable(std::shared_ptr<Variable> var);
+            std::shared_ptr<Variable> getTargetVariable();
 
         private:
+            std::shared_ptr<Variable> targetVar;
             static unsigned nextId;
             unsigned id;
             std::string name;
