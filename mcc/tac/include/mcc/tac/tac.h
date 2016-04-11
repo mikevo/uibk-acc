@@ -24,7 +24,7 @@ namespace mcc {
     namespace tac {
 
         // pair of name and scope level
-        typedef std::pair<std::string, unsigned> VarTableKey;
+        typedef std::pair<std::string, std::pair<unsigned, unsigned>> VarTableKey;
         typedef std::shared_ptr<Variable> VarTableValue;
 
         class Tac {
@@ -39,7 +39,8 @@ namespace mcc {
             void leaveScope();
             void createBasicBlockIndex();
             unsigned basicBlockCount();
-            signed getCurrentScope();
+            std::pair<unsigned, unsigned> getCurrentScope();
+            void setScope(unsigned depth, unsigned index, unsigned lastDepth);
 
         const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex() const;
             const std::map<VarTableKey, VarTableValue>& getVarTable();
@@ -51,9 +52,11 @@ namespace mcc {
 
         private:
             unsigned currentBasicBlock;
-            signed currentScope;
+            unsigned lastScopeDepth;
+            unsigned scopeDepth, scopeIndex;
             std::vector<std::shared_ptr<BasicBlock>> basicBlockIndex;
             std::map<VarTableKey, VarTableValue> varTable;
+            std::map<unsigned, unsigned> scopeIndexMap;
         };
     }
 }
