@@ -191,7 +191,8 @@ namespace mcc {
                             // if rhs is an expression
                             if (typeid (*rhs.get()) == typeid (Triple)) {
                                 auto var = std::static_pointer_cast<Triple>(rhs);
-                                var.get()->setName(lhs.get()->getValue());
+                                var->setName(lhs.get()->getValue());
+                                var->setTargetVariable(lhs);
                                 return var;
                             } else {
                                 assert(false && "Unknown subtype");

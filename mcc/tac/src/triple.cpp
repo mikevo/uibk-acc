@@ -36,7 +36,9 @@ namespace mcc {
     arg2(arg2),
     op(op),
     basicBlockId(0),
-    id(0) {
+    targetVar(nullptr),
+    id(0)
+     {
       if (arg1 != nullptr) {
         this->setType(arg1->getType());
       }
@@ -139,6 +141,14 @@ namespace mcc {
             }
             return output;
       }
+    }
+    
+    void Triple::setTargetVariable(std::shared_ptr<Variable> var) {
+        targetVar = var;
+    }
+    
+    std::shared_ptr<Variable> Triple::getTargetVariable() {
+        return targetVar;
     }
   }
 }
