@@ -98,8 +98,6 @@ namespace mcc {
        
       Tac tac;
       tac.convertAst(tree);
-      
-      std::cout << tac.toString() << std::endl;
 
       EXPECT_EQ(tac.getVarTable().size(), 4);
       

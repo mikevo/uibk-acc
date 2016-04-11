@@ -159,11 +159,7 @@ namespace mcc {
       Tac tac;
       tac.convertAst(tree);
 
-      std::string expectedValue = "a:0:0";
-
-      EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
-      EXPECT_EQ(1, tac.codeLines.size());
+      EXPECT_EQ(0, tac.codeLines.size());
     }
 
     TEST(Tac, DeclarationInt2) {

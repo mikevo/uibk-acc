@@ -203,8 +203,6 @@ namespace mcc {
                                 std::make_pair(lhs->getName(), tac->getCurrentScope()), lhs);
                     }
 
-                    // add variable
-                    tac->addLine(lhs);
                     return lhs;
                 }
 
@@ -258,10 +256,6 @@ namespace mcc {
 
         void Tac::convertAst(std::shared_ptr<ast::node> n) {
             convertNode(this, n);
-        }
-
-        void Tac::addLine(std::shared_ptr<Operand> operand) {
-            addLine(std::make_shared<Triple>(operand));
         }
 
         void Tac::addLine(std::shared_ptr<Triple> line) {

@@ -31,7 +31,6 @@ namespace mcc {
         public:
             Tac();
             void convertAst(std::shared_ptr<ast::node> n);
-            void addLine(std::shared_ptr<Operand> line);
             void addLine(std::shared_ptr<Triple> line);
             void addLine(std::shared_ptr<Label> line);
             void nextBasicBlock();
