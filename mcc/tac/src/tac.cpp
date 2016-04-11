@@ -338,7 +338,11 @@ namespace mcc {
             return basicBlockIndex.size();
         }
 
-        const std::vector<std::shared_ptr<BasicBlock>>&Tac::getBasicBlockIndex() const {
+        const std::vector<std::shared_ptr<BasicBlock>>& Tac::getBasicBlockIndex() {
+            if(basicBlockIndex.empty()) {
+                createBasicBlockIndex();
+            }
+
             return basicBlockIndex;
         }
 

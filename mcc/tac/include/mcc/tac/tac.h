@@ -36,12 +36,11 @@ namespace mcc {
             void nextBasicBlock();
             void enterScope();
             void leaveScope();
-            void createBasicBlockIndex();
             unsigned basicBlockCount();
             std::pair<unsigned, unsigned> getCurrentScope();
             void setScope(unsigned depth, unsigned index, unsigned lastDepth);
 
-        const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex() const;
+        const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex();
             const std::map<VarTableKey, VarTableValue>& getVarTable();
             void addToVarTable(VarTableKey key, VarTableValue value);
 
@@ -50,6 +49,7 @@ namespace mcc {
             std::vector<std::shared_ptr<Triple>> codeLines;
 
         private:
+            void createBasicBlockIndex();
             unsigned currentBasicBlock;
             unsigned lastScopeDepth;
             unsigned scopeDepth, scopeIndex;
