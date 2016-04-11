@@ -33,6 +33,9 @@ namespace mcc {
         VertexDescriptor getIdom(VertexDescriptor vertex);
         const Vertex& getIdom(Vertex& vertex);
 
+        std::set<VertexDescriptor> getDomSet(VertexDescriptor vertex);
+        std::set<Vertex> getDomSet(Vertex vertex);
+
       private:
         const std::vector<Vertex> basicBlockIndex;
         Graph graph;

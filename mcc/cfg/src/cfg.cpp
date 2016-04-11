@@ -110,6 +110,31 @@ namespace mcc {
       return basicBlockIndex[idom];
     }
 
+    std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
+      std::set<VertexDescriptor> domSet;
+
+      VertexDescriptor idom = getIdom(vertex);
+      while (idom > getIdom(idom)) {
+        domSet.insert(idom);
+        idom = getIdom(idom);
+      }
+
+      domSet.insert(idom);
+
+      return domSet;
+    }
+
+    std::set<Vertex> Cfg::getDomSet(Vertex vertex) {
+      std::set<Vertex> domSet;
+      auto dSet = getDomSet(vertex->getBlockId());
+
+      for(auto e : dSet) {
+        domSet.insert(basicBlockIndex[e]);
+      }
+
+      return domSet;
+    }
+
   }
 }
 
