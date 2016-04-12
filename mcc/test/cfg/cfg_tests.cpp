@@ -105,7 +105,7 @@ namespace mcc {
       EXPECT_EQ(graph->getIdom(6), 3);
     }
 
-    /*TEST(Cfg, DomSetVertex) {
+    TEST(Cfg, DomSetVertex) {
       auto tree =
           parser::parse(
               R"(
@@ -138,27 +138,27 @@ namespace mcc {
       set.push_back(index[0]);
       set.push_back(index[3]);
 
-      auto dom0 = graph->getDomSet(index[0]).begin();
-      auto dom1 = graph->getDomSet(index[1]).begin();
-      auto dom2 = graph->getDomSet(index[2]).begin();
-      auto dom3 = graph->getDomSet(index[3]).begin();
-      auto dom4 = graph->getDomSet(index[4]).begin();
-      auto dom5 = graph->getDomSet(index[5]).begin();
-      auto dom6 = graph->getDomSet(index[6]).begin();
+      auto dom0 = graph->getDomSet(index[0]);
+      auto dom1 = graph->getDomSet(index[1]);
+      auto dom2 = graph->getDomSet(index[2]);
+      auto dom3 = graph->getDomSet(index[3]);
+      auto dom4 = graph->getDomSet(index[4]);
+      auto dom5 = graph->getDomSet(index[5]);
+      auto dom6 = graph->getDomSet(index[6]);
 
       // TODO find reason why shared pointers as well as the results of get() are not equal
-      EXPECT_EQ(dom0->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom1->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom2->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom3->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom4->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom5->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom6->get()->toString(), index[0]->toString());
+      EXPECT_EQ(dom0.begin()->get()->toString(), index[0]->toString());
+      EXPECT_EQ(dom1.begin()->get()->toString(), index[0]->toString());
+      EXPECT_EQ(dom2.begin()->get()->toString(), index[0]->toString());
+      EXPECT_EQ(dom3.begin()->get()->toString(), index[0]->toString());
+      EXPECT_EQ(dom4.begin()->get()->toString(), index[3]->toString());
+      EXPECT_EQ(dom5.begin()->get()->toString(), index[3]->toString());
+      EXPECT_EQ(dom6.begin()->get()->toString(), index[3]->toString());
 
-      EXPECT_EQ((++dom4)->get()->toString(), index[3]->toString());
-      EXPECT_EQ((++dom5)->get()->toString(), index[3]->toString());
-      EXPECT_EQ((++dom6)->get()->toString(), index[3]->toString());
-    }*/
+      EXPECT_EQ((++dom4.begin())->get()->toString(), index[0]->toString());
+      EXPECT_EQ((++dom5.begin())->get()->toString(), index[0]->toString());
+      EXPECT_EQ((++dom6.begin())->get()->toString(), index[0]->toString());
+    }
 
     TEST(Cfg, DomSet) {
       auto tree =
