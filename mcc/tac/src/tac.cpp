@@ -98,7 +98,7 @@ namespace mcc {
 
                         if (mapVar != tac->getVarTable().end()) {
                             tac->setScope(tempScopeDepth, tempScopeIndex, 0);
-                            return mapVar->second;
+                            return mapVar->second.back();
                         }
 
                         tac->leaveScope();
@@ -109,7 +109,7 @@ namespace mcc {
 
                     if (mapVar != tac->getVarTable().end()) {
                         tac->setScope(tempScopeDepth, tempScopeIndex, 0);
-                        return mapVar->second;
+                        return mapVar->second.back();
                     }
 
                     std::cout << v->name << ":" << tac->getCurrentScope().first << ":" << tac->getCurrentScope().second << std::endl;
@@ -343,13 +343,15 @@ namespace mcc {
             return basicBlockIndex;
         }
 
-        const std::map<VarTableKey, VarTableValue>& Tac::getVarTable() {
+        const std::map<VarTableKey, std::vector<VarTableValue>>& Tac::getVarTable() {
             return varTable;
         }
 
         void Tac::addToVarTable(VarTableKey key, VarTableValue value) {
-
-            varTable.insert(std::make_pair(key, value));
+            std::vector<VarTableValue> valueVec;
+            valueVec.push_back(value);
+            
+            varTable.insert(std::make_pair(key, valueVec));
         }
 
         std::pair<unsigned, unsigned> Tac::getCurrentScope() {

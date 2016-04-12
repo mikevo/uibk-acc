@@ -1,7 +1,9 @@
 #include "mcc/lvn/lvn.h"
 
 #include <cassert>
+#include <unordered_map>
 #include "mcc/tac/operator.h"
+#include "mcc/tac/operand.h"
 #include "mcc/tac/int_literal.h"
 #include "mcc/tac/float_literal.h"
 
@@ -65,6 +67,26 @@ namespace mcc {
                 }
 
 
+            }
+            
+            if(tac.getBasicBlockIndex().size() == 0) {
+                tac.createBasicBlockIndex();
+            }
+            
+            auto& basicBlocks = tac.getBasicBlockIndex();
+            std::unordered_map<std::string, std::shared_ptr<Operand>> valueMap;
+            
+            for(auto& block : basicBlocks) {
+                valueMap.clear();
+                for(auto& triple : block->getBlockMembers()) {
+                    if (triple->op.getType() == OperatorType::BINARY) {
+                        std::string valueKey = triple->arg1->getValue();
+                        valueKey.append(triple->op.toString());
+                        valueKey.append(triple->arg2->getValue());
+                        std::cout << valueKey << std::endl;
+                        
+                    }
+                }
             }
         }
 

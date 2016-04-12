@@ -41,8 +41,8 @@ namespace mcc {
             std::pair<unsigned, unsigned> getCurrentScope();
             void setScope(unsigned depth, unsigned index, unsigned lastDepth);
 
-        const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex() const;
-            const std::map<VarTableKey, VarTableValue>& getVarTable();
+            const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex() const;
+            const std::map<VarTableKey, std::vector<VarTableValue>>& getVarTable();
             void addToVarTable(VarTableKey key, VarTableValue value);
 
 
@@ -54,7 +54,7 @@ namespace mcc {
             unsigned lastScopeDepth;
             unsigned scopeDepth, scopeIndex;
             std::vector<std::shared_ptr<BasicBlock>> basicBlockIndex;
-            std::map<VarTableKey, VarTableValue> varTable;
+            std::map<VarTableKey, std::vector<VarTableValue>> varTable;
             std::map<unsigned, unsigned> scopeIndexMap;
         };
     }
