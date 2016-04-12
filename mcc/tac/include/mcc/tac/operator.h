@@ -33,9 +33,9 @@ namespace mcc {
       std::string toString() const;
 
     private:
-      const OperatorName name;
-      const OperatorType type;
-      const Type resultType;
+       OperatorName name;
+       OperatorType type;
+       Type resultType;
     };
   }
 }

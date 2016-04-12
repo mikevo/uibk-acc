@@ -18,30 +18,29 @@ namespace mcc {
             for (auto& triple : tac.codeLines) {
 
                 if (triple->op.getType() == OperatorType::BINARY) {
-
-                    if (triple->op.getResultType() == Type::AUTO) {
+                    if (triple->op.getResultType() == Type::AUTO ||
+                            triple->op.getResultType() == Type::FLOAT) {
                         if (typeid (*triple->arg1) == typeid (IntLiteral) &&
                                 typeid (*triple->arg2) == typeid (IntLiteral)) {
 
                             auto arg1 = std::static_pointer_cast<IntLiteral>(triple->arg1);
                             auto arg2 = std::static_pointer_cast<IntLiteral>(triple->arg2);
                             auto target = triple->getTargetVariable();
-                         
+
                             int val1 = arg1->value;
                             int val2 = arg2->value;
                             int result = evaluateExpression(val1, val2, triple->op.getName());
-                            
-                            if(target != nullptr) {
-                            triple.reset(new Triple(Operator(OperatorName::ASSIGN), target,
-                                    std::make_shared<IntLiteral>(result)));
+
+                            if (target != nullptr) {
+                                updateTriple(Operator(OperatorName::ASSIGN), target,
+                                        std::make_shared<IntLiteral>(result), *triple);
+
                             } else {
-                                 triple.reset(new Triple(Operator(OperatorName::ASSIGN), triple,
-                                    std::make_shared<IntLiteral>(result)));
+                                updateTriple(Operator(OperatorName::ASSIGN), triple,
+                                        std::make_shared<IntLiteral>(result), *triple);
                             }
 
-                        }
-                        
-                        else if (typeid (*triple->arg1) == typeid (FloatLiteral) &&
+                        } else if (typeid (*triple->arg1) == typeid (FloatLiteral) &&
                                 typeid (*triple->arg2) == typeid (FloatLiteral)) {
 
                             auto arg1 = std::static_pointer_cast<FloatLiteral>(triple->arg1);
@@ -51,13 +50,14 @@ namespace mcc {
                             float val1 = arg1->value;
                             float val2 = arg2->value;
                             float result = evaluateExpression(val1, val2, triple->op.getName());
-                            
-                            if(target != nullptr) {
-                            triple.reset(new Triple(Operator(OperatorName::ASSIGN), target,
-                                    std::make_shared<FloatLiteral>(result)));
+
+                            if (target != nullptr) {
+                                updateTriple(Operator(OperatorName::ASSIGN), target,
+                                        std::make_shared<FloatLiteral>(result), *triple);
+
                             } else {
-                                 triple.reset(new Triple(Operator(OperatorName::ASSIGN), triple,
-                                    std::make_shared<FloatLiteral>(result)));
+                                updateTriple(Operator(OperatorName::ASSIGN), triple,
+                                        std::make_shared<FloatLiteral>(result), *triple);
                             }
 
                         }
@@ -68,23 +68,45 @@ namespace mcc {
 
 
             }
-            
-            if(tac.getBasicBlockIndex().size() == 0) {
-               
-            }
-            
+
+            //Eliminate redundant expressions
             auto& basicBlocks = tac.getBasicBlockIndex();
-            std::unordered_map<std::string, std::shared_ptr<Operand>> valueMap;
-            
-            for(auto& block : basicBlocks) {
+            std::unordered_map<std::string, std::shared_ptr < Operand>> valueMap;
+
+            for (auto& block : basicBlocks) {
                 valueMap.clear();
-                for(auto& triple : block->getBlockMembers()) {
+
+                for (auto& triple : block->getBlockMembers()) {
                     if (triple->op.getType() == OperatorType::BINARY) {
                         std::string valueKey = triple->arg1->getValue();
                         valueKey.append(triple->op.toString());
                         valueKey.append(triple->arg2->getValue());
-                       
-                        
+
+                        auto value = valueMap.find(valueKey);
+
+                        if (value != valueMap.end()) {
+                            auto target = triple->getTargetVariable();
+
+                            if (target != nullptr) {
+                                updateTriple(Operator(OperatorName::ASSIGN), target,
+                                        value->second, *triple);
+
+                            } else {
+                                updateTriple(Operator(OperatorName::ASSIGN), triple,
+                                        value->second, *triple);
+                            }
+
+                        } else {
+                            auto target = triple->getTargetVariable();
+                            if (target != nullptr) {
+                                valueMap.insert(std::make_pair(valueKey, target));
+                            } else {
+                                valueMap.insert(std::make_pair(valueKey, triple));
+                            }
+
+                        }
+
+
                     }
                 }
             }
@@ -110,6 +132,17 @@ namespace mcc {
                     assert(false && "Unsupported binary operation");
 
             }
+
+        }
+
+        void LVN::updateTriple(Operator op, std::shared_ptr<Operand> arg1,
+                std::shared_ptr<Operand> arg2, Triple& triple) {
+
+            triple.arg1 = arg1;
+            triple.arg2 = arg2;
+            triple.op = op;
+            triple.updateResultType(op);
+            triple.setTargetVariable(nullptr);
 
         }
 

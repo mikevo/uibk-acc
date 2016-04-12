@@ -12,7 +12,6 @@
 
 #include "mcc/tac/operator.h"
 #include "mcc/tac/operand.h"
-#include "mcc/tac/operator.h"
 #include "mcc/tac/variable.h"
 
 namespace mcc {
