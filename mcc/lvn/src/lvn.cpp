@@ -70,7 +70,7 @@ namespace mcc {
             }
             
             if(tac.getBasicBlockIndex().size() == 0) {
-                tac.createBasicBlockIndex();
+               
             }
             
             auto& basicBlocks = tac.getBasicBlockIndex();

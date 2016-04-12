@@ -17,11 +17,10 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      tac.createBasicBlockIndex();
-
-      EXPECT_EQ(tac.basicBlockCount(), 1);
 
       auto firstBlock = tac.getBasicBlockIndex()[0];
+
+      EXPECT_EQ(tac.basicBlockCount(), 1);
 
       EXPECT_EQ(firstBlock.get()->getStart()->basicBlockId, 0);
       EXPECT_EQ(firstBlock.get()->getEnd()->basicBlockId, 0);
@@ -47,14 +46,13 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      tac.createBasicBlockIndex();
-
-      EXPECT_EQ(tac.basicBlockCount(), 4);
 
       auto firstBlock = tac.getBasicBlockIndex()[0];
       auto secondBlock = tac.getBasicBlockIndex()[1];
       auto thirdBlock = tac.getBasicBlockIndex()[2];
       auto fourthBlock = tac.getBasicBlockIndex()[3];
+
+      EXPECT_EQ(tac.basicBlockCount(), 4);
 
       EXPECT_EQ(firstBlock.get()->getStart()->basicBlockId, 0);
       EXPECT_EQ(firstBlock.get()->getEnd()->basicBlockId, 0);
@@ -101,9 +99,6 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      tac.createBasicBlockIndex();
-
-      EXPECT_EQ(tac.basicBlockCount(), 7);
 
       auto firstBlock = tac.getBasicBlockIndex()[0];
       auto secondBlock = tac.getBasicBlockIndex()[1];
@@ -112,6 +107,8 @@ namespace mcc {
       auto fifthBlock = tac.getBasicBlockIndex()[4];
       auto sixthBlock = tac.getBasicBlockIndex()[5];
       auto seventhBlock = tac.getBasicBlockIndex()[6];
+
+      EXPECT_EQ(tac.basicBlockCount(), 7);
 
       EXPECT_EQ(firstBlock.get()->getStart()->basicBlockId, 0);
       EXPECT_EQ(firstBlock.get()->getEnd()->basicBlockId, 0);
@@ -174,7 +171,6 @@ namespace mcc {
 
       Tac tac;
       tac.convertAst(tree);
-      tac.createBasicBlockIndex();
 
       auto numOfLines = tac.codeLines.size();
       unsigned linesInBlocks = 0;
