@@ -4,6 +4,7 @@
 
 #include "mcc/main.h"
 #include "mcc/tac/tac.h"
+#include "mcc/lvn/lvn.h"
 
 using namespace mcc::tac;
 
@@ -28,5 +29,10 @@ int main(int argc, char** argv) {
     Tac tac;
     tac.convertAst(tree);
 	std::cout << "Three-Adress Code:" << std::endl;
+    std::cout << tac.toString() << std::endl;
+    
+    mcc::lvn::LVN::transform(tac);
+    
+    std::cout << std::endl << "Three-Adress Code after LVN:" << std::endl;
     std::cout << tac.toString() << std::endl;
 }
