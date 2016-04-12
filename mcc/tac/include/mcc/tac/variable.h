@@ -20,13 +20,16 @@ namespace mcc {
             virtual std::string getName() const;
             virtual std::string getValue() const override;
             virtual bool isLeaf() const override;
-            int getScope() const;
+            std::pair<unsigned, unsigned> getScope() const;
             void setScope(std::pair<unsigned, unsigned> scope);
+            void setIndex(unsigned);
+            unsigned getIndex();
             
             std::string name;
             
         private:
             std::pair<unsigned, unsigned> scope;
+            unsigned index;
             
         };
     }

@@ -22,9 +22,9 @@ namespace mcc {
       tac.convertAst(tree);
       LVN::transform(tac);
       
-       std::string expectedValue = "x:1:0 = 2.000000\n";
-       expectedValue.append("y:1:0 = 8\n");
-       expectedValue.append("z:1:0 = 40");
+       std::string expectedValue = "x0:1:0 = 2.000000\n";
+       expectedValue.append("y0:1:0 = 8\n");
+       expectedValue.append("z0:1:0 = 40");
       
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(3, tac.codeLines.size());    

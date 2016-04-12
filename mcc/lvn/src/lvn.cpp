@@ -83,7 +83,7 @@ namespace mcc {
                         std::string valueKey = triple->arg1->getValue();
                         valueKey.append(triple->op.toString());
                         valueKey.append(triple->arg2->getValue());
-                        std::cout << valueKey << std::endl;
+                       
                         
                     }
                 }

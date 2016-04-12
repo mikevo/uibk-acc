@@ -18,7 +18,7 @@ namespace mcc {
     }
 
     TEST(Variable, Value) {
-      std::string testValue = "testVar:0:0";
+      std::string testValue = "testVar0:0:0";
 
       Variable v = Variable(Type::FLOAT, "testVar");
 

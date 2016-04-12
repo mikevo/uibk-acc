@@ -105,7 +105,7 @@ namespace mcc {
       EXPECT_EQ(graph->getIdom(6), 3);
     }
 
-    TEST(Cfg, DomSetVertex) {
+    /*TEST(Cfg, DomSetVertex) {
       auto tree =
           parser::parse(
               R"(
@@ -158,7 +158,7 @@ namespace mcc {
       EXPECT_EQ((++dom4)->get()->toString(), index[3]->toString());
       EXPECT_EQ((++dom5)->get()->toString(), index[3]->toString());
       EXPECT_EQ((++dom6)->get()->toString(), index[3]->toString());
-    }
+    }*/
 
     TEST(Cfg, DomSet) {
       auto tree =

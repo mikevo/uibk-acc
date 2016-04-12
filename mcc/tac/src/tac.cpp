@@ -121,6 +121,14 @@ namespace mcc {
 
                     auto lhs = convertNode(tac, v.get()->lhs);
                     auto rhs = convertNode(tac, v.get()->rhs);
+                    
+                    if(*v.get()->op.get() == ast::binary_operand::ASSIGN) {
+                        if(typeid(*lhs.get()) == typeid(Variable)) {
+                             auto var = std::static_pointer_cast<Variable>(lhs);
+                             lhs = tac->addVarRenaming(std::make_pair(var->getName(), var->getScope()));
+                        }
+                        
+                    }
 
                     auto var = std::make_shared<Triple>(
                             Operator(binaryOperatorMap.at(*v.get()->op.get())), lhs, rhs);
@@ -276,7 +284,7 @@ namespace mcc {
         void Tac::enterScope() {
             ++scopeDepth;
             scopeIndex = scopeIndexMap[scopeDepth];
-     
+
             if (scopeDepth == lastScopeDepth) {
                 ++scopeIndex;
                 scopeIndexMap[scopeDepth] = scopeIndex;
@@ -288,9 +296,9 @@ namespace mcc {
             lastScopeDepth = scopeDepth;
             --scopeDepth;
             scopeIndex = scopeIndexMap[scopeDepth];
-           
+
         }
-        
+
         void Tac::setScope(unsigned depth, unsigned index, unsigned lastDepth) {
             scopeDepth = depth;
             scopeIndex = index;
@@ -339,23 +347,41 @@ namespace mcc {
             return basicBlockIndex.size();
         }
 
-        const std::vector<std::shared_ptr<BasicBlock>>& Tac::getBasicBlockIndex() {
-            if(basicBlockIndex.empty()) {
+        const std::vector<std::shared_ptr<BasicBlock>>&Tac::getBasicBlockIndex() {
+            if (basicBlockIndex.empty()) {
                 createBasicBlockIndex();
             }
 
             return basicBlockIndex;
         }
 
-        const std::map<VarTableKey, std::vector<VarTableValue>>& Tac::getVarTable() {
+        const std::map<VarTableKey, std::vector<VarTableValue>>&Tac::getVarTable() {
             return varTable;
         }
 
         void Tac::addToVarTable(VarTableKey key, VarTableValue value) {
             std::vector<VarTableValue> valueVec;
             valueVec.push_back(value);
-            
+
             varTable.insert(std::make_pair(key, valueVec));
+        }
+
+        VarTableValue Tac::addVarRenaming(VarTableKey key) {
+
+            auto valuePair = varTable.find(key);
+
+            if (valuePair != varTable.end()) {
+                auto& varVector = valuePair->second;
+                auto cloneVar = std::make_shared<Variable>(*varVector.front());
+                
+                cloneVar->setIndex(varVector.size());
+                varVector.push_back(cloneVar);
+                
+                return cloneVar;
+            }
+            
+            assert(false && "Variable to rename does not exist!");
+
         }
 
         std::pair<unsigned, unsigned> Tac::getCurrentScope() {
