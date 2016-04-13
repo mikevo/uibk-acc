@@ -33,6 +33,7 @@ namespace mcc {
 
       mcc::tac::Tac tac;
       tac.convertAst(tree);
+      std::cout << tac.toString() << std::endl;
       auto graph = std::make_shared<Cfg>(tac);
 
       std::string expected =
@@ -104,7 +105,8 @@ namespace mcc {
       EXPECT_EQ(graph->getIdom(5), 3);
       EXPECT_EQ(graph->getIdom(6), 3);
     }
-
+    
+    // TODO find reason why shared pointers as well as the results of get() are not equal
     TEST(Cfg, DomSetVertex) {
       auto tree =
           parser::parse(
@@ -134,10 +136,6 @@ namespace mcc {
 
       auto index = tac.getBasicBlockIndex();
 
-      std::vector<Vertex> set;
-      set.push_back(index[0]);
-      set.push_back(index[3]);
-
       auto dom0 = graph->getDomSet(index[0]);
       auto dom1 = graph->getDomSet(index[1]);
       auto dom2 = graph->getDomSet(index[2]);
@@ -146,18 +144,38 @@ namespace mcc {
       auto dom5 = graph->getDomSet(index[5]);
       auto dom6 = graph->getDomSet(index[6]);
 
-      // TODO find reason why shared pointers as well as the results of get() are not equal
       EXPECT_EQ(dom0.begin()->get()->toString(), index[0]->toString());
       EXPECT_EQ(dom1.begin()->get()->toString(), index[0]->toString());
       EXPECT_EQ(dom2.begin()->get()->toString(), index[0]->toString());
       EXPECT_EQ(dom3.begin()->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom4.begin()->get()->toString(), index[3]->toString());
-      EXPECT_EQ(dom5.begin()->get()->toString(), index[3]->toString());
-      EXPECT_EQ(dom6.begin()->get()->toString(), index[3]->toString());
-
-      EXPECT_EQ((++dom4.begin())->get()->toString(), index[0]->toString());
-      EXPECT_EQ((++dom5.begin())->get()->toString(), index[0]->toString());
-      EXPECT_EQ((++dom6.begin())->get()->toString(), index[0]->toString());
+      
+      std::set<std::string> stringSet;
+      
+      for(auto& block : dom4) {
+          stringSet.insert(block->toString());
+      }
+      
+      EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
+      EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
+      
+      stringSet.clear();
+      
+      for(auto& block : dom5) {
+          stringSet.insert(block->toString());
+      }
+      
+      EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
+      EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
+      
+      stringSet.clear();
+      
+      for(auto& block : dom6) {
+          stringSet.insert(block->toString());
+      }
+      
+      EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
+      EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
+     
     }
 
     TEST(Cfg, DomSet) {
