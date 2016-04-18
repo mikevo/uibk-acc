@@ -97,7 +97,7 @@ namespace mcc {
       return dominatorTree;
     }
 
-    VertexDescriptor Cfg::getIdom(VertexDescriptor vertex) {
+    const VertexDescriptor Cfg::getIdom(const VertexDescriptor vertex) {
       if (dominatorTree.empty()) {
         calculateDOM();
       }
@@ -105,9 +105,9 @@ namespace mcc {
       return dominatorTree[vertex];
     }
 
-    const Vertex& Cfg::getIdom(Vertex& vertex) {
-      auto idom = getIdom(vertex->getBlockId());
-      return basicBlockIndex[idom];
+    const Vertex& Cfg::getIdom(const Vertex& vertex) {
+      auto idom = getIdom(getVertexDescriptor(vertex));
+      return getVertex(idom);
     }
 
     std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
@@ -126,13 +126,21 @@ namespace mcc {
 
     std::set<Vertex> Cfg::getDomSet(Vertex vertex) {
       std::set<Vertex> domSet;
-      auto dSet = getDomSet(vertex->getBlockId());
+      auto dSet = getDomSet(getVertexDescriptor(vertex));
 
-      for(auto e : dSet) {
-        domSet.insert(basicBlockIndex[e]);
+      for (auto e : dSet) {
+        domSet.insert(getVertex(e));
       }
 
       return domSet;
+    }
+
+    const VertexDescriptor Cfg::getVertexDescriptor(const Vertex& vertex) const {
+      return vertex->getBlockId();
+    }
+
+    const Vertex& Cfg::getVertex(const VertexDescriptor vertex) const {
+      return basicBlockIndex[vertex];
     }
 
   }

@@ -30,14 +30,18 @@ namespace mcc {
 
         void calculateDOM();
         VertexVertexMap& getDomTree();
-        VertexDescriptor getIdom(VertexDescriptor vertex);
-        const Vertex& getIdom(Vertex& vertex);
+        const VertexDescriptor getIdom(const VertexDescriptor vertex);
+        const Vertex& getIdom(const Vertex& vertex);
 
-        std::set<VertexDescriptor> getDomSet(VertexDescriptor vertex);
-        std::set<Vertex> getDomSet(Vertex vertex);
+        std::set<VertexDescriptor> getDomSet(const VertexDescriptor vertex);
+        std::set<Vertex> getDomSet(const Vertex vertex);
+
+
 
       private:
         const std::vector<Vertex> basicBlockIndex;
+        const VertexDescriptor getVertexDescriptor(const Vertex& vertex) const;
+        const Vertex& getVertex(const VertexDescriptor vertex) const;
         Graph graph;
         VertexVertexMap dominatorTree;
     };
