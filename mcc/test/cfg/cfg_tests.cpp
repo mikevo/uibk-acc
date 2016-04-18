@@ -33,7 +33,6 @@ namespace mcc {
 
       mcc::tac::Tac tac;
       tac.convertAst(tree);
-      std::cout << tac.toString() << std::endl;
       auto graph = std::make_shared<Cfg>(tac);
 
       std::string expected =
@@ -343,6 +342,36 @@ namespace mcc {
       EXPECT_EQ(pred6.size(), 2);
       EXPECT_NE(pred6.find(4), pred0.end());
       EXPECT_NE(pred6.find(5), pred0.end());
+    }
+
+    TEST(Cfg, VariableSet) {
+      auto tree =
+          parser::parse(
+              R"(
+                                {
+                                    int x=1;
+                                    float y = 3.0;
+
+                                    if(x > 0) {
+                                       y = y * 1.5;
+                                    } else {
+                                       y = y + 2.0;
+                                    }
+
+                                    int a = 0;
+
+                                    if( 1 <= 2) {
+                                        a = 1;
+                                    } else {
+                                        a = 2;
+                                    }
+                                  })");
+
+      mcc::tac::Tac tac;
+      tac.convertAst(tree);
+      auto graph = std::make_shared<Cfg>(tac);
+
+      EXPECT_EQ(11, graph->variableSetSize());
     }
 
   }

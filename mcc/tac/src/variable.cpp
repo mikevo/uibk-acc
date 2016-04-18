@@ -51,5 +51,9 @@ namespace mcc {
         unsigned Variable::getIndex() {
             return index;
         }
+
+        bool Variable::isTemporary() const {
+          return (getName().find("$t") != std::string::npos);
+        }
     }
 }

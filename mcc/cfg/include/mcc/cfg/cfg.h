@@ -43,14 +43,22 @@ namespace mcc {
             const VertexDescriptor vertex);
         std::set<Vertex> getPredecessor(const Vertex& vertex);
 
+        unsigned variableSetSize() const;
+
+        std::set<mcc::tac::VarTableValue> getNotKilled(
+            const VertexDescriptor vertex) const;
+
+        std::set<mcc::tac::VarTableValue> variableSet;
       private:
-        const std::vector<Vertex> basicBlockIndex;
         const VertexDescriptor getVertexDescriptor(const Vertex& vertex) const;
         const Vertex& getVertex(const VertexDescriptor vertex) const;
         std::set<Vertex> convertSet(std::set<VertexDescriptor> inSet) const;
         std::set<VertexDescriptor> convertSet(std::set<Vertex> inSet) const;
+
+        const std::vector<Vertex> basicBlockIndex;
         Graph graph;
         VertexVertexMap dominatorTree;
+
     };
   }
 }

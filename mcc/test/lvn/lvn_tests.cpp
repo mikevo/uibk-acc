@@ -47,9 +47,9 @@ namespace mcc {
        std::string expectedValue = "x0:1:0 = 5\n";
        expectedValue.append("y0:1:0 = x0:1:0 + 12\n");
        expectedValue.append("z0:1:0 = y0:1:0");
-      
+
       EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(3, tac.codeLines.size());    
+      EXPECT_EQ(3, tac.codeLines.size());
     }
    
   }

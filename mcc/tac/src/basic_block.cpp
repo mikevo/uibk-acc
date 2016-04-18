@@ -33,6 +33,22 @@ namespace mcc {
     }
 
     void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
+      if (line->containsArg1()) {
+        if (typeid (*line->arg1.get()) == typeid(Triple)) {
+          auto arg1 = std::static_pointer_cast<Triple>(line->arg1);
+          ueVar.insert(arg1->getTargetVariable());
+        }
+      }
+
+      if (line->containsArg2()) {
+        if (typeid (*line->arg2.get()) == typeid(Triple)) {
+          auto arg2 = std::static_pointer_cast<Triple>(line->arg2);
+          ueVar.insert(arg2->getTargetVariable());
+        }
+      }
+
+      defVar.insert(line->getTargetVariable());
+
       blockMembers.push_back(line);
     }
 
@@ -64,6 +80,13 @@ namespace mcc {
       return output;
     }
 
+    std::set<std::shared_ptr<Variable>> BasicBlock::getUeVar() const {
+      return ueVar;
+    }
+
+    std::set<std::shared_ptr<Variable>> BasicBlock::getDefVar() const {
+      return defVar;
+    }
   }
 }
 

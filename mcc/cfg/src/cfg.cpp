@@ -13,7 +13,13 @@ namespace mcc {
     Cfg::Cfg(mcc::tac::Tac tac) :
         basicBlockIndex(tac.getBasicBlockIndex()) {
 
-      for (auto block : basicBlockIndex) {
+      for (auto const& e : tac.getVarTable()) {
+        for (auto const& var : e.second) {
+          variableSet.insert(var);
+        }
+      }
+
+      for (auto const& block : basicBlockIndex) {
         boost::add_vertex(block, graph);
       }
 
@@ -194,11 +200,22 @@ namespace mcc {
       return pSet;
     }
 
-//    std::set<Vertex> Cfg::getPredecessor(const Vertex& vertex) {
-//      auto sSet = getPredecessor(getVertexDescriptor(vertex));
-//
-//      return convertSet(sSet);
-//    }
+    std::set<Vertex> Cfg::getPredecessor(const Vertex& vertex) {
+      auto sSet = getPredecessor(getVertexDescriptor(vertex));
+
+      return convertSet(sSet);
+    }
+
+    unsigned Cfg::variableSetSize() const {
+      return variableSet.size();
+    }
+
+    std::set<mcc::tac::VarTableValue> Cfg::getNotKilled(
+        const VertexDescriptor vertex) const {
+      auto varSet(variableSet);
+
+      return varSet;
+    }
   }
 }
 

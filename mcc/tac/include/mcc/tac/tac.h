@@ -43,8 +43,9 @@ namespace mcc {
            
             const std::map<VarTableKey, std::vector<VarTableValue>>& getVarTable();
             const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex();
-            void addToVarTable(VarTableKey key, VarTableValue value);
+            void addToVarTable(Tac *tac, VarTableValue value);
             VarTableValue addVarRenaming(VarTableKey key);
+            void removeFromVarTable(Tac* tac, VarTableValue value);
 
 
             std::string toString() const;

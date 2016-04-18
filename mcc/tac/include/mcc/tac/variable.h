@@ -25,6 +25,7 @@ namespace mcc {
             void setScope(std::pair<unsigned, unsigned> scope);
             void setIndex(unsigned);
             unsigned getIndex();
+            bool isTemporary() const;
             
             std::string name;
             
