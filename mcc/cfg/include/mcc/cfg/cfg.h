@@ -39,7 +39,9 @@ namespace mcc {
         std::set<VertexDescriptor> getSuccessor(const VertexDescriptor vertex);
         std::set<Vertex> getSuccessor(const Vertex& vertex);
 
-
+        std::set<VertexDescriptor> getPredecessor(
+            const VertexDescriptor vertex);
+        std::set<Vertex> getPredecessor(const Vertex& vertex);
 
       private:
         const std::vector<Vertex> basicBlockIndex;

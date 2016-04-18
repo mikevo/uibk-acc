@@ -160,7 +160,8 @@ namespace mcc {
       return outSet;
     }
 
-    std::set<VertexDescriptor> Cfg::getSuccessor(const VertexDescriptor vertex) {
+    std::set<VertexDescriptor> Cfg::getSuccessor(
+        const VertexDescriptor vertex) {
       auto outEdges = boost::out_edges(vertex, graph);
 
       std::set<VertexDescriptor> sSet;
@@ -178,6 +179,26 @@ namespace mcc {
 
       return convertSet(sSet);
     }
+
+    std::set<VertexDescriptor> Cfg::getPredecessor(
+        const VertexDescriptor vertex) {
+      auto inEdges = boost::in_edges(vertex, graph);
+
+      std::set<VertexDescriptor> pSet;
+
+      boost::graph_traits<Graph>::in_edge_iterator e, e_end;
+      for (boost::tie(e, e_end) = inEdges; e != e_end; ++e) {
+        pSet.insert(boost::source(*e, graph));
+      }
+
+      return pSet;
+    }
+
+//    std::set<Vertex> Cfg::getPredecessor(const Vertex& vertex) {
+//      auto sSet = getPredecessor(getVertexDescriptor(vertex));
+//
+//      return convertSet(sSet);
+//    }
   }
 }
 

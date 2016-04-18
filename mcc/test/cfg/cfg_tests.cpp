@@ -287,6 +287,64 @@ namespace mcc {
       EXPECT_EQ(succ6.size(), 0);
     }
 
+    TEST(Cfg, PredecessorSet) {
+      auto tree =
+          parser::parse(
+              R"(
+                          {
+                              int x=1;
+                              float y = 3.0;
+
+                              if(x > 0) {
+                                 y = y * 1.5;
+                              } else {
+                                 y = y + 2.0;
+                              }
+
+                              int a = 0;
+
+                              if( 1 <= 2) {
+                                  a = 1;
+                              } else {
+                                  a = 2;
+                              }
+                            })");
+
+      mcc::tac::Tac tac;
+      tac.convertAst(tree);
+      auto graph = std::make_shared<Cfg>(tac);
+
+      auto pred0 = graph->getPredecessor(0);
+      auto pred1 = graph->getPredecessor(1);
+      auto pred2 = graph->getPredecessor(2);
+      auto pred3 = graph->getPredecessor(3);
+      auto pred4 = graph->getPredecessor(4);
+      auto pred5 = graph->getPredecessor(5);
+      auto pred6 = graph->getPredecessor(6);
+
+      EXPECT_EQ(pred0.size(), 0);
+
+      EXPECT_EQ(pred1.size(), 1);
+      EXPECT_NE(pred1.find(0), pred1.end());
+
+      EXPECT_EQ(pred2.size(), 1);
+      EXPECT_NE(pred2.find(0), pred2.end());
+
+      EXPECT_EQ(pred3.size(), 2);
+      EXPECT_NE(pred3.find(2), pred3.end());
+      EXPECT_NE(pred3.find(1), pred3.end());
+
+      EXPECT_EQ(pred4.size(), 1);
+      EXPECT_NE(pred4.find(3), pred3.end());
+
+      EXPECT_EQ(pred5.size(), 1);
+      EXPECT_NE(pred5.find(3), pred3.end());
+
+      EXPECT_EQ(pred6.size(), 2);
+      EXPECT_NE(pred6.find(4), pred0.end());
+      EXPECT_NE(pred6.find(5), pred0.end());
+    }
+
   }
 }
 
