@@ -242,9 +242,21 @@ namespace mcc {
 
       std::set<mcc::tac::VarTableValue> tmp;
 
-      std::set_intersection(this->liveOut.at(v).begin(),
-          this->liveOut.at(v).end(), notKilled.begin(), notKilled.end(),
-          std::inserter(tmp, tmp.end()));
+      auto const& liveOutSet = this->liveOut.at(v);
+
+      if (liveOutSet.size() < notKilled.size()) {
+        for (auto const& var : notKilled) {
+          if (liveOutSet.find(var) != liveOutSet.end()) {
+            tmp.insert(var);
+          }
+        }
+      } else {
+        for (auto const& var : liveOutSet) {
+          if (notKilled.find(var) != notKilled.end()) {
+            tmp.insert(var);
+          }
+        }
+      }
 
       for (auto const& var : ueVar) {
         tmp.insert(var);
