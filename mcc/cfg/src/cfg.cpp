@@ -124,18 +124,15 @@ namespace mcc {
       return domSet;
     }
 
-    std::set<Vertex> Cfg::getDomSet(Vertex vertex) {
+    std::set<Vertex> Cfg::getDomSet(const Vertex& vertex) {
       std::set<Vertex> domSet;
       auto dSet = getDomSet(getVertexDescriptor(vertex));
 
-      for (auto e : dSet) {
-        domSet.insert(getVertex(e));
-      }
-
-      return domSet;
+      return convertSet(dSet);
     }
 
-    const VertexDescriptor Cfg::getVertexDescriptor(const Vertex& vertex) const {
+    const VertexDescriptor Cfg::getVertexDescriptor(
+        const Vertex& vertex) const {
       return vertex->getBlockId();
     }
 
@@ -143,6 +140,44 @@ namespace mcc {
       return basicBlockIndex[vertex];
     }
 
+    std::set<Vertex> Cfg::convertSet(std::set<VertexDescriptor> inSet) const {
+      std::set<Vertex> outSet;
+
+      for (auto e : inSet) {
+        outSet.insert(getVertex(e));
+      }
+
+      return outSet;
+    }
+
+    std::set<VertexDescriptor> Cfg::convertSet(std::set<Vertex> inSet) const {
+      std::set<VertexDescriptor> outSet;
+
+      for (auto e : inSet) {
+        outSet.insert(getVertexDescriptor(e));
+      }
+
+      return outSet;
+    }
+
+    std::set<VertexDescriptor> Cfg::getSuccessor(const VertexDescriptor vertex) {
+      auto outEdges = boost::out_edges(vertex, graph);
+
+      std::set<VertexDescriptor> sSet;
+
+      boost::graph_traits<Graph>::out_edge_iterator e, e_end;
+      for (boost::tie(e, e_end) = outEdges; e != e_end; ++e) {
+        sSet.insert(boost::target(*e, graph));
+      }
+
+      return sSet;
+    }
+
+    std::set<Vertex> Cfg::getSuccessor(const Vertex& vertex) {
+      auto sSet = getSuccessor(getVertexDescriptor(vertex));
+
+      return convertSet(sSet);
+    }
   }
 }
 

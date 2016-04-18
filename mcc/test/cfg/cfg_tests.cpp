@@ -105,7 +105,7 @@ namespace mcc {
       EXPECT_EQ(graph->getIdom(5), 3);
       EXPECT_EQ(graph->getIdom(6), 3);
     }
-    
+
     // TODO find reason why shared pointers as well as the results of get() are not equal
     TEST(Cfg, DomSetVertex) {
       auto tree =
@@ -148,34 +148,34 @@ namespace mcc {
       EXPECT_EQ(dom1.begin()->get()->toString(), index[0]->toString());
       EXPECT_EQ(dom2.begin()->get()->toString(), index[0]->toString());
       EXPECT_EQ(dom3.begin()->get()->toString(), index[0]->toString());
-      
+
       std::set<std::string> stringSet;
-      
-      for(auto& block : dom4) {
-          stringSet.insert(block->toString());
+
+      for (auto& block : dom4) {
+        stringSet.insert(block->toString());
       }
-      
+
       EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
       EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
-      
+
       stringSet.clear();
-      
-      for(auto& block : dom5) {
-          stringSet.insert(block->toString());
+
+      for (auto& block : dom5) {
+        stringSet.insert(block->toString());
       }
-      
+
       EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
       EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
-      
+
       stringSet.clear();
-      
-      for(auto& block : dom6) {
-          stringSet.insert(block->toString());
+
+      for (auto& block : dom6) {
+        stringSet.insert(block->toString());
       }
-      
+
       EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
       EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
-     
+
     }
 
     TEST(Cfg, DomSet) {
@@ -228,6 +228,65 @@ namespace mcc {
         EXPECT_NE(dom6.find(e), dom6.end());
       }
     }
+
+    TEST(Cfg, SuccessorSet) {
+      auto tree =
+          parser::parse(
+              R"(
+                          {
+                              int x=1;
+                              float y = 3.0;
+
+                              if(x > 0) {
+                                 y = y * 1.5;
+                              } else {
+                                 y = y + 2.0;
+                              }
+
+                              int a = 0;
+
+                              if( 1 <= 2) {
+                                  a = 1;
+                              } else {
+                                  a = 2;
+                              }
+                            })");
+
+      mcc::tac::Tac tac;
+      tac.convertAst(tree);
+      auto graph = std::make_shared<Cfg>(tac);
+
+      auto succ0 = graph->getSuccessor(0);
+      auto succ1 = graph->getSuccessor(1);
+      auto succ2 = graph->getSuccessor(2);
+      auto succ3 = graph->getSuccessor(3);
+      auto succ4 = graph->getSuccessor(4);
+      auto succ5 = graph->getSuccessor(5);
+      auto succ6 = graph->getSuccessor(6);
+
+      EXPECT_EQ(succ0.size(), 2);
+      EXPECT_NE(succ0.find(1), succ0.end());
+      EXPECT_NE(succ0.find(2), succ0.end());
+
+      EXPECT_EQ(succ1.size(), 1);
+      EXPECT_NE(succ1.find(3), succ1.end());
+
+      EXPECT_EQ(succ2.size(), 1);
+      EXPECT_NE(succ2.find(3), succ2.end());
+
+      EXPECT_EQ(succ3.size(), 2);
+      EXPECT_NE(succ3.find(4), succ3.end());
+      EXPECT_NE(succ3.find(5), succ3.end());
+
+      EXPECT_EQ(succ4.size(), 1);
+      EXPECT_NE(succ4.find(6), succ3.end());
+
+      EXPECT_EQ(succ5.size(), 1);
+      EXPECT_NE(succ5.find(6), succ3.end());
+
+      EXPECT_EQ(succ6.size(), 0);
+    }
+
   }
 }
 

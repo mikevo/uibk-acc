@@ -34,7 +34,10 @@ namespace mcc {
         const Vertex& getIdom(const Vertex& vertex);
 
         std::set<VertexDescriptor> getDomSet(const VertexDescriptor vertex);
-        std::set<Vertex> getDomSet(const Vertex vertex);
+        std::set<Vertex> getDomSet(const Vertex& vertex);
+
+        std::set<VertexDescriptor> getSuccessor(const VertexDescriptor vertex);
+        std::set<Vertex> getSuccessor(const Vertex& vertex);
 
 
 
@@ -42,6 +45,8 @@ namespace mcc {
         const std::vector<Vertex> basicBlockIndex;
         const VertexDescriptor getVertexDescriptor(const Vertex& vertex) const;
         const Vertex& getVertex(const VertexDescriptor vertex) const;
+        std::set<Vertex> convertSet(std::set<VertexDescriptor> inSet) const;
+        std::set<VertexDescriptor> convertSet(std::set<Vertex> inSet) const;
         Graph graph;
         VertexVertexMap dominatorTree;
     };
