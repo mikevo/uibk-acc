@@ -48,6 +48,11 @@ namespace mcc {
         std::set<mcc::tac::VarTableValue> getNotKilled(
             const VertexDescriptor vertex) const;
 
+        void computeLive(void);
+
+        std::set<mcc::tac::VarTableValue> getLiveIn(VertexDescriptor v);
+        std::set<mcc::tac::VarTableValue> getLiveOut(VertexDescriptor v);
+
         std::set<mcc::tac::VarTableValue> variableSet;
       private:
         const VertexDescriptor getVertexDescriptor(const Vertex& vertex) const;
@@ -55,10 +60,16 @@ namespace mcc {
         std::set<Vertex> convertSet(std::set<VertexDescriptor> inSet) const;
         std::set<VertexDescriptor> convertSet(std::set<Vertex> inSet) const;
 
+        bool updateLiveIn(VertexDescriptor v);
+        bool updateLiveOut(VertexDescriptor v);
+
         const std::vector<Vertex> basicBlockIndex;
         Graph graph;
         VertexVertexMap dominatorTree;
 
+        std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> notKilled;
+        std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveIn;
+        std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveOut;
     };
   }
 }

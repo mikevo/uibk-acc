@@ -5,6 +5,7 @@
 #include <ostream>
 #include <typeinfo>
 #include <vector>
+#include <iterator>
 
 #include "mcc/tac/operator.h"
 
@@ -21,6 +22,22 @@ namespace mcc {
 
       for (auto const& block : basicBlockIndex) {
         boost::add_vertex(block, graph);
+
+        std::set<mcc::tac::VarTableValue> set(variableSet);
+
+        for (auto& var : block->getDefVar()) {
+          set.erase(var);
+        }
+
+        // TODO: possible insert of sets that are destroyed
+        notKilled.insert(std::make_pair(block->getBlockId(), set));
+        liveIn.insert(
+            std::make_pair(block->getBlockId(),
+                std::set<mcc::tac::VarTableValue>()));
+
+        liveOut.insert(
+            std::make_pair(block->getBlockId(),
+                std::set<mcc::tac::VarTableValue>()));
       }
 
       unsigned prevBlockId = 0;
@@ -215,6 +232,65 @@ namespace mcc {
       auto varSet(variableSet);
 
       return varSet;
+    }
+
+    bool Cfg::updateLiveIn(VertexDescriptor v) {
+      auto const& ueVar = this->getVertex(v)->getUeVar();
+      auto const& notKilled = this->notKilled.at(v);
+
+      auto oldSize = this->liveIn.at(v).size();
+
+      std::set<mcc::tac::VarTableValue> tmp;
+
+      std::set_intersection(this->liveOut.at(v).begin(),
+          this->liveOut.at(v).end(), notKilled.begin(), notKilled.end(),
+          std::inserter(tmp, tmp.end()));
+
+      for (auto const& var : ueVar) {
+        tmp.insert(var);
+      }
+
+      this->liveIn.insert(std::make_pair(v, tmp));
+      return (oldSize != tmp.size());
+    }
+
+    bool Cfg::updateLiveOut(VertexDescriptor v) {
+      auto oldSize = this->liveOut.at(v).size();
+
+      std::set<mcc::tac::VarTableValue> tmp;
+
+      for (auto s : this->getSuccessor(v)) {
+        for (auto var : this->liveOut.at(s)) {
+          tmp.insert(var);
+        }
+      }
+
+      liveOut.insert(std::make_pair(v, tmp));
+
+      return (oldSize != tmp.size());
+    }
+
+    void Cfg::computeLive(void) {
+      bool changed = false;
+
+      do {
+        for (auto const& b : basicBlockIndex) {
+          this->updateLiveIn(b->getBlockId());
+        }
+
+        for (auto const& b : basicBlockIndex) {
+          changed = this->updateLiveOut(b->getBlockId()) || changed;
+        }
+
+      } while (changed);
+    }
+
+    std::set<mcc::tac::VarTableValue> Cfg::getLiveIn(VertexDescriptor v) {
+      return this->liveIn.at(v);
+    }
+
+    std::set<mcc::tac::VarTableValue> Cfg::getLiveOut(VertexDescriptor v) {
+      return this->liveOut.at(v);
     }
   }
 }

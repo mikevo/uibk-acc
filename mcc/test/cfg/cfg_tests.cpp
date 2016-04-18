@@ -374,6 +374,44 @@ namespace mcc {
       EXPECT_EQ(11, graph->variableSetSize());
     }
 
+    TEST(Cfg, WorkingSet) {
+          auto tree =
+              parser::parse(
+                  R"(
+                                    {
+                                        int x=1;
+                                        float y = 3.0;
+
+                                        if(x > 0) {
+                                           y = y * 1.5;
+                                        } else {
+                                           y = y + 2.0;
+                                        }
+
+                                        int a = 0;
+
+                                        if( 1 <= 2) {
+                                            a = 1;
+                                        } else {
+                                            a = 2;
+                                        }
+                                      })");
+
+          mcc::tac::Tac tac;
+          tac.convertAst(tree);
+          auto graph = std::make_shared<Cfg>(tac);
+
+          graph->computeLive();
+
+          for (unsigned i = 0; i < 7; ++i) {
+            for (auto out : graph->getLiveOut(i)) {
+              std::cout << out->getFullName() + " ";
+            }
+
+            std::cout << std::endl;
+          }
+        }
+
   }
 }
 
