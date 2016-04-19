@@ -181,6 +181,7 @@ namespace mcc {
             if (rhs.get()->isLeaf()) {
               auto var = std::make_shared<Triple>(
                   Operator(OperatorName::ASSIGN), lhs, rhs);
+              var->setTargetVariable(lhs);
 
               tac->addLine(var);
               return var;

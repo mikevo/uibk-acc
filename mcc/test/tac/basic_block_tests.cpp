@@ -72,6 +72,26 @@ namespace mcc {
       EXPECT_EQ(fourthBlock.get()->getStart().get(),
           fourthBlock.get()->getEnd().get());
       EXPECT_EQ(fourthBlock.get()->getStart()->getType(), Type::NONE);
+
+      EXPECT_EQ(2, firstBlock->getDefVar().size());
+      EXPECT_EQ(0, firstBlock->getUeVar().size());
+
+      members = firstBlock->getBlockMembers();
+
+      EXPECT_NE(firstBlock->getDefVar().end(),
+          firstBlock->getDefVar().find(members[0]->getTargetVariable()));
+      EXPECT_NE(firstBlock->getDefVar().end(),
+                firstBlock->getDefVar().find(members[2]->getTargetVariable()));
+
+      for (auto const& v : secondBlock->getDefVar()) {
+        std::cout << v->getFullName() << std::endl;
+      }
+
+      std::cout << secondBlock->toString() << std::endl;
+
+      for (auto const& v : secondBlock->getUeVar()) {
+        std::cout << v->getFullName() << std::endl;
+      }
     }
 
     TEST(BasicBlock, SevenBlocks) {

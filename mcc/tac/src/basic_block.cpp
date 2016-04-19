@@ -1,6 +1,7 @@
 #include "mcc/tac/basic_block.h"
 
 #include <string>
+#include <iostream>
 
 #include "mcc/tac/label.h"
 
@@ -36,18 +37,29 @@ namespace mcc {
       if (line->containsArg1()) {
         if (typeid (*line->arg1.get()) == typeid(Triple)) {
           auto arg1 = std::static_pointer_cast<Triple>(line->arg1);
-          ueVar.insert(arg1->getTargetVariable());
+
+          if (arg1->getTargetVariable() != nullptr) {
+            if (defVar.find(arg1->getTargetVariable()) == defVar.end()) {
+              ueVar.insert(arg1->getTargetVariable());
+            }
+          }
         }
       }
 
       if (line->containsArg2()) {
         if (typeid (*line->arg2.get()) == typeid(Triple)) {
           auto arg2 = std::static_pointer_cast<Triple>(line->arg2);
-          ueVar.insert(arg2->getTargetVariable());
+          if (arg2->getTargetVariable() != nullptr) {
+            if (defVar.find(arg2->getTargetVariable()) == defVar.end()) {
+              ueVar.insert(arg2->getTargetVariable());
+            }
+          }
         }
       }
 
-      defVar.insert(line->getTargetVariable());
+      if (line->getTargetVariable() != nullptr) {
+        defVar.insert(line->getTargetVariable());
+      }
 
       blockMembers.push_back(line);
     }
