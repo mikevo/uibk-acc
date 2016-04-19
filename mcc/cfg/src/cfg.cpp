@@ -7,6 +7,7 @@
 #include <vector>
 #include <iterator>
 
+#include "mcc/cfg/set_helper.h"
 #include "mcc/tac/operator.h"
 
 namespace mcc {
@@ -244,23 +245,9 @@ namespace mcc {
 
       auto const& liveOutSet = this->liveOut.at(v);
 
-      if (liveOutSet.size() < notKilled.size()) {
-        for (auto const& var : notKilled) {
-          if (liveOutSet.find(var) != liveOutSet.end()) {
-            tmp.insert(var);
-          }
-        }
-      } else {
-        for (auto const& var : liveOutSet) {
-          if (notKilled.find(var) != notKilled.end()) {
-            tmp.insert(var);
-          }
-        }
-      }
+      tmp = set_intersect(liveOutSet, notKilled);
 
-      for (auto const& var : ueVar) {
-        tmp.insert(var);
-      }
+      tmp = set_union(ueVar, tmp);
 
       this->liveIn.insert(std::make_pair(v, tmp));
       return (oldSize != tmp.size());
@@ -272,9 +259,7 @@ namespace mcc {
       std::set<mcc::tac::VarTableValue> tmp;
 
       for (auto s : this->getSuccessor(v)) {
-        for (auto var : this->liveOut.at(s)) {
-          tmp.insert(var);
-        }
+        tmp = set_union(tmp, this->liveOut.at(s));
       }
 
       liveOut.insert(std::make_pair(v, tmp));
