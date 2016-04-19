@@ -99,7 +99,7 @@ namespace mcc {
       Tac tac;
       tac.convertAst(tree);
 
-      EXPECT_EQ(tac.getVarTable().size(), 4);
+      EXPECT_EQ(tac.getVarTable().size(), 5);
       
       auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->arg1);
       auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->arg1);

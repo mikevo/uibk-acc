@@ -101,26 +101,37 @@ namespace mcc {
           auto lhs = convertNode(tac, v.get()->lhs);
           auto rhs = convertNode(tac, v.get()->rhs);
 
+          bool setTarVar = false;
+
+          VarTableValue variable;
+
           if (*v.get()->op.get() == ast::binary_operand::ASSIGN) {
             if (typeid(*lhs.get()) == typeid(Variable)) {
               auto var = std::static_pointer_cast<Variable>(lhs);
-              lhs = tac->addVarRenaming(
+              variable = tac->addVarRenaming(
                   std::make_pair(var->getName(), var->getScope()));
-            }
 
+              setTarVar = true;
+
+              lhs = variable;
+            }
           }
 
-          auto var = std::make_shared<Triple>(
+          auto triple = std::make_shared<Triple>(
               Operator(binaryOperatorMap.at(*v.get()->op.get())), lhs, rhs);
 
-          auto varObj = var->getTargetVariable();
+          if (setTarVar) {
+            triple->setTargetVariable(variable);
+          }
+
+          auto varObj = triple->getTargetVariable();
           if (varObj != nullptr) {
             tac->addToVarTable(tac, varObj);
           }
 
-          tac->addLine(var);
+          tac->addLine(triple);
 
-          return var;
+          return triple;
         }
 
         if (typeid (*n.get()) == typeid(ast::unary_operation)) {

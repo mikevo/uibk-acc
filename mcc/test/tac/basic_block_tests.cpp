@@ -81,15 +81,23 @@ namespace mcc {
       EXPECT_NE(firstBlock->getDefVar().end(),
           firstBlock->getDefVar().find(members[0]->getTargetVariable()));
       EXPECT_NE(firstBlock->getDefVar().end(),
-                firstBlock->getDefVar().find(members[2]->getTargetVariable()));
+          firstBlock->getDefVar().find(members[2]->getTargetVariable()));
 
-      for (auto const& v : secondBlock->getDefVar()) {
+      EXPECT_EQ(1, secondBlock->getDefVar().size());
+      EXPECT_EQ(0, secondBlock->getUeVar().size());
+
+      members = secondBlock->getBlockMembers();
+
+      EXPECT_NE(secondBlock->getDefVar().end(),
+                secondBlock->getDefVar().find(members[0]->getTargetVariable()));
+
+      for (auto const& v : thirdBlock->getDefVar()) {
         std::cout << v->getFullName() << std::endl;
       }
 
-      std::cout << secondBlock->toString() << std::endl;
+      std::cout << thirdBlock->toString() << std::endl;
 
-      for (auto const& v : secondBlock->getUeVar()) {
+      for (auto const& v : thirdBlock->getUeVar()) {
         std::cout << v->getFullName() << std::endl;
       }
     }
