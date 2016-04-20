@@ -33,7 +33,7 @@ namespace mcc {
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg1,
         std::shared_ptr<Operand> arg2) :
-        Operand(), arg1(arg1), arg2(arg2), op(op), basicBlockId(0), targetVar(
+        Operand(), op(op), basicBlockId(0), arg1(arg1), arg2(arg2), targetVar(
             nullptr), id(0) {
       if (this->containsArg1()) {
         this->setType(arg1->getType());
@@ -175,6 +175,13 @@ namespace mcc {
 
     bool Triple::containsTargetVar(void) const {
       return (targetVar != nullptr);
+    }
+
+    std::shared_ptr<Operand> Triple::getArg1() const {
+      return this->arg1;
+    }
+    std::shared_ptr<Operand> Triple::getArg2() const {
+      return this->arg2;
     }
   }
 }

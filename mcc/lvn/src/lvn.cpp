@@ -20,11 +20,11 @@ namespace mcc {
                 if (triple->op.getType() == OperatorType::BINARY) {
                     if (triple->op.getResultType() == Type::AUTO ||
                             triple->op.getResultType() == Type::FLOAT) {
-                        if (typeid (*triple->arg1) == typeid (IntLiteral) &&
-                                typeid (*triple->arg2) == typeid (IntLiteral)) {
+                        if (typeid (*triple->getArg1()) == typeid (IntLiteral) &&
+                                typeid (*triple->getArg2()) == typeid (IntLiteral)) {
 
-                            auto arg1 = std::static_pointer_cast<IntLiteral>(triple->arg1);
-                            auto arg2 = std::static_pointer_cast<IntLiteral>(triple->arg2);
+                            auto arg1 = std::static_pointer_cast<IntLiteral>(triple->getArg1());
+                            auto arg2 = std::static_pointer_cast<IntLiteral>(triple->getArg2());
                             auto target = triple->getTargetVariable();
 
                             int val1 = arg1->value;
@@ -40,11 +40,11 @@ namespace mcc {
                                         std::make_shared<IntLiteral>(result), *triple);
                             }
 
-                        } else if (typeid (*triple->arg1) == typeid (FloatLiteral) &&
-                                typeid (*triple->arg2) == typeid (FloatLiteral)) {
+                        } else if (typeid (*triple->getArg1()) == typeid (FloatLiteral) &&
+                                typeid (*triple->getArg2()) == typeid (FloatLiteral)) {
 
-                            auto arg1 = std::static_pointer_cast<FloatLiteral>(triple->arg1);
-                            auto arg2 = std::static_pointer_cast<FloatLiteral>(triple->arg2);
+                            auto arg1 = std::static_pointer_cast<FloatLiteral>(triple->getArg1());
+                            auto arg2 = std::static_pointer_cast<FloatLiteral>(triple->getArg2());
                             auto target = triple->getTargetVariable();
 
                             float val1 = arg1->value;
@@ -78,9 +78,9 @@ namespace mcc {
 
                 for (auto& triple : block->getBlockMembers()) {
                     if (triple->op.getType() == OperatorType::BINARY) {
-                        std::string valueKey = triple->arg1->getValue();
+                        std::string valueKey = triple->getArg1()->getValue();
                         valueKey.append(triple->op.toString());
-                        valueKey.append(triple->arg2->getValue());
+                        valueKey.append(triple->getArg2()->getValue());
 
                         auto value = valueMap.find(valueKey);
 
@@ -138,8 +138,9 @@ namespace mcc {
         void LVN::updateTriple(Operator op, std::shared_ptr<Operand> arg1,
                 std::shared_ptr<Operand> arg2, Triple& triple) {
 
-            triple.arg1 = arg1;
-            triple.arg2 = arg2;
+            assert(false && "need new impl");
+//            triple.arg1 = arg1;
+//            triple.arg2 = arg2;
             triple.op = op;
             triple.updateResultType(op);
             triple.setTargetVariable(nullptr);

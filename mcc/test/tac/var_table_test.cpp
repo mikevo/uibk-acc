@@ -28,11 +28,11 @@ namespace mcc {
       
       EXPECT_EQ(tac.getVarTable().size(), 3);
       
-      auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->arg1);
-      auto y1 = std::static_pointer_cast<Variable>(tac.codeLines[1]->arg1);
+      auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->getArg1());
+      auto y1 = std::static_pointer_cast<Variable>(tac.codeLines[1]->getArg1());
       
-      auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[2]->arg1);
-      auto y2 = std::static_pointer_cast<Variable>(tac.codeLines[2]->arg2);
+      auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg1());
+      auto y2 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg2());
       
       EXPECT_EQ(x1.get(), x2.get());
       EXPECT_EQ(y1.get(), y2.get());
@@ -60,10 +60,10 @@ namespace mcc {
 
       EXPECT_EQ(tac.getVarTable().size(), 3);
 
-      auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->arg1);
-      auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->arg1);
-      auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[2]->arg1);
-      auto x4 = std::static_pointer_cast<Variable>(tac.codeLines[2]->arg2);
+      auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->getArg1());
+      auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->getArg1());
+      auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg1());
+      auto x4 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg2());
      
       EXPECT_NE(x1.get(), x2.get());
       EXPECT_EQ(x3.get(), x4.get());
@@ -101,11 +101,11 @@ namespace mcc {
 
       EXPECT_EQ(tac.getVarTable().size(), 5);
       
-      auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->arg1);
-      auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->arg1);
-      auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[2]->arg1);
-      auto x4 = std::static_pointer_cast<Variable>(tac.codeLines[3]->arg2);
-      auto x5 = std::static_pointer_cast<Variable>(tac.codeLines[4]->arg1);
+      auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->getArg1());
+      auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->getArg1());
+      auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg1());
+      auto x4 = std::static_pointer_cast<Variable>(tac.codeLines[3]->getArg2());
+      auto x5 = std::static_pointer_cast<Variable>(tac.codeLines[4]->getArg1());
            
       EXPECT_EQ(x3.get(), x4.get());
       EXPECT_NE(x1.get(), x2.get());

@@ -24,7 +24,6 @@ namespace mcc {
             Triple(Operator op, std::shared_ptr<Operand> arg);
             Triple(Operator op, std::shared_ptr<Operand> arg1,
                     std::shared_ptr<Operand> arg2);
-            std::shared_ptr<Operand> arg1, arg2;
             Operator op;
             unsigned basicBlockId;
             std::string getName() const;
@@ -42,7 +41,11 @@ namespace mcc {
             bool containsArg1() const;
             bool containsArg2() const;
 
+            std::shared_ptr<Operand> getArg1() const;
+            std::shared_ptr<Operand> getArg2() const;
+
         private:
+            std::shared_ptr<Operand> arg1, arg2;
             std::shared_ptr<Variable> targetVar;
             static unsigned nextId;
             unsigned id;

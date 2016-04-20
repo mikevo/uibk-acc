@@ -50,9 +50,9 @@ namespace mcc {
         auto op = line.get()->op;
 
         if (op.getName() == mcc::tac::OperatorName::JUMP) {
-          if (typeid(*line.get()->arg1.get()) == typeid(mcc::tac::Label)) {
+          if (typeid(*line->getArg1().get()) == typeid(mcc::tac::Label)) {
             auto label = std::static_pointer_cast<mcc::tac::Label>(
-                line.get()->arg1);
+                line->getArg1());
 
             boost::add_edge(line.get()->basicBlockId, label.get()->basicBlockId,
                 graph);
@@ -63,9 +63,9 @@ namespace mcc {
         }
 
         if (op.getName() == mcc::tac::OperatorName::JUMPFALSE) {
-          if (typeid(*line.get()->arg2.get()) == typeid(mcc::tac::Label)) {
+          if (typeid(*line->getArg2().get()) == typeid(mcc::tac::Label)) {
             auto label = std::static_pointer_cast<mcc::tac::Label>(
-                line.get()->arg2);
+                line->getArg2());
 
             boost::add_edge(line.get()->basicBlockId,
                 line.get()->basicBlockId + 1, graph);
