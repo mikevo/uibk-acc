@@ -56,8 +56,8 @@ namespace mcc {
           id = ++nextId;
           this->name = "$t" + std::to_string(id);
 
-          setTargetVariable(std::make_shared<Variable>(this->getType(),
-              this->name));
+          setTargetVariable(
+              std::make_shared<Variable>(this->getType(), this->name));
       }
     }
 
@@ -140,8 +140,11 @@ namespace mcc {
     }
 
     void Triple::setTargetVariable(std::shared_ptr<Variable> var) {
-      targetVarIsValid = (var == nullptr);
-      targetVar = var;
+      if (var != nullptr) {
+        targetVar = var;
+      } else {
+        assert(false && "don't kill the object");
+      }
     }
 
     std::shared_ptr<Variable> Triple::getTargetVariable() {
@@ -156,8 +159,8 @@ namespace mcc {
       return (arg2 != nullptr);
     }
 
-    bool Triple::isTargetVarValid(void) const {
-      return targetVarIsValid;
+    bool Triple::containsTargetVar(void) const {
+      return (targetVar != nullptr);
     }
   }
 }

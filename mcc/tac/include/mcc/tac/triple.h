@@ -37,7 +37,7 @@ namespace mcc {
             virtual std::string toString() const;
             void setTargetVariable(std::shared_ptr<Variable> var);
             std::shared_ptr<Variable> getTargetVariable();
-            bool isTargetVarValid(void) const;
+            bool containsTargetVar(void) const;
 
             bool containsArg1() const;
             bool containsArg2() const;
@@ -47,7 +47,6 @@ namespace mcc {
             static unsigned nextId;
             unsigned id;
             std::string name;
-            bool targetVarIsValid;
         };
     }
 }

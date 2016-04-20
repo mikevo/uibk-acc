@@ -259,7 +259,7 @@ namespace mcc {
       std::set<mcc::tac::VarTableValue> tmp;
 
       for (auto s : this->getSuccessor(v)) {
-        tmp = set_union(tmp, this->liveOut.at(s));
+        tmp = set_union(tmp, this->liveIn.at(s));
       }
 
       liveOut.insert(std::make_pair(v, tmp));
