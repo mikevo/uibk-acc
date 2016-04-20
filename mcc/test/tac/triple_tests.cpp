@@ -11,10 +11,11 @@ namespace mcc {
 
     TEST(Triple, ID_Test) {
       std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-      Operator op = Operator(OperatorName::MINUS);
+      std::shared_ptr<IntLiteral> j = std::make_shared<IntLiteral>(42);
+      Operator op = Operator(OperatorName::NOT);
 
-      Triple t1 = Triple(OperatorName::MINUS);
-      Triple t2 = Triple(op, i);
+      Triple t1 = Triple(op, i);
+      Triple t2 = Triple(op, j);
       
       EXPECT_LT(0, t1.getId());
       EXPECT_EQ(t1.getId() + 1, t2.getId());
@@ -22,7 +23,7 @@ namespace mcc {
 
     TEST(Triple, Leaf) {
       std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-      Operator op = Operator(OperatorName::MINUS);
+      Operator op = Operator(OperatorName::NOT);
 
       Triple t1 = Triple(op, i);
 
@@ -31,7 +32,7 @@ namespace mcc {
 
     TEST(Triple, BBDefaultId) {
       std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-      Operator op = Operator(OperatorName::MINUS);
+      Operator op = Operator(OperatorName::NOT);
 
       Triple t = Triple(op, i);
 
@@ -40,7 +41,7 @@ namespace mcc {
 
     TEST(Triple, Value) {
       std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-      Operator op = Operator(OperatorName::MINUS);
+      Operator op = Operator(OperatorName::NOT);
 
       Triple t = Triple(op, i);
 
@@ -49,7 +50,7 @@ namespace mcc {
     
     TEST(Triple, Type) {
       std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-      Operator op = Operator(OperatorName::MINUS);
+      Operator op = Operator(OperatorName::NOT);
 
       Triple t = Triple(op, i);
 

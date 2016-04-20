@@ -16,7 +16,7 @@ namespace mcc {
   namespace tac {
 
     enum class OperatorType {
-      LINE, UNARY, BINARY
+      NONE, UNARY, BINARY
     };
 
     enum class OperatorName {

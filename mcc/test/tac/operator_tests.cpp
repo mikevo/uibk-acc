@@ -11,7 +11,7 @@ namespace mcc {
       OperatorName name = OperatorName::NOP;
       Operator op = Operator(name);
 
-      EXPECT_EQ(OperatorType::LINE, op.getType());
+      EXPECT_EQ(OperatorType::NONE, op.getType());
       EXPECT_EQ(Type::AUTO, op.getResultType());
       EXPECT_EQ(name, op.getName());
     }
@@ -119,7 +119,7 @@ namespace mcc {
       OperatorName name = OperatorName::LABEL;
       Operator op = Operator(name);
 
-      EXPECT_EQ(OperatorType::UNARY, op.getType());
+      EXPECT_EQ(OperatorType::NONE, op.getType());
       EXPECT_EQ(Type::AUTO, op.getResultType());
       EXPECT_EQ(name, op.getName());
     }

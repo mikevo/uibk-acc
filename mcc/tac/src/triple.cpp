@@ -20,13 +20,14 @@ namespace mcc {
     // constructor needed for Label
     Triple::Triple(OperatorName op) :
         Triple(Operator(op), nullptr) {
+      assert(this->op.getType() == OperatorType::NONE && "Operator not unary!");
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg) :
         Triple(op, arg, nullptr) {
-      // check if operator is UNARY or LINE (NOP)
+      // check if operator is UNARY or NONE (NOP)
       assert(
-          (op.getType() == OperatorType::LINE
+          (op.getType() == OperatorType::NONE
               || op.getType() == OperatorType::UNARY) && "Operator not unary!");
     }
 
@@ -34,23 +35,36 @@ namespace mcc {
         std::shared_ptr<Operand> arg2) :
         Operand(), arg1(arg1), arg2(arg2), op(op), basicBlockId(0), targetVar(
             nullptr), id(0) {
-      if (arg1 != nullptr) {
+      if (this->containsArg1()) {
         this->setType(arg1->getType());
       }
 
       this->updateResultType(op);
 
-      if (arg2 != nullptr) {
+      switch (op.getType()) {
+        case OperatorType::BINARY:
+          assert(this->containsArg2() && "second argument needed");
+        case OperatorType::UNARY:
+          assert(this->containsArg1() && "first argument needed");
+          break;
+        case OperatorType::NONE:
+          assert(
+              (!this->containsArg1() && !this->containsArg2())
+                  && "No argument allowed");
+          break;
+      }
+
+      if (this->containsArg2()) {
         assert(
             (op.getName() == OperatorName::JUMPFALSE
                 || arg1->getType() == arg2->getType()) && "Type mismatch");
       }
 
       switch (op.getName()) {
+        case OperatorName::NOP:
         case OperatorName::ASSIGN:
         case OperatorName::JUMPFALSE:
         case OperatorName::JUMP:
-        case OperatorName::NOP:
           break;
         default:
           id = ++nextId;

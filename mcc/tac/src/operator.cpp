@@ -9,7 +9,7 @@ namespace mcc {
 
     namespace {
       const std::map<OperatorName, OperatorType> operatorMap{
-        {OperatorName::NOP, OperatorType::LINE},
+        {OperatorName::NOP, OperatorType::NONE},
         {OperatorName::ADD, OperatorType::BINARY},
         {OperatorName::ASSIGN, OperatorType::BINARY},
         {OperatorName::DIV, OperatorType::BINARY},
@@ -21,7 +21,7 @@ namespace mcc {
         {OperatorName::GT, OperatorType::BINARY},
         {OperatorName::JUMP, OperatorType::UNARY},
         {OperatorName::JUMPFALSE, OperatorType::BINARY},
-        {OperatorName::LABEL, OperatorType::UNARY},
+        {OperatorName::LABEL, OperatorType::NONE},
         {OperatorName::MUL, OperatorType::BINARY},
         {OperatorName::SUB, OperatorType::BINARY},
         {OperatorName::MINUS, OperatorType::UNARY},
