@@ -49,7 +49,7 @@ namespace mcc {
       if (line->containsArg2()) {
         if (typeid (*line->getArg2().get()) == typeid(Triple)) {
           auto arg2 = std::static_pointer_cast<Triple>(line->getArg2());
-          if (arg2->getTargetVariable() != nullptr) {
+          if (arg2->containsTargetVar()) {
             if (defVar.find(arg2->getTargetVariable()) == defVar.end()) {
               ueVar.insert(arg2->getTargetVariable());
             }
@@ -57,7 +57,7 @@ namespace mcc {
         }
       }
 
-      if (line->getTargetVariable() != nullptr) {
+      if (line->containsTargetVar()) {
         defVar.insert(line->getTargetVariable());
       }
 

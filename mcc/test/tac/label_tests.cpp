@@ -26,7 +26,7 @@ namespace mcc {
     TEST(Label, BBDefaultId) {
       Label t = Label();
 
-      EXPECT_EQ(0, t.basicBlockId);
+      EXPECT_EQ(0, t.getBasicBlockId());
     }
 
     TEST(Label, Value) {
@@ -44,7 +44,7 @@ namespace mcc {
     TEST(Label, OpType) {
       Label t = Label();
 
-      EXPECT_EQ(OperatorName::LABEL, t.op.getName());
+      EXPECT_EQ(OperatorName::LABEL, t.getOperator().getName());
     }
     
     TEST(Label, ToString) {

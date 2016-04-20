@@ -14,7 +14,7 @@ namespace mcc {
     Triple::Triple(std::shared_ptr<Operand> arg) :
         Triple(Operator(OperatorName::NOP), arg) {
       // check if it is a terminal
-      assert(arg.get()->isLeaf() && "Operand is non-terminal!");
+      assert(arg->isLeaf() && "Operand is non-terminal!");
     }
 
     // constructor needed for Label
@@ -27,8 +27,9 @@ namespace mcc {
         Triple(op, arg, nullptr) {
       // check if operator is UNARY or NONE (NOP)
       assert(
-          (op.getType() == OperatorType::NONE
-              || op.getType() == OperatorType::UNARY) && "Operator not unary!");
+          (this->op.getType() == OperatorType::NONE
+              || this->op.getType() == OperatorType::UNARY)
+              && "Operator not unary!");
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg1,
@@ -56,19 +57,20 @@ namespace mcc {
 
       if (this->containsArg2()) {
         assert(
-            (op.getName() == OperatorName::JUMPFALSE
-                || arg1->getType() == arg2->getType()) && "Type mismatch");
+            (this->op.getName() == OperatorName::JUMPFALSE
+                || this->arg1->getType() == this->arg2->getType())
+                && "Type mismatch");
       }
 
-      switch (op.getName()) {
+      switch (this->op.getName()) {
         case OperatorName::NOP:
         case OperatorName::ASSIGN:
         case OperatorName::JUMPFALSE:
         case OperatorName::JUMP:
           break;
         default:
-          id = ++nextId;
-          this->name = "$t" + std::to_string(id);
+          this->id = ++nextId;
+          this->name = "$t" + std::to_string(this->id);
 
           setTargetVariable(
               std::make_shared<Variable>(this->getType(), this->name));
@@ -80,11 +82,11 @@ namespace mcc {
     }
 
     unsigned Triple::getId() const {
-      return id;
+      return this->id;
     }
 
     std::string Triple::getName() const {
-      return name;
+      return this->name;
     }
 
     void Triple::setName(const std::string name) {
@@ -96,57 +98,57 @@ namespace mcc {
     }
 
     unsigned Triple::getBasicBlockId() const {
-      return basicBlockId;
+      return this->basicBlockId;
     }
 
     void Triple::setBasicBlockId(unsigned blockId) {
-      basicBlockId = blockId;
+      this->basicBlockId = blockId;
     }
 
     std::string Triple::toString() const {
       std::string output;
 
-      switch (op.getName()) {
+      switch (this->op.getName()) {
         case OperatorName::JUMPFALSE:
         case OperatorName::JUMP:
-          output.append(op.toString());
-          output.append(arg1.get()->getValue());
-          if (arg2 != nullptr) {
+          output.append(this->op.toString());
+          output.append(this->arg1->getValue());
+          if (this->containsArg2()) {
             output.append(" ");
-            output.append(arg2.get()->getValue());
+            output.append(this->arg2->getValue());
           }
 
           return output;
 
         case OperatorName::LABEL:
-          output.append(op.toString());
-          output.append(getName());
+          output.append(this->op.toString());
+          output.append(this->getName());
 
           return output;
 
         case OperatorName::NOP:
-          output.append(arg1.get()->getValue());
+          output.append(this->arg1->getValue());
 
           return output;
 
         default:
-          if (op.getName() != OperatorName::ASSIGN) {
-            output.append(name);
+          if (this->op.getName() != OperatorName::ASSIGN) {
+            output.append(this->name);
             output.append(" = ");
           }
 
-          switch (op.getType()) {
+          switch (this->op.getType()) {
             case OperatorType::UNARY:
 
-              output.append(op.toString());
-              output.append(arg1.get()->getValue());
+              output.append(this->op.toString());
+              output.append(this->arg1->getValue());
 
               break;
             default:
-              output.append(arg1.get()->getValue());
-              output.append(op.toString());
-              if (arg2 != nullptr) {
-                output.append(arg2.get()->getValue());
+              output.append(this->arg1->getValue());
+              output.append(this->op.toString());
+              if (this->containsArg2()) {
+                output.append(this->arg2->getValue());
               }
           }
           return output;
@@ -154,34 +156,38 @@ namespace mcc {
     }
 
     void Triple::setTargetVariable(std::shared_ptr<Variable> var) {
-      if (var != nullptr) {
-        targetVar = var;
-      } else {
-        assert(false && "don't kill the object");
-      }
+      assert((var != nullptr) && "don't kill the object");
+      this->targetVar = var;
     }
 
     std::shared_ptr<Variable> Triple::getTargetVariable() {
-      return targetVar;
+      assert(this->containsTargetVar() && "use containsTargetVar");
+      return this->targetVar;
     }
 
     bool Triple::containsArg1() const {
-      return (arg1 != nullptr);
+      return (this->arg1 != nullptr);
     }
 
     bool Triple::containsArg2() const {
-      return (arg2 != nullptr);
+      return (this->arg2 != nullptr);
     }
 
     bool Triple::containsTargetVar(void) const {
-      return (targetVar != nullptr);
+      return (this->targetVar != nullptr);
     }
 
     std::shared_ptr<Operand> Triple::getArg1() const {
+      assert(this->containsArg1() && "use containsArg1");
       return this->arg1;
     }
     std::shared_ptr<Operand> Triple::getArg2() const {
+      assert(this->containsArg2() && "use containsArg2");
       return this->arg2;
+    }
+
+    Operator Triple::getOperator() const {
+      return this->op;
     }
   }
 }

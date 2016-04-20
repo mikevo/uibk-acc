@@ -22,7 +22,11 @@ namespace mcc {
       }
 
       for (auto const& block : basicBlockIndex) {
-        boost::add_vertex(block, graph);
+        auto descriptor = boost::add_vertex(block, graph);
+
+        assert(
+            (descriptor == block->getBlockId())
+                && "Descriptor does not match blockId");
 
         std::set<mcc::tac::VarTableValue> set(variableSet);
 
@@ -47,15 +51,16 @@ namespace mcc {
       for (auto line : tac.codeLines) {
         bool matched = false;
 
-        auto op = line.get()->op;
+        auto op = line->getOperator();
 
         if (op.getName() == mcc::tac::OperatorName::JUMP) {
           if (typeid(*line->getArg1().get()) == typeid(mcc::tac::Label)) {
             auto label = std::static_pointer_cast<mcc::tac::Label>(
                 line->getArg1());
 
-            boost::add_edge(line.get()->basicBlockId, label.get()->basicBlockId,
+            boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
                 graph);
+
             matched = true;
           } else {
             assert(false && "Unknown jump destination");
@@ -67,10 +72,10 @@ namespace mcc {
             auto label = std::static_pointer_cast<mcc::tac::Label>(
                 line->getArg2());
 
-            boost::add_edge(line.get()->basicBlockId,
-                line.get()->basicBlockId + 1, graph);
+            boost::add_edge(line->getBasicBlockId(),
+                line->getBasicBlockId() + 1, graph);
 
-            boost::add_edge(line.get()->basicBlockId, label.get()->basicBlockId,
+            boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
                 graph);
             matched = true;
           } else {
@@ -78,16 +83,17 @@ namespace mcc {
           }
         }
 
-        if (prevBlockId < line->basicBlockId) {
+        if (prevBlockId < line->getBasicBlockId()) {
           if (!prevMatched) {
-            boost::add_edge(prevBlockId, line.get()->basicBlockId, graph);
+            boost::add_edge(prevBlockId, line->getBasicBlockId(), graph);
           }
 
-          prevBlockId = line->basicBlockId;
+          prevBlockId = line->getBasicBlockId();
         }
 
         prevMatched = matched;
       }
+
     }
 
     std::string Cfg::toDot() const {

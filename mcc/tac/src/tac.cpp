@@ -124,9 +124,8 @@ namespace mcc {
             triple->setTargetVariable(variable);
           }
 
-          auto varObj = triple->getTargetVariable();
-          if (varObj != nullptr) {
-            tac->addToVarTable(tac, varObj);
+          if (triple->containsTargetVar()) {
+            tac->addToVarTable(tac, triple->getTargetVariable());
           }
 
           tac->addLine(triple);
@@ -141,9 +140,8 @@ namespace mcc {
           auto var = std::make_shared<Triple>(
               Operator(unaryOperatorMap.at(*v.get()->op.get())), lhs);
 
-          auto varObj = var->getTargetVariable();
-          if (varObj != nullptr) {
-            tac->addToVarTable(tac, varObj);
+          if (var->containsTargetVar()) {
+            tac->addToVarTable(tac, var->getTargetVariable());
           }
 
           tac->addLine(var);
@@ -200,7 +198,9 @@ namespace mcc {
               // if rhs is an expression
               if (typeid (*rhs.get()) == typeid(Triple)) {
                 auto var = std::static_pointer_cast<Triple>(rhs);
-                tac->removeFromVarTable(tac, var->getTargetVariable());
+                if (var->containsTargetVar()) {
+                  tac->removeFromVarTable(tac, var->getTargetVariable());
+                }
                 var->setName(lhs.get()->getValue());
                 var->setTargetVariable(lhs);
                 return var;
@@ -307,14 +307,14 @@ namespace mcc {
       basicBlockIndex.clear();
 
       auto currentBasicBlock = std::make_shared<BasicBlock>(0);
-      auto currentBasicBlockId = codeLines.front().get()->basicBlockId;
+      auto currentBasicBlockId = codeLines.front()->getBasicBlockId();
 
       for (auto& triple : codeLines) {
-        if (triple.get()->basicBlockId != currentBasicBlockId) {
+        if (triple->getBasicBlockId() != currentBasicBlockId) {
           basicBlockIndex.push_back(currentBasicBlock);
           currentBasicBlock = std::make_shared<BasicBlock>(
-              triple.get()->basicBlockId);
-          currentBasicBlockId = triple.get()->basicBlockId;
+              triple->getBasicBlockId());
+          currentBasicBlockId = triple->getBasicBlockId();
         }
 
         currentBasicBlock.get()->push_back(triple);

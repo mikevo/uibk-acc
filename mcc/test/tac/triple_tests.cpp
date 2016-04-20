@@ -36,7 +36,7 @@ namespace mcc {
 
       Triple t = Triple(op, i);
 
-      EXPECT_EQ(0, t.basicBlockId);
+      EXPECT_EQ(0, t.getBasicBlockId());
     }
 
     TEST(Triple, Value) {

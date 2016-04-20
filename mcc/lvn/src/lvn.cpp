@@ -17,9 +17,9 @@ namespace mcc {
             //Evaluate all constant expressions
             for (auto& triple : tac.codeLines) {
 
-                if (triple->op.getType() == OperatorType::BINARY) {
-                    if (triple->op.getResultType() == Type::AUTO ||
-                            triple->op.getResultType() == Type::FLOAT) {
+                if (triple->getOperator().getType() == OperatorType::BINARY) {
+                    if (triple->getOperator().getResultType() == Type::AUTO ||
+                            triple->getOperator().getResultType() == Type::FLOAT) {
                         if (typeid (*triple->getArg1()) == typeid (IntLiteral) &&
                                 typeid (*triple->getArg2()) == typeid (IntLiteral)) {
 
@@ -29,7 +29,7 @@ namespace mcc {
 
                             int val1 = arg1->value;
                             int val2 = arg2->value;
-                            int result = evaluateExpression(val1, val2, triple->op.getName());
+                            int result = evaluateExpression(val1, val2, triple->getOperator().getName());
 
                             if (target != nullptr) {
                                 updateTriple(Operator(OperatorName::ASSIGN), target,
@@ -49,7 +49,7 @@ namespace mcc {
 
                             float val1 = arg1->value;
                             float val2 = arg2->value;
-                            float result = evaluateExpression(val1, val2, triple->op.getName());
+                            float result = evaluateExpression(val1, val2, triple->getOperator().getName());
 
                             if (target != nullptr) {
                                 updateTriple(Operator(OperatorName::ASSIGN), target,
@@ -77,9 +77,9 @@ namespace mcc {
                 valueMap.clear();
 
                 for (auto& triple : block->getBlockMembers()) {
-                    if (triple->op.getType() == OperatorType::BINARY) {
+                    if (triple->getOperator().getType() == OperatorType::BINARY) {
                         std::string valueKey = triple->getArg1()->getValue();
-                        valueKey.append(triple->op.toString());
+                        valueKey.append(triple->getOperator().toString());
                         valueKey.append(triple->getArg2()->getValue());
 
                         auto value = valueMap.find(valueKey);
@@ -141,7 +141,7 @@ namespace mcc {
             assert(false && "need new impl");
 //            triple.arg1 = arg1;
 //            triple.arg2 = arg2;
-            triple.op = op;
+//            triple.op = op;
             triple.updateResultType(op);
             triple.setTargetVariable(nullptr);
 
