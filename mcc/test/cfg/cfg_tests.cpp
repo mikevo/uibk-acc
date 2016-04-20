@@ -31,8 +31,7 @@ namespace mcc {
                       }
                     })");
 
-      mcc::tac::Tac tac;
-      tac.convertAst(tree);
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
       std::string expected =
@@ -81,8 +80,7 @@ namespace mcc {
                       }
                     })");
 
-      mcc::tac::Tac tac;
-      tac.convertAst(tree);
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
       auto index = tac.getBasicBlockIndex();
@@ -129,8 +127,7 @@ namespace mcc {
                       }
                     })");
 
-      mcc::tac::Tac tac;
-      tac.convertAst(tree);
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
       auto index = tac.getBasicBlockIndex();
@@ -200,8 +197,7 @@ namespace mcc {
                           }
                         })");
 
-      mcc::tac::Tac tac;
-      tac.convertAst(tree);
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
       std::vector<VertexDescriptor> set;
@@ -251,8 +247,7 @@ namespace mcc {
                               }
                             })");
 
-      mcc::tac::Tac tac;
-      tac.convertAst(tree);
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
       auto succ0 = graph->getSuccessor(0);
@@ -309,8 +304,7 @@ namespace mcc {
                               }
                             })");
 
-      mcc::tac::Tac tac;
-      tac.convertAst(tree);
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
       auto pred0 = graph->getPredecessor(0);
@@ -367,8 +361,7 @@ namespace mcc {
                                     }
                                   })");
 
-      mcc::tac::Tac tac;
-      tac.convertAst(tree);
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
       EXPECT_EQ(11, graph->variableSetSize());
@@ -397,8 +390,7 @@ namespace mcc {
                                         }
                                       })");
 
-          mcc::tac::Tac tac;
-          tac.convertAst(tree);
+          mcc::tac::Tac tac = mcc::tac::Tac(tree);
           auto graph = std::make_shared<Cfg>(tac);
 
           graph->computeLive();

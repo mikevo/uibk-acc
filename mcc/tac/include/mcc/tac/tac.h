@@ -29,8 +29,7 @@ namespace mcc {
 
         class Tac {
         public:
-            Tac();
-            void convertAst(std::shared_ptr<ast::node> n);
+            Tac(std::shared_ptr<ast::node> n);
             void addLine(std::shared_ptr<Triple> line);
             void addLine(std::shared_ptr<Label> line);
             void nextBasicBlock();
@@ -52,6 +51,7 @@ namespace mcc {
             std::vector<std::shared_ptr<Triple>> codeLines;
 
         private:
+            void convertAst(std::shared_ptr<ast::node> n);
             void createBasicBlockIndex();
             unsigned currentBasicBlock;
             unsigned lastScopeDepth;

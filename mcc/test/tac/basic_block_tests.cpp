@@ -15,8 +15,7 @@ namespace mcc {
     TEST(BasicBlock, OneBlock) {
       auto tree = parser::parse(R"(1 + 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto firstBlock = tac.getBasicBlockIndex()[0];
 
@@ -44,8 +43,7 @@ namespace mcc {
           }
         })");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto firstBlock = tac.getBasicBlockIndex()[0];
       auto secondBlock = tac.getBasicBlockIndex()[1];
@@ -94,7 +92,7 @@ namespace mcc {
       EXPECT_EQ(true, members[0]->containsTargetVar());
 
       EXPECT_NE(secondBlock->getDefVar().end(),
-                secondBlock->getDefVar().find(members[0]->getTargetVariable()));
+          secondBlock->getDefVar().find(members[0]->getTargetVariable()));
 
       for (auto const& v : thirdBlock->getDefVar()) {
         std::cout << v->getFullName() << std::endl;
@@ -130,8 +128,7 @@ namespace mcc {
             }
         })");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto firstBlock = tac.getBasicBlockIndex()[0];
       auto secondBlock = tac.getBasicBlockIndex()[1];
@@ -202,8 +199,7 @@ namespace mcc {
                   }
               })");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto numOfLines = tac.codeLines.size();
       unsigned linesInBlocks = 0;

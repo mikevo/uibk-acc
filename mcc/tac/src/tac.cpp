@@ -257,8 +257,9 @@ namespace mcc {
       }
     }
 
-    Tac::Tac() :
+    Tac::Tac(std::shared_ptr<ast::node> n) :
         currentBasicBlock(0), lastScopeDepth(0), scopeDepth(0), scopeIndex(0) {
+      this->convertAst(n);
     }
 
     void Tac::convertAst(std::shared_ptr<ast::node> n) {

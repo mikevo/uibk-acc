@@ -18,8 +18,7 @@ namespace mcc {
         })");
 
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
       LVN::transform(tac);
 
        std::string expectedValue = "x0:1:0 = 2.000000\n";
@@ -40,8 +39,7 @@ namespace mcc {
         })");
 
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
       LVN::transform(tac);
 
        std::string expectedValue = "x0:1:0 = 5\n";

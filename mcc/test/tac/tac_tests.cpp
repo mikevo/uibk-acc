@@ -15,9 +15,7 @@ namespace mcc {
     TEST(Tac, ADD) {
       auto tree = parser::parse(R"(1 + 2;)");
 
-
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 + 2");
@@ -30,8 +28,7 @@ namespace mcc {
     TEST(Tac, SUB) {
       auto tree = parser::parse(R"(1 - 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 - 2");
@@ -44,8 +41,7 @@ namespace mcc {
     TEST(Tac, MUL) {
       auto tree = parser::parse(R"(1 * 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 * 2");
@@ -58,8 +54,7 @@ namespace mcc {
     TEST(Tac, DIV) {
       auto tree = parser::parse(R"(1 / 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 / 2");
@@ -72,8 +67,7 @@ namespace mcc {
     TEST(Tac, EQ) {
       auto tree = parser::parse(R"(1 == 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 == 2");
@@ -86,8 +80,7 @@ namespace mcc {
     TEST(Tac, NE) {
       auto tree = parser::parse(R"(1 != 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 != 2");
@@ -100,8 +93,7 @@ namespace mcc {
     TEST(Tac, LE) {
       auto tree = parser::parse(R"(1 <= 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 <= 2");
@@ -114,8 +106,7 @@ namespace mcc {
     TEST(Tac, GE) {
       auto tree = parser::parse(R"(1 >= 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 >= 2");
@@ -128,8 +119,7 @@ namespace mcc {
     TEST(Tac, LT) {
       auto tree = parser::parse(R"(1 < 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 < 2");
@@ -142,8 +132,7 @@ namespace mcc {
     TEST(Tac, GT) {
       auto tree = parser::parse(R"(1 > 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = 1 > 2");
@@ -156,8 +145,7 @@ namespace mcc {
     TEST(Tac, DeclarationInt) {
       auto tree = parser::parse(R"(int a;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       EXPECT_EQ(0, tac.codeLines.size());
     }
@@ -167,8 +155,7 @@ namespace mcc {
 
       std::string expectedValue = "a0:0:0 = 1";
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
@@ -178,8 +165,7 @@ namespace mcc {
     TEST(Tac, DeclarationIntWithPlus) {
       auto tree = parser::parse(R"(int a = 1 + 2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto expectedValue = "a0:0:0 = 1 + 2";
 
@@ -191,8 +177,7 @@ namespace mcc {
     TEST(Tac, DeclarationIntWithPlus2) {
       auto tree = parser::parse(R"(int a = 1 + 2 + 3;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto tempVarName = tac.codeLines.front().get()->getValue();
 
@@ -211,8 +196,7 @@ namespace mcc {
 
       std::string expectedValue = "b0:0:0 = " + std::to_string(1.0);
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(Type::FLOAT, tac.codeLines.back().get()->getType());
@@ -222,8 +206,7 @@ namespace mcc {
     TEST(Tac, Minus) {
       auto tree = parser::parse(R"(-2;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       std::string expectedValue = tac.codeLines.back().get()->getValue();
       expectedValue.append(" = -2");
@@ -236,17 +219,16 @@ namespace mcc {
     TEST(Tac, Not) {
       auto tree = parser::parse(R"(!(1==2);)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto elem = tac.codeLines.begin();
-      
+
       auto tempId = elem->get()->getId();
       auto temp = "$t" + std::to_string(tempId);
       elem++;
       auto tempId2 = elem->get()->getId();
       auto temp2 = "$t" + std::to_string(tempId2);
-      
+
       std::string expectedValue = temp;
       expectedValue.append(" = 1 == 2\n");
       expectedValue.append(temp2);
@@ -261,8 +243,7 @@ namespace mcc {
     TEST(Tac, Parenthesis) {
       auto tree = parser::parse(R"(int a = (1 + 2) + 3;)");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto tempVarName = tac.codeLines.front().get()->getValue();
 
@@ -280,8 +261,7 @@ namespace mcc {
     TEST(Tac, Compound) {
       auto tree = parser::parse(R"({int a = 1 + 2; int b = 3;})");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto tempVarName = tac.codeLines.front().get()->getValue();
 
@@ -292,9 +272,11 @@ namespace mcc {
       EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
       EXPECT_EQ(2, tac.codeLines.size());
     }
-    
-     TEST(Tac, IfElse) {
-      auto tree = parser::parse(R"(
+
+    TEST(Tac, IfElse) {
+      auto tree =
+          parser::parse(
+              R"(
         {
           int a = 0;
           if( 1 <= 2) {
@@ -304,8 +286,7 @@ namespace mcc {
           }
         })");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto elem = tac.codeLines.begin();
       elem++;
@@ -314,7 +295,7 @@ namespace mcc {
       auto temp = "$t" + std::to_string(tempId);
       auto label = "$L" + std::to_string(tempId + 1);
       auto label2 = "$L" + std::to_string(tempId + 2);
-      
+
       std::string expectedValue = "a0:1:0 = 0\n";
       expectedValue.append(temp + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
@@ -327,9 +308,11 @@ namespace mcc {
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(8, tac.codeLines.size());
     }
-     
+
     TEST(Tac, If) {
-      auto tree = parser::parse(R"(
+      auto tree =
+          parser::parse(
+              R"(
         {
           int a = 0;
           if(1 <= 2) {
@@ -337,8 +320,7 @@ namespace mcc {
           } 
         })");
 
-      Tac tac;
-      tac.convertAst(tree);
+      Tac tac = Tac(tree);
 
       auto elem = tac.codeLines.begin();
       elem++;
@@ -346,7 +328,7 @@ namespace mcc {
       auto tempId = elem->get()->getId();
       auto temp = "$t" + std::to_string(tempId);
       auto label = "$L" + std::to_string(tempId + 1);
-      
+
       std::string expectedValue = "a0:1:0 = 0\n";
       expectedValue.append(temp + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
@@ -356,9 +338,11 @@ namespace mcc {
       EXPECT_EQ(expectedValue, tac.toString());
       EXPECT_EQ(5, tac.codeLines.size());
     }
-    
+
     TEST(Tac, SSA) {
-      auto tree = parser::parse(R"(
+      auto tree =
+          parser::parse(
+              R"(
         {
          
           int x = 5 * 2;
@@ -372,21 +356,20 @@ namespace mcc {
         
         })");
 
-      Tac tac;
-      tac.convertAst(tree);
-      
+      Tac tac = Tac(tree);
+
       auto x1 = tac.codeLines[0]->getTargetVariable();
       auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg1());
       auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[3]->getArg2());
       auto x4 = std::static_pointer_cast<Variable>(tac.codeLines[4]->getArg2());
       auto x5 = std::static_pointer_cast<Variable>(tac.codeLines[5]->getArg1());
       auto x6 = std::static_pointer_cast<Variable>(tac.codeLines[6]->getArg2());
-           
+
       EXPECT_EQ(x2.get(), x3.get());
       EXPECT_EQ(x2.get(), x4.get());
       EXPECT_EQ(x3.get(), x4.get());
       EXPECT_EQ(x5.get(), x6.get());
-      
+
       EXPECT_NE(x1.get(), x2.get());
       EXPECT_NE(x1.get(), x3.get());
       EXPECT_NE(x1.get(), x4.get());
@@ -400,6 +383,6 @@ namespace mcc {
       EXPECT_NE(x4.get(), x6.get());
     }
   }
-  
+
 }
 
