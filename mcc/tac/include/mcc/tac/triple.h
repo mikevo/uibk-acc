@@ -25,7 +25,6 @@ namespace mcc {
         Triple(Operator op, std::shared_ptr<Operand> arg1,
             std::shared_ptr<Operand> arg2);
         std::string getName() const;
-        void setName(const std::string name);
         unsigned getId() const;
         unsigned getBasicBlockId() const;
         void setBasicBlockId(unsigned blockId);
@@ -33,7 +32,7 @@ namespace mcc {
         virtual std::string getValue() const override;
         virtual std::string toString() const;
         void setTargetVariable(std::shared_ptr<Variable> var);
-        std::shared_ptr<Variable> getTargetVariable();
+        std::shared_ptr<Variable> getTargetVariable() const;
         bool containsTargetVar(void) const;
 
         bool containsArg1() const;
@@ -43,6 +42,9 @@ namespace mcc {
         std::shared_ptr<Operand> getArg2() const;
 
         Operator getOperator() const;
+
+      protected:
+        void setName(const std::string name);
 
       private:
         Operator op;

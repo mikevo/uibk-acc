@@ -98,8 +98,8 @@ namespace mcc {
         if (typeid (*n.get()) == typeid(ast::binary_operation)) {
           auto v = std::static_pointer_cast<ast::binary_operation>(n);
 
-          auto lhs = convertNode(tac, v.get()->lhs);
-          auto rhs = convertNode(tac, v.get()->rhs);
+          auto lhs = convertNode(tac, v->lhs);
+          auto rhs = convertNode(tac, v->rhs);
 
           bool setTarVar = false;
 
@@ -176,44 +176,41 @@ namespace mcc {
 
         if (typeid (*n.get()) == typeid(ast::decl_stmt)) {
           auto v = std::static_pointer_cast<ast::decl_stmt>(n);
-          auto tempVar = v.get()->var;
+          auto tempVar = v->var;
 
-          auto lhs = std::make_shared<Variable>(
-              convertType(*tempVar.get()->var_type.get()), tempVar.get()->name);
-          lhs->setScope(tac->getCurrentScope());
+          auto variable = std::make_shared<Variable>(
+              convertType(*tempVar->var_type.get()), tempVar->name);
+          variable->setScope(tac->getCurrentScope());
 
-          auto initStmt = v.get()->init_expr;
-          if (initStmt != nullptr) {
-            auto rhs = convertNode(tac, v.get()->init_expr);
-            tac->addToVarTable(tac, lhs);
+          if (v->init_expr != nullptr) {
+            auto initExpression = convertNode(tac, v->init_expr);
+            tac->addToVarTable(tac, variable);
 
-            if (rhs.get()->isLeaf()) {
+            if (initExpression->isLeaf()) {
               auto var = std::make_shared<Triple>(
-                  Operator(OperatorName::ASSIGN), lhs, rhs);
-              var->setTargetVariable(lhs);
+                  Operator(OperatorName::ASSIGN), variable, initExpression);
+              var->setTargetVariable(variable);
 
               tac->addLine(var);
               return var;
             } else {
-              // if rhs is an expression
-              if (typeid (*rhs.get()) == typeid(Triple)) {
-                auto var = std::static_pointer_cast<Triple>(rhs);
-                if (var->containsTargetVar()) {
-                  tac->removeFromVarTable(tac, var->getTargetVariable());
-                }
-                var->setName(lhs.get()->getValue());
-                var->setTargetVariable(lhs);
-                return var;
+              // if initExpression is a triple
+              if (typeid (*initExpression.get()) == typeid(Triple)) {
+                auto triple = std::static_pointer_cast<Triple>(initExpression);
+                assert(triple->containsTargetVar() && "should contain a variable");
+                tac->removeFromVarTable(tac, triple->getTargetVariable());
+                triple->setTargetVariable(variable);
+
+                return triple;
               } else {
                 assert(false && "Unknown subtype");
               }
             }
-
           } else {
-            tac->addToVarTable(tac, lhs);
+            tac->addToVarTable(tac, variable);
           }
 
-          return lhs;
+          return variable;
         }
 
         if (typeid (*n.get()) == typeid(ast::if_stmt)) {

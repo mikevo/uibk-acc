@@ -68,6 +68,9 @@ namespace mcc {
         case OperatorName::JUMPFALSE:
         case OperatorName::JUMP:
           break;
+        case OperatorName::LABEL:
+          this->id = ++nextId;
+          break;
         default:
           this->id = ++nextId;
           this->name = "$t" + std::to_string(this->id);
@@ -86,7 +89,19 @@ namespace mcc {
     }
 
     std::string Triple::getName() const {
-      return this->name;
+      if (this->containsTargetVar()) {
+        // TODO: get ride of this construct
+        if (this->getTargetVariable()->isTemporary()) {
+          return this->getTargetVariable()->getName();
+        } else {
+          return this->getTargetVariable()->getValue();
+        }
+      } else {
+        assert(
+            (this->op.getName() != OperatorName::ASSIGN)
+                && "assign needs to have a target variable");
+        return this->name;
+      }
     }
 
     void Triple::setName(const std::string name) {
@@ -133,7 +148,7 @@ namespace mcc {
 
         default:
           if (this->op.getName() != OperatorName::ASSIGN) {
-            output.append(this->name);
+            output.append(this->getName());
             output.append(" = ");
           }
 
@@ -160,7 +175,7 @@ namespace mcc {
       this->targetVar = var;
     }
 
-    std::shared_ptr<Variable> Triple::getTargetVariable() {
+    std::shared_ptr<Variable> Triple::getTargetVariable() const {
       assert(this->containsTargetVar() && "use containsTargetVar");
       return this->targetVar;
     }

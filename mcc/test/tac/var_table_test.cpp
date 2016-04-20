@@ -60,6 +60,8 @@ namespace mcc {
 
       EXPECT_EQ(tac.getVarTable().size(), 3);
 
+      std::cout << tac.toString() << std::endl;
+
       auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->getArg1());
       auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->getArg1());
       auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg1());
