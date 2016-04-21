@@ -10,7 +10,7 @@ namespace mcc {
   namespace tac {
 
     ScopeNode::ScopeNode(unsigned depth, unsigned index) :
-        scopeDepth(depth), scopeIndex(index) {
+        scopeDepth(depth), scopeIndex(index), nextIndex(0) {
 
     }
 
@@ -19,6 +19,10 @@ namespace mcc {
     }
     unsigned ScopeNode::getIndex() const {
       return this->scopeIndex;
+    }
+
+    unsigned ScopeNode::getNextIndex() {
+      return nextIndex++;
     }
   }
 }

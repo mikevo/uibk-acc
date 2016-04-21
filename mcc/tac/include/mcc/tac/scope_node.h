@@ -16,10 +16,12 @@ namespace mcc {
 
         unsigned getDepth() const;
         unsigned getIndex() const;
+        unsigned getNextIndex();
 
       private:
         unsigned scopeDepth;
         unsigned scopeIndex;
+        unsigned nextIndex;
     };
   }
 }

@@ -21,6 +21,13 @@ namespace mcc {
 
       EXPECT_EQ(2, s.getIndex());
     }
+
+    TEST(ScopeNode, NextIndex) {
+      ScopeNode s = ScopeNode(1, 2);
+
+      EXPECT_EQ(0, s.getNextIndex());
+      EXPECT_EQ(1, s.getNextIndex());
+    }
   }
 }
 
