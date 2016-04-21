@@ -95,13 +95,13 @@ namespace mcc {
           secondBlock->getDefVar().find(members[0]->getTargetVariable()));
 
       for (auto const& v : thirdBlock->getDefVar()) {
-        std::cout << v->getFullName() << std::endl;
+        std::cout << v->getValue() << std::endl;
       }
 
       std::cout << thirdBlock->toString() << std::endl;
 
       for (auto const& v : thirdBlock->getUeVar()) {
-        std::cout << v->getFullName() << std::endl;
+        std::cout << v->getValue() << std::endl;
       }
     }
 

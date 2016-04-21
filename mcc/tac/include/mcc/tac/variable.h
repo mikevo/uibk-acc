@@ -22,7 +22,6 @@ namespace mcc {
             Variable(Type t, std::string name);
             unsigned getId() const;
             virtual std::string getName() const;
-            virtual std::string getFullName() const;
             virtual std::string getValue() const override;
             virtual bool isLeaf() const override;
             std::shared_ptr<ScopeNode> const& getScope() const;

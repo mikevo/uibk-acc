@@ -397,7 +397,7 @@ namespace mcc {
 
           for (unsigned i = 0; i < 7; ++i) {
             for (auto out : graph->getLiveOut(i)) {
-              std::cout << out->getFullName() + " ";
+              std::cout << out->getValue() + " ";
             }
 
             std::cout << std::endl;

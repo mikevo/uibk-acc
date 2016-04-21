@@ -29,12 +29,6 @@ namespace mcc {
       return name;
     }
 
-    std::string Variable::getFullName() const {
-      std::string value(this->getName());
-      value.append(std::to_string(index));
-      return value;
-    }
-
     std::string Variable::getValue() const {
       std::string value(this->getName());
       value.append(std::to_string(index));
