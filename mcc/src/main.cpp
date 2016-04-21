@@ -26,8 +26,7 @@ int main(int argc, char** argv) {
 	out << "Parsed:\n" << tree << "\n";
     
     // three adress code
-    Tac tac;
-    tac.convertAst(tree);
+    Tac tac = Tac(tree);
 	std::cout << "Three-Adress Code:" << std::endl;
     std::cout << tac.toString() << std::endl;
     
