@@ -6,7 +6,7 @@ namespace mcc {
   namespace tac {
 
     Label::Label() : Triple(OperatorName::LABEL) {
-      this->setName("$L" + std::to_string(getId()));
+      this->setName("$L" + std::to_string(this->getId()));
     }
     
     bool Label::isLeaf() const {

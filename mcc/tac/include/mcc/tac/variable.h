@@ -16,7 +16,9 @@ namespace mcc {
     namespace tac {
         class Variable : public Operand {
         public:
+            Variable(Type t);
             Variable(Type t, std::string name);
+            unsigned getId() const;
             virtual std::string getName() const;
             virtual std::string getFullName() const;
             virtual std::string getValue() const override;
@@ -32,7 +34,8 @@ namespace mcc {
         private:
             std::pair<unsigned, unsigned> scope;
             unsigned index;
-            
+            static unsigned nextId;
+            unsigned id;
         };
     }
 }

@@ -45,7 +45,9 @@ namespace mcc {
 
       Triple t = Triple(op, i);
 
-      EXPECT_EQ("$t" + std::to_string(t.getId()), t.getValue());
+      auto id = t.getTargetVariable()->getId();
+
+      EXPECT_EQ("$t" + std::to_string(id), t.getValue());
     }
     
     TEST(Triple, Type) {

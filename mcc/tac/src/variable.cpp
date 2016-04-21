@@ -2,12 +2,21 @@
 
 namespace mcc {
   namespace tac {
+    unsigned Variable::nextId = 1;
+
+    Variable::Variable(Type t) : Variable(t, "") {
+      // necessary to do it after the called constructor has finished
+      this->name = "$t" + std::to_string(this->id);
+    }
 
     // TODO: wrong scope info
     Variable::Variable(Type t, std::string name) :
         Operand(t), name(name), scope(std::pair<unsigned, unsigned>(0, 0))
         , index(0) {
-
+      this->id = ++Variable::nextId;
+    }
+    unsigned Variable::getId() const {
+      return this->id;
     }
 
     bool Variable::isLeaf() const {

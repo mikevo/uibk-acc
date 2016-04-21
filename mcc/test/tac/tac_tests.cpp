@@ -223,10 +223,10 @@ namespace mcc {
 
       auto elem = tac.codeLines.begin();
 
-      auto tempId = elem->get()->getId();
+      auto tempId = elem->get()->getTargetVariable()->getId();
       auto temp = "$t" + std::to_string(tempId);
       elem++;
-      auto tempId2 = elem->get()->getId();
+      auto tempId2 = elem->get()->getTargetVariable()->getId();
       auto temp2 = "$t" + std::to_string(tempId2);
 
       std::string expectedValue = temp;
@@ -291,14 +291,15 @@ namespace mcc {
       auto elem = tac.codeLines.begin();
       elem++;
 
+      auto varId = elem->get()->getTargetVariable()->getId();
       auto tempId = elem->get()->getId();
-      auto temp = "$t" + std::to_string(tempId);
+      auto varName = "$t" + std::to_string(varId);
       auto label = "$L" + std::to_string(tempId + 1);
-      auto label2 = "$L" + std::to_string(tempId + 2);
+      auto label2 = "$L" + std::to_string(tempId + 4);
 
       std::string expectedValue = "a0:1:0 = 0\n";
-      expectedValue.append(temp + " = 1 <= 2\n");
-      expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
+      expectedValue.append(varName + " = 1 <= 2\n");
+      expectedValue.append("JUMPFALSE " + varName + " " + label + "\n");
       expectedValue.append("a1:1:0 = 1\n");
       expectedValue.append("JUMP " + label2 + "\n");
       expectedValue.append("LABEL " + label + "\n");
@@ -326,12 +327,13 @@ namespace mcc {
       elem++;
 
       auto tempId = elem->get()->getId();
-      auto temp = "$t" + std::to_string(tempId);
+      auto varId = elem->get()->getTargetVariable()->getId();
+      auto varName = "$t" + std::to_string(varId);
       auto label = "$L" + std::to_string(tempId + 1);
 
       std::string expectedValue = "a0:1:0 = 0\n";
-      expectedValue.append(temp + " = 1 <= 2\n");
-      expectedValue.append("JUMPFALSE " + temp + " " + label + "\n");
+      expectedValue.append(varName + " = 1 <= 2\n");
+      expectedValue.append("JUMPFALSE " + varName + " " + label + "\n");
       expectedValue.append("a1:1:0 = 1\n");
       expectedValue.append("LABEL " + label);
 

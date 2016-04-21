@@ -36,6 +36,7 @@ namespace mcc {
         std::shared_ptr<Operand> arg2) :
         Operand(), op(op), basicBlockId(0), arg1(arg1), arg2(arg2), targetVar(
             nullptr), id(0) {
+      this->id = ++nextId;
       if (this->containsArg1()) {
         this->setType(arg1->getType());
       }
@@ -67,16 +68,11 @@ namespace mcc {
         case OperatorName::ASSIGN:
         case OperatorName::JUMPFALSE:
         case OperatorName::JUMP:
-          break;
         case OperatorName::LABEL:
-          this->id = ++nextId;
           break;
         default:
-          this->id = ++nextId;
-          this->name = "$t" + std::to_string(this->id);
-
           setTargetVariable(
-              std::make_shared<Variable>(this->getType(), this->name));
+              std::make_shared<Variable>(this->getType()));
       }
     }
 
