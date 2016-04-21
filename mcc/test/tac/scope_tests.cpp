@@ -70,6 +70,32 @@ namespace mcc {
       EXPECT_EQ(1, sibling->getIndex());
     }
 
+    TEST(Scope, CheckPoint1) {
+      Scope s = Scope();
+
+      auto child = s.addNewChild();
+
+      s.goToCheckPoint();
+
+      EXPECT_EQ(child, s.getCurrentScope());
+    }
+
+    TEST(Scope, CheckPoint2) {
+      Scope s = Scope();
+
+      auto checkPoint = s.getCurrentScope();
+      s.setCheckPoint();
+
+      auto child = s.addNewChild();
+      auto sibling = s.addNewSibling();
+
+      s.goToCheckPoint();
+
+      EXPECT_NE(child, s.getCurrentScope());
+      EXPECT_NE(sibling, s.getCurrentScope());
+      EXPECT_EQ(checkPoint, s.getCurrentScope());
+    }
+
   }
 }
 

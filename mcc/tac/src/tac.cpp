@@ -64,34 +64,23 @@ namespace mcc {
         if (typeid (*n.get()) == typeid(ast::variable)) {
 
           auto v = std::static_pointer_cast<ast::variable>(n);
-          unsigned tempScopeDepth = tac->getCurrentScope().first;
-          unsigned tempScopeIndex = tac->getCurrentScope().second;
 
-          while (tac->getCurrentScope().first != 0) {
+          tac->getScope().setCheckPoint();
 
+          do {
             auto key = std::make_pair(v->name,
-                std::make_pair(tac->getCurrentScope().first,
-                    tac->getCurrentScope().second));
+                tac->getScope().getCurrentScope());
             auto mapVar = tac->getVarTable().find(key);
 
             if (mapVar != tac->getVarTable().end()) {
-              tac->setScope(tempScopeDepth, tempScopeIndex, 0);
+              tac->getScope().goToCheckPoint();
               return mapVar->second.back();
             }
+          } while (tac->getScope().goToParent());
 
-            tac->leaveScope();
-          }
-
-          auto key = std::make_pair(v->name, std::make_pair(0, 0));
-          auto mapVar = tac->getVarTable().find(key);
-
-          if (mapVar != tac->getVarTable().end()) {
-            tac->setScope(tempScopeDepth, tempScopeIndex, 0);
-            return mapVar->second.back();
-          }
-
-          std::cout << v->name << ":" << tac->getCurrentScope().first << ":"
-              << tac->getCurrentScope().second << std::endl;
+          std::cout << v->name << ":"
+              << tac->getScope().getCurrentScope()->getDepth() << ":"
+              << tac->getScope().getCurrentScope()->getIndex() << std::endl;
           assert(false && "Usage of undeclared variable");
         }
 
@@ -108,8 +97,8 @@ namespace mcc {
           if (*v.get()->op.get() == ast::binary_operand::ASSIGN) {
             if (typeid(*lhs.get()) == typeid(Variable)) {
               auto var = std::static_pointer_cast<Variable>(lhs);
-              variable = tac->addVarRenaming(
-                  std::make_pair(var->getName(), var->getScope()));
+              auto key = std::make_pair(var->getName(), var->getScope());
+              variable = tac->addVarRenaming(key);
 
               setTarVar = true;
 
@@ -161,16 +150,18 @@ namespace mcc {
         }
 
         if (typeid (*n.get()) == typeid(ast::compound_stmt)) {
-          tac->enterScope();
           auto v = std::static_pointer_cast<ast::compound_stmt>(n);
           auto statements = v.get()->statements;
+
+          tac->getScope().addNewChild();
 
           std::for_each(statements.begin(), statements.end(),
               [&](std::shared_ptr<ast::node> const &s) {
                 convertNode(tac, s);
               });
 
-          tac->leaveScope();
+          tac->getScope().goToParent();
+
           return nullptr;
         }
 
@@ -180,7 +171,7 @@ namespace mcc {
 
           auto variable = std::make_shared<Variable>(
               convertType(*tempVar->var_type.get()), tempVar->name);
-          variable->setScope(tac->getCurrentScope());
+          variable->setScope(tac->getScope().getCurrentScope());
 
           if (v->init_expr != nullptr) {
             auto initExpression = convertNode(tac, v->init_expr);
@@ -197,7 +188,8 @@ namespace mcc {
               // if initExpression is a triple
               if (typeid (*initExpression.get()) == typeid(Triple)) {
                 auto triple = std::static_pointer_cast<Triple>(initExpression);
-                assert(triple->containsTargetVar() && "should contain a variable");
+                assert(
+                    triple->containsTargetVar() && "should contain a variable");
                 tac->removeFromVarTable(tac, triple->getTargetVariable());
                 triple->setTargetVariable(variable);
 
@@ -255,7 +247,7 @@ namespace mcc {
     }
 
     Tac::Tac(std::shared_ptr<ast::node> n) :
-        currentBasicBlock(0), lastScopeDepth(0), scopeDepth(0), scopeIndex(0) {
+        currentBasicBlock(0) {
       this->convertAst(n);
     }
 
@@ -273,32 +265,12 @@ namespace mcc {
       this->codeLines.push_back(line);
     }
 
+    Scope& Tac::getScope() {
+      return scope;
+    }
+
     void Tac::nextBasicBlock() {
       ++currentBasicBlock;
-    }
-
-    void Tac::enterScope() {
-      ++scopeDepth;
-      scopeIndex = scopeIndexMap[scopeDepth];
-
-      if (scopeDepth == lastScopeDepth) {
-        ++scopeIndex;
-        scopeIndexMap[scopeDepth] = scopeIndex;
-      }
-
-    }
-
-    void Tac::leaveScope() {
-      lastScopeDepth = scopeDepth;
-      --scopeDepth;
-      scopeIndex = scopeIndexMap[scopeDepth];
-
-    }
-
-    void Tac::setScope(unsigned depth, unsigned index, unsigned lastDepth) {
-      scopeDepth = depth;
-      scopeIndex = index;
-      lastScopeDepth = lastDepth;
     }
 
     void Tac::createBasicBlockIndex() {
@@ -358,7 +330,7 @@ namespace mcc {
 
     void Tac::addToVarTable(Tac *tac, VarTableValue value) {
       VarTableKey key = std::make_pair(value->getName(),
-          tac->getCurrentScope());
+          tac->getScope().getCurrentScope());
       std::vector<VarTableValue> valueVec;
       valueVec.push_back(value);
 
@@ -368,7 +340,7 @@ namespace mcc {
     void Tac::removeFromVarTable(Tac* tac, VarTableValue value) {
       // TODO: possibly wrong
       VarTableKey key = std::make_pair(value->getName(),
-          tac->getCurrentScope());
+          tac->getScope().getCurrentScope());
 
       varTable.erase(key);
     }
@@ -389,10 +361,6 @@ namespace mcc {
 
       assert(false && "Variable to rename does not exist!");
 
-    }
-
-    std::pair<unsigned, unsigned> Tac::getCurrentScope() {
-      return std::make_pair(scopeDepth, scopeIndex);
     }
   }
 }

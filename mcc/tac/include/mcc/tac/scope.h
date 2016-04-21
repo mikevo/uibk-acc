@@ -27,10 +27,15 @@ namespace mcc {
         Vertex const& addNewChild();
         Vertex const& addNewSibling();
 
+        void setCheckPoint();
+        void goToCheckPoint();
+
       private:
         Graph graph;
         Vertex root;
         Vertex& currentScope;
+        Vertex checkPoint;
+        bool checkPointValid;
         std::map<Vertex, VertexDescriptor> vertexMap;
         std::map<VertexDescriptor, Vertex> descriptorMap;
 

@@ -14,6 +14,8 @@ namespace mcc {
       public:
         ScopeNode(unsigned depth, unsigned index);
 
+        bool operator< (ScopeNode const& other) const;
+
         unsigned getDepth() const;
         unsigned getIndex() const;
         unsigned getNextIndex();

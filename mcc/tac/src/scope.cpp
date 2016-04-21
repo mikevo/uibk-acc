@@ -9,7 +9,8 @@
 namespace mcc {
   namespace tac {
     Scope::Scope() :
-        root(std::make_shared<ScopeNode>(0, 0)), currentScope(this->root) {
+        root(std::make_shared<ScopeNode>(0, 0)), currentScope(this->root), checkPoint(
+            this->root), checkPointValid(false) {
       this->addVertex(this->currentScope);
     }
 
@@ -55,6 +56,18 @@ namespace mcc {
       assert(success && "you can not add a sibling to the root");
 
       return this->addNewChild();
+    }
+
+    void Scope::setCheckPoint() {
+      this->checkPoint = this->currentScope;
+      this->checkPointValid = true;
+    }
+
+    void Scope::goToCheckPoint() {
+      if (this->checkPointValid) {
+        this->currentScope = this->checkPoint;
+        this->checkPointValid = false;
+      }
     }
 
     Scope::Vertex const& Scope::addVertex(Scope::Vertex const& v) {
