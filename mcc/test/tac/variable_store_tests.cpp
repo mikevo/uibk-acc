@@ -119,12 +119,14 @@ namespace mcc {
        EXPECT_EQ("b1:1:0", rvar1->getValue());
      }
 
-    TEST(VariableStore, findVariable) {
+    TEST(VariableStore, findAccordingVariable) {
        VariableStore store;
 
        auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
+       var0->setScope(store.getCurrentScope());
        auto var1 = std::make_shared<Variable>(Type::INT, "b");
-       var1->setScope(std::make_shared<ScopeNode>(1, 0));
+       store.addNewChild();
+       var1->setScope(store.getCurrentScope());
 
        store.addVariable(var0);
        store.addVariable(var1);
@@ -143,13 +145,11 @@ namespace mcc {
        EXPECT_EQ("b0:1:0", var1->getValue());
        EXPECT_EQ("b1:1:0", rvar1->getValue());
 
-       auto search = std::make_shared<Variable>(Type::INT, "b");
-       search->setScope(std::make_shared<ScopeNode>(1, 0));
+       store.addNewChild();
 
-       auto result = store.find(search);
+       auto result = store.findAccordingVariable("b");
 
-       EXPECT_EQ(true, result.second);
-       EXPECT_EQ(rvar1, result.first);
+       EXPECT_EQ(rvar1, result);
      }
   }
 }

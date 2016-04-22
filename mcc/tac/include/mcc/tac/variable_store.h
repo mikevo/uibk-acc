@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -24,19 +25,20 @@ namespace mcc {
         typedef std::set<VariableNode> VariableNodeSet;
         typedef VariableNode const& const_reference;
         typedef std::vector<VariableNodeSet::iterator>::size_type size_type;
+        typedef std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator const_iterator;
 
       public:
         const_reference operator[](size_type pos) const;
         size_type size() const;
-
-        std::pair<VariableNode const&, bool>
-        find(VariableNode const& variable) const;
+        VariableNode const& findAccordingVariable(std::string name);
 
         void addVariable(VariableNode variable);
         bool removeVariable(VariableNode const& variable);
         VariableNode const& renameVariable(VariableNode const& variable);
 
       private:
+        const_iterator find(VariableNode const& variable) const;
+
         VariableNodeSet::iterator insertVariable(VariableNode variable);
 
         VariableNodeSet store;

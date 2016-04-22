@@ -7,6 +7,7 @@
 #include "mcc/tac/variable_store.h"
 
 #include <cassert>
+#include <iostream>
 
 #include "mcc/tac/variable.h"
 
@@ -25,28 +26,18 @@ namespace mcc {
       return this->variableTable.size();
     }
 
-    std::pair<VariableStore::VariableNode const&, bool> VariableStore::find(
+    VariableStore::const_iterator VariableStore::find(
         VariableStore::VariableNode const& variable) const {
-
-      auto found = false;
 
       // FIXME: bad workaround
       std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator mapEntry;
       for (auto const& v : this->renameMap) {
         if (v.first->getValue() == variable->getValue()) {
-          mapEntry = this->renameMap.find(v.first);
-          found = (mapEntry != this->renameMap.end());
-          break;
+          return this->renameMap.find(v.first);
         }
       }
 
-      if (found) {
-        auto vector = mapEntry->second;
-        auto foundVar = vector.back();
-        return std::make_pair(*foundVar, true);
-      } else {
-        return std::make_pair(variable, false);
-      }
+      return this->renameMap.find(variable);
     }
 
     void VariableStore::addVariable(VariableStore::VariableNode variable) {
@@ -103,6 +94,30 @@ namespace mcc {
 
       assert(false && "Variable to rename does not exist!");
       return variable;
+    }
+
+    VariableStore::VariableNode const&
+    VariableStore::findAccordingVariable(std::string name) {
+      this->setCheckPoint();
+
+      do {
+        auto key = std::make_shared<Variable>(Type::AUTO, name);
+        key->setScope(this->getCurrentScope());
+        auto mapVar = this->find(key);
+
+        if (mapVar != this->renameMap.end()) {
+          this->goToCheckPoint();
+          auto vector = mapVar->second;
+          auto result = vector.back();
+          return *result;
+        }
+      } while (this->goToParent());
+
+      // Debugging output; this is only printed if something goes terribly
+      // wrong
+      std::cout << name << ":" << this->getCurrentScope()->getDepth() << ":"
+          << this->getCurrentScope()->getIndex() << std::endl;
+      assert(false && "Usage of undeclared variable");
     }
 
     VariableStore::VariableNodeSet::iterator VariableStore::insertVariable(
