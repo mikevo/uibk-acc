@@ -117,7 +117,7 @@ namespace mcc {
           }
 
           if (triple->containsTargetVar()) {
-            tac->addToVarTable(tac, triple->getTargetVariable());
+            tac->addToVarTable(triple->getTargetVariable());
           }
 
           tac->addLine(triple);
@@ -133,7 +133,7 @@ namespace mcc {
               Operator(unaryOperatorMap.at(*v.get()->op.get())), lhs);
 
           if (var->containsTargetVar()) {
-            tac->addToVarTable(tac, var->getTargetVariable());
+            tac->addToVarTable(var->getTargetVariable());
           }
 
           tac->addLine(var);
@@ -178,7 +178,7 @@ namespace mcc {
 
           if (v->init_expr != nullptr) {
             auto initExpression = convertNode(tac, v->init_expr);
-            tac->addToVarTable(tac, variable);
+            tac->addToVarTable(variable);
 
             if (initExpression->isLeaf()) {
               auto var = std::make_shared<Triple>(
@@ -194,7 +194,7 @@ namespace mcc {
                 assert(
                     triple->containsTargetVar() && "should contain a variable");
 
-                tac->removeFromVarTable(tac, triple->getTargetVariable());
+                tac->removeFromVarTable(triple->getTargetVariable());
                 triple->setTargetVariable(variable);
 
                 return triple;
@@ -203,7 +203,7 @@ namespace mcc {
               }
             }
           } else {
-            tac->addToVarTable(tac, variable);
+            tac->addToVarTable(variable);
           }
 
           return variable;
@@ -334,7 +334,7 @@ namespace mcc {
       return varTable;
     }
 
-    void Tac::addToVarTable(Tac *tac, VarTableValue value) {
+    void Tac::addToVarTable(VarTableValue const& value) {
       VarTableKey key = std::make_pair(value->getName(), value->getScope());
 
       std::vector<VarTableValue> valueVec;
@@ -343,14 +343,14 @@ namespace mcc {
       varTable.insert(std::make_pair(key, valueVec));
     }
 
-    void Tac::removeFromVarTable(Tac* tac, VarTableValue value) {
+    void Tac::removeFromVarTable(VarTableValue const& value) {
       // TODO: possibly wrong
       VarTableKey key = std::make_pair(value->getName(), value->getScope());
 
-      varTable.erase(key);
+      this->varTable.erase(key);
     }
 
-    VarTableValue Tac::addVarRenaming(VarTableKey key) {
+    VarTableValue Tac::addVarRenaming(VarTableKey const& key) {
 
       auto valuePair = varTable.find(key);
 
