@@ -60,8 +60,6 @@ namespace mcc {
 
       EXPECT_EQ(tac.getVarTable().size(), 3);
 
-      std::cout << tac.toString() << std::endl;
-
       auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->getArg1());
       auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->getArg1());
       auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg1());
@@ -101,7 +99,14 @@ namespace mcc {
 
       Tac tac = Tac(tree);
 
-      EXPECT_EQ(tac.getVarTable().size(), 5);
+      // TODO: needs to be changed
+      auto size = 0;
+
+      for (auto const& v : tac.getVarTable()) {
+        size += v.second.size();
+      }
+
+      EXPECT_EQ(5, size);
 
       auto x1 = std::static_pointer_cast<Variable>(tac.codeLines[0]->getArg1());
       auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[1]->getArg1());

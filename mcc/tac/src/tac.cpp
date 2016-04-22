@@ -190,6 +190,7 @@ namespace mcc {
                 auto triple = std::static_pointer_cast<Triple>(initExpression);
                 assert(
                     triple->containsTargetVar() && "should contain a variable");
+
                 tac->removeFromVarTable(tac, triple->getTargetVariable());
                 triple->setTargetVariable(variable);
 
@@ -329,8 +330,8 @@ namespace mcc {
     }
 
     void Tac::addToVarTable(Tac *tac, VarTableValue value) {
-      VarTableKey key = std::make_pair(value->getName(),
-          tac->getScope().getCurrentScope());
+      VarTableKey key = std::make_pair(value->getName(), value->getScope());
+
       std::vector<VarTableValue> valueVec;
       valueVec.push_back(value);
 
@@ -339,8 +340,7 @@ namespace mcc {
 
     void Tac::removeFromVarTable(Tac* tac, VarTableValue value) {
       // TODO: possibly wrong
-      VarTableKey key = std::make_pair(value->getName(),
-          tac->getScope().getCurrentScope());
+      VarTableKey key = std::make_pair(value->getName(), value->getScope());
 
       varTable.erase(key);
     }
@@ -352,6 +352,7 @@ namespace mcc {
       if (valuePair != varTable.end()) {
         auto& varVector = valuePair->second;
         auto cloneVar = std::make_shared<Variable>(*varVector.front());
+        cloneVar->setScope(varVector.front()->getScope());
 
         cloneVar->setIndex(varVector.size());
         varVector.push_back(cloneVar);
