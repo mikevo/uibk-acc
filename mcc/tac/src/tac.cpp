@@ -65,25 +65,7 @@ namespace mcc {
 
           auto v = std::static_pointer_cast<ast::variable>(n);
 
-          tac->getScope().setCheckPoint();
-
-          do {
-            auto key = std::make_pair(v->name,
-                tac->getScope().getCurrentScope());
-            auto mapVar = tac->getVarTable().find(key);
-
-            if (mapVar != tac->getVarTable().end()) {
-              tac->getScope().goToCheckPoint();
-              return mapVar->second.back();
-            }
-          } while (tac->getScope().goToParent());
-
-          // Debugging output; this is only printed if something goes terribly
-          // wrong
-          std::cout << v->name << ":"
-              << tac->getScope().getCurrentScope()->getDepth() << ":"
-              << tac->getScope().getCurrentScope()->getIndex() << std::endl;
-          assert(false && "Usage of undeclared variable");
+          return tac->variableStore.findAccordingVariable(v->name);
         }
 
         if (typeid (*n.get()) == typeid(ast::binary_operation)) {
@@ -101,8 +83,7 @@ namespace mcc {
             assert(check && "arg1 needs to be a variable for ASSIGN triples");
 
             auto var = std::static_pointer_cast<Variable>(lhs);
-            auto key = std::make_pair(var->getName(), var->getScope());
-            variable = tac->addVarRenaming(key);
+            variable = tac->addVarRenaming(var);
 
             setTarVar = true;
 
@@ -334,38 +315,17 @@ namespace mcc {
       return varTable;
     }
 
-    void Tac::addToVarTable(VarTableValue const& value) {
-      VarTableKey key = std::make_pair(value->getName(), value->getScope());
-
-      std::vector<VarTableValue> valueVec;
-      valueVec.push_back(value);
-
-      varTable.insert(std::make_pair(key, valueVec));
+    void Tac::addToVarTable(VarTableValue value) {
+      this->variableStore.addVariable(value);
     }
 
     void Tac::removeFromVarTable(VarTableValue const& value) {
-      // TODO: possibly wrong
-      VarTableKey key = std::make_pair(value->getName(), value->getScope());
-
-      this->varTable.erase(key);
+      this->variableStore.removeVariable(value);
     }
 
-    VarTableValue Tac::addVarRenaming(VarTableKey const& key) {
+    VarTableValue Tac::addVarRenaming(VarTableValue const& key) {
 
-      auto valuePair = varTable.find(key);
-
-      if (valuePair != varTable.end()) {
-        auto& varVector = valuePair->second;
-        auto cloneVar = std::make_shared<Variable>(*varVector.front());
-        cloneVar->setScope(varVector.front()->getScope());
-
-        cloneVar->setIndex(varVector.size());
-        varVector.push_back(cloneVar);
-
-        return cloneVar;
-      }
-
-      assert(false && "Variable to rename does not exist!");
+      return this->variableStore.renameVariable(key);
 
     }
   }
