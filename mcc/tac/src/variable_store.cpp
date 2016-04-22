@@ -25,8 +25,31 @@ namespace mcc {
       return this->variableTable.size();
     }
 
-    void VariableStore::addVariable(
-        VariableStore::VariableNode variable) {
+    std::pair<VariableStore::VariableNode const&, bool> VariableStore::find(
+        VariableStore::VariableNode const& variable) const {
+
+      auto found = false;
+
+      // FIXME: bad workaround
+      std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator mapEntry;
+      for (auto const& v : this->renameMap) {
+        if (v.first->getValue() == variable->getValue()) {
+          mapEntry = this->renameMap.find(v.first);
+          found = (mapEntry != this->renameMap.end());
+          break;
+        }
+      }
+
+      if (found) {
+        auto vector = mapEntry->second;
+        auto foundVar = vector.back();
+        return std::make_pair(*foundVar, true);
+      } else {
+        return std::make_pair(variable, false);
+      }
+    }
+
+    void VariableStore::addVariable(VariableStore::VariableNode variable) {
       auto it = this->insertVariable(variable);
 
       std::vector<VariableStore::VariableNodeSet::iterator> varVector;

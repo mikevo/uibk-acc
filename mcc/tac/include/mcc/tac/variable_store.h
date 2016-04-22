@@ -19,7 +19,7 @@
 
 namespace mcc {
   namespace tac {
-    class VariableStore : public Scope {
+    class VariableStore: public Scope {
         typedef std::shared_ptr<Variable> VariableNode;
         typedef std::set<VariableNode> VariableNodeSet;
         typedef VariableNode const& const_reference;
@@ -29,13 +29,15 @@ namespace mcc {
         const_reference operator[](size_type pos) const;
         size_type size() const;
 
+        std::pair<VariableNode const&, bool>
+        find(VariableNode const& variable) const;
+
         void addVariable(VariableNode variable);
         bool removeVariable(VariableNode const& variable);
         VariableNode const& renameVariable(VariableNode const& variable);
 
       private:
-        VariableNodeSet::iterator insertVariable(
-            VariableNode variable);
+        VariableNodeSet::iterator insertVariable(VariableNode variable);
 
         VariableNodeSet store;
         std::vector<VariableNodeSet::iterator> variableTable;
