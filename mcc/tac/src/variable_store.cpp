@@ -27,7 +27,7 @@ namespace mcc {
     }
 
     VariableStore::const_iterator VariableStore::find(
-        VariableStore::VariableNode const& variable) const {
+        VariableStore::VariableNode variable) const {
 
       // FIXME: bad workaround
       std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator mapEntry;
@@ -50,11 +50,11 @@ namespace mcc {
     }
 
     bool VariableStore::removeVariable(
-        VariableStore::VariableNode const& variable) {
+        VariableStore::VariableNode variable) {
       auto var = renameMap.find(variable);
 
       if (var != renameMap.end()) {
-        for (auto const& v : var->second) {
+        for (auto v : var->second) {
           for (auto it = this->variableTable.begin();
               it != this->variableTable.end(); ++it) {
             if (*it == v) {
@@ -73,8 +73,8 @@ namespace mcc {
     }
 
     VariableStore::VariableNode
-    const& VariableStore::renameVariable(
-        VariableStore::VariableNode const& variable) {
+    VariableStore::renameVariable(
+        VariableStore::VariableNode variable) {
 
       assert(!variable->isTemporary() && "temp variables can't be renamed");
 
@@ -96,7 +96,7 @@ namespace mcc {
       return variable;
     }
 
-    VariableStore::VariableNode const&
+    VariableStore::VariableNode
     VariableStore::findAccordingVariable(std::string name) {
       this->setCheckPoint();
 
