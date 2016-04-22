@@ -17,6 +17,14 @@ namespace mcc {
       // TODO: wrong scope info
       this->scope = std::make_shared<ScopeNode>(0, 0);
     }
+
+    bool Variable::operator<(Variable const& other) const {
+      auto pairLhs = std::make_pair(this->getName(), this->getScope());
+      auto pairRhs = std::make_pair(other.getName(), other.getScope());
+
+      return (pairLhs < pairRhs);
+    }
+
     unsigned Variable::getId() const {
       return this->id;
     }
@@ -50,10 +58,6 @@ namespace mcc {
 
     void Variable::setIndex(unsigned index) {
       this->index = index;
-    }
-
-    unsigned Variable::getIndex() {
-      return index;
     }
 
     bool Variable::isTemporary() const {
