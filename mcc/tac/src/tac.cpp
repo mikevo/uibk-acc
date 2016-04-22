@@ -78,6 +78,7 @@ namespace mcc {
             }
           } while (tac->getScope().goToParent());
 
+          // TODO: do we need this output? If not, remove it.
           std::cout << v->name << ":"
               << tac->getScope().getCurrentScope()->getDepth() << ":"
               << tac->getScope().getCurrentScope()->getIndex() << std::endl;
@@ -95,6 +96,8 @@ namespace mcc {
           VarTableValue variable;
 
           if (*v.get()->op.get() == ast::binary_operand::ASSIGN) {
+            // TODO: are there any other cases? don't get it why here is an if
+            // if this is only an additional check, change it with an assert!
             if (typeid(*lhs.get()) == typeid(Variable)) {
               auto var = std::static_pointer_cast<Variable>(lhs);
               auto key = std::make_pair(var->getName(), var->getScope());

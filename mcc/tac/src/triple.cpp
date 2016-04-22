@@ -20,7 +20,7 @@ namespace mcc {
     // constructor needed for Label
     Triple::Triple(OperatorName op) :
         Triple(Operator(op), nullptr) {
-      assert(this->op.getType() == OperatorType::NONE && "Operator not unary!");
+      assert(this->op.getType() == OperatorType::NONE && "Operator not NONE!");
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg) :
@@ -29,14 +29,16 @@ namespace mcc {
       assert(
           (this->op.getType() == OperatorType::NONE
               || this->op.getType() == OperatorType::UNARY)
-              && "Operator not unary!");
+              && "Operator not UNARY or NONE!");
     }
 
     Triple::Triple(Operator op, std::shared_ptr<Operand> arg1,
         std::shared_ptr<Operand> arg2) :
         Operand(), op(op), basicBlockId(0), arg1(arg1), arg2(arg2), targetVar(
             nullptr), id(0) {
+        
       this->id = ++nextId;
+      // TODO: what if arg1 is INT and arg2 is FLOAT? shouldn't this be possible?
       if (this->containsArg1()) {
         this->setType(arg1->getType());
       }
@@ -71,7 +73,8 @@ namespace mcc {
         case OperatorName::LABEL:
           break;
         default:
-          setTargetVariable(
+          // TODO: what is this good for? -> comment it!
+          this->setTargetVariable(
               std::make_shared<Variable>(this->getType()));
       }
     }
@@ -86,7 +89,7 @@ namespace mcc {
 
     std::string Triple::getName() const {
       if (this->containsTargetVar()) {
-        // TODO: get ride of this construct
+        // TODO: get rid of this construct
         if (this->getTargetVariable()->isTemporary()) {
           return this->getTargetVariable()->getName();
         } else {
@@ -172,6 +175,7 @@ namespace mcc {
     }
 
     std::shared_ptr<Variable> Triple::getTargetVariable() const {
+      // TODO: change assert message to sth more expressive!
       assert(this->containsTargetVar() && "use containsTargetVar");
       return this->targetVar;
     }
@@ -189,10 +193,12 @@ namespace mcc {
     }
 
     std::shared_ptr<Operand> Triple::getArg1() const {
+      // TODO: change assert message to sth more expressive!
       assert(this->containsArg1() && "use containsArg1");
       return this->arg1;
     }
     std::shared_ptr<Operand> Triple::getArg2() const {
+      // TODO: change assert message to sth more expressive!
       assert(this->containsArg2() && "use containsArg2");
       return this->arg2;
     }

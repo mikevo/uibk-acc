@@ -50,9 +50,11 @@ namespace mcc {
         Operator op;
         unsigned basicBlockId;
         std::shared_ptr<Operand> arg1, arg2;
+        // TODO: document for what the targetVariable is responsible
         std::shared_ptr<Variable> targetVar;
         static unsigned nextId;
         unsigned id;
+        // TODO: document for what the name is responsible
         std::string name;
     };
   }
