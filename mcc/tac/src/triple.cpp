@@ -36,9 +36,10 @@ namespace mcc {
         std::shared_ptr<Operand> arg2) :
         Operand(), op(op), basicBlockId(0), arg1(arg1), arg2(arg2), targetVar(
             nullptr), id(0) {
-        
+
       this->id = ++nextId;
-      // TODO: what if arg1 is INT and arg2 is FLOAT? shouldn't this be possible?
+
+      // there is a restriction that both arguments types need to match
       if (this->containsArg1()) {
         this->setType(arg1->getType());
       }
@@ -73,9 +74,8 @@ namespace mcc {
         case OperatorName::LABEL:
           break;
         default:
-          // TODO: what is this good for? -> comment it!
-          this->setTargetVariable(
-              std::make_shared<Variable>(this->getType()));
+          // Creates a temporary variable that is used for the triple result
+          this->setTargetVariable(std::make_shared<Variable>(this->getType()));
       }
     }
 
@@ -175,8 +175,9 @@ namespace mcc {
     }
 
     std::shared_ptr<Variable> Triple::getTargetVariable() const {
-      // TODO: change assert message to sth more expressive!
-      assert(this->containsTargetVar() && "use containsTargetVar");
+      assert(
+          this->containsTargetVar()
+              && "use containsTargetVar() before you call this function");
       return this->targetVar;
     }
 
@@ -193,13 +194,15 @@ namespace mcc {
     }
 
     std::shared_ptr<Operand> Triple::getArg1() const {
-      // TODO: change assert message to sth more expressive!
-      assert(this->containsArg1() && "use containsArg1");
+      assert(
+          this->containsArg1()
+              && "use containsArg1() before you call this function");
       return this->arg1;
     }
     std::shared_ptr<Operand> Triple::getArg2() const {
-      // TODO: change assert message to sth more expressive!
-      assert(this->containsArg2() && "use containsArg2");
+      assert(
+          this->containsArg2()
+              && "use containsArg2() before you call this function");
       return this->arg2;
     }
 

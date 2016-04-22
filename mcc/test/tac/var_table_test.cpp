@@ -99,7 +99,8 @@ namespace mcc {
 
       Tac tac = Tac(tree);
 
-      // TODO: needs to be changed
+      // TODO: needs to be changed when the new variable table representation is
+      // used
       auto size = 0;
 
       for (auto const& v : tac.getVarTable()) {

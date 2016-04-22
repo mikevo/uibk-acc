@@ -50,11 +50,13 @@ namespace mcc {
         Operator op;
         unsigned basicBlockId;
         std::shared_ptr<Operand> arg1, arg2;
-        // TODO: document for what the targetVariable is responsible
+        // if the triple produces a result than this variable is used to store
+        // the result
         std::shared_ptr<Variable> targetVar;
         static unsigned nextId;
         unsigned id;
-        // TODO: document for what the name is responsible
+        // if the triple does not produce a result than this variable holds a
+        // name like $L1 ore something like that
         std::string name;
     };
   }

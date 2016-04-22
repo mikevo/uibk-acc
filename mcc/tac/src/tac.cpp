@@ -78,7 +78,8 @@ namespace mcc {
             }
           } while (tac->getScope().goToParent());
 
-          // TODO: do we need this output? If not, remove it.
+          // Debugging output; this is only printed if something goes terribly
+          // wrong
           std::cout << v->name << ":"
               << tac->getScope().getCurrentScope()->getDepth() << ":"
               << tac->getScope().getCurrentScope()->getIndex() << std::endl;
@@ -96,17 +97,16 @@ namespace mcc {
           VarTableValue variable;
 
           if (*v.get()->op.get() == ast::binary_operand::ASSIGN) {
-            // TODO: are there any other cases? don't get it why here is an if
-            // if this is only an additional check, change it with an assert!
-            if (typeid(*lhs.get()) == typeid(Variable)) {
-              auto var = std::static_pointer_cast<Variable>(lhs);
-              auto key = std::make_pair(var->getName(), var->getScope());
-              variable = tac->addVarRenaming(key);
+            auto check = typeid(*lhs.get()) == typeid(Variable);
+            assert(check && "arg1 needs to be a variable for ASSIGN triples");
 
-              setTarVar = true;
+            auto var = std::static_pointer_cast<Variable>(lhs);
+            auto key = std::make_pair(var->getName(), var->getScope());
+            variable = tac->addVarRenaming(key);
 
-              lhs = variable;
-            }
+            setTarVar = true;
+
+            lhs = variable;
           }
 
           auto triple = std::make_shared<Triple>(
@@ -244,6 +244,8 @@ namespace mcc {
           return nullptr;
         }
 
+        // Debugging output; this is only printed if something goes terribly
+        // wrong
         std::cout << typeid (*n.get()).name() << std::endl;
         assert(false && "Unknown node type");
         return nullptr;

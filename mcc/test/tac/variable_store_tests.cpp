@@ -94,7 +94,7 @@ namespace mcc {
        auto rvar1 = store.renameVariable(var1);
 
        // TODO: change rename representation to allow removing renamed variables
-       // as well
+       // as well if necessary
        EXPECT_EQ(false, store.removeVariable(rvar0));
        EXPECT_EQ(false, store.removeVariable(rvar1));
 
