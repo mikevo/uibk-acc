@@ -91,6 +91,7 @@ namespace mcc {
        store.addVariable(var1);
 
        auto rvar0 = store.renameVariable(var0);
+       auto rrvar0 = store.renameVariable(var0);
        auto rvar1 = store.renameVariable(var1);
 
        // TODO: change rename representation to allow removing renamed variables
@@ -98,14 +99,16 @@ namespace mcc {
        EXPECT_EQ(false, store.removeVariable(rvar0));
        EXPECT_EQ(false, store.removeVariable(rvar1));
 
-       EXPECT_EQ(4, store.size());
+       EXPECT_EQ(5, store.size());
        EXPECT_EQ(var0, store[0]);
        EXPECT_EQ(var1, store[1]);
        EXPECT_EQ(rvar0, store[2]);
-       EXPECT_EQ(rvar1, store[3]);
+       EXPECT_EQ(rrvar0, store[3]);
+       EXPECT_EQ(rvar1, store[4]);
 
        EXPECT_EQ("a0:0:0", var0->getValue());
        EXPECT_EQ("a1:0:0", rvar0->getValue());
+       EXPECT_EQ("a2:0:0", rrvar0->getValue());
        EXPECT_EQ("b0:1:0", var1->getValue());
        EXPECT_EQ("b1:1:0", rvar1->getValue());
 

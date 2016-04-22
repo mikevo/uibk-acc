@@ -361,10 +361,10 @@ namespace mcc {
       Tac tac = Tac(tree);
 
       auto x1 = tac.codeLines[0]->getTargetVariable();
-      auto x2 = std::static_pointer_cast<Variable>(tac.codeLines[2]->getArg1());
+      auto x2 = tac.codeLines[2]->getTargetVariable();
       auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[3]->getArg2());
       auto x4 = std::static_pointer_cast<Variable>(tac.codeLines[4]->getArg2());
-      auto x5 = std::static_pointer_cast<Variable>(tac.codeLines[5]->getArg1());
+      auto x5 = tac.codeLines[5]->getTargetVariable();
       auto x6 = std::static_pointer_cast<Variable>(tac.codeLines[6]->getArg2());
 
       EXPECT_EQ(x2.get(), x3.get());

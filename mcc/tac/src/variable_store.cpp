@@ -26,6 +26,13 @@ namespace mcc {
       return this->variableTable.size();
     }
 
+    VariableStore::set_const_iterator VariableStore::begin() const {
+      return this->store.begin();
+    }
+    VariableStore::set_const_iterator VariableStore::end() const {
+      return this->store.end();
+    }
+
     VariableStore::const_iterator VariableStore::find(
         VariableStore::VariableNode variable) const {
 
@@ -49,8 +56,7 @@ namespace mcc {
       this->renameMap.insert(std::make_pair(variable, varVector));
     }
 
-    bool VariableStore::removeVariable(
-        VariableStore::VariableNode variable) {
+    bool VariableStore::removeVariable(VariableStore::VariableNode variable) {
       auto var = renameMap.find(variable);
 
       if (var != renameMap.end()) {
@@ -72,32 +78,40 @@ namespace mcc {
       return false;
     }
 
-    VariableStore::VariableNode
-    VariableStore::renameVariable(
+    VariableStore::VariableNode VariableStore::renameVariable(
         VariableStore::VariableNode variable) {
 
       assert(!variable->isTemporary() && "temp variables can't be renamed");
 
-      auto valuePair = this->renameMap.find(variable);
+      // FIXME: bad workaround
+      auto key = std::make_shared<Variable>(variable->getType(),
+          variable->getName());
+      key->setScope(variable->getScope());
 
-      if (valuePair != renameMap.end()) {
-        auto& varVector = valuePair->second;
-        auto cloneVar = std::make_shared<Variable>(variable->getType(),
-            variable->getName());
-        cloneVar->setScope(variable->getScope());
-        cloneVar->setIndex(varVector.size());
-        auto it = this->insertVariable(cloneVar);
-        varVector.push_back(it);
+      for (auto const& v : this->renameMap) {
+        if (v.first->getValue() == key->getValue()) {
+          auto valuePair = this->renameMap.find(v.first);
 
-        return *it;
+          if (valuePair != renameMap.end()) {
+            auto& varVector = valuePair->second;
+            auto cloneVar = std::make_shared<Variable>(variable->getType(),
+                variable->getName());
+            cloneVar->setScope(variable->getScope());
+            cloneVar->setIndex(varVector.size());
+            auto it = this->insertVariable(cloneVar);
+            varVector.push_back(it);
+
+            return *it;
+          }
+        }
       }
 
       assert(false && "Variable to rename does not exist!");
       return variable;
     }
 
-    VariableStore::VariableNode
-    VariableStore::findAccordingVariable(std::string name) {
+    VariableStore::VariableNode VariableStore::findAccordingVariable(
+        std::string name) {
       this->setCheckPoint();
 
       do {

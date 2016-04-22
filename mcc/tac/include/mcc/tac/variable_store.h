@@ -26,10 +26,15 @@ namespace mcc {
         typedef VariableNode const_reference;
         typedef std::vector<VariableNodeSet::iterator>::size_type size_type;
         typedef std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator const_iterator;
+        typedef VariableNodeSet::const_iterator set_const_iterator;
 
       public:
         const_reference operator[](size_type pos) const;
         size_type size() const;
+
+        set_const_iterator begin() const;
+        set_const_iterator end() const;
+
         VariableNode findAccordingVariable(std::string name);
 
         void addVariable(VariableNode variable);

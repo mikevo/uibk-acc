@@ -34,9 +34,8 @@ namespace mcc {
             void nextBasicBlock();
             unsigned basicBlockCount();
 
-            Scope& getScope();
+            VariableStore& getVariableStore();
            
-            const std::map<VarTableKey, std::vector<VarTableValue>>& getVarTable();
             const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex();
             void addToVarTable(VarTableValue value);
             VarTableValue addVarRenaming(VarTableValue const& key);
@@ -45,9 +44,9 @@ namespace mcc {
 
             std::string toString() const;
             std::vector<std::shared_ptr<Triple>> codeLines;
-            VariableStore variableStore;
 
         private:
+            VariableStore variableStore;
             void convertAst(std::shared_ptr<ast::node> n);
             void createBasicBlockIndex();
             unsigned currentBasicBlock;

@@ -65,7 +65,7 @@ namespace mcc {
 
           auto v = std::static_pointer_cast<ast::variable>(n);
 
-          return tac->variableStore.findAccordingVariable(v->name);
+          return tac->getVariableStore().findAccordingVariable(v->name);
         }
 
         if (typeid (*n.get()) == typeid(ast::binary_operation)) {
@@ -83,8 +83,8 @@ namespace mcc {
             assert(check && "arg1 needs to be a variable for ASSIGN triples");
 
             auto var = std::static_pointer_cast<Variable>(lhs);
-            variable = tac->addVarRenaming(var);
 
+            variable = tac->addVarRenaming(var);
             setTarVar = true;
 
             lhs = variable;
@@ -135,16 +135,15 @@ namespace mcc {
 
         if (typeid (*n.get()) == typeid(ast::compound_stmt)) {
           auto v = std::static_pointer_cast<ast::compound_stmt>(n);
-          auto statements = v.get()->statements;
+          auto statements = v->statements;
 
-          tac->getScope().addNewChild();
+          tac->getVariableStore().addNewChild();
 
-          std::for_each(statements.begin(), statements.end(),
-              [&](std::shared_ptr<ast::node> const &s) {
-                convertNode(tac, s);
-              });
+          for (auto const& s : statements) {
+            convertNode(tac, s);
+          }
 
-          tac->getScope().goToParent();
+          tac->getVariableStore().goToParent();
 
           return nullptr;
         }
@@ -155,7 +154,7 @@ namespace mcc {
 
           auto variable = std::make_shared<Variable>(
               convertType(*tempVar->var_type.get()), tempVar->name);
-          variable->setScope(tac->getScope().getCurrentScope());
+          variable->setScope(tac->getVariableStore().getCurrentScope());
 
           if (v->init_expr != nullptr) {
             auto initExpression = convertNode(tac, v->init_expr);
@@ -252,7 +251,7 @@ namespace mcc {
       this->codeLines.push_back(line);
     }
 
-    Scope& Tac::getScope() {
+    VariableStore& Tac::getVariableStore() {
       return this->variableStore;
     }
 
@@ -309,10 +308,6 @@ namespace mcc {
       }
 
       return basicBlockIndex;
-    }
-
-    const std::map<VarTableKey, std::vector<VarTableValue>>&Tac::getVarTable() {
-      return varTable;
     }
 
     void Tac::addToVarTable(VarTableValue value) {

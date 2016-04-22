@@ -15,10 +15,8 @@ namespace mcc {
     Cfg::Cfg(mcc::tac::Tac tac) :
         basicBlockIndex(tac.getBasicBlockIndex()) {
 
-      for (auto const& e : tac.getVarTable()) {
-        for (auto const& var : e.second) {
+      for (auto const& var : tac.getVariableStore()) {
           variableSet.insert(var);
-        }
       }
 
       for (auto const& block : basicBlockIndex) {
