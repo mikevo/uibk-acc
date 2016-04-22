@@ -26,7 +26,7 @@ namespace mcc {
     }
 
     void VariableStore::addVariable(
-        VariableStore::VariableNode const& variable) {
+        VariableStore::VariableNode variable) {
       auto it = this->insertVariable(variable);
 
       std::vector<VariableStore::VariableNodeSet::iterator> varVector;
@@ -83,7 +83,7 @@ namespace mcc {
     }
 
     VariableStore::VariableNodeSet::iterator VariableStore::insertVariable(
-        VariableStore::VariableNode const& variable) {
+        VariableStore::VariableNode variable) {
       auto it = this->store.insert(variable);
       this->variableTable.push_back(it.first);
       return it.first;

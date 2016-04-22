@@ -15,11 +15,9 @@
 #include "mcc/tac/label.h"
 #include "mcc/tac/triple.h"
 #include "mcc/tac/basic_block.h"
-#include "mcc/tac/scope.h"
+#include "mcc/tac/variable_store.h"
 #include "ast.h"
 #include "variable.h"
-
-
 
 namespace mcc {
     namespace tac {
@@ -52,7 +50,7 @@ namespace mcc {
             void convertAst(std::shared_ptr<ast::node> n);
             void createBasicBlockIndex();
             unsigned currentBasicBlock;
-            Scope scope;
+            VariableStore variableStore;
             std::vector<std::shared_ptr<BasicBlock>> basicBlockIndex;
             // TODO: why is the value of this map a vector?
             std::map<VarTableKey, std::vector<VarTableValue>> varTable;

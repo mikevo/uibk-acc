@@ -13,12 +13,13 @@
 #include <utility>
 #include <vector>
 
+#include "mcc/tac/scope.h"
 #include "mcc/tac/scope_node.h"
 #include "mcc/tac/variable.h"
 
 namespace mcc {
   namespace tac {
-    class VariableStore {
+    class VariableStore : public Scope {
         typedef std::shared_ptr<Variable> VariableNode;
         typedef std::set<VariableNode> VariableNodeSet;
         typedef VariableNode const& const_reference;
@@ -28,13 +29,13 @@ namespace mcc {
         const_reference operator[](size_type pos) const;
         size_type size() const;
 
-        void addVariable(VariableNode const& variable);
+        void addVariable(VariableNode variable);
         bool removeVariable(VariableNode const& variable);
         VariableNode const& renameVariable(VariableNode const& variable);
 
       private:
         VariableNodeSet::iterator insertVariable(
-            VariableNode const& variable);
+            VariableNode variable);
 
         VariableNodeSet store;
         std::vector<VariableNodeSet::iterator> variableTable;

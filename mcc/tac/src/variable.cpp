@@ -18,6 +18,9 @@ namespace mcc {
       this->scope = std::make_shared<ScopeNode>(0, 0);
     }
 
+    // needed exactly this way because Variable is used as key elem for maps if
+    // this needs to be changed then all maps need a key_comp function that does
+    // exactly this
     bool Variable::operator<(Variable const& other) const {
       auto pairLhs = std::make_pair(this->getName(), this->getScope());
       auto pairRhs = std::make_pair(other.getName(), other.getScope());

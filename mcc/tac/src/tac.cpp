@@ -270,7 +270,7 @@ namespace mcc {
     }
 
     Scope& Tac::getScope() {
-      return scope;
+      return this->variableStore;
     }
 
     void Tac::nextBasicBlock() {
