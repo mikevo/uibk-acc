@@ -45,6 +45,7 @@ namespace mcc {
               it != this->variableTable.end(); ++it) {
             if (*it == v) {
               this->variableTable.erase(it);
+              this->store.erase(v);
             }
           }
         }
