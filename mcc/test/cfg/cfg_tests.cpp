@@ -395,6 +395,7 @@ namespace mcc {
 
           graph->computeLive();
 
+          // TODO: remove command line printing
           for (unsigned i = 0; i < 7; ++i) {
             for (auto out : graph->getLiveOut(i)) {
               std::cout << out->getValue() + " ";

@@ -54,6 +54,7 @@ namespace mcc {
             unsigned currentBasicBlock;
             Scope scope;
             std::vector<std::shared_ptr<BasicBlock>> basicBlockIndex;
+            // TODO: why is the value of this map a vector?
             std::map<VarTableKey, std::vector<VarTableValue>> varTable;
         };
     }
