@@ -152,6 +152,14 @@ namespace ast {
 		virtual bool operator==(const node& other) const;
 		virtual std::ostream& print_to(std::ostream& stream) const;
 	};
+
+	struct while_stmt : public statement {
+	  sptr<expression> condition;
+	  sptr<statement> stmt;
+	  while_stmt(sptr<expression> condition, sptr<statement> stmt) : condition(condition), stmt(stmt) {}
+	  virtual bool operator==(const node& other) const;
+	  virtual std::ostream& print_to(std::ostream& stream) const;
+	};
 }
 
 bool operator==(const sptr<ast::node>& lhs, const sptr<ast::node>& rhs);

@@ -319,8 +319,15 @@ namespace parser {
 		return std::make_shared<ast::decl_stmt>(var, init_expr);
 	}
 
+	sptr<ast::while_stmt> while_stmt(parser_state& p) {
+	  if(try_token(p, "while").empty()) return {};
+	  auto condition = expect(paren_expr, p)->sub;
+	  auto stmt = expect(statement, p);
+	  return std::make_shared<ast::while_stmt>(condition, stmt);
+	}
+
 	sptr<ast::statement> statement(parser_state& p) {
-		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, expr_stmt);
+		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, expr_stmt, while_stmt);
 	}
 
 }

@@ -1,9 +1,9 @@
 {
     int a;
     a = 1;
-    
+
     float b = 1.0;
-    
+
     if ( a > 0 ) {
         a = 0;
     }
@@ -28,5 +28,13 @@
         int a9 = 1 >= 2;
         int a10 = 1 < 2;
         int a11 = 1 > 2;
+    }
+
+    while(a < 30) {
+      int b = 0;
+    	while(b < 5) {
+        b = b + 1;
+      }
+      a = a + b;
     }
 }

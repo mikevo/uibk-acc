@@ -173,6 +173,19 @@ namespace ast {
 		}
 		return stream << ";\n";
 	}
+
+  bool while_stmt::operator==(const node& other) const {
+    if(typeid(other) != typeid(while_stmt)) return false;
+    auto o = dynamic_cast<const while_stmt&>(other);
+    return *o.condition == *condition && *o.stmt == *stmt;
+  }
+  std::ostream& while_stmt::print_to(std::ostream& stream) const {
+    stream << "while(";
+    condition->print_to(stream);
+    stream << ") ";
+    stmt->print_to(stream);
+    return stream;
+  }
 }
 
 bool operator==(const sptr<ast::node>& lhs, const sptr<ast::node>& rhs) {

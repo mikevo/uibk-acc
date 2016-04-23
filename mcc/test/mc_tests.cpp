@@ -149,6 +149,9 @@ TEST(Libmc, statements) {
 			}
 		}
 		2.9;
+    while(1 < 3) {
+      x = x + 1;
+    }
 	}
 	)"));
 }
