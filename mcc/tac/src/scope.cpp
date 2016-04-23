@@ -34,7 +34,7 @@ namespace mcc {
       }
     }
 
-    Scope::Vertex Scope::addNewChild() {
+    Scope::Vertex const Scope::addNewChild() {
       auto childDepth = this->currentScope->getDepth() + 1;
       auto childIndex = this->currentScope->getNextIndex();
       auto child = std::make_shared<ScopeNode>(childDepth, childIndex);
@@ -49,7 +49,7 @@ namespace mcc {
       return this->getCurrentScope();
     }
 
-    Scope::Vertex Scope::addNewSibling() {
+    Scope::Vertex const Scope::addNewSibling() {
       // TODO: maybe a restriction that causes trouble; if so it is necessary to
       // change the tree that it inserts a root that is never used as scope
       auto success = this->goToParent();

@@ -24,8 +24,8 @@ namespace mcc {
         Vertex const getCurrentScope() const;
 
         bool goToParent();
-        Vertex addNewChild();
-        Vertex addNewSibling();
+        Vertex const addNewChild();
+        Vertex const addNewSibling();
 
         void setCheckPoint();
         void goToCheckPoint();
