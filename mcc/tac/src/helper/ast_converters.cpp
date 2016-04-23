@@ -54,6 +54,7 @@ namespace mcc {
         if (isType<ast::compound_stmt>(n)) return convertCompoundStmt(t, n);
         if (isType<ast::decl_stmt>(n)) return convertDeclStmt(t, n);
         if (isType<ast::if_stmt>(n)) return convertIfStmt(t, n);
+        if (isType<ast::while_stmt>(n)) return convertWhileStmt(t, n);
 
         // Debugging output; this is only printed if something goes terribly
         // wrong
@@ -215,6 +216,32 @@ namespace mcc {
           t->nextBasicBlock();
           t->addLine(trueLabel);
         }
+
+        return nullptr;
+      }
+
+      ReturnType convertWhileStmt(Tac *t, AstNode n) {
+        auto whileStmt = std::static_pointer_cast<ast::while_stmt>(n);
+
+        auto condition = convertNode(t, whileStmt->condition);
+
+        auto againLable = std::make_shared<Label>();
+        t->nextBasicBlock();
+        t->addLine(againLable);
+
+        auto exitLable = std::make_shared<Label>();
+        auto jfOp = Operator(OperatorName::JUMPFALSE);
+        auto whileJump = std::make_shared<Triple>(jfOp, condition, exitLable);
+        t->addLine(whileJump);
+        t->nextBasicBlock();
+
+        auto stmt = convertNode(t, whileStmt->stmt);
+
+        auto jOp = Operator(OperatorName::JUMP);
+        auto againJump = std::make_shared<Triple>(jOp, againLable);
+        t->addLine(againJump);
+        t->nextBasicBlock();
+        t->addLine(exitLable);
 
         return nullptr;
       }

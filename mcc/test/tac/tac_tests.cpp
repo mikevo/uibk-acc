@@ -341,6 +341,68 @@ namespace mcc {
       EXPECT_EQ(5, tac.codeLines.size());
     }
 
+    TEST(Tac, While) {
+      auto tree =
+          parser::parse(
+              R"(
+        {
+          int a = 0;
+          while(a < 30) {
+            int b = 0;
+            while(b < 5) {
+              b = b + 1;
+            }
+            a = a + b;
+          }
+        })");
+
+      Tac tac = Tac(tree);
+
+      auto elem = tac.codeLines.begin();
+      elem++;
+
+      auto labelId = elem->get()->getId();
+      auto againLabel = "$L" + std::to_string(++labelId);
+      auto exitLabel = "$L" + std::to_string(++labelId);
+      auto varId = elem->get()->getTargetVariable()->getId();
+      auto varName = "$t" + std::to_string(varId++);
+
+      // FIXME: due to SSA form the loop will not carry results over iterations
+      std::string expectedValue = "a0:1:0 = 0\n";
+      expectedValue.append(varName + " = a0:1:0 < 30\n");
+      expectedValue.append("LABEL " + againLabel + "\n");
+      expectedValue.append("JUMPFALSE " + varName + " " + exitLabel + "\n");
+      expectedValue.append("b0:2:0 = 0\n");
+
+      labelId += 3;
+      auto again2Label = "$L" + std::to_string(++labelId);
+      auto exit2Label = "$L" + std::to_string(++labelId);
+      varId += 2;
+      varName = "$t" + std::to_string(varId++);
+      expectedValue.append(varName + " = b0:2:0 < 5\n");
+      expectedValue.append("LABEL " + again2Label + "\n");
+      expectedValue.append("JUMPFALSE " + varName + " " + exit2Label + "\n");
+
+      varId += 4;
+      varName = "$t" + std::to_string(varId++);
+      expectedValue.append(varName + " = b0:2:0 + 1\n");
+      expectedValue.append("b1:2:0 = " + varName + "\n");
+      expectedValue.append("JUMP " + again2Label + "\n");
+      expectedValue.append("LABEL " + exit2Label + "\n");
+
+      varId += 7;
+      varName = "$t" + std::to_string(varId);
+      expectedValue.append(varName + " = a0:1:0 + b1:2:0\n");
+      expectedValue.append("a1:1:0 = " + varName + "\n");
+
+      expectedValue.append("JUMP " + againLabel + "\n");
+      expectedValue.append("LABEL " + exitLabel);
+
+
+      EXPECT_EQ(expectedValue, tac.toString());
+      EXPECT_EQ(16, tac.codeLines.size());
+    }
+
     TEST(Tac, SSA) {
       auto tree =
           parser::parse(

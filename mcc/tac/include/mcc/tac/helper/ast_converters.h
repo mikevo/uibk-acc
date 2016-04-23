@@ -34,6 +34,8 @@ namespace mcc {
       ReturnType convertCompoundStmt(Tac *t, AstNode n);
       ReturnType convertDeclStmt(Tac *t, AstNode n);
       ReturnType convertIfStmt(Tac *t, AstNode n);
+      ReturnType convertWhileStmt(Tac *t, AstNode n);
+
 
       template<typename T>
       bool isType(const AstNode n) {
