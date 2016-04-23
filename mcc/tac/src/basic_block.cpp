@@ -25,11 +25,11 @@ namespace mcc {
       return id;
     }
 
-    std::shared_ptr<Triple>& BasicBlock::front() {
+    std::shared_ptr<Triple> BasicBlock::front() {
       return blockMembers.front();
     }
 
-    std::shared_ptr<Triple>& BasicBlock::back() {
+    std::shared_ptr<Triple> BasicBlock::back() {
       return blockMembers.back();
     }
 
@@ -79,8 +79,9 @@ namespace mcc {
 
       unsigned count = 0;
 
-      for (auto &line : blockMembers) {
-        output.append(line.get()->toString());
+      // TODO: is this const& fine? i'd say yes cause line is only used in loop
+      for (auto const& line : blockMembers) {
+        output.append(line->toString());
 
         if (blockMembers.size() > 1) {
           output.append("\n");

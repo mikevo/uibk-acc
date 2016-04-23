@@ -25,8 +25,8 @@ namespace mcc {
         std::shared_ptr<Triple> getStart();
         std::shared_ptr<Triple> getEnd();
         const unsigned getBlockId() const;
-        std::shared_ptr<Triple>& front();
-        std::shared_ptr<Triple>& back();
+        std::shared_ptr<Triple> front();
+        std::shared_ptr<Triple> back();
         void push_back(const std::shared_ptr<Triple> line);
         std::vector<std::shared_ptr<Triple>>::size_type size() const;
         std::string toString() const;
