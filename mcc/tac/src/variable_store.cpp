@@ -14,8 +14,8 @@
 namespace mcc {
   namespace tac {
 
-    VariableStore::const_reference VariableStore::operator[](
-        VariableStore::size_type pos) const {
+    VariableStore::const_shared_ptr VariableStore::operator[](
+        VariableStore::size_type const pos) const {
 
       auto it = this->variableTable.at(pos);
 
@@ -34,10 +34,12 @@ namespace mcc {
     }
 
     VariableStore::const_iterator VariableStore::find(
-        VariableStore::VariableNode variable) const {
+        VariableStore::VariableNode const variable) const {
 
       // FIXME: bad workaround
       std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator mapEntry;
+
+      // TODO: is this const& fine? i'd say yes cause line is only used in loop
       for (auto const& v : this->renameMap) {
         if (v.first->getValue() == variable->getValue()) {
           return this->renameMap.find(v.first);
@@ -56,7 +58,8 @@ namespace mcc {
       this->renameMap.insert(std::make_pair(variable, varVector));
     }
 
-    bool VariableStore::removeVariable(VariableStore::VariableNode variable) {
+    bool VariableStore::removeVariable(
+        VariableStore::VariableNode const variable) {
       auto var = renameMap.find(variable);
 
       if (var != renameMap.end()) {
@@ -79,7 +82,7 @@ namespace mcc {
     }
 
     VariableStore::VariableNode VariableStore::renameVariable(
-        VariableStore::VariableNode variable) {
+        VariableStore::VariableNode const variable) {
 
       assert(!variable->isTemporary() && "temp variables can't be renamed");
 
@@ -88,6 +91,7 @@ namespace mcc {
           variable->getName());
       key->setScope(variable->getScope());
 
+      // TODO: is this const& fine? i'd say yes cause line is only used in loop
       for (auto const& v : this->renameMap) {
         if (v.first->getValue() == key->getValue()) {
           auto valuePair = this->renameMap.find(v.first);
@@ -111,7 +115,7 @@ namespace mcc {
     }
 
     VariableStore::VariableNode VariableStore::findAccordingVariable(
-        std::string name) {
+        std::string const name) {
       this->setCheckPoint();
 
       do {

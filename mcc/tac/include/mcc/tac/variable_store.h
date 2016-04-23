@@ -23,26 +23,26 @@ namespace mcc {
     class VariableStore: public Scope {
         typedef std::shared_ptr<Variable> VariableNode;
         typedef std::set<VariableNode> VariableNodeSet;
-        typedef VariableNode const_reference;
+        typedef VariableNode const const_shared_ptr;
         typedef std::vector<VariableNodeSet::iterator>::size_type size_type;
         typedef std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator const_iterator;
         typedef VariableNodeSet::const_iterator set_const_iterator;
 
       public:
-        const_reference operator[](size_type pos) const;
+        const_shared_ptr operator[](size_type const pos) const;
         size_type size() const;
 
         set_const_iterator begin() const;
         set_const_iterator end() const;
 
-        VariableNode findAccordingVariable(std::string name);
+        VariableNode findAccordingVariable(std::string const name);
 
         void addVariable(VariableNode variable);
-        bool removeVariable(VariableNode variable);
-        VariableNode renameVariable(VariableNode variable);
+        bool removeVariable(VariableNode const variable);
+        VariableNode renameVariable(VariableNode const variable);
 
       private:
-        const_iterator find(VariableNode variable) const;
+        const_iterator find(VariableNode const variable) const;
 
         VariableNodeSet::iterator insertVariable(VariableNode variable);
 
