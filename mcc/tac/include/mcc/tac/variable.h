@@ -20,13 +20,13 @@ namespace mcc {
         public:
             Variable(Type t);
             Variable(Type t, std::string name);
-            bool operator<(Variable const& other) const;
+            bool operator<(Variable const other) const;
             unsigned getId() const;
             virtual std::string getName() const;
             virtual std::string getValue() const override;
             virtual bool isLeaf() const override;
-            std::shared_ptr<ScopeNode> const& getScope() const;
-            void setScope(std::shared_ptr<ScopeNode> const& scope);
+            std::shared_ptr<ScopeNode> const getScope() const;
+            void setScope(std::shared_ptr<ScopeNode> const scope);
             void setIndex(unsigned);
             bool isTemporary() const;
             
