@@ -16,7 +16,7 @@ namespace mcc {
 
     }
 
-    bool ScopeNode::operator<(ScopeNode const& other) const {
+    bool ScopeNode::operator<(ScopeNode const other) const {
       auto pairLhs = std::make_pair(this->getDepth(), this->getIndex());
       auto pairRhs = std::make_pair(other.getDepth(), other.getIndex());
 
