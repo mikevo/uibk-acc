@@ -15,12 +15,11 @@ namespace mcc {
     Cfg::Cfg(mcc::tac::Tac tac) :
         basicBlockIndex(tac.getBasicBlockIndex()) {
 
-      for (auto it = tac.getVariableStore()->begin();
-          it != tac.getVariableStore()->end(); ++it) {
-        variableSet.insert(*it);
+      for (auto const var : *tac.getVariableStore().get()) {
+          variableSet.insert(var);
       }
 
-      for (auto const& block : basicBlockIndex) {
+      for (auto const block : *basicBlockIndex.get()) {
         auto descriptor = boost::add_vertex(block, graph);
 
         assert(
@@ -166,7 +165,7 @@ namespace mcc {
     }
 
     const Vertex& Cfg::getVertex(const VertexDescriptor vertex) const {
-      return basicBlockIndex[vertex];
+      return basicBlockIndex->at(vertex);
     }
 
     std::set<Vertex> Cfg::convertSet(std::set<VertexDescriptor> inSet) const {
@@ -276,11 +275,11 @@ namespace mcc {
       bool changed = false;
 
       do {
-        for (auto const& b : basicBlockIndex) {
+        for (auto const b : *basicBlockIndex.get()) {
           this->updateLiveIn(b->getBlockId());
         }
 
-        for (auto const& b : basicBlockIndex) {
+        for (auto const b : *basicBlockIndex.get()) {
           changed = this->updateLiveOut(b->getBlockId()) || changed;
         }
 

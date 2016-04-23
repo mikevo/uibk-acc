@@ -17,7 +17,7 @@ namespace mcc {
 
       Tac tac = Tac(tree);
 
-      auto firstBlock = tac.getBasicBlockIndex()[0];
+      auto firstBlock = tac.getBasicBlockIndex()->at(0);
 
       EXPECT_EQ(tac.basicBlockCount(), 1);
 
@@ -45,10 +45,10 @@ namespace mcc {
 
       Tac tac = Tac(tree);
 
-      auto firstBlock = tac.getBasicBlockIndex()[0];
-      auto secondBlock = tac.getBasicBlockIndex()[1];
-      auto thirdBlock = tac.getBasicBlockIndex()[2];
-      auto fourthBlock = tac.getBasicBlockIndex()[3];
+      auto firstBlock = tac.getBasicBlockIndex()->at(0);
+      auto secondBlock = tac.getBasicBlockIndex()->at(1);
+      auto thirdBlock = tac.getBasicBlockIndex()->at(2);
+      auto fourthBlock = tac.getBasicBlockIndex()->at(3);
 
       EXPECT_EQ(tac.basicBlockCount(), 4);
 
@@ -64,7 +64,7 @@ namespace mcc {
       EXPECT_EQ(thirdBlock.get()->getEnd()->getBasicBlockId(), 2);
 
       auto members = thirdBlock->getBlockMembers();
-      EXPECT_EQ(members[1]->getType(), Type::INT);
+      EXPECT_EQ(members.at(1)->getType(), Type::INT);
 
       EXPECT_EQ(fourthBlock.get()->getStart()->getBasicBlockId(), 3);
       EXPECT_EQ(fourthBlock.get()->getStart().get(),
@@ -76,23 +76,23 @@ namespace mcc {
 
       members = firstBlock->getBlockMembers();
 
-      EXPECT_EQ(true, members[0]->containsTargetVar());
-      EXPECT_EQ(true, members[1]->containsTargetVar());
+      EXPECT_EQ(true, members.at(0)->containsTargetVar());
+      EXPECT_EQ(true, members.at(1)->containsTargetVar());
 
       EXPECT_NE(firstBlock->getDefVar().end(),
-          firstBlock->getDefVar().find(members[0]->getTargetVariable()));
+          firstBlock->getDefVar().find(members.at(0)->getTargetVariable()));
       EXPECT_NE(firstBlock->getDefVar().end(),
-          firstBlock->getDefVar().find(members[1]->getTargetVariable()));
+          firstBlock->getDefVar().find(members.at(1)->getTargetVariable()));
 
       EXPECT_EQ(1, secondBlock->getDefVar().size());
       EXPECT_EQ(0, secondBlock->getUeVar().size());
 
       members = secondBlock->getBlockMembers();
 
-      EXPECT_EQ(true, members[0]->containsTargetVar());
+      EXPECT_EQ(true, members.at(0)->containsTargetVar());
 
       EXPECT_NE(secondBlock->getDefVar().end(),
-          secondBlock->getDefVar().find(members[0]->getTargetVariable()));
+          secondBlock->getDefVar().find(members.at(0)->getTargetVariable()));
 
       // TODO: remove command line printing
       for (auto const& v : thirdBlock->getDefVar()) {
@@ -131,13 +131,13 @@ namespace mcc {
 
       Tac tac = Tac(tree);
 
-      auto firstBlock = tac.getBasicBlockIndex()[0];
-      auto secondBlock = tac.getBasicBlockIndex()[1];
-      auto thirdBlock = tac.getBasicBlockIndex()[2];
-      auto fourthBlock = tac.getBasicBlockIndex()[3];
-      auto fifthBlock = tac.getBasicBlockIndex()[4];
-      auto sixthBlock = tac.getBasicBlockIndex()[5];
-      auto seventhBlock = tac.getBasicBlockIndex()[6];
+      auto firstBlock = tac.getBasicBlockIndex()->at(0);
+      auto secondBlock = tac.getBasicBlockIndex()->at(1);
+      auto thirdBlock = tac.getBasicBlockIndex()->at(2);
+      auto fourthBlock = tac.getBasicBlockIndex()->at(3);
+      auto fifthBlock = tac.getBasicBlockIndex()->at(4);
+      auto sixthBlock = tac.getBasicBlockIndex()->at(5);
+      auto seventhBlock = tac.getBasicBlockIndex()->at(6);
 
       EXPECT_EQ(tac.basicBlockCount(), 7);
 
@@ -153,13 +153,13 @@ namespace mcc {
       EXPECT_EQ(thirdBlock.get()->getEnd()->getBasicBlockId(), 2);
 
       auto members = thirdBlock->getBlockMembers();
-      EXPECT_EQ(members[1]->getType(), Type::FLOAT);
+      EXPECT_EQ(members.at(1)->getType(), Type::FLOAT);
 
       EXPECT_EQ(fourthBlock.get()->getStart()->getBasicBlockId(), 3);
       EXPECT_EQ(fourthBlock.get()->getEnd()->getBasicBlockId(), 3);
 
       members = fourthBlock->getBlockMembers();
-      EXPECT_EQ(members[1]->getType(), Type::INT);
+      EXPECT_EQ(members.at(1)->getType(), Type::INT);
 
       EXPECT_EQ(fifthBlock.get()->getStart()->getBasicBlockId(), 4);
       EXPECT_EQ(fifthBlock.get()->getEnd()->getBasicBlockId(), 4);
@@ -169,7 +169,7 @@ namespace mcc {
       EXPECT_EQ(sixthBlock.get()->getEnd()->getBasicBlockId(), 5);
 
       members = sixthBlock->getBlockMembers();
-      EXPECT_EQ(members[1]->getType(), Type::INT);
+      EXPECT_EQ(members.at(1)->getType(), Type::INT);
 
       EXPECT_EQ(seventhBlock.get()->getStart()->getBasicBlockId(), 6);
       EXPECT_EQ(seventhBlock.get()->getStart().get(),
@@ -205,7 +205,7 @@ namespace mcc {
       auto numOfLines = tac.codeLines.size();
       unsigned linesInBlocks = 0;
 
-      for (auto block : tac.getBasicBlockIndex()) {
+      for (auto const block : *tac.getBasicBlockIndex().get()) {
         linesInBlocks += block.get()->size();
       }
 

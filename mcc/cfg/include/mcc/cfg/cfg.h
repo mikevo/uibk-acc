@@ -63,7 +63,7 @@ namespace mcc {
         bool updateLiveIn(VertexDescriptor v);
         bool updateLiveOut(VertexDescriptor v);
 
-        const std::vector<Vertex> basicBlockIndex;
+        const mcc::tac::bb_type basicBlockIndex;
         Graph graph;
         VertexVertexMap dominatorTree;
 

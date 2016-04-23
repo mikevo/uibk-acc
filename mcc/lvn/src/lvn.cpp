@@ -70,10 +70,10 @@ namespace mcc {
             }
 
             //Eliminate redundant expressions
-            auto& basicBlocks = tac.getBasicBlockIndex();
+            auto basicBlocks = tac.getBasicBlockIndex();
             std::unordered_map<std::string, std::shared_ptr < Operand>> valueMap;
 
-            for (auto& block : basicBlocks) {
+            for (auto block : *basicBlocks.get()) {
                 valueMap.clear();
 
                 for (auto& triple : block->getBlockMembers()) {

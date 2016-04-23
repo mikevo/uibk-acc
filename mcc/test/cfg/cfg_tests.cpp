@@ -86,13 +86,13 @@ namespace mcc {
       auto index = tac.getBasicBlockIndex();
 
       // TODO find reason why shared pointers as well as the results of get() are not equal
-      EXPECT_EQ(graph->getIdom(index[0])->toString(), index[0]->toString());
-      EXPECT_EQ(graph->getIdom(index[1])->toString(), index[0]->toString());
-      EXPECT_EQ(graph->getIdom(index[2])->toString(), index[0]->toString());
-      EXPECT_EQ(graph->getIdom(index[3])->toString(), index[0]->toString());
-      EXPECT_EQ(graph->getIdom(index[4])->toString(), index[3]->toString());
-      EXPECT_EQ(graph->getIdom(index[5])->toString(), index[3]->toString());
-      EXPECT_EQ(graph->getIdom(index[6])->toString(), index[3]->toString());
+      EXPECT_EQ(graph->getIdom(index->at(0)).get(), index->at(0).get());
+      EXPECT_EQ(graph->getIdom(index->at(1)).get(), index->at(0).get());
+      EXPECT_EQ(graph->getIdom(index->at(2)).get(), index->at(0).get());
+      EXPECT_EQ(graph->getIdom(index->at(3)).get(), index->at(0).get());
+      EXPECT_EQ(graph->getIdom(index->at(4)).get(), index->at(3).get());
+      EXPECT_EQ(graph->getIdom(index->at(5)).get(), index->at(3).get());
+      EXPECT_EQ(graph->getIdom(index->at(6)).get(), index->at(3).get());
 
       EXPECT_EQ(graph->getIdom(0), 0);
       EXPECT_EQ(graph->getIdom(1), 0);
@@ -132,45 +132,45 @@ namespace mcc {
 
       auto index = tac.getBasicBlockIndex();
 
-      auto dom0 = graph->getDomSet(index[0]);
-      auto dom1 = graph->getDomSet(index[1]);
-      auto dom2 = graph->getDomSet(index[2]);
-      auto dom3 = graph->getDomSet(index[3]);
-      auto dom4 = graph->getDomSet(index[4]);
-      auto dom5 = graph->getDomSet(index[5]);
-      auto dom6 = graph->getDomSet(index[6]);
+      auto dom0 = graph->getDomSet(index->at(0));
+      auto dom1 = graph->getDomSet(index->at(1));
+      auto dom2 = graph->getDomSet(index->at(2));
+      auto dom3 = graph->getDomSet(index->at(3));
+      auto dom4 = graph->getDomSet(index->at(4));
+      auto dom5 = graph->getDomSet(index->at(5));
+      auto dom6 = graph->getDomSet(index->at(6));
 
-      EXPECT_EQ(dom0.begin()->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom1.begin()->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom2.begin()->get()->toString(), index[0]->toString());
-      EXPECT_EQ(dom3.begin()->get()->toString(), index[0]->toString());
+      EXPECT_EQ(dom0.begin()->get(), index->at(0).get());
+      EXPECT_EQ(dom1.begin()->get(), index->at(0).get());
+      EXPECT_EQ(dom2.begin()->get(), index->at(0).get());
+      EXPECT_EQ(dom3.begin()->get(), index->at(0).get());
 
-      std::set<std::string> stringSet;
+      std::set<std::shared_ptr<mcc::tac::BasicBlock>> bbSet;
 
-      for (auto& block : dom4) {
-        stringSet.insert(block->toString());
+      for (auto const block : dom4) {
+        bbSet.insert(block);
       }
 
-      EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
-      EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
+      EXPECT_NE(bbSet.find(index->at(0)), bbSet.end());
+      EXPECT_NE(bbSet.find(index->at(3)), bbSet.end());
 
-      stringSet.clear();
+      bbSet.clear();
 
       for (auto& block : dom5) {
-        stringSet.insert(block->toString());
+        bbSet.insert(block);
       }
 
-      EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
-      EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
+      EXPECT_NE(bbSet.find(index->at(0)), bbSet.end());
+      EXPECT_NE(bbSet.find(index->at(3)), bbSet.end());
 
-      stringSet.clear();
+      bbSet.clear();
 
       for (auto& block : dom6) {
-        stringSet.insert(block->toString());
+        bbSet.insert(block);
       }
 
-      EXPECT_NE(stringSet.find(index[0]->toString()), stringSet.end());
-      EXPECT_NE(stringSet.find(index[3]->toString()), stringSet.end());
+      EXPECT_NE(bbSet.find(index->at(0)), bbSet.end());
+      EXPECT_NE(bbSet.find(index->at(3)), bbSet.end());
 
     }
 

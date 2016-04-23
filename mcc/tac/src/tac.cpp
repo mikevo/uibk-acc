@@ -235,6 +235,7 @@ namespace mcc {
     Tac::Tac(std::shared_ptr<ast::node> n) :
         currentBasicBlock(0) {
       this->variableStore = std::make_shared<VariableStore>();
+      this->basicBlockIndex = std::make_shared<bbVector>();
       this->convertAst(n);
     }
 
@@ -261,14 +262,14 @@ namespace mcc {
     }
 
     void Tac::createBasicBlockIndex() {
-      basicBlockIndex.clear();
+      basicBlockIndex->clear();
 
       auto currentBasicBlock = std::make_shared<BasicBlock>(0);
       auto currentBasicBlockId = codeLines.front()->getBasicBlockId();
 
       for (auto& triple : codeLines) {
         if (triple->getBasicBlockId() != currentBasicBlockId) {
-          basicBlockIndex.push_back(currentBasicBlock);
+          basicBlockIndex->push_back(currentBasicBlock);
           currentBasicBlock = std::make_shared<BasicBlock>(
               triple->getBasicBlockId());
           currentBasicBlockId = triple->getBasicBlockId();
@@ -278,7 +279,7 @@ namespace mcc {
       }
 
       // Add last block
-      basicBlockIndex.push_back(currentBasicBlock);
+      basicBlockIndex->push_back(currentBasicBlock);
     }
 
     std::string Tac::toString() const {
@@ -300,11 +301,11 @@ namespace mcc {
     }
 
     unsigned Tac::basicBlockCount() {
-      return basicBlockIndex.size();
+      return basicBlockIndex->size();
     }
 
-    const std::vector<std::shared_ptr<BasicBlock>> Tac::getBasicBlockIndex() {
-      if (basicBlockIndex.empty()) {
+    const bb_type Tac::getBasicBlockIndex() {
+      if (basicBlockIndex->empty()) {
         createBasicBlockIndex();
       }
 
