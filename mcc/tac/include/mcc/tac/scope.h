@@ -21,11 +21,11 @@ namespace mcc {
         typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
 
         Scope();
-        Vertex const& getCurrentScope() const;
+        Vertex const getCurrentScope() const;
 
-        bool goToParent() const;
-        Vertex const& addNewChild();
-        Vertex const& addNewSibling();
+        bool goToParent();
+        Vertex addNewChild();
+        Vertex addNewSibling();
 
         void setCheckPoint();
         void goToCheckPoint();
@@ -33,13 +33,13 @@ namespace mcc {
       private:
         Graph graph;
         Vertex root;
-        Vertex& currentScope;
+        Vertex currentScope;
         Vertex checkPoint;
         bool checkPointValid;
         std::map<Vertex, VertexDescriptor> vertexMap;
         std::map<VertexDescriptor, Vertex> descriptorMap;
 
-        Scope::Vertex const& addVertex(Vertex const& v);
+        Scope::Vertex addVertex(Vertex v);
     };
   }
 }

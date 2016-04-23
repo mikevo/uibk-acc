@@ -14,11 +14,11 @@ namespace mcc {
       this->addVertex(this->currentScope);
     }
 
-    Scope::Vertex const& Scope::getCurrentScope() const {
+    Scope::Vertex const Scope::getCurrentScope() const {
       return currentScope;
     }
 
-    bool Scope::goToParent() const {
+    bool Scope::goToParent() {
       auto vd = this->vertexMap.at(this->currentScope);
 
       auto inEdges = boost::in_edges(vd, this->graph);
@@ -34,7 +34,7 @@ namespace mcc {
       }
     }
 
-    Scope::Vertex const& Scope::addNewChild() {
+    Scope::Vertex Scope::addNewChild() {
       auto childDepth = this->currentScope->getDepth() + 1;
       auto childIndex = this->currentScope->getNextIndex();
       auto child = std::make_shared<ScopeNode>(childDepth, childIndex);
@@ -49,7 +49,7 @@ namespace mcc {
       return this->getCurrentScope();
     }
 
-    Scope::Vertex const& Scope::addNewSibling() {
+    Scope::Vertex Scope::addNewSibling() {
       // TODO: maybe a restriction that causes trouble; if so it is necessary to
       // change the tree that it inserts a root that is never used as scope
       auto success = this->goToParent();
@@ -70,7 +70,7 @@ namespace mcc {
       }
     }
 
-    Scope::Vertex const& Scope::addVertex(Scope::Vertex const& v) {
+    Scope::Vertex Scope::addVertex(Scope::Vertex v) {
       auto d = boost::add_vertex(v, this->graph);
 
       vertexMap.insert(std::make_pair(v, d));
