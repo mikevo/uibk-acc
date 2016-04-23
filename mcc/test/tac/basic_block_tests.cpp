@@ -205,6 +205,10 @@ namespace mcc {
             auto numOfLines = tac.codeLines.size();
             unsigned linesInBlocks = 0;
 
+            for (auto const block : *tac.getBasicBlockIndex().get()) {
+                linesInBlocks += block.get()->size();
+            }
+
             EXPECT_EQ(numOfLines, linesInBlocks);
 
         }
@@ -226,20 +230,16 @@ namespace mcc {
 
             Tac tac = Tac(tree);
             auto blockIndex = tac.getBasicBlockIndex();
-            
-            for(auto block : *blockIndex) {
-                std::cout << block->toString();
-            }
-            
+
             EXPECT_EQ(tac.basicBlockCount(), 4);
-            EXPECT_EQ(blockIndex->at(0)->size(), 2);  //Declaration and while condition
-            EXPECT_EQ(blockIndex->at(1)->size(), 2);  //Label and Jump
-            EXPECT_EQ(blockIndex->at(2)->size(), 8);  //temp var, assignments and jump 
+            EXPECT_EQ(blockIndex->at(0)->size(), 2); //Declaration and while condition
+            EXPECT_EQ(blockIndex->at(1)->size(), 2); //Label and Jump
+            EXPECT_EQ(blockIndex->at(2)->size(), 8); //temp var, assignments and jump 
             EXPECT_EQ(blockIndex->at(3)->size(), 3); //Label, assignments 
 
         }
-        
-         TEST(BasicBlock, NestedWhileBlockCreation) {
+
+        TEST(BasicBlock, NestedWhileBlockCreation) {
             auto tree = parser::parse(
                     R"(
         {
@@ -256,11 +256,11 @@ namespace mcc {
 
             Tac tac = Tac(tree);
             auto blockIndex = tac.getBasicBlockIndex();
-            
+
             EXPECT_EQ(tac.basicBlockCount(), 7);
-            EXPECT_EQ(blockIndex->at(0)->size(), 3);  
-            EXPECT_EQ(blockIndex->at(1)->size(), 2);  
-            EXPECT_EQ(blockIndex->at(2)->size(), 3);  
+            EXPECT_EQ(blockIndex->at(0)->size(), 3);
+            EXPECT_EQ(blockIndex->at(1)->size(), 2);
+            EXPECT_EQ(blockIndex->at(2)->size(), 3);
             EXPECT_EQ(blockIndex->at(3)->size(), 2);
             EXPECT_EQ(blockIndex->at(4)->size(), 3);
             EXPECT_EQ(blockIndex->at(5)->size(), 3);
