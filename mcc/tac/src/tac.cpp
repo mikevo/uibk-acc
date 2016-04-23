@@ -65,7 +65,7 @@ namespace mcc {
 
           auto v = std::static_pointer_cast<ast::variable>(n);
 
-          return tac->getVariableStore().findAccordingVariable(v->name);
+          return tac->getVariableStore()->findAccordingVariable(v->name);
         }
 
         if (typeid (*n.get()) == typeid(ast::binary_operation)) {
@@ -137,13 +137,13 @@ namespace mcc {
           auto v = std::static_pointer_cast<ast::compound_stmt>(n);
           auto statements = v->statements;
 
-          tac->getVariableStore().addNewChild();
+          tac->getVariableStore()->addNewChild();
 
           for (auto const& s : statements) {
             convertNode(tac, s);
           }
 
-          tac->getVariableStore().goToParent();
+          tac->getVariableStore()->goToParent();
 
           return nullptr;
         }
@@ -154,7 +154,7 @@ namespace mcc {
 
           auto variable = std::make_shared<Variable>(
               convertType(*tempVar->var_type.get()), tempVar->name);
-          variable->setScope(tac->getVariableStore().getCurrentScope());
+          variable->setScope(tac->getVariableStore()->getCurrentScope());
 
           if (v->init_expr != nullptr) {
             auto initExpression = convertNode(tac, v->init_expr);
@@ -234,6 +234,7 @@ namespace mcc {
 
     Tac::Tac(std::shared_ptr<ast::node> n) :
         currentBasicBlock(0) {
+      this->variableStore = std::make_shared<VariableStore>();
       this->convertAst(n);
     }
 
@@ -251,7 +252,7 @@ namespace mcc {
       this->codeLines.push_back(line);
     }
 
-    VariableStore& Tac::getVariableStore() {
+    std::shared_ptr<VariableStore> const Tac::getVariableStore() {
       return this->variableStore;
     }
 
@@ -302,7 +303,7 @@ namespace mcc {
       return basicBlockIndex.size();
     }
 
-    const std::vector<std::shared_ptr<BasicBlock>>&Tac::getBasicBlockIndex() {
+    const std::vector<std::shared_ptr<BasicBlock>> Tac::getBasicBlockIndex() {
       if (basicBlockIndex.empty()) {
         createBasicBlockIndex();
       }
@@ -311,16 +312,16 @@ namespace mcc {
     }
 
     void Tac::addToVarTable(VarTableValue value) {
-      this->variableStore.addVariable(value);
+      this->variableStore->addVariable(value);
     }
 
-    void Tac::removeFromVarTable(VarTableValue const& value) {
-      this->variableStore.removeVariable(value);
+    void Tac::removeFromVarTable(VarTableValue const value) {
+      this->variableStore->removeVariable(value);
     }
 
-    VarTableValue Tac::addVarRenaming(VarTableValue const& key) {
+    VarTableValue Tac::addVarRenaming(VarTableValue const key) {
 
-      return this->variableStore.renameVariable(key);
+      return this->variableStore->renameVariable(key);
 
     }
   }

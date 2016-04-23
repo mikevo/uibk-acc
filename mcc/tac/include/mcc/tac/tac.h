@@ -34,25 +34,23 @@ namespace mcc {
             void nextBasicBlock();
             unsigned basicBlockCount();
 
-            VariableStore& getVariableStore();
+            std::shared_ptr<VariableStore> const getVariableStore();
            
-            const std::vector<std::shared_ptr<BasicBlock>>& getBasicBlockIndex();
+            const std::vector<std::shared_ptr<BasicBlock>> getBasicBlockIndex();
             void addToVarTable(VarTableValue value);
-            VarTableValue addVarRenaming(VarTableValue const& key);
-            void removeFromVarTable(VarTableValue const& value);
+            VarTableValue addVarRenaming(VarTableValue const key);
+            void removeFromVarTable(VarTableValue const value);
 
 
             std::string toString() const;
             std::vector<std::shared_ptr<Triple>> codeLines;
 
         private:
-            VariableStore variableStore;
+            std::shared_ptr<VariableStore> variableStore;
             void convertAst(std::shared_ptr<ast::node> n);
             void createBasicBlockIndex();
             unsigned currentBasicBlock;
             std::vector<std::shared_ptr<BasicBlock>> basicBlockIndex;
-            // TODO: why is the value of this map a vector?
-            std::map<VarTableKey, std::vector<VarTableValue>> varTable;
         };
     }
 }

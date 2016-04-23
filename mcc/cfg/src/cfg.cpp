@@ -15,8 +15,9 @@ namespace mcc {
     Cfg::Cfg(mcc::tac::Tac tac) :
         basicBlockIndex(tac.getBasicBlockIndex()) {
 
-      for (auto const& var : tac.getVariableStore()) {
-          variableSet.insert(var);
+      for (auto it = tac.getVariableStore()->begin();
+          it != tac.getVariableStore()->end(); ++it) {
+        variableSet.insert(*it);
       }
 
       for (auto const& block : basicBlockIndex) {
