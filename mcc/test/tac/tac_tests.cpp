@@ -357,7 +357,7 @@ namespace mcc {
         })");
 
       Tac tac = Tac(tree);
-
+    
       auto elem = tac.codeLines.begin();
       elem++;
 
@@ -387,20 +387,21 @@ namespace mcc {
       varName = "$t" + std::to_string(varId++);
       expectedValue.append(varName + " = b0:2:0 + 1\n");
       expectedValue.append("b1:2:0 = " + varName + "\n");
+      expectedValue.append("b0:2:0 = b1:2:0\n");
       expectedValue.append("JUMP " + again2Label + "\n");
       expectedValue.append("LABEL " + exit2Label + "\n");
 
-      varId += 7;
+      varId += 8;
       varName = "$t" + std::to_string(varId);
       expectedValue.append(varName + " = a0:1:0 + b1:2:0\n");
       expectedValue.append("a1:1:0 = " + varName + "\n");
-
+      expectedValue.append("a0:1:0 = a1:1:0\n");
       expectedValue.append("JUMP " + againLabel + "\n");
       expectedValue.append("LABEL " + exitLabel);
 
 
       EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(16, tac.codeLines.size());
+      EXPECT_EQ(18, tac.codeLines.size());
     }
 
     TEST(Tac, SSA) {
