@@ -53,14 +53,14 @@ namespace mcc {
       auto currentBasicBlockId = codeLines.front()->getBasicBlockId();
 
       for (auto& triple : codeLines) {
-        if (triple->getBasicBlockId() != currentBasicBlockId) {
+        auto bbId = triple->getBasicBlockId();
+        if (bbId != currentBasicBlockId) {
           basicBlockIndex->push_back(currentBasicBlock);
-          currentBasicBlock = std::make_shared<BasicBlock>(
-              triple->getBasicBlockId());
-          currentBasicBlockId = triple->getBasicBlockId();
+          currentBasicBlock = std::make_shared<BasicBlock>(bbId);
+          currentBasicBlockId = bbId;
         }
 
-        currentBasicBlock.get()->push_back(triple);
+        currentBasicBlock->push_back(triple);
       }
 
       // Add last block
@@ -73,12 +73,10 @@ namespace mcc {
       unsigned count = 0;
 
       for (auto &line : codeLines) {
-        output.append(line.get()->toString());
+        output.append(line->toString());
 
-        if (codeLines.size() > 1 && count < codeLines.size() - 1) {
-          output.append("\n");
-        }
-
+        auto size = codeLines.size();
+        if (size > 1 && count < size - 1) output.append("\n");
         ++count;
       }
 
@@ -90,9 +88,7 @@ namespace mcc {
     }
 
     const bb_type Tac::getBasicBlockIndex() {
-      if (basicBlockIndex->empty()) {
-        createBasicBlockIndex();
-      }
+      if (basicBlockIndex->empty()) createBasicBlockIndex();
 
       return basicBlockIndex;
     }
@@ -106,9 +102,7 @@ namespace mcc {
     }
 
     VarTableValue Tac::addVarRenaming(VarTableValue const key) {
-
       return this->variableStore->renameVariable(key);
-
     }
   }
 }
