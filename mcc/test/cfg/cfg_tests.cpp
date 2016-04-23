@@ -85,7 +85,7 @@ namespace mcc {
 
       auto index = tac.getBasicBlockIndex();
 
-      // TODO find reason why shared pointers as well as the results of get() are not equal
+      // TODO find reason why shared pointers need << of *node
       EXPECT_EQ(graph->getIdom(index->at(0)).get(), index->at(0).get());
       EXPECT_EQ(graph->getIdom(index->at(1)).get(), index->at(0).get());
       EXPECT_EQ(graph->getIdom(index->at(2)).get(), index->at(0).get());
@@ -103,7 +103,6 @@ namespace mcc {
       EXPECT_EQ(graph->getIdom(6), 3);
     }
 
-    // TODO find reason why shared pointers as well as the results of get() are not equal
     TEST(Cfg, DomSetVertex) {
       auto tree =
           parser::parse(
@@ -140,6 +139,7 @@ namespace mcc {
       auto dom5 = graph->getDomSet(index->at(5));
       auto dom6 = graph->getDomSet(index->at(6));
 
+      // TODO find reason why shared pointers need << of *node
       EXPECT_EQ(dom0.begin()->get(), index->at(0).get());
       EXPECT_EQ(dom1.begin()->get(), index->at(0).get());
       EXPECT_EQ(dom2.begin()->get(), index->at(0).get());
