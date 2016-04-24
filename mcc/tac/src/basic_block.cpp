@@ -6,100 +6,115 @@
 #include "mcc/tac/label.h"
 
 namespace mcc {
-  namespace tac {
+    namespace tac {
 
-    BasicBlock::BasicBlock(const unsigned id) :
+        BasicBlock::BasicBlock(const unsigned id) :
         id(id) {
 
-    }
+        }
 
-    std::shared_ptr<Triple> BasicBlock::getStart() {
-      return this->front();
-    }
+        std::shared_ptr<Triple> BasicBlock::getStart() {
+            return this->front();
+        }
 
-    std::shared_ptr<Triple> BasicBlock::getEnd() {
-      return this->back();
-    }
+        std::shared_ptr<Triple> BasicBlock::getEnd() {
+            return this->back();
+        }
 
-    const unsigned BasicBlock::getBlockId() const {
-      return id;
-    }
+        const unsigned BasicBlock::getBlockId() const {
+            return id;
+        }
 
-    std::shared_ptr<Triple> BasicBlock::front() {
-      return blockMembers.front();
-    }
+        std::shared_ptr<Triple> BasicBlock::front() {
+            return blockMembers.front();
+        }
 
-    std::shared_ptr<Triple> BasicBlock::back() {
-      return blockMembers.back();
-    }
+        std::shared_ptr<Triple> BasicBlock::back() {
+            return blockMembers.back();
+        }
 
-    void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
-      if (line->containsArg1()) {
-        if (typeid (*line->getArg1().get()) == typeid(Triple)) {
-          auto arg1 = std::static_pointer_cast<Triple>(line->getArg1());
-
-          if (arg1->getTargetVariable() != nullptr) {
-            if (defVar.find(arg1->getTargetVariable()) == defVar.end()) {
-              ueVar.insert(arg1->getTargetVariable());
+        void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
+            
+            if (line->containsTargetVar()) {
+                defVar.insert(line->getTargetVariable());
             }
-          }
-        }
-      }
 
-      if (line->containsArg2()) {
-        if (typeid (*line->getArg2().get()) == typeid(Triple)) {
-          auto arg2 = std::static_pointer_cast<Triple>(line->getArg2());
-          if (arg2->containsTargetVar()) {
-            if (defVar.find(arg2->getTargetVariable()) == defVar.end()) {
-              ueVar.insert(arg2->getTargetVariable());
+            if (line->containsArg1()) {
+                if (typeid (*line->getArg1().get()) == typeid (Triple)) {
+                    auto arg1 = std::static_pointer_cast<Triple>(line->getArg1());
+
+                    if (arg1->getTargetVariable() != nullptr) {
+                        if (defVar.find(arg1->getTargetVariable()) == defVar.end()) {
+                            ueVar.insert(arg1->getTargetVariable());
+                        }
+                    }
+                } else if (typeid (*line->getArg1().get()) == typeid (Variable)) {
+                    auto arg1 = std::static_pointer_cast<Variable>(line->getArg1());
+
+                    if (defVar.find(arg1) == defVar.end()) {
+                        ueVar.insert(arg1);
+                    }
+
+                }
             }
-          }
-        }
-      }
 
-      if (line->containsTargetVar()) {
-        defVar.insert(line->getTargetVariable());
-      }
+            if (line->containsArg2()) {
+                if (typeid (*line->getArg2().get()) == typeid (Triple)) {
+                    auto arg2 = std::static_pointer_cast<Triple>(line->getArg2());
+                    if (arg2->containsTargetVar()) {
+                        if (defVar.find(arg2->getTargetVariable()) == defVar.end()) {
+                            ueVar.insert(arg2->getTargetVariable());
+                        }
+                    }
+                } else if (typeid (*line->getArg2().get()) == typeid (Variable)) {
+                    auto arg2 = std::static_pointer_cast<Variable>(line->getArg2());
 
-      blockMembers.push_back(line);
-    }
+                    if (defVar.find(arg2) == defVar.end()) {
+                        ueVar.insert(arg2);
+                    }
 
-    std::vector<std::shared_ptr<Triple>>::size_type BasicBlock::size() const {
-      return blockMembers.size();
-    }
+                }
+            }
 
-    std::vector<std::shared_ptr<Triple>> BasicBlock::getBlockMembers() const {
-      return blockMembers;
-    }
-
-    std::string BasicBlock::toString() const {
-      std::string output;
-
-      output.append("BB-ID: " + std::to_string(id) + "\n");
-
-      unsigned count = 0;
-
-      // TODO: is this const& fine? i'd say yes cause line is only used in loop
-      for (auto const& line : blockMembers) {
-        output.append(line->toString());
-
-        if (blockMembers.size() > 1) {
-          output.append("\n");
+            blockMembers.push_back(line);
         }
 
-        ++count;
-      }
+        std::vector<std::shared_ptr<Triple>>::size_type BasicBlock::size() const {
+            return blockMembers.size();
+        }
 
-      return output;
-    }
+        std::vector<std::shared_ptr<Triple>> BasicBlock::getBlockMembers() const {
+            return blockMembers;
+        }
 
-    std::set<std::shared_ptr<Variable>> BasicBlock::getUeVar() const {
-      return ueVar;
-    }
+        std::string BasicBlock::toString() const {
+            std::string output;
 
-    std::set<std::shared_ptr<Variable>> BasicBlock::getDefVar() const {
-      return defVar;
+            output.append("BB-ID: " + std::to_string(id) + "\n");
+
+            unsigned count = 0;
+
+            // TODO: is this const& fine? i'd say yes cause line is only used in loop
+            for (auto const& line : blockMembers) {
+                output.append(line->toString());
+
+                if (blockMembers.size() > 1) {
+                    output.append("\n");
+                }
+
+                ++count;
+            }
+
+            return output;
+        }
+
+        std::set<std::shared_ptr<Variable>> BasicBlock::getUeVar() const {
+            return ueVar;
+        }
+
+        std::set<std::shared_ptr<Variable>> BasicBlock::getDefVar() const {
+            return defVar;
+        }
     }
-  }
 }
 

@@ -267,6 +267,44 @@ namespace mcc {
             EXPECT_EQ(blockIndex->at(6)->size(), 4);
 
         }
+
+        TEST(BasicBlock, UEVarDefVar) {
+            auto tree =
+                    parser::parse(
+                    R"(
+        {
+          int a;
+          int b;
+            
+          a = 0;
+          if(3 < 5) {
+            b = 5;
+          }
+          else {
+            int x = a + b;
+          }
+
+        })");
+
+            Tac tac = Tac(tree);
+            auto blockIndex = tac.getBasicBlockIndex();
+            
+            EXPECT_EQ(tac.basicBlockCount(), 4);
+            auto firstBlock = blockIndex->at(0);
+            auto secondBlock = blockIndex->at(1);
+            auto thirdBlock = blockIndex->at(2);
+            auto fourthBlock = blockIndex->at(3);
+
+            EXPECT_EQ(firstBlock->getDefVar().size(), 2);
+            EXPECT_EQ(firstBlock->getUeVar().size(), 0);
+            EXPECT_EQ(secondBlock->getDefVar().size(), 1);
+            EXPECT_EQ(secondBlock->getUeVar().size(), 0);
+            EXPECT_EQ(thirdBlock->getDefVar().size(), 1);
+            EXPECT_EQ(thirdBlock->getUeVar().size(), 2);
+            EXPECT_EQ(fourthBlock->getDefVar().size(), 0);
+            EXPECT_EQ(fourthBlock->getUeVar().size(), 0);
+        }
+
     }
 }
 
