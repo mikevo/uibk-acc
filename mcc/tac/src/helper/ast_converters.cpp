@@ -75,7 +75,7 @@ namespace mcc {
 
       ReturnType convertVariable(Tac *t, AstNode n) {
         auto v = std::static_pointer_cast<ast::variable>(n);
-        return t->getVariableStore()->findAccordingVariable(v->name);
+        return t->getVariableStore()->findVariable(v->name);
       }
 
       ReturnType convertBinaryOp(Tac *t, AstNode n) {
@@ -91,8 +91,8 @@ namespace mcc {
           auto check = isType<Variable>(lhs);
           assert(check && "arg1 needs to be a variable for ASSIGN triples");
 
-          auto var = std::static_pointer_cast<Variable>(lhs);
-          variable = t->addVarRenaming(var);
+          variable = std::static_pointer_cast<Variable>(lhs);
+
           setTarVar = true;
           lhs = variable;
         }

@@ -364,7 +364,7 @@ namespace mcc {
       mcc::tac::Tac tac = mcc::tac::Tac(tree);
       auto graph = std::make_shared<Cfg>(tac);
 
-      EXPECT_EQ(11, graph->variableSetSize());
+      EXPECT_EQ(7, graph->variableSetSize());
     }
 
     TEST(Cfg, WorkingSet) {
