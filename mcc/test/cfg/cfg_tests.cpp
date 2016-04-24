@@ -384,6 +384,7 @@ namespace mcc {
                                         int a = 0;
 
                                         if( 1 <= 2) {
+                                            x = a;
                                             a = 1;
                                         } else {
                                             a = 2;
@@ -391,14 +392,25 @@ namespace mcc {
                                       })");
 
           mcc::tac::Tac tac = mcc::tac::Tac(tree);
+          std::cout << tac.toString();
           auto graph = std::make_shared<Cfg>(tac);
 
           graph->computeLive();
 
           // TODO: remove command line printing
+          std::cout << std::endl << "LiveOUT" << std::endl;
           for (unsigned i = 0; i < 7; ++i) {
             for (auto out : graph->getLiveOut(i)) {
               std::cout << out->getValue() + " ";
+            }
+
+            std::cout << std::endl;
+          }
+          
+          std::cout << "LiveIN" << std::endl;
+           for (unsigned i = 0; i < 7; ++i) {
+            for (auto in : graph->getLiveIn(i)) {
+              std::cout << in->getValue() + " ";
             }
 
             std::cout << std::endl;

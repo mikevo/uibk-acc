@@ -11,288 +11,287 @@
 #include "mcc/tac/operator.h"
 
 namespace mcc {
-  namespace cfg {
-    Cfg::Cfg(mcc::tac::Tac tac) :
+    namespace cfg {
+
+        Cfg::Cfg(mcc::tac::Tac tac) :
         basicBlockIndex(tac.getBasicBlockIndex()) {
 
-      for (auto const var : *tac.getVariableStore().get()) {
-          variableSet.insert(var);
-      }
+            for (auto const var : *tac.getVariableStore().get()) {
+                variableSet.insert(var);
+            }
 
-      for (auto const block : *basicBlockIndex.get()) {
-        auto descriptor = boost::add_vertex(block, graph);
+            for (auto const block : *basicBlockIndex.get()) {
+                auto descriptor = boost::add_vertex(block, graph);
 
-        assert(
-            (descriptor == block->getBlockId())
-                && "Descriptor does not match blockId");
+                assert(
+                        (descriptor == block->getBlockId())
+                        && "Descriptor does not match blockId");
 
-        std::set<mcc::tac::VarTableValue> set(variableSet);
+                std::set<mcc::tac::VarTableValue> set(variableSet);
 
-        for (auto& var : block->getDefVar()) {
-          set.erase(var);
+                for (auto& var : block->getDefVar()) {
+                    set.erase(var);
+                }
+
+                // TODO: possible insert of sets that are destroyed
+                notKilled.insert(std::make_pair(block->getBlockId(), set));
+                liveIn.insert(
+                        std::make_pair(block->getBlockId(),
+                        std::set<mcc::tac::VarTableValue>()));
+
+                liveOut.insert(
+                        std::make_pair(block->getBlockId(),
+                        std::set<mcc::tac::VarTableValue>()));
+            }
+
+            unsigned prevBlockId = 0;
+            bool prevMatched = false;
+
+            for (auto line : tac.codeLines) {
+                bool matched = false;
+
+                auto op = line->getOperator();
+
+                if (op.getName() == mcc::tac::OperatorName::JUMP) {
+                    if (typeid (*line->getArg1().get()) == typeid (mcc::tac::Label)) {
+                        auto label = std::static_pointer_cast<mcc::tac::Label>(
+                                line->getArg1());
+
+                        boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
+                                graph);
+
+                        matched = true;
+                    } else {
+                        assert(false && "Unknown jump destination");
+                    }
+                }
+
+                if (op.getName() == mcc::tac::OperatorName::JUMPFALSE) {
+                    if (typeid (*line->getArg2().get()) == typeid (mcc::tac::Label)) {
+                        auto label = std::static_pointer_cast<mcc::tac::Label>(
+                                line->getArg2());
+
+                        boost::add_edge(line->getBasicBlockId(),
+                                line->getBasicBlockId() + 1, graph);
+
+                        boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
+                                graph);
+                        matched = true;
+                    } else {
+                        assert(false && "Unknown jump destination");
+                    }
+                }
+
+                if (prevBlockId < line->getBasicBlockId()) {
+                    if (!prevMatched) {
+                        boost::add_edge(prevBlockId, line->getBasicBlockId(), graph);
+                    }
+
+                    prevBlockId = line->getBasicBlockId();
+                }
+
+                prevMatched = matched;
+            }
+
         }
 
-        // TODO: possible insert of sets that are destroyed
-        notKilled.insert(std::make_pair(block->getBlockId(), set));
-        liveIn.insert(
-            std::make_pair(block->getBlockId(),
-                std::set<mcc::tac::VarTableValue>()));
-
-        liveOut.insert(
-            std::make_pair(block->getBlockId(),
-                std::set<mcc::tac::VarTableValue>()));
-      }
-
-      unsigned prevBlockId = 0;
-      bool prevMatched = false;
-
-      for (auto line : tac.codeLines) {
-        bool matched = false;
-
-        auto op = line->getOperator();
-
-        if (op.getName() == mcc::tac::OperatorName::JUMP) {
-          if (typeid(*line->getArg1().get()) == typeid(mcc::tac::Label)) {
-            auto label = std::static_pointer_cast<mcc::tac::Label>(
-                line->getArg1());
-
-            boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
-                graph);
-
-            matched = true;
-          } else {
-            assert(false && "Unknown jump destination");
-          }
+        std::string Cfg::toDot() const {
+            std::ostringstream out;
+            boost::write_graphviz(out, graph);
+            return out.str();
         }
 
-        if (op.getName() == mcc::tac::OperatorName::JUMPFALSE) {
-          if (typeid(*line->getArg2().get()) == typeid(mcc::tac::Label)) {
-            auto label = std::static_pointer_cast<mcc::tac::Label>(
-                line->getArg2());
+        void Cfg::storeDot(std::string fileName) const {
+            std::ofstream outf(fileName);
 
-            boost::add_edge(line->getBasicBlockId(),
-                line->getBasicBlockId() + 1, graph);
-
-            boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
-                graph);
-            matched = true;
-          } else {
-            assert(false && "Unknown jump destination");
-          }
+            outf << toDot();
         }
 
-        if (prevBlockId < line->getBasicBlockId()) {
-          if (!prevMatched) {
-            boost::add_edge(prevBlockId, line->getBasicBlockId(), graph);
-          }
+        void Cfg::calculateDOM() {
 
-          prevBlockId = line->getBasicBlockId();
+            boost::associative_property_map<VertexVertexMap> domTreePredMap(
+                    dominatorTree);
+
+            boost::lengauer_tarjan_dominator_tree(graph, boost::vertex(0, graph),
+                    domTreePredMap);
         }
 
-        prevMatched = matched;
-      }
+        VertexVertexMap& Cfg::getDomTree() {
+            if (!dominatorTree.empty()) {
+                return dominatorTree;
+            }
 
-    }
+            calculateDOM();
 
-    std::string Cfg::toDot() const {
-      std::ostringstream out;
-      boost::write_graphviz(out, graph);
-      return out.str();
-    }
-
-    void Cfg::storeDot(std::string fileName) const {
-      std::ofstream outf(fileName);
-
-      outf << toDot();
-    }
-
-    void Cfg::calculateDOM() {
-
-      boost::associative_property_map<VertexVertexMap> domTreePredMap(
-          dominatorTree);
-
-      boost::lengauer_tarjan_dominator_tree(graph, boost::vertex(0, graph),
-          domTreePredMap);
-    }
-
-    VertexVertexMap& Cfg::getDomTree() {
-      if (!dominatorTree.empty()) {
-        return dominatorTree;
-      }
-
-      calculateDOM();
-
-      return dominatorTree;
-    }
-
-    const VertexDescriptor Cfg::getIdom(const VertexDescriptor vertex) {
-      if (dominatorTree.empty()) {
-        calculateDOM();
-      }
-
-      return dominatorTree[vertex];
-    }
-
-    const Vertex& Cfg::getIdom(const Vertex& vertex) {
-      auto idom = getIdom(getVertexDescriptor(vertex));
-      return getVertex(idom);
-    }
-
-    std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
-      std::set<VertexDescriptor> domSet;
-
-      VertexDescriptor idom = getIdom(vertex);
-      while (idom > getIdom(idom)) {
-        domSet.insert(idom);
-        idom = getIdom(idom);
-      }
-
-      domSet.insert(idom);
-
-      return domSet;
-    }
-
-    std::set<Vertex> Cfg::getDomSet(const Vertex& vertex) {
-      std::set<Vertex> domSet;
-      auto dSet = getDomSet(getVertexDescriptor(vertex));
-
-      return convertSet(dSet);
-    }
-
-    const VertexDescriptor Cfg::getVertexDescriptor(
-        const Vertex& vertex) const {
-      return vertex->getBlockId();
-    }
-
-    const Vertex& Cfg::getVertex(const VertexDescriptor vertex) const {
-      return basicBlockIndex->at(vertex);
-    }
-
-    std::set<Vertex> Cfg::convertSet(std::set<VertexDescriptor> inSet) const {
-      std::set<Vertex> outSet;
-
-      for (auto e : inSet) {
-        outSet.insert(getVertex(e));
-      }
-
-      return outSet;
-    }
-
-    std::set<VertexDescriptor> Cfg::convertSet(std::set<Vertex> inSet) const {
-      std::set<VertexDescriptor> outSet;
-
-      for (auto e : inSet) {
-        outSet.insert(getVertexDescriptor(e));
-      }
-
-      return outSet;
-    }
-
-    std::set<VertexDescriptor> Cfg::getSuccessor(
-        const VertexDescriptor vertex) {
-      auto outEdges = boost::out_edges(vertex, graph);
-
-      std::set<VertexDescriptor> sSet;
-
-      boost::graph_traits<Graph>::out_edge_iterator e, e_end;
-      for (boost::tie(e, e_end) = outEdges; e != e_end; ++e) {
-        sSet.insert(boost::target(*e, graph));
-      }
-
-      return sSet;
-    }
-
-    std::set<Vertex> Cfg::getSuccessor(const Vertex& vertex) {
-      auto sSet = getSuccessor(getVertexDescriptor(vertex));
-
-      return convertSet(sSet);
-    }
-
-    std::set<VertexDescriptor> Cfg::getPredecessor(
-        const VertexDescriptor vertex) {
-      auto inEdges = boost::in_edges(vertex, graph);
-
-      std::set<VertexDescriptor> pSet;
-
-      boost::graph_traits<Graph>::in_edge_iterator e, e_end;
-      for (boost::tie(e, e_end) = inEdges; e != e_end; ++e) {
-        pSet.insert(boost::source(*e, graph));
-      }
-
-      return pSet;
-    }
-
-    std::set<Vertex> Cfg::getPredecessor(const Vertex& vertex) {
-      auto sSet = getPredecessor(getVertexDescriptor(vertex));
-
-      return convertSet(sSet);
-    }
-
-    unsigned Cfg::variableSetSize() const {
-      return variableSet.size();
-    }
-
-    std::set<mcc::tac::VarTableValue> Cfg::getNotKilled(
-        const VertexDescriptor vertex) const {
-      auto varSet(variableSet);
-
-      return varSet;
-    }
-
-    bool Cfg::updateLiveIn(VertexDescriptor v) {
-      auto const& ueVar = this->getVertex(v)->getUeVar();
-      auto const& notKilled = this->notKilled.at(v);
-
-      auto oldSize = this->liveIn.at(v).size();
-
-      std::set<mcc::tac::VarTableValue> tmp;
-
-      auto const& liveOutSet = this->liveOut.at(v);
-
-      tmp = set_intersect(liveOutSet, notKilled);
-
-      tmp = set_union(ueVar, tmp);
-
-      this->liveIn.insert(std::make_pair(v, tmp));
-      return (oldSize != tmp.size());
-    }
-
-    bool Cfg::updateLiveOut(VertexDescriptor v) {
-      auto oldSize = this->liveOut.at(v).size();
-
-      std::set<mcc::tac::VarTableValue> tmp;
-
-      for (auto s : this->getSuccessor(v)) {
-        tmp = set_union(tmp, this->liveIn.at(s));
-      }
-
-      liveOut.insert(std::make_pair(v, tmp));
-
-      return (oldSize != tmp.size());
-    }
-
-    void Cfg::computeLive(void) {
-      bool changed = false;
-
-      do {
-        for (auto const b : *basicBlockIndex.get()) {
-          this->updateLiveIn(b->getBlockId());
+            return dominatorTree;
         }
 
-        for (auto const b : *basicBlockIndex.get()) {
-          changed = this->updateLiveOut(b->getBlockId()) || changed;
+        const VertexDescriptor Cfg::getIdom(const VertexDescriptor vertex) {
+            if (dominatorTree.empty()) {
+                calculateDOM();
+            }
+
+            return dominatorTree[vertex];
         }
 
-      } while (changed);
-    }
+        const Vertex& Cfg::getIdom(const Vertex& vertex) {
+            auto idom = getIdom(getVertexDescriptor(vertex));
+            return getVertex(idom);
+        }
 
-    std::set<mcc::tac::VarTableValue> Cfg::getLiveIn(VertexDescriptor v) {
-      return this->liveIn.at(v);
-    }
+        std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
+            std::set<VertexDescriptor> domSet;
 
-    std::set<mcc::tac::VarTableValue> Cfg::getLiveOut(VertexDescriptor v) {
-      return this->liveOut.at(v);
+            VertexDescriptor idom = getIdom(vertex);
+            while (idom > getIdom(idom)) {
+                domSet.insert(idom);
+                idom = getIdom(idom);
+            }
+
+            domSet.insert(idom);
+
+            return domSet;
+        }
+
+        std::set<Vertex> Cfg::getDomSet(const Vertex& vertex) {
+            std::set<Vertex> domSet;
+            auto dSet = getDomSet(getVertexDescriptor(vertex));
+
+            return convertSet(dSet);
+        }
+
+        const VertexDescriptor Cfg::getVertexDescriptor(
+                const Vertex& vertex) const {
+            return vertex->getBlockId();
+        }
+
+        const Vertex& Cfg::getVertex(const VertexDescriptor vertex) const {
+            return basicBlockIndex->at(vertex);
+        }
+
+        std::set<Vertex> Cfg::convertSet(std::set<VertexDescriptor> inSet) const {
+            std::set<Vertex> outSet;
+
+            for (auto e : inSet) {
+                outSet.insert(getVertex(e));
+            }
+
+            return outSet;
+        }
+
+        std::set<VertexDescriptor> Cfg::convertSet(std::set<Vertex> inSet) const {
+            std::set<VertexDescriptor> outSet;
+
+            for (auto e : inSet) {
+                outSet.insert(getVertexDescriptor(e));
+            }
+
+            return outSet;
+        }
+
+        std::set<VertexDescriptor> Cfg::getSuccessor(
+                const VertexDescriptor vertex) {
+            auto outEdges = boost::out_edges(vertex, graph);
+
+            std::set<VertexDescriptor> sSet;
+
+            boost::graph_traits<Graph>::out_edge_iterator e, e_end;
+            for (boost::tie(e, e_end) = outEdges; e != e_end; ++e) {
+                sSet.insert(boost::target(*e, graph));
+            }
+
+            return sSet;
+        }
+
+        std::set<Vertex> Cfg::getSuccessor(const Vertex& vertex) {
+            auto sSet = getSuccessor(getVertexDescriptor(vertex));
+
+            return convertSet(sSet);
+        }
+
+        std::set<VertexDescriptor> Cfg::getPredecessor(
+                const VertexDescriptor vertex) {
+            auto inEdges = boost::in_edges(vertex, graph);
+
+            std::set<VertexDescriptor> pSet;
+
+            boost::graph_traits<Graph>::in_edge_iterator e, e_end;
+            for (boost::tie(e, e_end) = inEdges; e != e_end; ++e) {
+                pSet.insert(boost::source(*e, graph));
+            }
+
+            return pSet;
+        }
+
+        std::set<Vertex> Cfg::getPredecessor(const Vertex& vertex) {
+            auto sSet = getPredecessor(getVertexDescriptor(vertex));
+
+            return convertSet(sSet);
+        }
+
+        unsigned Cfg::variableSetSize() const {
+            return variableSet.size();
+        }
+
+        std::set<mcc::tac::VarTableValue> Cfg::getNotKilled(
+                const VertexDescriptor vertex) const {
+            auto varSet(variableSet);
+
+            return varSet;
+        }
+
+        bool Cfg::updateLiveIn(VertexDescriptor v) {
+            auto const& ueVar = this->getVertex(v)->getUeVar();
+            auto const& notKilled = this->notKilled.at(v);
+
+            auto oldSize = this->liveIn.at(v).size();
+            auto const& liveOutSet = this->liveOut.at(v);
+
+            auto temp1 = set_intersect(liveOutSet, notKilled);
+            auto temp2 = set_union(ueVar, temp1);
+
+            this->liveIn.at(v).swap(temp2);
+            return (oldSize != this->liveIn.at(v).size());
+        }
+
+        bool Cfg::updateLiveOut(VertexDescriptor v) {
+            auto oldSize = this->liveOut.at(v).size();
+
+            std::set<mcc::tac::VarTableValue> tmp;
+
+            for (auto s : this->getSuccessor(v)) {
+                tmp = set_union(tmp, this->liveIn.at(s));
+            }
+
+            liveOut.at(v).swap(tmp);
+            return (oldSize != this->liveOut.at(v).size());
+        }
+
+        void Cfg::computeLive(void) {
+            bool changed;
+
+            do {
+                changed = false;
+                for (auto const b : *basicBlockIndex.get()) {
+                    this->updateLiveIn(b->getBlockId());
+                }
+
+                for (auto const b : *basicBlockIndex.get()) {
+                    if (this->updateLiveOut(b->getBlockId())) {
+                        changed = true;
+                    }
+                }
+
+            } while (changed);
+        }
+
+        std::set<mcc::tac::VarTableValue> Cfg::getLiveIn(VertexDescriptor v) {
+            return this->liveIn.at(v);
+        }
+
+        std::set<mcc::tac::VarTableValue> Cfg::getLiveOut(VertexDescriptor v) {
+            return this->liveOut.at(v);
+        }
     }
-  }
 }
 
