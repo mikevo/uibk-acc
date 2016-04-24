@@ -237,34 +237,6 @@ namespace mcc {
 
         auto stmt = convertNode(t, whileStmt->stmt);
         
-        auto cond =  std::static_pointer_cast<Triple>(condition);
-        
-        if(isType<Variable>(cond->getArg1())) {
-            
-            auto asgnOp = Operator(OperatorName::ASSIGN);
-            auto var =  std::static_pointer_cast<Variable>(cond->getArg1()); 
-            auto assignVar = t->getVariableStore()->findAccordingVariable(var->name);
-            
-            if(var.get() != assignVar.get()) {
-                  auto whileSSA = std::make_shared<Triple>(asgnOp, var, assignVar);
-                  t->addLine(whileSSA);
-            }
-            
-        }
-        
-        if(isType<Variable>(cond->getArg2())) {
-            
-            auto asgnOp = Operator(OperatorName::ASSIGN);
-            auto var =  std::static_pointer_cast<Variable>(cond->getArg2()); 
-            auto assignVar = t->getVariableStore()->findAccordingVariable(var->name);
-            
-            if(var.get() != assignVar.get()) {
-                  auto whileSSA = std::make_shared<Triple>(asgnOp, var, assignVar);
-                  t->addLine(whileSSA);
-            }
-            
-        }
-
         auto jOp = Operator(OperatorName::JUMP);
         auto againJump = std::make_shared<Triple>(jOp, againLable);
         t->addLine(againJump);
