@@ -40,8 +40,11 @@ namespace mcc {
 
         std::shared_ptr<Operand> getArg1() const;
         std::shared_ptr<Operand> getArg2() const;
+        void setArg1(std::shared_ptr<Operand> arg);
+        void setArg2(std::shared_ptr<Operand> arg);
 
         Operator getOperator() const;
+        void setOperator(Operator);
 
       protected:
         void setName(const std::string name);

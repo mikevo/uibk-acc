@@ -13,7 +13,8 @@ namespace mcc {
         {
             float x = 3.5 - 1.5; 
             int y = 5 + 3;
-            int z = 8 * 5;
+            int z = 5 + 3;
+            int a = 8 * 5;
 
         })");
 
@@ -23,10 +24,11 @@ namespace mcc {
 
        std::string expectedValue = "x0:1:0 = 2.000000\n";
        expectedValue.append("y0:1:0 = 8\n");
-       expectedValue.append("z0:1:0 = 40");
+       expectedValue.append("z0:1:0 = 8\n");
+       expectedValue.append("a0:1:0 = 40");
 
       EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(3, tac.codeLines.size());
+      EXPECT_EQ(4, tac.codeLines.size());
     }
 
       TEST(LVN, DISABLED_RedundantExpression) {

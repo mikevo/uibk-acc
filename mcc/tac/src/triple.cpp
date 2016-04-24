@@ -209,5 +209,19 @@ namespace mcc {
     Operator Triple::getOperator() const {
       return this->op;
     }
+    
+    void Triple::setArg1(std::shared_ptr<Operand> arg) {
+        assert((arg != nullptr) && "nullptr not allowed as operand!");
+        this->arg1 = arg;
+    }
+    
+    void Triple::setArg2(std::shared_ptr<Operand> arg) {
+        assert((arg != nullptr) && "nullptr not allowed as operand!");
+        this->arg2 = arg;
+    }
+    
+     void Triple::setOperator(Operator op) {
+         this->op = op;
+     }
   }
 }
