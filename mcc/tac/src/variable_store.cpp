@@ -138,6 +138,24 @@ namespace mcc {
       assert(false && "Usage of undeclared variable");
     }
 
+    VariableStore::VariableNode VariableStore::findVariable(
+        std::string const name) {
+      auto const key = std::make_shared<Variable>(Type::AUTO, name);
+      key->setScope(this->getCurrentScope());
+
+      for (auto const& v : this->renameMap) {
+        if (v.first->getName() == key->getName()) {
+          return v.first;
+        }
+      }
+
+      // Debugging output; this is only printed if something goes terribly
+      // wrong
+      std::cout << name << ":" << this->getCurrentScope()->getDepth() << ":"
+          << this->getCurrentScope()->getIndex() << std::endl;
+      assert(false && "Usage of undeclared variable");
+    }
+
     VariableStore::VariableNodeSet::iterator VariableStore::insertVariable(
         VariableStore::VariableNode variable) {
       auto it = this->store.insert(variable);

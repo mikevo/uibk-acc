@@ -154,6 +154,39 @@ namespace mcc {
 
        EXPECT_EQ(rvar1, result);
      }
+
+    TEST(VariableStore, findVariable) {
+       VariableStore store;
+
+       auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
+       var0->setScope(store.getCurrentScope());
+       auto var1 = std::make_shared<Variable>(Type::INT, "b");
+       store.addNewChild();
+       var1->setScope(store.getCurrentScope());
+
+       store.addVariable(var0);
+       store.addVariable(var1);
+
+       auto rvar0 = store.renameVariable(var0);
+       auto rvar1 = store.renameVariable(var1);
+
+       EXPECT_EQ(4, store.size());
+       EXPECT_EQ(var0, store[0]);
+       EXPECT_EQ(var1, store[1]);
+       EXPECT_EQ(rvar0, store[2]);
+       EXPECT_EQ(rvar1, store[3]);
+
+       EXPECT_EQ("a0:0:0", var0->getValue());
+       EXPECT_EQ("a1:0:0", rvar0->getValue());
+       EXPECT_EQ("b0:1:0", var1->getValue());
+       EXPECT_EQ("b1:1:0", rvar1->getValue());
+
+       store.addNewChild();
+
+       auto result = store.findVariable("b");
+
+       EXPECT_EQ(var1, result);
+     }
   }
 }
 
