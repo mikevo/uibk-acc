@@ -300,10 +300,10 @@ namespace mcc {
       std::string expectedValue = "a0:1:0 = 0\n";
       expectedValue.append(varName + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + varName + " " + label + "\n");
-      expectedValue.append("a1:1:0 = 1\n");
+      expectedValue.append("a0:1:0 = 1\n");
       expectedValue.append("JUMP " + label2 + "\n");
       expectedValue.append("LABEL " + label + "\n");
-      expectedValue.append("a2:1:0 = 2\n");
+      expectedValue.append("a0:1:0 = 2\n");
       expectedValue.append("LABEL " + label2);
 
       EXPECT_EQ(expectedValue, tac.toString());
@@ -334,7 +334,7 @@ namespace mcc {
       std::string expectedValue = "a0:1:0 = 0\n";
       expectedValue.append(varName + " = 1 <= 2\n");
       expectedValue.append("JUMPFALSE " + varName + " " + label + "\n");
-      expectedValue.append("a1:1:0 = 1\n");
+      expectedValue.append("a0:1:0 = 1\n");
       expectedValue.append("LABEL " + label);
 
       EXPECT_EQ(expectedValue, tac.toString());
@@ -383,28 +383,26 @@ namespace mcc {
       expectedValue.append("LABEL " + again2Label + "\n");
       expectedValue.append("JUMPFALSE " + varName + " " + exit2Label + "\n");
 
-      varId += 4;
+      varId += 2;
       varName = "$t" + std::to_string(varId++);
       expectedValue.append(varName + " = b0:2:0 + 1\n");
-      expectedValue.append("b1:2:0 = " + varName + "\n");
-      expectedValue.append("b0:2:0 = b1:2:0\n");
+      expectedValue.append("b0:2:0 = " + varName + "\n");
       expectedValue.append("JUMP " + again2Label + "\n");
       expectedValue.append("LABEL " + exit2Label + "\n");
 
-      varId += 8;
+      varId += 3;
       varName = "$t" + std::to_string(varId);
-      expectedValue.append(varName + " = a0:1:0 + b1:2:0\n");
-      expectedValue.append("a1:1:0 = " + varName + "\n");
-      expectedValue.append("a0:1:0 = a1:1:0\n");
+      expectedValue.append(varName + " = a0:1:0 + b0:2:0\n");
+      expectedValue.append("a0:1:0 = " + varName + "\n");
       expectedValue.append("JUMP " + againLabel + "\n");
       expectedValue.append("LABEL " + exitLabel);
 
 
       EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(18, tac.codeLines.size());
+      EXPECT_EQ(16, tac.codeLines.size());
     }
 
-    TEST(Tac, SSA) {
+    TEST(Tac, DISABLED_SSA) {
       auto tree =
           parser::parse(
               R"(

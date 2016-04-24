@@ -75,7 +75,7 @@ namespace mcc {
 
       ReturnType convertVariable(Tac *t, AstNode n) {
         auto v = std::static_pointer_cast<ast::variable>(n);
-        return t->getVariableStore()->findAccordingVariable(v->name);
+        return t->getVariableStore()->findVariable(v->name);
       }
 
       ReturnType convertBinaryOp(Tac *t, AstNode n) {
@@ -91,8 +91,8 @@ namespace mcc {
           auto check = isType<Variable>(lhs);
           assert(check && "arg1 needs to be a variable for ASSIGN triples");
 
-          auto var = std::static_pointer_cast<Variable>(lhs);
-          variable = t->addVarRenaming(var);
+          variable = std::static_pointer_cast<Variable>(lhs);
+
           setTarVar = true;
           lhs = variable;
         }
@@ -237,34 +237,6 @@ namespace mcc {
 
         auto stmt = convertNode(t, whileStmt->stmt);
         
-        auto cond =  std::static_pointer_cast<Triple>(condition);
-        
-        if(isType<Variable>(cond->getArg1())) {
-            
-            auto asgnOp = Operator(OperatorName::ASSIGN);
-            auto var =  std::static_pointer_cast<Variable>(cond->getArg1()); 
-            auto assignVar = t->getVariableStore()->findAccordingVariable(var->name);
-            
-            if(var.get() != assignVar.get()) {
-                  auto whileSSA = std::make_shared<Triple>(asgnOp, var, assignVar);
-                  t->addLine(whileSSA);
-            }
-            
-        }
-        
-        if(isType<Variable>(cond->getArg2())) {
-            
-            auto asgnOp = Operator(OperatorName::ASSIGN);
-            auto var =  std::static_pointer_cast<Variable>(cond->getArg2()); 
-            auto assignVar = t->getVariableStore()->findAccordingVariable(var->name);
-            
-            if(var.get() != assignVar.get()) {
-                  auto whileSSA = std::make_shared<Triple>(asgnOp, var, assignVar);
-                  t->addLine(whileSSA);
-            }
-            
-        }
-
         auto jOp = Operator(OperatorName::JUMP);
         auto againJump = std::make_shared<Triple>(jOp, againLable);
         t->addLine(againJump);

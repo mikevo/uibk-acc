@@ -36,6 +36,7 @@ namespace mcc {
         set_const_iterator end() const;
 
         VariableNode findAccordingVariable(std::string const name);
+        VariableNode findVariable(std::string const name);
 
         void addVariable(VariableNode variable);
         bool removeVariable(VariableNode const variable);
