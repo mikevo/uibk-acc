@@ -29,6 +29,8 @@ namespace mcc {
         SubExpression(Operator op, OperandPtr arg1, OperandPtr arg2);
         SubExpression(TriplePtr const triple);
 
+        bool operator< (SubExpression const other) const;
+
         std::string toString() const;
 
         bool containsArg1() const;

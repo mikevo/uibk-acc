@@ -40,6 +40,10 @@ namespace mcc {
       }
     }
 
+    bool SubExpression::operator< (SubExpression const other) const {
+      return (this->toString() < other.toString());
+    }
+
     std::string SubExpression::toString() const {
       if (this->containsArg2()) {
         std::string out = this->arg1->getValue();

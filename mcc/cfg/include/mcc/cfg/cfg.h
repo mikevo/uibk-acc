@@ -71,6 +71,11 @@ namespace mcc {
         std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> notKilled;
         std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveIn;
         std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveOut;
+
+        typedef std::set<std::shared_ptr<SubExpression>> SubExpressionSet;
+        SubExpressionSet allSubExpressions;
+        std::map<VertexDescriptor, SubExpressionSet> notKilledExpr;
+        std::map<VertexDescriptor, SubExpressionSet> avail;
     };
   }
 }
