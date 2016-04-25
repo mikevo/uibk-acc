@@ -9,6 +9,7 @@
 #define BASIC_BLOCK_H
 
 
+#include "mcc/cfg/sub_expression.h"
 #include "mcc/tac/triple.h"
 #include "mcc/tac/variable.h"
 
@@ -22,6 +23,12 @@ namespace mcc {
   namespace tac {
     class BasicBlock {
       public:
+        typedef std::shared_ptr<Variable> VariablePtr;
+        typedef std::shared_ptr<Triple> TriplePtr;
+        typedef std::shared_ptr<mcc::cfg::SubExpression> SubExpressionPtr;
+        typedef std::set<SubExpressionPtr> SubExpressionSet;
+        typedef std::set<VariablePtr> VariableSet;
+
         BasicBlock(const unsigned id);
         std::shared_ptr<Triple> getStart();
         std::shared_ptr<Triple> getEnd();
@@ -32,20 +39,21 @@ namespace mcc {
         std::vector<std::shared_ptr<Triple>>::size_type size() const;
         std::string toString() const;
         std::vector<std::shared_ptr<Triple>> getBlockMembers() const;
-        std::set<std::shared_ptr<Variable>> getUeVar() const;
-        std::set<std::shared_ptr<Variable>> getDefVar() const;
+
+        VariableSet getUeVar() const;
+        VariableSet getDefVar() const;
+        SubExpressionSet getDeExpr() const;
+        SubExpressionSet getkilledExpr() const;
 
 
       private:
-        typedef std::shared_ptr<Variable> VariablePtr;
-        typedef std::shared_ptr<Triple> TriplePtr;
-        typedef std::set<VariablePtr> VariableSet;
-
         std::vector<TriplePtr> blockMembers;
         const unsigned id;
         VariableSet defVar;
         VariableSet ueVar;
-        std::map<VariablePtr, std::set<TriplePtr>> varOccurrenceMap;
+        SubExpressionSet deExpr;
+        SubExpressionSet killedExpr;
+        std::map<VariablePtr, SubExpressionSet> varOccurrenceMap;
     };
   }
 }

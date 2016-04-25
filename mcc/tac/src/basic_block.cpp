@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 
+#include "mcc/cfg/set_helper.h"
 #include "mcc/tac/label.h"
 #include "mcc/tac/helper/ast_converters.h"
 
@@ -35,9 +36,37 @@ namespace mcc {
     }
 
     void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
+      SubExpressionPtr se;
+
+      if (line->containsArg1()) {
+        se = std::make_shared<mcc::cfg::SubExpression>(line);
+        deExpr.insert(se);
+      }
 
       if (line->containsTargetVar()) {
-        defVar.insert(line->getTargetVariable());
+        auto target = line->getTargetVariable();
+        defVar.insert(target);
+
+        auto searchResult = this->varOccurrenceMap.find(target);
+
+        if (searchResult != this->varOccurrenceMap.end()) {
+          killedExpr = mcc::cfg::set_union(killedExpr, searchResult->second);
+        }
+      }
+
+      if (line->containsArg1()) {
+        for (auto const v : se->getVariales()) {
+          auto searchResult = this->varOccurrenceMap.find(v);
+
+          if (searchResult != this->varOccurrenceMap.end()) {
+            searchResult->second.insert(se);
+          } else {
+            std::set<SubExpressionPtr> seSet;
+            seSet.insert(se);
+
+            this->varOccurrenceMap.insert(std::make_pair(v, seSet));
+          }
+        }
       }
 
       if (line->containsArg1()) {
@@ -55,7 +84,6 @@ namespace mcc {
           if (defVar.find(arg1) == defVar.end()) {
             ueVar.insert(arg1);
           }
-
         }
       }
 
@@ -115,6 +143,14 @@ namespace mcc {
 
     std::set<std::shared_ptr<Variable>> BasicBlock::getDefVar() const {
       return defVar;
+    }
+
+    BasicBlock::SubExpressionSet BasicBlock::getDeExpr() const {
+      return deExpr;
+    }
+
+    BasicBlock::SubExpressionSet BasicBlock::getkilledExpr() const {
+      return killedExpr;
     }
   }
 }
