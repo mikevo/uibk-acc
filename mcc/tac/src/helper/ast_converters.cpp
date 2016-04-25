@@ -223,25 +223,25 @@ namespace mcc {
       ReturnType convertWhileStmt(Tac *t, AstNode n) {
         auto whileStmt = std::static_pointer_cast<ast::while_stmt>(n);
 
+        auto againLabel = std::make_shared<Label>();
+        t->nextBasicBlock();
+        t->addLine(againLabel);
+
         auto condition = convertNode(t, whileStmt->condition);
 
-        auto againLable = std::make_shared<Label>();
-        t->nextBasicBlock();
-        t->addLine(againLable);
-
-        auto exitLable = std::make_shared<Label>();
+        auto exitLabel = std::make_shared<Label>();
         auto jfOp = Operator(OperatorName::JUMPFALSE);
-        auto whileJump = std::make_shared<Triple>(jfOp, condition, exitLable);
+        auto whileJump = std::make_shared<Triple>(jfOp, condition, exitLabel);
         t->addLine(whileJump);
         t->nextBasicBlock();
 
-        auto stmt = convertNode(t, whileStmt->stmt);
+        convertNode(t, whileStmt->stmt);
         
         auto jOp = Operator(OperatorName::JUMP);
-        auto againJump = std::make_shared<Triple>(jOp, againLable);
+        auto againJump = std::make_shared<Triple>(jOp, againLabel);
         t->addLine(againJump);
         t->nextBasicBlock();
-        t->addLine(exitLable);
+        t->addLine(exitLabel);
 
         return nullptr;
       }
