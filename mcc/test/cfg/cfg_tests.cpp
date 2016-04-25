@@ -392,15 +392,7 @@ namespace mcc {
                                       })");
 
       mcc::tac::Tac tac = mcc::tac::Tac(tree);
-      std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
       auto graph = std::make_shared<Cfg>(tac);
-      std::cout << std::endl << "BB:" << std::endl;
-
-      auto bbIndex = tac.getBasicBlockIndex();
-
-      for (auto const b : *bbIndex.get()) {
-        std::cout << b->toString() << std::endl;
-      }
 
       graph->computeLive();
 
@@ -472,15 +464,7 @@ LiveIN
                                           })");
 
       mcc::tac::Tac tac = mcc::tac::Tac(tree);
-      std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
       auto graph = std::make_shared<Cfg>(tac);
-      std::cout << std::endl << "BB:" << std::endl;
-
-      auto bbIndex = tac.getBasicBlockIndex();
-
-      for (auto const b : *bbIndex.get()) {
-        std::cout << b->toString() << std::endl;
-      }
 
       graph->computeWorkList();
 
@@ -525,6 +509,68 @@ LiveIN
       }
 
       EXPECT_EQ(expected, result);
+    }
+
+    TEST(Cfg, ComputeAvailableExpressions) {
+      auto tree =
+          parser::parse(
+              R"(
+                                            {
+                                                int x=1;
+                                                float y = 3.0;
+
+                                                if(x > 0) {
+                                                   y = y * 1.5;
+                                                } else {
+                                                   y = y + 2.0;
+                                                }
+
+                                                int a = 0;
+
+                                                if( 1 <= 2) {
+                                                    x = a;
+                                                    a = 1;
+                                                } else {
+                                                    a = 2;
+                                                }
+                                              })");
+
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
+      std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
+      auto graph = std::make_shared<Cfg>(tac);
+      std::cout << std::endl << "BB:" << std::endl;
+
+      auto bbIndex = tac.getBasicBlockIndex();
+
+      for (auto const b : *bbIndex.get()) {
+        std::cout << b->toString() << std::endl;
+      }
+
+      graph->computeAvailableExpressions();
+
+      auto expected = R"()";
+
+      std::string result = "\nNotKilledExpr\n";
+      for (unsigned i = 0; i < 7; ++i) {
+        for (auto out : graph->getNotKilledExpr(i)) {
+          result.append(std::to_string(i) + ": ");
+          result.append(out->toString() + "\n");
+        }
+
+        result.append("\n");
+      }
+
+      result.append("DeExpr\n");
+      for (auto const bb : *bbIndex.get()) {
+        result.append(std::to_string(bb->getBlockId()) + ": ");
+        for (auto out : bb->getDeExpr()) {
+          result.append(out->toString() + " ");
+        }
+
+        result.append("\n");
+      }
+
+      std::cout << result;
     }
 
   }

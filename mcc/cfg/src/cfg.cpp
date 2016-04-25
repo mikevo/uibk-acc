@@ -325,12 +325,39 @@ namespace mcc {
       }
     }
 
+    // TODO: check if computation is sufficient for loops
+    void Cfg::computeAvailableExpressions() {
+      auto bbIndex = *basicBlockIndex.get();
+
+      for (auto it = bbIndex.begin() + 1; it != bbIndex.end(); ++it) {
+        SubExpressionSet avail;
+
+        for (auto const p : this->getPredecessor(*it)) {
+          auto pId = p->getBlockId();
+          auto pAvail = this->getAvail(pId);
+          auto pNotKilledExpr = this->notKilledExpr.at(pId);
+
+          auto tmp = set_intersect(pAvail, pNotKilledExpr);
+          tmp = set_union(p->getDeExpr(), tmp);
+          avail = set_intersect(avail, tmp);
+        }
+      }
+    }
+
     std::set<mcc::tac::VarTableValue> Cfg::getLiveIn(VertexDescriptor v) {
       return this->liveIn.at(v);
     }
 
     std::set<mcc::tac::VarTableValue> Cfg::getLiveOut(VertexDescriptor v) {
       return this->liveOut.at(v);
+    }
+
+    Cfg::SubExpressionSet Cfg::getNotKilledExpr(VertexDescriptor v) {
+      return this->notKilledExpr.at(v);
+    }
+
+    Cfg::SubExpressionSet Cfg::getAvail(VertexDescriptor v) {
+      return this->avail.at(v);
     }
   }
 }

@@ -24,6 +24,8 @@ namespace mcc {
 
     class Cfg {
       public:
+        typedef std::set<std::shared_ptr<SubExpression>> SubExpressionSet;
+
         Cfg(mcc::tac::Tac tac);
         std::string toDot() const;
         void storeDot(std::string fileName) const;
@@ -50,9 +52,13 @@ namespace mcc {
 
         void computeLive(void);
         void computeWorkList();
+        void computeAvailableExpressions();
 
         std::set<mcc::tac::VarTableValue> getLiveIn(VertexDescriptor v);
         std::set<mcc::tac::VarTableValue> getLiveOut(VertexDescriptor v);
+
+        SubExpressionSet getNotKilledExpr(VertexDescriptor v);
+        SubExpressionSet getAvail(VertexDescriptor v);
 
         std::set<mcc::tac::VarTableValue> variableSet;
       private:
@@ -72,7 +78,6 @@ namespace mcc {
         std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveIn;
         std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveOut;
 
-        typedef std::set<std::shared_ptr<SubExpression>> SubExpressionSet;
         SubExpressionSet allSubExpressions;
         std::map<VertexDescriptor, SubExpressionSet> notKilledExpr;
         std::map<VertexDescriptor, SubExpressionSet> avail;
