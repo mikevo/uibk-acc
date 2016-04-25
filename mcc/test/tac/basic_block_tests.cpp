@@ -93,17 +93,6 @@ namespace mcc {
 
             EXPECT_NE(secondBlock->getDefVar().end(),
                     secondBlock->getDefVar().find(members.at(0)->getTargetVariable()));
-
-            // TODO: remove command line printing
-            for (auto const& v : thirdBlock->getDefVar()) {
-                std::cout << v->getValue() << std::endl;
-            }
-
-            std::cout << thirdBlock->toString() << std::endl;
-
-            for (auto const& v : thirdBlock->getUeVar()) {
-                std::cout << v->getValue() << std::endl;
-            }
         }
 
         TEST(BasicBlock, SevenBlocks) {

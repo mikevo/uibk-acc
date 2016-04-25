@@ -552,9 +552,15 @@ LiveIN
 
       std::string result = "\nNotKilledExpr\n";
       for (unsigned i = 0; i < 7; ++i) {
+        auto empty = true;
         for (auto out : graph->getNotKilledExpr(i)) {
           result.append(std::to_string(i) + ": ");
           result.append(out->toString() + "\n");
+          empty = false;
+        }
+
+        if (empty) {
+          result.append(std::to_string(i) + ": ");
         }
 
         result.append("\n");
@@ -562,9 +568,15 @@ LiveIN
 
       result.append("DeExpr\n");
       for (auto const bb : *bbIndex.get()) {
-        result.append(std::to_string(bb->getBlockId()) + ": ");
+        auto empty = true;
         for (auto out : bb->getDeExpr()) {
-          result.append(out->toString() + " ");
+          result.append(std::to_string(bb->getBlockId()) + ": ");
+          result.append(out->toString() + "\n");
+          empty = false;
+        }
+
+        if (empty) {
+          result.append(std::to_string(bb->getBlockId()) + ": ");
         }
 
         result.append("\n");
