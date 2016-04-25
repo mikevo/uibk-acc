@@ -12,6 +12,7 @@
 #include "mcc/tac/triple.h"
 #include "mcc/tac/variable.h"
 
+#include <map>
 #include <memory>
 #include <set>
 #include <string>
@@ -36,10 +37,15 @@ namespace mcc {
 
 
       private:
-        std::vector<std::shared_ptr<Triple>> blockMembers;
+        typedef std::shared_ptr<Variable> VariablePtr;
+        typedef std::shared_ptr<Triple> TriplePtr;
+        typedef std::set<VariablePtr> VariableSet;
+
+        std::vector<TriplePtr> blockMembers;
         const unsigned id;
-        std::set<std::shared_ptr<Variable>> defVar;
-        std::set<std::shared_ptr<Variable>> ueVar;
+        VariableSet defVar;
+        VariableSet ueVar;
+        std::map<VariablePtr, std::set<TriplePtr>> varOccurrenceMap;
     };
   }
 }
