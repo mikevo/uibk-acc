@@ -38,7 +38,7 @@ namespace mcc {
     void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
       SubExpressionPtr se;
 
-      if (line->containsArg1()) {
+      if (convertableToSubExpression(line)) {
         se = std::make_shared<mcc::cfg::SubExpression>(line);
         deExpr.insert(se);
       }
@@ -54,7 +54,7 @@ namespace mcc {
         }
       }
 
-      if (line->containsArg1()) {
+      if (convertableToSubExpression(line)) {
         for (auto const v : se->getVariales()) {
           auto searchResult = this->varOccurrenceMap.find(v);
 
@@ -151,6 +151,21 @@ namespace mcc {
 
     BasicBlock::SubExpressionSet BasicBlock::getkilledExpr() const {
       return killedExpr;
+    }
+
+    bool convertableToSubExpression(const std::shared_ptr<Triple> line) {
+      if (line->containsArg1()) {
+        switch (line->getOperator().getName()) {
+          case OperatorName::LABEL:
+          case OperatorName::JUMP:
+          case OperatorName::JUMPFALSE:
+            return false;
+          default:
+            return true;
+        }
+      } else {
+        return false;
+      }
     }
   }
 }

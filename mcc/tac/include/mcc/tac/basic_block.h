@@ -55,6 +55,8 @@ namespace mcc {
         SubExpressionSet killedExpr;
         std::map<VariablePtr, SubExpressionSet> varOccurrenceMap;
     };
+
+    bool convertableToSubExpression(const std::shared_ptr<Triple> line);
   }
 }
 
