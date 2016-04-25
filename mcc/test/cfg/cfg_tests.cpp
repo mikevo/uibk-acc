@@ -367,10 +367,10 @@ namespace mcc {
       EXPECT_EQ(7, graph->variableSetSize());
     }
 
-    TEST(Cfg, WorkingSet) {
-          auto tree =
-              parser::parse(
-                  R"(
+    TEST(Cfg, ComputeLive) {
+      auto tree =
+          parser::parse(
+              R"(
                                     {
                                         int x=1;
                                         float y = 3.0;
@@ -391,41 +391,141 @@ namespace mcc {
                                         }
                                       })");
 
-          mcc::tac::Tac tac = mcc::tac::Tac(tree);
-          std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
-          auto graph = std::make_shared<Cfg>(tac);
-          std::cout  << std::endl << "BB:" << std::endl;
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
+      std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
+      auto graph = std::make_shared<Cfg>(tac);
+      std::cout << std::endl << "BB:" << std::endl;
 
-          auto bbIndex = tac.getBasicBlockIndex();
+      auto bbIndex = tac.getBasicBlockIndex();
 
-          for (auto const b : *bbIndex.get()) {
-            std::cout << b->toString() << std::endl;
-          }
+      for (auto const b : *bbIndex.get()) {
+        std::cout << b->toString() << std::endl;
+      }
 
-//          graph->computeLive();
-          graph->computeWorkList();
+      graph->computeLive();
 
-          // TODO: remove command line printing
-          std::cout << std::endl << "LiveOUT" << std::endl;
-          for (unsigned i = 0; i < 7; ++i) {
-            std::cout << std::to_string(i) << ": ";
-            for (auto out : graph->getLiveOut(i)) {
-              std::cout << out->getValue() + " ";
-            }
+      auto expected =
+          R"(
+LiveOUT
+0: y0:1:0 
+1: 
+2: 
+3: a0:1:0 
+4: 
+5: 
+6: 
+LiveIN
+0: 
+1: y0:1:0 
+2: y0:1:0 
+3: 
+4: a0:1:0 
+5: 
+6: 
+)";
 
-            std::cout << std::endl;
-          }
-          
-          std::cout << "LiveIN" << std::endl;
-           for (unsigned i = 0; i < 7; ++i) {
-            std::cout << std::to_string(i) << ": ";
-            for (auto in : graph->getLiveIn(i)) {
-              std::cout << in->getValue() + " ";
-            }
-
-            std::cout << std::endl;
-          }
+      std::string result = "\nLiveOUT\n";
+      for (unsigned i = 0; i < 7; ++i) {
+        result.append(std::to_string(i) + ": ");
+        for (auto out : graph->getLiveOut(i)) {
+          result.append(out->getValue() + " ");
         }
+
+        result.append("\n");
+      }
+
+      result.append("LiveIN\n");
+      for (unsigned i = 0; i < 7; ++i) {
+        result.append(std::to_string(i) + ": ");
+        for (auto out : graph->getLiveIn(i)) {
+          result.append(out->getValue() + " ");
+        }
+
+        result.append("\n");
+      }
+
+      EXPECT_EQ(expected, result);
+    }
+
+    TEST(Cfg, ComputeWorkList) {
+      auto tree =
+          parser::parse(
+              R"(
+                                        {
+                                            int x=1;
+                                            float y = 3.0;
+
+                                            if(x > 0) {
+                                               y = y * 1.5;
+                                            } else {
+                                               y = y + 2.0;
+                                            }
+
+                                            int a = 0;
+
+                                            if( 1 <= 2) {
+                                                x = a;
+                                                a = 1;
+                                            } else {
+                                                a = 2;
+                                            }
+                                          })");
+
+      mcc::tac::Tac tac = mcc::tac::Tac(tree);
+      std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
+      auto graph = std::make_shared<Cfg>(tac);
+      std::cout << std::endl << "BB:" << std::endl;
+
+      auto bbIndex = tac.getBasicBlockIndex();
+
+      for (auto const b : *bbIndex.get()) {
+        std::cout << b->toString() << std::endl;
+      }
+
+      graph->computeWorkList();
+
+      auto expected =
+          R"(
+LiveOUT
+0: y0:1:0 
+1: 
+2: 
+3: a0:1:0 
+4: 
+5: 
+6: 
+LiveIN
+0: 
+1: y0:1:0 
+2: y0:1:0 
+3: 
+4: a0:1:0 
+5: 
+6: 
+)";
+
+      std::string result = "\nLiveOUT\n";
+      for (unsigned i = 0; i < 7; ++i) {
+        result.append(std::to_string(i) + ": ");
+        for (auto out : graph->getLiveOut(i)) {
+          result.append(out->getValue() + " ");
+        }
+
+        result.append("\n");
+      }
+
+      result.append("LiveIN\n");
+      for (unsigned i = 0; i < 7; ++i) {
+        result.append(std::to_string(i) + ": ");
+        for (auto out : graph->getLiveIn(i)) {
+          result.append(out->getValue() + " ");
+        }
+
+        result.append("\n");
+      }
+
+      EXPECT_EQ(expected, result);
+    }
 
   }
 }
