@@ -49,6 +49,7 @@ namespace mcc {
             const VertexDescriptor vertex) const;
 
         void computeLive(void);
+        void computeWorkList();
 
         std::set<mcc::tac::VarTableValue> getLiveIn(VertexDescriptor v);
         std::set<mcc::tac::VarTableValue> getLiveOut(VertexDescriptor v);

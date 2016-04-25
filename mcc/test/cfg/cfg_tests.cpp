@@ -392,14 +392,23 @@ namespace mcc {
                                       })");
 
           mcc::tac::Tac tac = mcc::tac::Tac(tree);
-          std::cout << tac.toString();
+          std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
           auto graph = std::make_shared<Cfg>(tac);
+          std::cout  << std::endl << "BB:" << std::endl;
 
-          graph->computeLive();
+          auto bbIndex = tac.getBasicBlockIndex();
+
+          for (auto const b : *bbIndex.get()) {
+            std::cout << b->toString() << std::endl;
+          }
+
+//          graph->computeLive();
+          graph->computeWorkList();
 
           // TODO: remove command line printing
           std::cout << std::endl << "LiveOUT" << std::endl;
           for (unsigned i = 0; i < 7; ++i) {
+            std::cout << std::to_string(i) << ": ";
             for (auto out : graph->getLiveOut(i)) {
               std::cout << out->getValue() + " ";
             }
@@ -409,6 +418,7 @@ namespace mcc {
           
           std::cout << "LiveIN" << std::endl;
            for (unsigned i = 0; i < 7; ++i) {
+            std::cout << std::to_string(i) << ": ";
             for (auto in : graph->getLiveIn(i)) {
               std::cout << in->getValue() + " ";
             }

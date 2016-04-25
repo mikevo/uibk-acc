@@ -244,27 +244,26 @@ namespace mcc {
             auto const& ueVar = this->getVertex(v)->getUeVar();
             auto const& notKilled = this->notKilled.at(v);
 
-            auto oldSize = this->liveIn.at(v).size();
             auto const& liveOutSet = this->liveOut.at(v);
 
             auto temp1 = set_intersect(liveOutSet, notKilled);
             auto temp2 = set_union(ueVar, temp1);
 
+            auto changed = (this->liveIn.at(v) != temp2);
             this->liveIn.at(v).swap(temp2);
-            return (oldSize != this->liveIn.at(v).size());
+            return changed;
         }
 
         bool Cfg::updateLiveOut(VertexDescriptor v) {
-            auto oldSize = this->liveOut.at(v).size();
-
             std::set<mcc::tac::VarTableValue> tmp;
 
             for (auto s : this->getSuccessor(v)) {
                 tmp = set_union(tmp, this->liveIn.at(s));
             }
 
+            auto changed = (this->liveOut.at(v) != tmp);
             liveOut.at(v).swap(tmp);
-            return (oldSize != this->liveOut.at(v).size());
+            return (changed);
         }
 
         void Cfg::computeLive(void) {
@@ -283,6 +282,34 @@ namespace mcc {
                 }
 
             } while (changed);
+        }
+
+        void Cfg::computeWorkList() {
+          std::set<VertexDescriptor> worklist;
+
+          for (auto const b : *basicBlockIndex.get()) {
+            worklist.insert(b->getBlockId());
+          }
+
+          while(worklist.size() > 0) {
+            // let b in W
+            // W = W \ {b}
+            auto b = *worklist.begin();
+            worklist.erase(worklist.begin());
+
+            // recompute LIVEOUT(b)
+            this->updateLiveOut(b);
+
+            // t = LIVEIN(b)
+            // recompute LIVEIN(b)
+            auto changed = this->updateLiveIn(b);
+
+            // if LIVEIN(b) != t then
+            if (changed) {
+              // W = W union pred(b)
+              worklist = set_union(worklist, this->getPredecessor(b));
+            }
+          }
         }
 
         std::set<mcc::tac::VarTableValue> Cfg::getLiveIn(VertexDescriptor v) {
