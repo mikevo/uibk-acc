@@ -6,6 +6,7 @@
 #include "mcc/cfg/set_helper.h"
 #include "mcc/tac/label.h"
 #include "mcc/tac/helper/ast_converters.h"
+#include "mcc/cfg/cfg.h"
 
 namespace mcc {
   namespace tac {
@@ -55,7 +56,7 @@ namespace mcc {
       }
 
       if (convertableToSubExpression(line)) {
-        for (auto const v : se->getVariales()) {
+        for (auto const v : se->getVariables()) {
           auto searchResult = this->varOccurrenceMap.find(v);
 
           if (searchResult != this->varOccurrenceMap.end()) {
@@ -149,7 +150,7 @@ namespace mcc {
       return deExpr;
     }
 
-    BasicBlock::SubExpressionSet BasicBlock::getkilledExpr() const {
+    BasicBlock::SubExpressionSet BasicBlock::getKilledExpr() const {
       return killedExpr;
     }
 

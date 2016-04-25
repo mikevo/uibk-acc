@@ -93,7 +93,7 @@ namespace mcc {
 
       SubExpression se1 = SubExpression(addOp, i, j);
 
-      EXPECT_EQ(0, se1.getVariales().size());
+      EXPECT_EQ(0, se1.getVariables().size());
 
       Operator notOp = Operator(OperatorName::NOT);
       std::set<std::shared_ptr<Variable>> expectedVarSet;
@@ -103,14 +103,32 @@ namespace mcc {
 
       SubExpression se2 = SubExpression(addOp, t1, j);
 
-      EXPECT_EQ(expectedVarSet, se2.getVariales());
+      EXPECT_EQ(expectedVarSet, se2.getVariables());
 
       auto const t2 = std::make_shared<Triple>(notOp, j);
       expectedVarSet.insert(t2->getTargetVariable());
 
       SubExpression se3 = SubExpression(addOp, t1, t2);
 
-      EXPECT_EQ(expectedVarSet, se3.getVariales());
+      EXPECT_EQ(expectedVarSet, se3.getVariables());
+    }
+    
+    TEST(SubExpression, SetNoDuplicates) {
+        auto i = std::make_shared<IntLiteral>(42);
+        auto j = std::make_shared<IntLiteral>(43);
+
+        auto op1 = Operator(OperatorName::ADD);
+        auto op2 = Operator(OperatorName::ADD);
+
+        auto se1 = std::make_shared<SubExpression>(op1, i, j);
+        auto se2 = std::make_shared<SubExpression>(op2, i, j);
+                
+        std::set<std::shared_ptr<SubExpression>, SubExpression::less> set;
+                
+        set.insert(se1);
+        set.insert(se2);
+
+        EXPECT_EQ(set.size(), 1);
     }
   }
 }

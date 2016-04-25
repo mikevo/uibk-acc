@@ -30,6 +30,14 @@ namespace mcc {
         SubExpression(TriplePtr const triple);
 
         bool operator< (SubExpression const other) const;
+        bool operator> (SubExpression const other) const;
+        bool operator<= (SubExpression const other) const;
+        bool operator>= (SubExpression const other) const;
+        bool operator== (SubExpression const other) const;
+        bool operator!= (SubExpression const other) const;
+        struct less {
+            bool operator() (const std::shared_ptr<SubExpression>& lhs, const std::shared_ptr<SubExpression>& rhs) const;
+        };
 
         std::string toString() const;
 
@@ -41,7 +49,7 @@ namespace mcc {
 
         Operator getOperator() const;
 
-        std::set<VariablePtr> getVariales() const;
+        std::set<VariablePtr> getVariables() const;
 
       private:
         Operator op;

@@ -49,7 +49,7 @@ namespace mcc {
 
         SubExpressionSet notKilled(allSubExpressions);
 
-        for (auto const expr : block->getkilledExpr()) {
+        for (auto const expr : block->getKilledExpr()) {
           notKilled.erase(expr);
         }
 
@@ -325,22 +325,26 @@ namespace mcc {
       }
     }
 
-    // TODO: check if computation is sufficient for loops
     void Cfg::computeAvailableExpressions() {
       auto bbIndex = *basicBlockIndex.get();
 
       for (auto it = bbIndex.begin() + 1; it != bbIndex.end(); ++it) {
         SubExpressionSet avail;
+        bool first = true;
 
         for (auto const p : this->getPredecessor(*it)) {
           auto pId = p->getBlockId();
           auto pAvail = this->getAvail(pId);
-          auto pNotKilledExpr = this->notKilledExpr.at(pId);
+          auto pNotKilledExpr = this->getNotKilledExpr(pId);
 
           auto tmp = set_intersect(pAvail, pNotKilledExpr);
           tmp = set_union(p->getDeExpr(), tmp);
-          avail = set_intersect(avail, tmp);
+          
+          avail = first ? tmp : set_intersect(avail, tmp);
+          first = false;
         }
+        
+        this->avail[(*it)->getBlockId()] = avail;
       }
     }
 

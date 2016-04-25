@@ -44,6 +44,30 @@ namespace mcc {
       return (this->toString() < other.toString());
     }
 
+    bool SubExpression::operator> (SubExpression const other) const {
+      return (this->toString() > other.toString());
+    }
+
+    bool SubExpression::operator<= (SubExpression const other) const {
+      return (this->toString() <= other.toString());
+    }
+
+    bool SubExpression::operator>= (SubExpression const other) const {
+      return (this->toString() >= other.toString());
+    }
+
+    bool SubExpression::operator== (SubExpression const other) const {
+      return (this->toString() == other.toString());
+    }
+
+    bool SubExpression::operator!= (SubExpression const other) const {
+      return (this->toString() != other.toString());
+    }
+    
+    bool SubExpression::less::operator ()(const std::shared_ptr<SubExpression>& lhs, const std::shared_ptr<SubExpression>& rhs) const {                
+        return *lhs.get() < *rhs.get();
+    }
+
     std::string SubExpression::toString() const {
       if (this->containsArg2()) {
         std::string out = this->arg1->getValue();
@@ -79,7 +103,7 @@ namespace mcc {
       return this->op;
     }
 
-    std::set<SubExpression::VariablePtr> SubExpression::getVariales() const {
+    std::set<SubExpression::VariablePtr> SubExpression::getVariables() const {
       using namespace mcc::tac;
 
       std::set<SubExpression::VariablePtr> vars;

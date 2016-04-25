@@ -511,29 +511,29 @@ LiveIN
       EXPECT_EQ(expected, result);
     }
 
+    // TODO: implement
     TEST(Cfg, ComputeAvailableExpressions) {
       auto tree =
           parser::parse(
-              R"(
-                                            {
-                                                int x=1;
-                                                float y = 3.0;
+              R"({
+                    int x=1;
+                    float y = 3.0;
 
-                                                if(x > 0) {
-                                                   y = y * 1.5;
-                                                } else {
-                                                   y = y + 2.0;
-                                                }
+                    if(x > 0) {
+                       y = y * 1.5;
+                    } else {
+                       y = y + 2.0;
+                    }
 
-                                                int a = 0;
+                    int a = 0;
 
-                                                if( 1 <= 2) {
-                                                    x = a;
-                                                    a = 1;
-                                                } else {
-                                                    a = 2;
-                                                }
-                                              })");
+                    if( 1 <= 2) {
+                        x = a;
+                        a = 1;
+                    } else {
+                        a = 2;
+                    }
+                  })");
 
       mcc::tac::Tac tac = mcc::tac::Tac(tree);
       std::cout << "TAC:" << std::endl << tac.toString() << std::endl;

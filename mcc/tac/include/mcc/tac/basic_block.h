@@ -43,7 +43,7 @@ namespace mcc {
         VariableSet getUeVar() const;
         VariableSet getDefVar() const;
         SubExpressionSet getDeExpr() const;
-        SubExpressionSet getkilledExpr() const;
+        SubExpressionSet getKilledExpr() const;
 
 
       private:
