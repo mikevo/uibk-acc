@@ -6,8 +6,8 @@
 #include <string>
 
 #include "ast.h"
-#include "parser.h"
 #include "mcc/tac/type.h"
+#include "parser.h"
 
 namespace mcc {
 namespace tac {

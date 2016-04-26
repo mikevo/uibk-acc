@@ -1,8 +1,8 @@
 #include "mcc/tac/triple.h"
 
 #include <cassert>
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <typeinfo>
 
 #include "mcc/tac/variable.h"

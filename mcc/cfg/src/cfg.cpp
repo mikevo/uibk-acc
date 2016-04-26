@@ -1,11 +1,11 @@
 #include "mcc/cfg/cfg.h"
 
 #include <cassert>
+#include <iterator>
 #include <memory>
 #include <ostream>
 #include <typeinfo>
 #include <vector>
-#include <iterator>
 
 #include "mcc/cfg/set_helper.h"
 #include "mcc/tac/operator.h"

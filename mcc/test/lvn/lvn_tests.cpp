@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
-#include "mcc/tac/tac.h"
 #include "mcc/lvn/lvn.h"
 #include "ast.h"
+#include "mcc/tac/tac.h"
 #include "parser.h"
+#include <gtest/gtest.h>
 
 using namespace mcc::tac;
 

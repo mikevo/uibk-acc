@@ -1,12 +1,12 @@
 #ifndef MCC_LVN_H
 #define MCC_LVN_H
 
-#include <string>
-#include "mcc/tac/tac.h"
-#include "mcc/tac/operator.h"
-#include "mcc/tac/operand.h"
-#include "mcc/tac/int_literal.h"
 #include "mcc/tac/float_literal.h"
+#include "mcc/tac/int_literal.h"
+#include "mcc/tac/operand.h"
+#include "mcc/tac/operator.h"
+#include "mcc/tac/tac.h"
+#include <string>
 
 using namespace mcc::tac;
 

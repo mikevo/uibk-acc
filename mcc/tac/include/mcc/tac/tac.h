@@ -7,16 +7,16 @@
 #ifndef MCC_TAC_H
 #define MCC_TAC_H
 
-#include <vector>
 #include <memory>
 #include <string>
+#include <vector>
 
-#include "mcc/tac/operand.h"
-#include "mcc/tac/label.h"
-#include "mcc/tac/triple.h"
-#include "mcc/tac/basic_block.h"
-#include "mcc/tac/variable_store.h"
 #include "ast.h"
+#include "mcc/tac/basic_block.h"
+#include "mcc/tac/label.h"
+#include "mcc/tac/operand.h"
+#include "mcc/tac/triple.h"
+#include "mcc/tac/variable_store.h"
 #include "variable.h"
 
 namespace mcc {

@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "mcc/tac/triple.h"
 #include "mcc/tac/int_literal.h"
 #include "mcc/tac/operator.h"
+#include "mcc/tac/triple.h"
 
 namespace mcc {
 namespace tac {

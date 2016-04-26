@@ -2,8 +2,8 @@
 
 #include "mcc/cfg/cfg.h"
 
-#include "parser.h"
 #include "boost/graph/graphviz.hpp"
+#include "parser.h"
 
 namespace mcc {
 namespace cfg {

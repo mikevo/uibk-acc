@@ -16,7 +16,7 @@
 
 #include "ast.h"
 #include "parser.h"
-#include "test_utils.h"
 #include "stream_utils.h"
+#include "test_utils.h"
 
 #endif /* MAIN_H */

@@ -1,11 +1,11 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
+#include "mcc/cfg/cfg.h"
+#include "mcc/lvn/lvn.h"
 #include "mcc/main.h"
 #include "mcc/tac/tac.h"
-#include "mcc/lvn/lvn.h"
-#include "mcc/cfg/cfg.h"
 
 using namespace mcc::tac;
 using namespace mcc::cfg;

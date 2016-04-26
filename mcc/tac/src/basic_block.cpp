@@ -1,12 +1,12 @@
 #include "mcc/tac/basic_block.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
-#include "mcc/cfg/set_helper.h"
-#include "mcc/tac/label.h"
-#include "mcc/tac/helper/ast_converters.h"
 #include "mcc/cfg/cfg.h"
+#include "mcc/cfg/set_helper.h"
+#include "mcc/tac/helper/ast_converters.h"
+#include "mcc/tac/label.h"
 
 namespace mcc {
 namespace tac {

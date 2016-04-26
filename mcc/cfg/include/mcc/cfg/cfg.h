@@ -1,8 +1,8 @@
 #ifndef MCC_CFG_H
 #define MCC_CFG_H
 
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "mcc/tac/tac.h"
@@ -18,7 +18,8 @@ namespace cfg {
 
 typedef std::shared_ptr<mcc::tac::BasicBlock> Vertex;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-                              Vertex> Graph;
+                              Vertex>
+    Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
 typedef std::map<VertexDescriptor, VertexDescriptor> VertexVertexMap;
 

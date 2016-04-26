@@ -7,12 +7,12 @@
 #include <typeinfo>
 
 #include "ast.h"
-#include "mcc/tac/triple.h"
-#include "mcc/tac/int_literal.h"
 #include "mcc/tac/float_literal.h"
-#include "mcc/tac/variable.h"
-#include "mcc/tac/label.h"
 #include "mcc/tac/helper/ast_converters.h"
+#include "mcc/tac/int_literal.h"
+#include "mcc/tac/label.h"
+#include "mcc/tac/triple.h"
+#include "mcc/tac/variable.h"
 
 namespace mcc {
 namespace tac {

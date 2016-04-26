@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "mcc/tac/label.h"
 #include "mcc/tac/int_literal.h"
+#include "mcc/tac/label.h"
 #include "mcc/tac/operator.h"
 
 namespace mcc {

@@ -7,11 +7,11 @@
 #ifndef MCC_TAC_TRIPLE_H
 #define MCC_TAC_TRIPLE_H
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include "mcc/tac/operator.h"
 #include "mcc/tac/operand.h"
+#include "mcc/tac/operator.h"
 #include "mcc/tac/variable.h"
 
 namespace mcc {

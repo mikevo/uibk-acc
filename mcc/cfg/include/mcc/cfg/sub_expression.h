@@ -10,8 +10,8 @@
 #include <memory>
 #include <set>
 
-#include "mcc/tac/operator.h"
 #include "mcc/tac/operand.h"
+#include "mcc/tac/operator.h"
 #include "mcc/tac/triple.h"
 #include "mcc/tac/variable.h"
 

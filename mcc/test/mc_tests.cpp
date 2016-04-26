@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include "ast.h"
 #include "parser.h"
-#include "test_utils.h"
 #include "stream_utils.h"
+#include "test_utils.h"
 
 namespace {
 string str_test{"test"};
