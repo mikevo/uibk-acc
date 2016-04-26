@@ -111,7 +111,7 @@ std::string BasicBlock::toString() const {
   unsigned count = 0;
 
   // TODO: is this const& fine? i'd say yes cause line is only used in loop
-  for (auto const& line : blockMembers) {
+  for (auto const &line : blockMembers) {
     output.append(line->toString());
 
     if (blockMembers.size() > 1) {

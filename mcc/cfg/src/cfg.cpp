@@ -30,7 +30,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
     std::set<mcc::tac::VarTableValue> set(variableSet);
 
-    for (auto& var : block->getDefVar()) {
+    for (auto &var : block->getDefVar()) {
       set.erase(var);
     }
 
@@ -120,7 +120,7 @@ void Cfg::calculateDOM() {
                                         domTreePredMap);
 }
 
-VertexVertexMap& Cfg::getDomTree() {
+VertexVertexMap &Cfg::getDomTree() {
   if (!dominatorTree.empty()) {
     return dominatorTree;
   }
@@ -138,7 +138,7 @@ const VertexDescriptor Cfg::getIdom(const VertexDescriptor vertex) {
   return dominatorTree[vertex];
 }
 
-const Vertex& Cfg::getIdom(const Vertex& vertex) {
+const Vertex &Cfg::getIdom(const Vertex &vertex) {
   auto idom = getIdom(getVertexDescriptor(vertex));
   return getVertex(idom);
 }
@@ -157,18 +157,18 @@ std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
   return domSet;
 }
 
-std::set<Vertex> Cfg::getDomSet(const Vertex& vertex) {
+std::set<Vertex> Cfg::getDomSet(const Vertex &vertex) {
   std::set<Vertex> domSet;
   auto dSet = getDomSet(getVertexDescriptor(vertex));
 
   return convertSet(dSet);
 }
 
-const VertexDescriptor Cfg::getVertexDescriptor(const Vertex& vertex) const {
+const VertexDescriptor Cfg::getVertexDescriptor(const Vertex &vertex) const {
   return vertex->getBlockId();
 }
 
-const Vertex& Cfg::getVertex(const VertexDescriptor vertex) const {
+const Vertex &Cfg::getVertex(const VertexDescriptor vertex) const {
   return basicBlockIndex->at(vertex);
 }
 
@@ -205,7 +205,7 @@ std::set<VertexDescriptor> Cfg::getSuccessor(const VertexDescriptor vertex) {
   return sSet;
 }
 
-std::set<Vertex> Cfg::getSuccessor(const Vertex& vertex) {
+std::set<Vertex> Cfg::getSuccessor(const Vertex &vertex) {
   auto sSet = getSuccessor(getVertexDescriptor(vertex));
 
   return convertSet(sSet);
@@ -224,7 +224,7 @@ std::set<VertexDescriptor> Cfg::getPredecessor(const VertexDescriptor vertex) {
   return pSet;
 }
 
-std::set<Vertex> Cfg::getPredecessor(const Vertex& vertex) {
+std::set<Vertex> Cfg::getPredecessor(const Vertex &vertex) {
   auto sSet = getPredecessor(getVertexDescriptor(vertex));
 
   return convertSet(sSet);
@@ -240,10 +240,10 @@ std::set<mcc::tac::VarTableValue> Cfg::getNotKilled(
 }
 
 bool Cfg::updateLiveIn(VertexDescriptor v) {
-  auto const& ueVar = this->getVertex(v)->getUeVar();
-  auto const& notKilled = this->notKilled.at(v);
+  auto const &ueVar = this->getVertex(v)->getUeVar();
+  auto const &notKilled = this->notKilled.at(v);
 
-  auto const& liveOutSet = this->liveOut.at(v);
+  auto const &liveOutSet = this->liveOut.at(v);
 
   auto temp1 = set_intersect(liveOutSet, notKilled);
   auto temp2 = set_union(ueVar, temp1);

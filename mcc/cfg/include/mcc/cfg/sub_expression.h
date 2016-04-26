@@ -37,8 +37,8 @@ class SubExpression {
   bool operator!=(SubExpression const other) const;
 
   struct less {
-    bool operator()(const std::shared_ptr<SubExpression>& lhs,
-                    const std::shared_ptr<SubExpression>& rhs) const {
+    bool operator()(const std::shared_ptr<SubExpression> &lhs,
+                    const std::shared_ptr<SubExpression> &rhs) const {
       return *lhs.get() < *rhs.get();
     }
   };

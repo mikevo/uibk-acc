@@ -1,6 +1,7 @@
 ---
 Language:        Cpp
 # BasedOnStyle:  Google
+BreakBeforeBinaryOperators: None
 AccessModifierOffset: -1
 ConstructorInitializerIndentWidth: 4
 AlignEscapedNewlinesLeft: true

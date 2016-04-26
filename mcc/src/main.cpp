@@ -10,7 +10,7 @@
 using namespace mcc::tac;
 using namespace mcc::cfg;
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   if (argc != 2) {
     std::cout << "usage: mC [file]" << std::endl;
     return -1;
