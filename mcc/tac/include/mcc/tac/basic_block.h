@@ -8,7 +8,6 @@
 #ifndef BASIC_BLOCK_H
 #define BASIC_BLOCK_H
 
-
 #include "mcc/cfg/sub_expression.h"
 #include "mcc/tac/triple.h"
 #include "mcc/tac/variable.h"
@@ -26,7 +25,7 @@ namespace mcc {
         typedef std::shared_ptr<Variable> VariablePtr;
         typedef std::shared_ptr<Triple> TriplePtr;
         typedef std::shared_ptr<mcc::cfg::SubExpression> SubExpressionPtr;
-        typedef std::set<SubExpressionPtr> SubExpressionSet;
+        typedef std::set<SubExpressionPtr, mcc::cfg::SubExpression::less> SubExpressionSet;
         typedef std::set<VariablePtr> VariableSet;
 
         BasicBlock(const unsigned id);
@@ -44,7 +43,6 @@ namespace mcc {
         VariableSet getDefVar() const;
         SubExpressionSet getDeExpr() const;
         SubExpressionSet getKilledExpr() const;
-
 
       private:
         std::vector<TriplePtr> blockMembers;

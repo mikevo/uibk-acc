@@ -40,32 +40,28 @@ namespace mcc {
       }
     }
 
-    bool SubExpression::operator< (SubExpression const other) const {
+    bool SubExpression::operator<(SubExpression const other) const {
       return (this->toString() < other.toString());
     }
 
-    bool SubExpression::operator> (SubExpression const other) const {
+    bool SubExpression::operator>(SubExpression const other) const {
       return (this->toString() > other.toString());
     }
 
-    bool SubExpression::operator<= (SubExpression const other) const {
+    bool SubExpression::operator<=(SubExpression const other) const {
       return (this->toString() <= other.toString());
     }
 
-    bool SubExpression::operator>= (SubExpression const other) const {
+    bool SubExpression::operator>=(SubExpression const other) const {
       return (this->toString() >= other.toString());
     }
 
-    bool SubExpression::operator== (SubExpression const other) const {
+    bool SubExpression::operator==(SubExpression const other) const {
       return (this->toString() == other.toString());
     }
 
-    bool SubExpression::operator!= (SubExpression const other) const {
+    bool SubExpression::operator!=(SubExpression const other) const {
       return (this->toString() != other.toString());
-    }
-    
-    bool SubExpression::less::operator ()(const std::shared_ptr<SubExpression>& lhs, const std::shared_ptr<SubExpression>& rhs) const {                
-        return *lhs.get() < *rhs.get();
     }
 
     std::string SubExpression::toString() const {

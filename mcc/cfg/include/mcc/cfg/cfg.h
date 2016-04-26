@@ -25,7 +25,7 @@ namespace mcc {
     class Cfg {
       public:
         typedef std::shared_ptr<SubExpression> SubExpressionPtr;
-        typedef std::set<SubExpressionPtr> SubExpressionSet;
+        typedef std::set<SubExpressionPtr, SubExpression::less> SubExpressionSet;
 
         Cfg(mcc::tac::Tac tac);
         std::string toDot() const;

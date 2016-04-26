@@ -29,14 +29,18 @@ namespace mcc {
         SubExpression(Operator op, OperandPtr arg1, OperandPtr arg2);
         SubExpression(TriplePtr const triple);
 
-        bool operator< (SubExpression const other) const;
-        bool operator> (SubExpression const other) const;
-        bool operator<= (SubExpression const other) const;
-        bool operator>= (SubExpression const other) const;
-        bool operator== (SubExpression const other) const;
-        bool operator!= (SubExpression const other) const;
+        bool operator<(SubExpression const other) const;
+        bool operator>(SubExpression const other) const;
+        bool operator<=(SubExpression const other) const;
+        bool operator>=(SubExpression const other) const;
+        bool operator==(SubExpression const other) const;
+        bool operator!=(SubExpression const other) const;
+
         struct less {
-            bool operator() (const std::shared_ptr<SubExpression>& lhs, const std::shared_ptr<SubExpression>& rhs) const;
+            bool operator ()(const std::shared_ptr<SubExpression>& lhs,
+                const std::shared_ptr<SubExpression>& rhs) const {
+              return *lhs.get() < *rhs.get();
+            }
         };
 
         std::string toString() const;

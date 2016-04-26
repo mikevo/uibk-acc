@@ -62,7 +62,7 @@ namespace mcc {
           if (searchResult != this->varOccurrenceMap.end()) {
             searchResult->second.insert(se);
           } else {
-            std::set<SubExpressionPtr> seSet;
+            SubExpressionSet seSet;
             seSet.insert(se);
 
             this->varOccurrenceMap.insert(std::make_pair(v, seSet));
