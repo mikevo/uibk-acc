@@ -39,7 +39,7 @@ VariableStore::const_iterator VariableStore::find(
       mapEntry;
 
   // TODO: is this const& fine? i'd say yes cause line is only used in loop
-  for (auto const& v : this->renameMap) {
+  for (auto const &v : this->renameMap) {
     if (v.first->getValue() == variable->getValue()) {
       return this->renameMap.find(v.first);
     }
@@ -89,12 +89,12 @@ VariableStore::VariableNode VariableStore::renameVariable(
   key->setScope(variable->getScope());
 
   // TODO: is this const& fine? i'd say yes cause line is only used in loop
-  for (auto const& v : this->renameMap) {
+  for (auto const &v : this->renameMap) {
     if (v.first->getValue() == key->getValue()) {
       auto valuePair = this->renameMap.find(v.first);
 
       if (valuePair != renameMap.end()) {
-        auto& varVector = valuePair->second;
+        auto &varVector = valuePair->second;
         auto cloneVar = std::make_shared<Variable>(variable->getType(),
                                                    variable->getName());
         cloneVar->setScope(variable->getScope());
@@ -140,7 +140,7 @@ VariableStore::VariableNode VariableStore::findVariable(
   auto const key = std::make_shared<Variable>(Type::AUTO, name);
   key->setScope(this->getCurrentScope());
 
-  for (auto const& v : this->renameMap) {
+  for (auto const &v : this->renameMap) {
     if (v.first->getName() == key->getName()) {
       return v.first;
     }

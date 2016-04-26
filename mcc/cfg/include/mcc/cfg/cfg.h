@@ -32,18 +32,18 @@ class Cfg {
   void storeDot(std::string fileName) const;
 
   void calculateDOM();
-  VertexVertexMap& getDomTree();
+  VertexVertexMap &getDomTree();
   const VertexDescriptor getIdom(const VertexDescriptor vertex);
-  const Vertex& getIdom(const Vertex& vertex);
+  const Vertex &getIdom(const Vertex &vertex);
 
   std::set<VertexDescriptor> getDomSet(const VertexDescriptor vertex);
-  std::set<Vertex> getDomSet(const Vertex& vertex);
+  std::set<Vertex> getDomSet(const Vertex &vertex);
 
   std::set<VertexDescriptor> getSuccessor(const VertexDescriptor vertex);
-  std::set<Vertex> getSuccessor(const Vertex& vertex);
+  std::set<Vertex> getSuccessor(const Vertex &vertex);
 
   std::set<VertexDescriptor> getPredecessor(const VertexDescriptor vertex);
-  std::set<Vertex> getPredecessor(const Vertex& vertex);
+  std::set<Vertex> getPredecessor(const Vertex &vertex);
 
   unsigned variableSetSize() const;
 
@@ -63,8 +63,8 @@ class Cfg {
   std::set<mcc::tac::VarTableValue> variableSet;
 
  private:
-  const VertexDescriptor getVertexDescriptor(const Vertex& vertex) const;
-  const Vertex& getVertex(const VertexDescriptor vertex) const;
+  const VertexDescriptor getVertexDescriptor(const Vertex &vertex) const;
+  const Vertex &getVertex(const VertexDescriptor vertex) const;
   std::set<Vertex> convertSet(std::set<VertexDescriptor> inSet) const;
   std::set<VertexDescriptor> convertSet(std::set<Vertex> inSet) const;
 

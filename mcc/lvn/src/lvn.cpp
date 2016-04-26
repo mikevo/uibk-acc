@@ -7,7 +7,7 @@ using namespace mcc::tac;
 
 namespace mcc {
 namespace lvn {
-void LVN::transform(Tac& tac) {
+void LVN::transform(Tac &tac) {
   auto basicBlocks = tac.getBasicBlockIndex();
   std::unordered_map<std::string, std::shared_ptr<Operand>> valueMap;
 
@@ -77,14 +77,14 @@ T LVN::evaluateExpression(T arg1, T arg2, OperatorName op) {
 }
 
 void LVN::updateTriple(Operator op, std::shared_ptr<Operand> arg1,
-                       std::shared_ptr<Operand> arg2, Triple& triple) {
+                       std::shared_ptr<Operand> arg2, Triple &triple) {
   triple.setArg1(arg1);
   triple.setArg2(arg2);
   triple.setOperator(op);
   triple.updateResultType(op);
 }
 
-std::shared_ptr<IntLiteral> LVN::evaluateInt(Triple& triple) {
+std::shared_ptr<IntLiteral> LVN::evaluateInt(Triple &triple) {
   auto arg1 = std::static_pointer_cast<IntLiteral>(triple.getArg1());
   auto arg2 = std::static_pointer_cast<IntLiteral>(triple.getArg2());
 
@@ -95,7 +95,7 @@ std::shared_ptr<IntLiteral> LVN::evaluateInt(Triple& triple) {
   return std::make_shared<IntLiteral>(result);
 }
 
-std::shared_ptr<FloatLiteral> LVN::evaluateFloat(Triple& triple) {
+std::shared_ptr<FloatLiteral> LVN::evaluateFloat(Triple &triple) {
   auto arg1 = std::static_pointer_cast<FloatLiteral>(triple.getArg1());
   auto arg2 = std::static_pointer_cast<FloatLiteral>(triple.getArg2());
 

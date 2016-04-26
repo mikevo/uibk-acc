@@ -49,7 +49,7 @@ void Tac::createBasicBlockIndex() {
   auto currentBasicBlock = std::make_shared<BasicBlock>(0);
   auto currentBasicBlockId = codeLines.front()->getBasicBlockId();
 
-  for (auto& triple : codeLines) {
+  for (auto &triple : codeLines) {
     auto bbId = triple->getBasicBlockId();
     if (bbId != currentBasicBlockId) {
       basicBlockIndex->push_back(currentBasicBlock);
@@ -69,7 +69,7 @@ std::string Tac::toString() const {
 
   unsigned count = 0;
 
-  for (auto& line : codeLines) {
+  for (auto &line : codeLines) {
     output.append(line->toString());
 
     auto size = codeLines.size();

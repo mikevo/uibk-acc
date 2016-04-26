@@ -153,7 +153,7 @@ TEST(Cfg, DomSetVertex) {
 
   bbSet.clear();
 
-  for (auto& block : dom5) {
+  for (auto &block : dom5) {
     bbSet.insert(block);
   }
 
@@ -162,7 +162,7 @@ TEST(Cfg, DomSetVertex) {
 
   bbSet.clear();
 
-  for (auto& block : dom6) {
+  for (auto &block : dom6) {
     bbSet.insert(block);
   }
 
