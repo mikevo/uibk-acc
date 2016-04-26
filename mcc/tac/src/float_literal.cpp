@@ -1,19 +1,12 @@
 #include "mcc/tac/float_literal.h"
 
 namespace mcc {
-  namespace tac {
+namespace tac {
 
-    FloatLiteral::FloatLiteral(float value) : 
-        Operand(Type::FLOAT), 
-        value(value) {
-    }
+FloatLiteral::FloatLiteral(float value) : Operand(Type::FLOAT), value(value) {}
 
-    bool FloatLiteral::isLeaf() const {
-      return true;
-    }
+bool FloatLiteral::isLeaf() const { return true; }
 
-    std::string FloatLiteral::getValue() const {
-      return std::to_string(value);
-    }
-  }
+std::string FloatLiteral::getValue() const { return std::to_string(value); }
+}
 }

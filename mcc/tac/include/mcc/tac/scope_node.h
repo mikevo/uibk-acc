@@ -9,23 +9,23 @@
 #define INCLUDES_MCC_TAC_SCOPE_NODE_H_
 
 namespace mcc {
-  namespace tac {
-    class ScopeNode {
-      public:
-        ScopeNode(unsigned depth, unsigned index);
+namespace tac {
+class ScopeNode {
+ public:
+  ScopeNode(unsigned depth, unsigned index);
 
-        bool operator< (ScopeNode const other) const;
+  bool operator<(ScopeNode const other) const;
 
-        unsigned getDepth() const;
-        unsigned getIndex() const;
-        unsigned getNextIndex();
+  unsigned getDepth() const;
+  unsigned getIndex() const;
+  unsigned getNextIndex();
 
-      private:
-        unsigned scopeDepth;
-        unsigned scopeIndex;
-        unsigned nextIndex;
-    };
-  }
+ private:
+  unsigned scopeDepth;
+  unsigned scopeIndex;
+  unsigned nextIndex;
+};
+}
 }
 
 #endif /* INCLUDES_MCC_TAC_SCOPE_NODE_H_ */

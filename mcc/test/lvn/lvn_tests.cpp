@@ -7,9 +7,9 @@
 using namespace mcc::tac;
 
 namespace mcc {
-  namespace lvn {
-      TEST(LVN, DISABLED_ConstantExpression) {
-       auto tree = parser::parse(R"(
+namespace lvn {
+TEST(LVN, DISABLED_ConstantExpression) {
+  auto tree = parser::parse(R"(
         {
             float x = 3.5 - 1.5; 
             int y = 5 + 3;
@@ -18,21 +18,20 @@ namespace mcc {
 
         })");
 
+  Tac tac = Tac(tree);
+  LVN::transform(tac);
 
-      Tac tac = Tac(tree);
-      LVN::transform(tac);
+  std::string expectedValue = "x0:1:0 = 2.000000\n";
+  expectedValue.append("y0:1:0 = 8\n");
+  expectedValue.append("z0:1:0 = 8\n");
+  expectedValue.append("a0:1:0 = 40");
 
-       std::string expectedValue = "x0:1:0 = 2.000000\n";
-       expectedValue.append("y0:1:0 = 8\n");
-       expectedValue.append("z0:1:0 = 8\n");
-       expectedValue.append("a0:1:0 = 40");
+  EXPECT_EQ(expectedValue, tac.toString());
+  EXPECT_EQ(4, tac.codeLines.size());
+}
 
-      EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(4, tac.codeLines.size());
-    }
-
-      TEST(LVN, DISABLED_RedundantExpression) {
-       auto tree = parser::parse(R"(
+TEST(LVN, DISABLED_RedundantExpression) {
+  auto tree = parser::parse(R"(
         {   
             int x = 5;
             int y = x + 12; 
@@ -40,18 +39,15 @@ namespace mcc {
 
         })");
 
+  Tac tac = Tac(tree);
+  LVN::transform(tac);
 
-      Tac tac = Tac(tree);
-      LVN::transform(tac);
+  std::string expectedValue = "x0:1:0 = 5\n";
+  expectedValue.append("y0:1:0 = x0:1:0 + 12\n");
+  expectedValue.append("z0:1:0 = y0:1:0");
 
-       std::string expectedValue = "x0:1:0 = 5\n";
-       expectedValue.append("y0:1:0 = x0:1:0 + 12\n");
-       expectedValue.append("z0:1:0 = y0:1:0");
-
-      EXPECT_EQ(expectedValue, tac.toString());
-      EXPECT_EQ(3, tac.codeLines.size());
-    }
-
-  }
+  EXPECT_EQ(expectedValue, tac.toString());
+  EXPECT_EQ(3, tac.codeLines.size());
 }
-
+}
+}

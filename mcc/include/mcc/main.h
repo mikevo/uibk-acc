@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   main.h
  * Author: Sammy Guergachi <sguergachi at gmail.com>
  *
@@ -20,4 +20,3 @@
 #include "stream_utils.h"
 
 #endif /* MAIN_H */
-

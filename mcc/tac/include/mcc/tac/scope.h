@@ -12,36 +12,36 @@
 #include "boost/graph/adjacency_list.hpp"
 
 namespace mcc {
-  namespace tac {
-    class Scope {
-      public:
-        typedef std::shared_ptr<ScopeNode> Vertex;
-        typedef boost::adjacency_list<boost::vecS, boost::vecS,
-            boost::bidirectionalS, Vertex> Graph;
-        typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
+namespace tac {
+class Scope {
+ public:
+  typedef std::shared_ptr<ScopeNode> Vertex;
+  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
+                                Vertex> Graph;
+  typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
 
-        Scope();
-        Vertex const getCurrentScope() const;
+  Scope();
+  Vertex const getCurrentScope() const;
 
-        bool goToParent();
-        Vertex const addNewChild();
-        Vertex const addNewSibling();
+  bool goToParent();
+  Vertex const addNewChild();
+  Vertex const addNewSibling();
 
-        void setCheckPoint();
-        void goToCheckPoint();
+  void setCheckPoint();
+  void goToCheckPoint();
 
-      private:
-        Graph graph;
-        Vertex root;
-        Vertex currentScope;
-        Vertex checkPoint;
-        bool checkPointValid;
-        std::map<Vertex, VertexDescriptor> vertexMap;
-        std::map<VertexDescriptor, Vertex> descriptorMap;
+ private:
+  Graph graph;
+  Vertex root;
+  Vertex currentScope;
+  Vertex checkPoint;
+  bool checkPointValid;
+  std::map<Vertex, VertexDescriptor> vertexMap;
+  std::map<VertexDescriptor, Vertex> descriptorMap;
 
-        Scope::Vertex addVertex(Vertex v);
-    };
-  }
+  Scope::Vertex addVertex(Vertex v);
+};
+}
 }
 
 #endif /* INCLUDES_MCC_TAC_SCOPE_H_ */

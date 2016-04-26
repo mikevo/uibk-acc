@@ -3,14 +3,12 @@
 #include <cstddef>
 
 namespace mcc {
-  namespace tac {
+namespace tac {
 
-    Label::Label() : Triple(OperatorName::LABEL) {
-      this->setName("$L" + std::to_string(this->getId()));
-    }
-    
-    bool Label::isLeaf() const {
-      return true;
-    }
-  }
+Label::Label() : Triple(OperatorName::LABEL) {
+  this->setName("$L" + std::to_string(this->getId()));
+}
+
+bool Label::isLeaf() const { return true; }
+}
 }

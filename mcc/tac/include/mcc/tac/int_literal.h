@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   int_literal.h
  * Author: Michael Voetter <Michael.Voetter@student.uibk.ac.at>
  *
@@ -11,17 +11,15 @@
 #include "mcc/tac/operand.h"
 
 namespace mcc {
-    namespace tac {
-        class IntLiteral : public Operand {
-        public:
-            IntLiteral(int value);
-            virtual std::string getValue() const override final;
-            virtual bool isLeaf() const override final;
-            int value;
-        };
-    }
+namespace tac {
+class IntLiteral : public Operand {
+ public:
+  IntLiteral(int value);
+  virtual std::string getValue() const override final;
+  virtual bool isLeaf() const override final;
+  int value;
+};
+}
 }
 
-
 #endif /* MCC_TAC_INT_LITERAL_H */
-

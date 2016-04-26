@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   types.h
  * Author: Michael Voetter <Michael.Voetter@student.uibk.ac.at>
  *
@@ -14,13 +14,10 @@
 #ifndef MCC_TAC_TYPE_H
 #define MCC_TAC_TYPE_H
 namespace mcc {
-  namespace tac {
+namespace tac {
 
-    enum Type {
-      NONE, AUTO, INT, FLOAT, BOOL
-    };
-  }
+enum Type { NONE, AUTO, INT, FLOAT, BOOL };
+}
 }
 
 #endif /* MCC_TAC_TYPE_H */
-

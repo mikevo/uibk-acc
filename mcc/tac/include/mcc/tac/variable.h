@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   int_literal.h
  * Author: Michael Voetter <Michael.Voetter@student.uibk.ac.at>
  *
@@ -15,32 +15,30 @@
 #include <string>
 
 namespace mcc {
-    namespace tac {
-        class Variable : public Operand {
-        public:
-            Variable(Type t);
-            Variable(Type t, std::string name);
-            bool operator<(Variable const other) const;
-            unsigned getId() const;
-            virtual std::string getName() const;
-            virtual std::string getValue() const override;
-            virtual bool isLeaf() const override;
-            std::shared_ptr<ScopeNode> const getScope() const;
-            void setScope(std::shared_ptr<ScopeNode> const scope);
-            void setIndex(unsigned);
-            bool isTemporary() const;
-            
-            std::string name;
-            
-        private:
-            std::shared_ptr<ScopeNode> scope;
-            unsigned index;
-            static unsigned nextId;
-            unsigned id;
-        };
-    }
+namespace tac {
+class Variable : public Operand {
+ public:
+  Variable(Type t);
+  Variable(Type t, std::string name);
+  bool operator<(Variable const other) const;
+  unsigned getId() const;
+  virtual std::string getName() const;
+  virtual std::string getValue() const override;
+  virtual bool isLeaf() const override;
+  std::shared_ptr<ScopeNode> const getScope() const;
+  void setScope(std::shared_ptr<ScopeNode> const scope);
+  void setIndex(unsigned);
+  bool isTemporary() const;
+
+  std::string name;
+
+ private:
+  std::shared_ptr<ScopeNode> scope;
+  unsigned index;
+  static unsigned nextId;
+  unsigned id;
+};
+}
 }
 
-
 #endif /* MCC_TAC_VARIABLE_LITERAL_H */
-

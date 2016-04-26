@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   triple.h
  *
  * Created on March 18, 2016, 11:02 PM
@@ -12,16 +12,14 @@
 #include "mcc/tac/triple.h"
 
 namespace mcc {
-    namespace tac {
+namespace tac {
 
-        class Label : public Triple {
-        public:
-            Label();
-            virtual bool isLeaf() const override final;
-        };
-    }
+class Label : public Triple {
+ public:
+  Label();
+  virtual bool isLeaf() const override final;
+};
+}
 }
 
-
 #endif /* MCC_TAC_LABEL_H */
-

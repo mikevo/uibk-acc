@@ -19,39 +19,41 @@
 #include "mcc/tac/variable.h"
 
 namespace mcc {
-  namespace tac {
-    class VariableStore: public Scope {
-        typedef std::shared_ptr<Variable> VariableNode;
-        typedef std::set<VariableNode> VariableNodeSet;
-        typedef VariableNode const const_shared_ptr;
-        typedef std::vector<VariableNodeSet::iterator>::size_type size_type;
-        typedef std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator const_iterator;
-        typedef VariableNodeSet::const_iterator set_const_iterator;
+namespace tac {
+class VariableStore : public Scope {
+  typedef std::shared_ptr<Variable> VariableNode;
+  typedef std::set<VariableNode> VariableNodeSet;
+  typedef VariableNode const const_shared_ptr;
+  typedef std::vector<VariableNodeSet::iterator>::size_type size_type;
+  typedef std::map<VariableNode,
+                   std::vector<VariableNodeSet::iterator>>::const_iterator
+      const_iterator;
+  typedef VariableNodeSet::const_iterator set_const_iterator;
 
-      public:
-        const_shared_ptr operator[](size_type const pos) const;
-        size_type size() const;
+ public:
+  const_shared_ptr operator[](size_type const pos) const;
+  size_type size() const;
 
-        set_const_iterator begin() const;
-        set_const_iterator end() const;
+  set_const_iterator begin() const;
+  set_const_iterator end() const;
 
-        VariableNode findAccordingVariable(std::string const name);
-        VariableNode findVariable(std::string const name);
+  VariableNode findAccordingVariable(std::string const name);
+  VariableNode findVariable(std::string const name);
 
-        void addVariable(VariableNode variable);
-        bool removeVariable(VariableNode const variable);
-        VariableNode renameVariable(VariableNode const variable);
+  void addVariable(VariableNode variable);
+  bool removeVariable(VariableNode const variable);
+  VariableNode renameVariable(VariableNode const variable);
 
-      private:
-        const_iterator find(VariableNode const variable) const;
+ private:
+  const_iterator find(VariableNode const variable) const;
 
-        VariableNodeSet::iterator insertVariable(VariableNode variable);
+  VariableNodeSet::iterator insertVariable(VariableNode variable);
 
-        VariableNodeSet store;
-        std::vector<VariableNodeSet::iterator> variableTable;
-        std::map<VariableNode, std::vector<VariableNodeSet::iterator>> renameMap;
-    };
-  }
+  VariableNodeSet store;
+  std::vector<VariableNodeSet::iterator> variableTable;
+  std::map<VariableNode, std::vector<VariableNodeSet::iterator>> renameMap;
+};
+}
 }
 
 #endif /* INCLUDES_MCC_TAC_VARIABLE_STORE_H_ */

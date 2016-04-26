@@ -16,50 +16,50 @@
 #include "mcc/tac/variable.h"
 
 namespace mcc {
-  namespace cfg {
+namespace cfg {
 
-    class SubExpression {
-      public:
-        typedef mcc::tac::Operator Operator;
-        typedef std::shared_ptr<mcc::tac::Operand> OperandPtr;
-        typedef std::shared_ptr<mcc::tac::Triple> TriplePtr;
-        typedef std::shared_ptr<mcc::tac::Variable> VariablePtr;
+class SubExpression {
+ public:
+  typedef mcc::tac::Operator Operator;
+  typedef std::shared_ptr<mcc::tac::Operand> OperandPtr;
+  typedef std::shared_ptr<mcc::tac::Triple> TriplePtr;
+  typedef std::shared_ptr<mcc::tac::Variable> VariablePtr;
 
-        SubExpression(Operator op, OperandPtr arg);
-        SubExpression(Operator op, OperandPtr arg1, OperandPtr arg2);
-        SubExpression(TriplePtr const triple);
+  SubExpression(Operator op, OperandPtr arg);
+  SubExpression(Operator op, OperandPtr arg1, OperandPtr arg2);
+  SubExpression(TriplePtr const triple);
 
-        bool operator<(SubExpression const other) const;
-        bool operator>(SubExpression const other) const;
-        bool operator<=(SubExpression const other) const;
-        bool operator>=(SubExpression const other) const;
-        bool operator==(SubExpression const other) const;
-        bool operator!=(SubExpression const other) const;
+  bool operator<(SubExpression const other) const;
+  bool operator>(SubExpression const other) const;
+  bool operator<=(SubExpression const other) const;
+  bool operator>=(SubExpression const other) const;
+  bool operator==(SubExpression const other) const;
+  bool operator!=(SubExpression const other) const;
 
-        struct less {
-            bool operator ()(const std::shared_ptr<SubExpression>& lhs,
-                const std::shared_ptr<SubExpression>& rhs) const {
-              return *lhs.get() < *rhs.get();
-            }
-        };
+  struct less {
+    bool operator()(const std::shared_ptr<SubExpression>& lhs,
+                    const std::shared_ptr<SubExpression>& rhs) const {
+      return *lhs.get() < *rhs.get();
+    }
+  };
 
-        std::string toString() const;
+  std::string toString() const;
 
-        bool containsArg1() const;
-        bool containsArg2() const;
+  bool containsArg1() const;
+  bool containsArg2() const;
 
-        OperandPtr getArg1() const;
-        OperandPtr getArg2() const;
+  OperandPtr getArg1() const;
+  OperandPtr getArg2() const;
 
-        Operator getOperator() const;
+  Operator getOperator() const;
 
-        std::set<VariablePtr> getVariables() const;
+  std::set<VariablePtr> getVariables() const;
 
-      private:
-        Operator op;
-        OperandPtr arg1, arg2;
-    };
-  }
+ private:
+  Operator op;
+  OperandPtr arg1, arg2;
+};
+}
 }
 
 #endif /* INCLUDES_MCC_CFG_SUB_EXPRESSION_H_ */

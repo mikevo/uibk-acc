@@ -2,26 +2,20 @@
 #include "mcc/tac/type.h"
 
 namespace mcc {
-  namespace tac {
-    
-    Operand::Operand() : Operand(Type::NONE) {
-    }
+namespace tac {
 
-    Operand::Operand(Type t) : t(t) {
-    }
+Operand::Operand() : Operand(Type::NONE) {}
 
-    void Operand::updateResultType(Operator op) {
-      if (op.getResultType() != Type::AUTO) {
-        t = op.getResultType();
-      }
-    }
+Operand::Operand(Type t) : t(t) {}
 
-    Type Operand::getType() const {
-      return t;
-    }
-
-    void Operand::setType(Type type) {
-      this->t = type;
-    }
+void Operand::updateResultType(Operator op) {
+  if (op.getResultType() != Type::AUTO) {
+    t = op.getResultType();
   }
+}
+
+Type Operand::getType() const { return t; }
+
+void Operand::setType(Type type) { this->t = type; }
+}
 }
