@@ -17,8 +17,7 @@ class Scope {
  public:
   typedef std::shared_ptr<ScopeNode> Vertex;
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-                                Vertex>
-      Graph;
+                                Vertex> Graph;
   typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
 
   Scope();

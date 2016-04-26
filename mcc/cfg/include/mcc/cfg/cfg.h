@@ -18,8 +18,7 @@ namespace cfg {
 
 typedef std::shared_ptr<mcc::tac::BasicBlock> Vertex;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-                              Vertex>
-    Graph;
+                              Vertex> Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
 typedef std::map<VertexDescriptor, VertexDescriptor> VertexVertexMap;
 
