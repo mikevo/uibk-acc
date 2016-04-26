@@ -12,6 +12,9 @@ add_subdirectory(tac)
 file(GLOB_RECURSE mcc_incs include/*.h)
 file(GLOB_RECURSE mcc_srcs src/*.cpp)
 
+set(all_incs ${all_incs} ${mcc_incs} PARENT_SCOPE)
+set(all_srcs ${all_srcs} ${mcc_srcs} PARENT_SCOPE)
+
 set(EXECUTABLE_OUTPUT_PATH bin)
 
 add_executable(${PROJECT_NAME} ${mcc_srcs} ${mcc_incs})
@@ -31,6 +34,7 @@ if (test)
     # Unit Tests
     ##############
     file(GLOB_RECURSE mcc_tests test/*.cpp)
+    set(all_tests ${all_tests} ${mcc_tests} PARENT_SCOPE)
     add_executable(${UNIT_TESTS} ${mcc_tests})
 
     # Standard linking to gtest stuff.

@@ -10,4 +10,5 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 add_subdirectory(libmc)
 add_subdirectory(mcc)
 
+include(clang-format.cmake)
 

@@ -1,6 +1,9 @@
 file(GLOB_RECURSE mcc_lvn_incs include/*.h)
 file(GLOB_RECURSE mcc_lvn_srcs src/*.cpp)
 
+set(all_incs ${all_incs} ${mcc_lvn_incs} PARENT_SCOPE)
+set(all_srcs ${all_srcs} ${mcc_lvn_srcs} PARENT_SCOPE)
+
 
 add_library(mcclvn STATIC ${mcc_lvn_srcs} ${mcc_lvn_incs})
 target_link_libraries (mcclvn mcctac mc)
