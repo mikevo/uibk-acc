@@ -34,17 +34,6 @@ VariableStore::set_const_iterator VariableStore::end() const {
 
 VariableStore::const_iterator VariableStore::find(
     VariableStore::VariableNode const variable) const {
-  // FIXME: bad workaround
-  std::map<VariableNode, std::vector<VariableNodeSet::iterator>>::const_iterator
-      mapEntry;
-
-  // TODO: is this const& fine? i'd say yes cause line is only used in loop
-  for (auto const &v : this->renameMap) {
-    if (v.first->getValue() == variable->getValue()) {
-      return this->renameMap.find(v.first);
-    }
-  }
-
   return this->renameMap.find(variable);
 }
 
@@ -83,28 +72,22 @@ VariableStore::VariableNode VariableStore::renameVariable(
     VariableStore::VariableNode const variable) {
   assert(!variable->isTemporary() && "temp variables can't be renamed");
 
-  // FIXME: bad workaround
   auto key =
       std::make_shared<Variable>(variable->getType(), variable->getName());
   key->setScope(variable->getScope());
 
-  // TODO: is this const& fine? i'd say yes cause line is only used in loop
-  for (auto const &v : this->renameMap) {
-    if (v.first->getValue() == key->getValue()) {
-      auto valuePair = this->renameMap.find(v.first);
+  auto valuePair = this->renameMap.find(variable);
 
-      if (valuePair != renameMap.end()) {
-        auto &varVector = valuePair->second;
-        auto cloneVar = std::make_shared<Variable>(variable->getType(),
-                                                   variable->getName());
-        cloneVar->setScope(variable->getScope());
-        cloneVar->setIndex(varVector.size());
-        auto it = this->insertVariable(cloneVar);
-        varVector.push_back(it);
+  if (valuePair != renameMap.end()) {
+    auto &varVector = valuePair->second;
+    auto cloneVar =
+        std::make_shared<Variable>(variable->getType(), variable->getName());
+    cloneVar->setScope(variable->getScope());
+    cloneVar->setIndex(varVector.size());
+    auto it = this->insertVariable(cloneVar);
+    varVector.push_back(it);
 
-        return *it;
-      }
-    }
+    return *it;
   }
 
   assert(false && "Variable to rename does not exist!");

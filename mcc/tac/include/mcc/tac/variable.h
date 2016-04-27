@@ -21,8 +21,17 @@ class Variable : public Operand {
   Variable(Type t);
   Variable(Type t, std::string name);
   bool operator<(Variable const other) const;
+
+  struct less {
+    bool operator()(const std::shared_ptr<Variable> &lhs,
+                    const std::shared_ptr<Variable> &rhs) const {
+      return *lhs.get() < *rhs.get();
+    }
+  };
+
   unsigned getId() const;
   virtual std::string getName() const;
+  std::string getNameWithIndex() const;
   virtual std::string getValue() const override;
   virtual bool isLeaf() const override;
   std::shared_ptr<Scope> const getScope() const;

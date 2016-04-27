@@ -24,10 +24,11 @@ class VariableStore : public ScopeManager {
   typedef std::shared_ptr<Variable> VariableNode;
   typedef std::set<VariableNode> VariableNodeSet;
   typedef VariableNode const const_shared_ptr;
+  typedef std::map<VariableNode, std::vector<VariableNodeSet::iterator>,
+                   Variable::less> VariableMap;
+
   typedef std::vector<VariableNodeSet::iterator>::size_type size_type;
-  typedef std::map<VariableNode,
-                   std::vector<VariableNodeSet::iterator>>::const_iterator
-      const_iterator;
+  typedef VariableMap::const_iterator const_iterator;
   typedef VariableNodeSet::const_iterator set_const_iterator;
 
  public:
@@ -51,7 +52,7 @@ class VariableStore : public ScopeManager {
 
   VariableNodeSet store;
   std::vector<VariableNodeSet::iterator> variableTable;
-  std::map<VariableNode, std::vector<VariableNodeSet::iterator>> renameMap;
+  VariableMap renameMap;
 };
 }
 }

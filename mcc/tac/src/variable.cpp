@@ -21,8 +21,8 @@ Variable::Variable(Type t, std::string name)
 // this needs to be changed then all maps need a key_comp function that does
 // exactly this
 bool Variable::operator<(Variable const other) const {
-  auto pairLhs = std::make_pair(this->getName(), this->getScope());
-  auto pairRhs = std::make_pair(other.getName(), other.getScope());
+  auto pairLhs = std::make_pair(this->getNameWithIndex(), this->getScope());
+  auto pairRhs = std::make_pair(other.getNameWithIndex(), other.getScope());
 
   return (pairLhs < pairRhs);
 }
@@ -33,9 +33,12 @@ bool Variable::isLeaf() const { return true; }
 
 std::string Variable::getName() const { return name; }
 
+std::string Variable::getNameWithIndex() const {
+  return this->getName() + std::to_string(index);
+}
+
 std::string Variable::getValue() const {
-  std::string value(this->getName());
-  value.append(std::to_string(index));
+  std::string value(this->getNameWithIndex());
   value.append(":");
   value.append(std::to_string(this->scope->getDepth()));
   value.append(":");
