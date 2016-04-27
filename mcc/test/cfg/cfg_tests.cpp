@@ -555,6 +555,22 @@ TEST(Cfg, ComputeAvailableExpressions) {
     result.append("\n");
   }
 
+  result.append("Killed\n");
+    for (auto const bb : *bbIndex.get()) {
+      auto empty = true;
+      for (auto out : bb->getKilledExpr()) {
+        result.append(std::to_string(bb->getBlockId()) + ": ");
+        result.append(out->toString() + "\n");
+        empty = false;
+      }
+
+      if (empty) {
+        result.append(std::to_string(bb->getBlockId()) + ": \n");
+      }
+
+      result.append("\n");
+    }
+
   result.append("DeExpr\n");
   for (auto const bb : *bbIndex.get()) {
     auto empty = true;
@@ -571,7 +587,7 @@ TEST(Cfg, ComputeAvailableExpressions) {
     result.append("\n");
   }
 
-  result = "\nAvail\n";
+  result.append("\nAvail\n");
   for (unsigned i = 0; i < 7; ++i) {
     auto empty = true;
     for (auto out : graph->getAvail(i)) {

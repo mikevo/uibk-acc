@@ -28,7 +28,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
     assert((descriptor == block->getBlockId()) &&
            "Descriptor does not match blockId");
 
-    std::set<mcc::tac::VarTableValue> set(variableSet);
+    mcc::tac::Variable::Set set(variableSet);
 
     for (auto &var : block->getDefVar()) {
       set.erase(var);
@@ -36,10 +36,10 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
     notKilled.insert(std::make_pair(block->getBlockId(), set));
     liveIn.insert(std::make_pair(block->getBlockId(),
-                                 std::set<mcc::tac::VarTableValue>()));
+                                 mcc::tac::Variable::Set()));
 
     liveOut.insert(std::make_pair(block->getBlockId(),
-                                  std::set<mcc::tac::VarTableValue>()));
+                                  mcc::tac::Variable::Set()));
 
     SubExpressionSet notKilled(allSubExpressions);
 
@@ -231,7 +231,7 @@ std::set<Vertex> Cfg::getPredecessor(const Vertex &vertex) {
 
 unsigned Cfg::variableSetSize() const { return variableSet.size(); }
 
-std::set<mcc::tac::VarTableValue> Cfg::getNotKilled(
+mcc::tac::Variable::Set Cfg::getNotKilled(
     const VertexDescriptor vertex) const {
   auto varSet(variableSet);
 
@@ -253,7 +253,7 @@ bool Cfg::updateLiveIn(VertexDescriptor v) {
 }
 
 bool Cfg::updateLiveOut(VertexDescriptor v) {
-  std::set<mcc::tac::VarTableValue> tmp;
+  mcc::tac::Variable::Set tmp;
 
   for (auto s : this->getSuccessor(v)) {
     tmp = set_union(tmp, this->liveIn.at(s));
@@ -333,11 +333,11 @@ void Cfg::computeAvailableExpressions() {
   }
 }
 
-std::set<mcc::tac::VarTableValue> Cfg::getLiveIn(VertexDescriptor v) {
+mcc::tac::Variable::Set Cfg::getLiveIn(VertexDescriptor v) {
   return this->liveIn.at(v);
 }
 
-std::set<mcc::tac::VarTableValue> Cfg::getLiveOut(VertexDescriptor v) {
+mcc::tac::Variable::Set Cfg::getLiveOut(VertexDescriptor v) {
   return this->liveOut.at(v);
 }
 

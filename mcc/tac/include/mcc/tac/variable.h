@@ -12,12 +12,24 @@
 #include "mcc/tac/scope.h"
 
 #include <memory>
+#include <set>
 #include <string>
 
 namespace mcc {
 namespace tac {
 class Variable : public Operand {
  public:
+  typedef std::shared_ptr<Variable> Ptr;
+
+  struct less {
+    bool operator()(const Ptr &lhs,
+                    const Ptr &rhs) const {
+      return *lhs.get() < *rhs.get();
+    }
+  };
+
+  typedef std::set<Ptr, Variable::less> Set;
+
   // creates a temporary variable with scope (0,0)
   Variable(Type t);
 
@@ -27,12 +39,6 @@ class Variable : public Operand {
 
   bool operator<(Variable const other) const;
 
-  struct less {
-    bool operator()(const std::shared_ptr<Variable> &lhs,
-                    const std::shared_ptr<Variable> &rhs) const {
-      return *lhs.get() < *rhs.get();
-    }
-  };
 
   unsigned getId() const;
   virtual std::string getName() const;

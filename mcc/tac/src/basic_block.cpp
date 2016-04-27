@@ -124,11 +124,11 @@ std::string BasicBlock::toString() const {
   return output;
 }
 
-std::set<std::shared_ptr<Variable>> BasicBlock::getUeVar() const {
+Variable::Set BasicBlock::getUeVar() const {
   return ueVar;
 }
 
-std::set<std::shared_ptr<Variable>> BasicBlock::getDefVar() const {
+Variable::Set BasicBlock::getDefVar() const {
   return defVar;
 }
 

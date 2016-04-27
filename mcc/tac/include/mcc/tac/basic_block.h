@@ -22,12 +22,10 @@ namespace mcc {
 namespace tac {
 class BasicBlock {
  public:
-  typedef std::shared_ptr<Variable> VariablePtr;
   typedef std::shared_ptr<Triple> TriplePtr;
   typedef std::shared_ptr<mcc::cfg::SubExpression> SubExpressionPtr;
   typedef std::set<SubExpressionPtr, mcc::cfg::SubExpression::less>
       SubExpressionSet;
-  typedef std::set<VariablePtr> VariableSet;
 
   BasicBlock(const unsigned id);
   std::shared_ptr<Triple> getStart();
@@ -40,19 +38,19 @@ class BasicBlock {
   std::string toString() const;
   std::vector<std::shared_ptr<Triple>> getBlockMembers() const;
 
-  VariableSet getUeVar() const;
-  VariableSet getDefVar() const;
+  Variable::Set getUeVar() const;
+  Variable::Set getDefVar() const;
   SubExpressionSet getDeExpr() const;
   SubExpressionSet getKilledExpr() const;
 
  private:
   std::vector<TriplePtr> blockMembers;
   const unsigned id;
-  VariableSet defVar;
-  VariableSet ueVar;
+  Variable::Set defVar;
+  Variable::Set ueVar;
   SubExpressionSet deExpr;
   SubExpressionSet killedExpr;
-  std::map<VariablePtr, SubExpressionSet> varOccurrenceMap;
+  std::map<Variable::Ptr, SubExpressionSet> varOccurrenceMap;
 };
 
 bool convertableToSubExpression(const std::shared_ptr<Triple> line);

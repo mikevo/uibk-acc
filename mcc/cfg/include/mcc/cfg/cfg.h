@@ -47,20 +47,21 @@ class Cfg {
 
   unsigned variableSetSize() const;
 
-  std::set<mcc::tac::VarTableValue> getNotKilled(
+  mcc::tac::Variable::Set getNotKilled(
       const VertexDescriptor vertex) const;
 
   void computeLive(void);
   void computeWorkList();
   void computeAvailableExpressions();
 
-  std::set<mcc::tac::VarTableValue> getLiveIn(VertexDescriptor v);
-  std::set<mcc::tac::VarTableValue> getLiveOut(VertexDescriptor v);
+  mcc::tac::Variable::Set getLiveIn(VertexDescriptor v);
+  mcc::tac::Variable::Set getLiveOut(VertexDescriptor v);
 
   SubExpressionSet getNotKilledExpr(VertexDescriptor v);
   SubExpressionSet getAvail(VertexDescriptor v);
 
-  std::set<mcc::tac::VarTableValue> variableSet;
+  // TODO: make private
+  mcc::tac::Variable::Set variableSet;
 
  private:
   const VertexDescriptor getVertexDescriptor(const Vertex &vertex) const;
@@ -75,9 +76,9 @@ class Cfg {
   Graph graph;
   VertexVertexMap dominatorTree;
 
-  std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> notKilled;
-  std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveIn;
-  std::map<VertexDescriptor, std::set<mcc::tac::VarTableValue>> liveOut;
+  std::map<VertexDescriptor, mcc::tac::Variable::Set> notKilled;
+  std::map<VertexDescriptor, mcc::tac::Variable::Set> liveIn;
+  std::map<VertexDescriptor, mcc::tac::Variable::Set> liveOut;
 
   SubExpressionSet allSubExpressions;
   std::map<VertexDescriptor, SubExpressionSet> notKilledExpr;
