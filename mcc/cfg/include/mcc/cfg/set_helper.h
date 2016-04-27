@@ -13,9 +13,13 @@
 
 namespace mcc {
 namespace cfg {
-template <typename T>
-std::set<T> set_intersect(std::set<T> const &set1, std::set<T> const &set2) {
-  std::set<T> out;
+
+template <class Key, class Compare = std::less<Key>,
+          class Allocator = std::allocator<Key> >
+std::set<Key, Compare, Allocator> set_intersect(
+    std::set<Key, Compare, Allocator> const &set1,
+    std::set<Key, Compare, Allocator> const &set2) {
+  std::set<Key, Compare, Allocator> out;
 
   if (set1.size() < set2.size()) {
     for (auto const &var : set2) {
@@ -34,43 +38,12 @@ std::set<T> set_intersect(std::set<T> const &set1, std::set<T> const &set2) {
   return out;
 }
 
-template <typename T, typename C>
-std::set<T, C> set_intersect(std::set<T, C> const &set1,
-                             std::set<T, C> const &set2) {
-  std::set<T, C> out;
-
-  if (set1.size() < set2.size()) {
-    for (auto const &var : set2) {
-      if (set1.find(var) != set1.end()) {
-        out.insert(var);
-      }
-    }
-  } else {
-    for (auto const &var : set1) {
-      if (set2.find(var) != set2.end()) {
-        out.insert(var);
-      }
-    }
-  }
-
-  return out;
-}
-
-template <typename T>
-std::set<T> set_union(std::set<T> const &set1, std::set<T> const &set2) {
-  std::set<T> out(set1);
-
-  for (auto const &var : set2) {
-    out.insert(var);
-  }
-
-  return out;
-}
-
-template <typename T, typename C>
-std::set<T, C> set_union(std::set<T, C> const &set1,
-                         std::set<T, C> const &set2) {
-  std::set<T, C> out(set1);
+template <class Key, class Compare = std::less<Key>,
+          class Allocator = std::allocator<Key> >
+std::set<Key, Compare, Allocator> set_union(
+    std::set<Key, Compare, Allocator> const &set1,
+    std::set<Key, Compare, Allocator> const &set2) {
+  std::set<Key, Compare, Allocator> out(set1);
 
   for (auto const &var : set2) {
     out.insert(var);
