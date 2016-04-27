@@ -32,6 +32,7 @@ class Tac {
  public:
   Tac(std::shared_ptr<ast::node> n);
   void addLine(std::shared_ptr<Triple> line);
+  void addLine(std::shared_ptr<Triple> line, unsigned position);
   void addLine(std::shared_ptr<Label> line);
   void nextBasicBlock();
   unsigned basicBlockCount();
@@ -39,6 +40,7 @@ class Tac {
   std::shared_ptr<VariableStore> const getVariableStore();
 
   const bb_type getBasicBlockIndex();
+  void createBasicBlockIndex();
   void addToVarTable(VarTableValue value);
   VarTableValue addVarRenaming(VarTableValue const key);
   void removeFromVarTable(VarTableValue const value);
@@ -49,7 +51,6 @@ class Tac {
  private:
   std::shared_ptr<VariableStore> variableStore;
   void convertAst(std::shared_ptr<ast::node> n);
-  void createBasicBlockIndex();
   unsigned currentBasicBlock;
   bb_type basicBlockIndex;
 };

@@ -4,17 +4,24 @@
 #include <unordered_map>
 
 using namespace mcc::tac;
+using namespace mcc::lvn;
 
 namespace mcc {
 namespace lvn {
+    
+std::map<unsigned, std::shared_ptr<Triple>> LVN::tempVarAssignments;
+    
 void LVN::transform(Tac &tac) {
+  LVN::tempVarAssignments.clear();
   auto basicBlocks = tac.getBasicBlockIndex();
   std::unordered_map<std::string, std::shared_ptr<Operand>> valueMap;
+  unsigned currentPos = 0;
 
   for (auto block : *basicBlocks.get()) {
     valueMap.clear();
 
     for (auto triple : block->getBlockMembers()) {
+      ++currentPos;
       if (triple->getOperator().getType() == OperatorType::BINARY) {
         std::string valueKey = triple->getArg1()->getValue();
         valueKey.append(triple->getOperator().toString());
@@ -36,7 +43,7 @@ void LVN::transform(Tac &tac) {
             valueMap.insert(std::make_pair(valueKey, result));
             updateTriple(Operator(OperatorName::ASSIGN), target, result,
                          *triple);
-            std::cout << "bleeb" << std::endl;
+            
 
           } else if (typeid(*triple->getArg1()) == typeid(FloatLiteral) &&
                      typeid(*triple->getArg2()) == typeid(FloatLiteral)) {
@@ -47,12 +54,15 @@ void LVN::transform(Tac &tac) {
                          *triple);
 
           } else {
-            auto target = triple->getTargetVariable();
+            auto target = addTempVarAssignment(currentPos, triple->getTargetVariable());
             valueMap.insert(std::make_pair(valueKey, target));
           }
         }
       }
     }
+ 
+    updateTAC(tac);
+    
   }
 }
 
@@ -104,6 +114,29 @@ std::shared_ptr<FloatLiteral> LVN::evaluateFloat(Triple &triple) {
   float result = evaluateExpression(val1, val2, triple.getOperator().getName());
 
   return std::make_shared<FloatLiteral>(result);
+}
+
+std::shared_ptr<Variable> LVN::addTempVarAssignment(unsigned position, 
+                                           std::shared_ptr<Variable> var) {
+    auto tempVar = std::make_shared<Variable>(var->getType());
+    auto tempAsgnTriple = std::make_shared<Triple>(Operator(OperatorName::ASSIGN),
+            tempVar, var);
+    
+    LVN::tempVarAssignments.insert(std::make_pair(position, tempAsgnTriple));
+    
+    return tempVar;
+}
+
+void LVN::updateTAC(Tac &tac) {
+    unsigned numInserted = 0;
+    
+    for(auto& triple : LVN::tempVarAssignments) {
+        tac.addLine(triple.second, triple.first + numInserted);
+        ++numInserted;
+    }
+    
+    tac.createBasicBlockIndex();
+    
 }
 }
 }
