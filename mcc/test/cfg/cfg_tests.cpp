@@ -549,7 +549,7 @@ TEST(Cfg, ComputeAvailableExpressions) {
     }
 
     if (empty) {
-      result.append(std::to_string(i) + ": ");
+      result.append(std::to_string(i) + ": \n");
     }
 
     result.append("\n");
@@ -565,7 +565,23 @@ TEST(Cfg, ComputeAvailableExpressions) {
     }
 
     if (empty) {
-      result.append(std::to_string(bb->getBlockId()) + ": ");
+      result.append(std::to_string(bb->getBlockId()) + ": \n");
+    }
+
+    result.append("\n");
+  }
+
+  result = "\nAvail\n";
+  for (unsigned i = 0; i < 7; ++i) {
+    auto empty = true;
+    for (auto out : graph->getAvail(i)) {
+      result.append(std::to_string(i) + ": ");
+      result.append(out->toString() + "\n");
+      empty = false;
+    }
+
+    if (empty) {
+      result.append(std::to_string(i) + ": \n");
     }
 
     result.append("\n");
