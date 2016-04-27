@@ -8,7 +8,7 @@
 
 #include "mcc/tac/variable_store.h"
 
-#include "mcc/tac/scope_node.h"
+#include "mcc/tac/scope.h"
 #include "mcc/tac/variable.h"
 
 namespace mcc {
@@ -43,7 +43,7 @@ TEST(VariableStore, renameVariable) {
 
   auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
   auto var1 = std::make_shared<Variable>(Type::INT, "b");
-  var1->setScope(std::make_shared<ScopeNode>(1, 0));
+  var1->setScope(std::make_shared<Scope>(1, 0));
 
   store.addVariable(var0);
 
@@ -85,7 +85,7 @@ TEST(VariableStore, removeVariable) {
 
   auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
   auto var1 = std::make_shared<Variable>(Type::INT, "b");
-  var1->setScope(std::make_shared<ScopeNode>(1, 0));
+  var1->setScope(std::make_shared<Scope>(1, 0));
 
   store.addVariable(var0);
   store.addVariable(var1);

@@ -7,7 +7,7 @@
 #ifndef INCLUDES_MCC_TAC_SCOPE_MANAGER_H_
 #define INCLUDES_MCC_TAC_SCOPE_MANAGER_H_
 
-#include "mcc/tac/scope_node.h"
+#include "mcc/tac/scope.h"
 
 #include "boost/graph/adjacency_list.hpp"
 
@@ -15,7 +15,7 @@ namespace mcc {
 namespace tac {
 class ScopeManager {
  public:
-  typedef std::shared_ptr<ScopeNode> Vertex;
+  typedef std::shared_ptr<Scope> Vertex;
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
                                 Vertex> Graph;
   typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;

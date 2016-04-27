@@ -14,7 +14,7 @@ Variable::Variable(Type t, std::string name)
   this->id = ++Variable::nextId;
 
   // TODO: wrong scope info
-  this->scope = std::make_shared<ScopeNode>(0, 0);
+  this->scope = std::make_shared<Scope>(0, 0);
 }
 
 // needed exactly this way because Variable is used as key elem for maps if
@@ -44,11 +44,9 @@ std::string Variable::getValue() const {
   return value;
 }
 
-std::shared_ptr<ScopeNode> const Variable::getScope() const {
-  return this->scope;
-}
+std::shared_ptr<Scope> const Variable::getScope() const { return this->scope; }
 
-void Variable::setScope(std::shared_ptr<ScopeNode> const scope) {
+void Variable::setScope(std::shared_ptr<Scope> const scope) {
   this->scope = scope;
 }
 

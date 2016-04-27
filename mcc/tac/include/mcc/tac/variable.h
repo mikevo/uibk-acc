@@ -9,7 +9,7 @@
 #define MCC_TAC_VARIABLE_LITERAL_H
 
 #include "mcc/tac/operand.h"
-#include "mcc/tac/scope_node.h"
+#include "mcc/tac/scope.h"
 
 #include <memory>
 #include <string>
@@ -25,15 +25,15 @@ class Variable : public Operand {
   virtual std::string getName() const;
   virtual std::string getValue() const override;
   virtual bool isLeaf() const override;
-  std::shared_ptr<ScopeNode> const getScope() const;
-  void setScope(std::shared_ptr<ScopeNode> const scope);
+  std::shared_ptr<Scope> const getScope() const;
+  void setScope(std::shared_ptr<Scope> const scope);
   void setIndex(unsigned);
   bool isTemporary() const;
 
   std::string name;
 
  private:
-  std::shared_ptr<ScopeNode> scope;
+  std::shared_ptr<Scope> scope;
   unsigned index;
   static unsigned nextId;
   unsigned id;

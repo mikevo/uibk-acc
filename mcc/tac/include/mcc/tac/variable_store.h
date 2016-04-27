@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "mcc/tac/scope_manager.h"
-#include "mcc/tac/scope_node.h"
+#include "mcc/tac/scope.h"
 #include "mcc/tac/variable.h"
 
 namespace mcc {

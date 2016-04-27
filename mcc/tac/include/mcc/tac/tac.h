@@ -23,7 +23,7 @@ namespace mcc {
 namespace tac {
 
 // pair of name and scope level
-typedef std::pair<std::string, std::shared_ptr<ScopeNode>> VarTableKey;
+typedef std::pair<std::string, std::shared_ptr<Scope>> VarTableKey;
 typedef std::shared_ptr<Variable> VarTableValue;
 typedef std::vector<std::shared_ptr<BasicBlock>> bbVector;
 typedef std::shared_ptr<bbVector> bb_type;

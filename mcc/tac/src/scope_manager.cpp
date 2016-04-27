@@ -9,7 +9,7 @@
 namespace mcc {
 namespace tac {
 ScopeManager::ScopeManager()
-    : root(std::make_shared<ScopeNode>(0, 0)),
+    : root(std::make_shared<Scope>(0, 0)),
       currentScope(this->root),
       checkPoint(this->root),
       checkPointValid(false) {
@@ -39,7 +39,7 @@ bool ScopeManager::goToParentScope() {
 ScopeManager::Vertex const ScopeManager::addNewChildScope() {
   auto childDepth = this->currentScope->getDepth() + 1;
   auto childIndex = this->currentScope->getNextIndex();
-  auto child = std::make_shared<ScopeNode>(childDepth, childIndex);
+  auto child = std::make_shared<Scope>(childDepth, childIndex);
 
   auto c = this->addVertex(child);
 
