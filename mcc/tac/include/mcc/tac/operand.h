@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <set>
 
 #include "mcc/tac/operator.h"
 #include "mcc/tac/type.h"

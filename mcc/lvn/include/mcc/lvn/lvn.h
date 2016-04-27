@@ -18,7 +18,9 @@ class LVN {
   static void transform(Tac &tac);
 
  private:
-  static std::map<unsigned, Triple::ptr_t> tempVarAssignments;   
+  static std::map<Variable::ptr_t, Variable::ptr_t> tempVarAssign;
+  static std::map<Variable::ptr_t, unsigned> tempVarTacPos;
+  static Variable::set_t tempVarUsed;
      
   template <typename T>
   static T evaluateExpression(T arg1, T arg2, tac::OperatorName op);
@@ -26,9 +28,11 @@ class LVN {
                            Operand::ptr_t arg2, Triple &triple);
   static IntLiteral::ptr_t evaluateInt(Triple &);
   static FloatLiteral::ptr_t evaluateFloat(Triple &);
-  static Variable::ptr_t addTempVarAssignment(unsigned position, 
+  static Variable::ptr_t addTempVar(unsigned position, 
                                            Variable::ptr_t var);
-  static void updateTAC(Tac &tac);
+  static bool addTempVarAssignment(Variable::ptr_t, Tac &tac, unsigned offset);
+  static void updateTac(Tac &tac);
+
 };
 }
 }

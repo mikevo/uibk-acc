@@ -36,11 +36,14 @@ TEST(LVN, DISABLED_RedundantExpression) {
             int x = 5;
             int y = x + 12; 
             int z = x + 12;
+            int a = x + 12;
 
         })");
 
   Tac tac = Tac(tree);
   LVN::transform(tac);
+  
+  std::cout << tac.toString();
 
   std::string expectedValue = "x0:1:0 = 5\n";
   expectedValue.append("y0:1:0 = x0:1:0 + 12\n");
