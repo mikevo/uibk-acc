@@ -402,48 +402,5 @@ TEST(Tac, While) {
   EXPECT_EQ(expectedValue, tac.toString());
   EXPECT_EQ(16, tac.codeLines.size());
 }
-
-TEST(Tac, DISABLED_SSA) {
-  auto tree = parser::parse(
-      R"(
-        {
-         
-          int x = 5 * 2;
-          x = 4 + 5;
-
-          int y = x;
-          int f = 5 + x;
-
-          x = 3;
-          int z = x;
-        
-        })");
-
-  Tac tac = Tac(tree);
-
-  auto x1 = tac.codeLines[0]->getTargetVariable();
-  auto x2 = tac.codeLines[2]->getTargetVariable();
-  auto x3 = std::static_pointer_cast<Variable>(tac.codeLines[3]->getArg2());
-  auto x4 = std::static_pointer_cast<Variable>(tac.codeLines[4]->getArg2());
-  auto x5 = tac.codeLines[5]->getTargetVariable();
-  auto x6 = std::static_pointer_cast<Variable>(tac.codeLines[6]->getArg2());
-
-  EXPECT_EQ(x2.get(), x3.get());
-  EXPECT_EQ(x2.get(), x4.get());
-  EXPECT_EQ(x3.get(), x4.get());
-  EXPECT_EQ(x5.get(), x6.get());
-
-  EXPECT_NE(x1.get(), x2.get());
-  EXPECT_NE(x1.get(), x3.get());
-  EXPECT_NE(x1.get(), x4.get());
-  EXPECT_NE(x1.get(), x5.get());
-  EXPECT_NE(x1.get(), x6.get());
-  EXPECT_NE(x2.get(), x5.get());
-  EXPECT_NE(x2.get(), x6.get());
-  EXPECT_NE(x3.get(), x5.get());
-  EXPECT_NE(x3.get(), x6.get());
-  EXPECT_NE(x4.get(), x5.get());
-  EXPECT_NE(x4.get(), x6.get());
-}
 }
 }
