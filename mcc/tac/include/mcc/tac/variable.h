@@ -1,5 +1,5 @@
 /*
- * File:   int_literal.h
+ * File:   variable.h
  * Author: Michael Voetter <Michael.Voetter@student.uibk.ac.at>
  *
  * Created on March 19, 2016, 2:50 PM
@@ -21,8 +21,9 @@ class Variable : public Operand {
   // creates a temporary variable with scope (0,0)
   Variable(Type t);
 
-  // creates a non-temporary variable
-  Variable(Type t, std::string name, std::shared_ptr<Scope> scope);
+  // creates a non-temporary variable with default index = 0
+  Variable(Type t, std::string name, std::shared_ptr<Scope> scope,
+           unsigned index = 0);
 
   bool operator<(Variable const other) const;
 
@@ -39,8 +40,7 @@ class Variable : public Operand {
   virtual std::string getValue() const override;
   virtual bool isLeaf() const override;
   std::shared_ptr<Scope> const getScope() const;
-  void setScope(std::shared_ptr<Scope> const scope);
-  void setIndex(unsigned);
+  //  void setIndex(unsigned);
   bool isTemporary() const;
 
 

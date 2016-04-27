@@ -76,9 +76,10 @@ VariableStore::VariableNode VariableStore::renameVariable(
 
   if (valuePair != renameMap.end()) {
     auto &varVector = valuePair->second;
-    auto cloneVar = std::make_shared<Variable>(
-        variable->getType(), variable->getName(), variable->getScope());
-    cloneVar->setIndex(varVector.size());
+    auto cloneVar =
+        std::make_shared<Variable>(variable->getType(), variable->getName(),
+                                   variable->getScope(), varVector.size());
+
     auto it = this->insertVariable(cloneVar);
     varVector.push_back(it);
 
