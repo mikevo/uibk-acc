@@ -142,7 +142,7 @@ TEST(Cfg, DomSetVertex) {
   EXPECT_EQ(dom2.begin()->get(), index->at(0).get());
   EXPECT_EQ(dom3.begin()->get(), index->at(0).get());
 
-  std::set<std::shared_ptr<mcc::tac::BasicBlock>> bbSet;
+  std::set<mcc::tac::BasicBlock::ptr_t> bbSet;
 
   for (auto const block : dom4) {
     bbSet.insert(block);
@@ -556,20 +556,20 @@ TEST(Cfg, ComputeAvailableExpressions) {
   }
 
   result.append("Killed\n");
-    for (auto const bb : *bbIndex.get()) {
-      auto empty = true;
-      for (auto out : bb->getKilledExpr()) {
-        result.append(std::to_string(bb->getBlockId()) + ": ");
-        result.append(out->toString() + "\n");
-        empty = false;
-      }
-
-      if (empty) {
-        result.append(std::to_string(bb->getBlockId()) + ": \n");
-      }
-
-      result.append("\n");
+  for (auto const bb : *bbIndex.get()) {
+    auto empty = true;
+    for (auto out : bb->getKilledExpr()) {
+      result.append(std::to_string(bb->getBlockId()) + ": ");
+      result.append(out->toString() + "\n");
+      empty = false;
     }
+
+    if (empty) {
+      result.append(std::to_string(bb->getBlockId()) + ": \n");
+    }
+
+    result.append("\n");
+  }
 
   result.append("DeExpr\n");
   for (auto const bb : *bbIndex.get()) {

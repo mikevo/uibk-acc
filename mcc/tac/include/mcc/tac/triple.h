@@ -19,11 +19,12 @@ namespace tac {
 
 class Triple : public Operand {
  public:
-  Triple(std::shared_ptr<Operand> arg);
+  typedef std::shared_ptr<Triple> ptr_t;
+
+  Triple(Operand::ptr_t arg);
   Triple(OperatorName op);
-  Triple(Operator op, std::shared_ptr<Operand> arg);
-  Triple(Operator op, std::shared_ptr<Operand> arg1,
-         std::shared_ptr<Operand> arg2);
+  Triple(Operator op, Operand::ptr_t arg);
+  Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2);
   std::string getName() const;
   unsigned getId() const;
   unsigned getBasicBlockId() const;
@@ -31,17 +32,17 @@ class Triple : public Operand {
   virtual bool isLeaf() const override;
   virtual std::string getValue() const override;
   virtual std::string toString() const;
-  void setTargetVariable(std::shared_ptr<Variable> var);
-  std::shared_ptr<Variable> getTargetVariable() const;
+  void setTargetVariable(Variable::ptr_t var);
+  Variable::ptr_t getTargetVariable() const;
   bool containsTargetVar(void) const;
 
   bool containsArg1() const;
   bool containsArg2() const;
 
-  std::shared_ptr<Operand> getArg1() const;
-  std::shared_ptr<Operand> getArg2() const;
-  void setArg1(std::shared_ptr<Operand> arg);
-  void setArg2(std::shared_ptr<Operand> arg);
+  Operand::ptr_t getArg1() const;
+  Operand::ptr_t getArg2() const;
+  void setArg1(Operand::ptr_t arg);
+  void setArg2(Operand::ptr_t arg);
 
   Operator getOperator() const;
   void setOperator(Operator);
@@ -52,10 +53,10 @@ class Triple : public Operand {
  private:
   Operator op;
   unsigned basicBlockId;
-  std::shared_ptr<Operand> arg1, arg2;
+  Operand::ptr_t arg1, arg2;
   // if the triple produces a result than this variable is used to store
   // the result
-  std::shared_ptr<Variable> targetVar;
+  Variable::ptr_t targetVar;
   static unsigned nextId;
   unsigned id;
   // if the triple does not produce a result than this variable holds a

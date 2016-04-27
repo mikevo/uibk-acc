@@ -11,11 +11,15 @@
 
 #include "mcc/tac/triple.h"
 
+#include <memory>
+
 namespace mcc {
 namespace tac {
 
 class Label : public Triple {
  public:
+  typedef std::shared_ptr<Label> ptr_t;
+
   Label();
   virtual bool isLeaf() const override final;
 };

@@ -43,7 +43,7 @@ Type getType(ast::type &type) {
   return Type::NONE;
 }
 
-ReturnType convertNode(Tac *t, AstNode n) {
+Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::int_literal>(n)) return convertIntLiteral(t, n);
   if (isType<ast::float_literal>(n)) return convertFloatLiteral(t, n);
   if (isType<ast::variable>(n)) return convertVariable(t, n);
@@ -63,29 +63,29 @@ ReturnType convertNode(Tac *t, AstNode n) {
   return nullptr;
 }
 
-ReturnType convertIntLiteral(Tac *t, AstNode n) {
+Operand::ptr_t convertIntLiteral(Tac *t, AstNode n) {
   int v = std::static_pointer_cast<ast::int_literal>(n)->value;
   return std::make_shared<IntLiteral>(v);
 }
 
-ReturnType convertFloatLiteral(Tac *t, AstNode n) {
+Operand::ptr_t convertFloatLiteral(Tac *t, AstNode n) {
   float v = std::static_pointer_cast<ast::float_literal>(n)->value;
   return std::make_shared<FloatLiteral>(v);
 }
 
-ReturnType convertVariable(Tac *t, AstNode n) {
+Operand::ptr_t convertVariable(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::variable>(n);
   return t->getVariableStore()->findVariable(v->name);
 }
 
-ReturnType convertBinaryOp(Tac *t, AstNode n) {
+Operand::ptr_t convertBinaryOp(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::binary_operation>(n);
 
   auto lhs = convertNode(t, v->lhs);
   auto rhs = convertNode(t, v->rhs);
 
   bool setTarVar = false;
-  VarTableValue variable;
+  Variable::ptr_t variable;
 
   if (*v->op.get() == ast::binary_operand::ASSIGN) {
     auto check = isType<Variable>(lhs);
@@ -108,7 +108,7 @@ ReturnType convertBinaryOp(Tac *t, AstNode n) {
   return triple;
 }
 
-ReturnType convertUnaryOp(Tac *t, AstNode n) {
+Operand::ptr_t convertUnaryOp(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::unary_operation>(n);
   auto lhs = convertNode(t, v->sub);
 
@@ -121,17 +121,17 @@ ReturnType convertUnaryOp(Tac *t, AstNode n) {
   return var;
 }
 
-ReturnType convertExprStmt(Tac *t, AstNode n) {
+Operand::ptr_t convertExprStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::expr_stmt>(n);
   return convertNode(t, v->sub);
 }
 
-ReturnType convertParenStmt(Tac *t, AstNode n) {
+Operand::ptr_t convertParenStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::paren_expr>(n);
   return convertNode(t, v->sub);
 }
 
-ReturnType convertCompoundStmt(Tac *t, AstNode n) {
+Operand::ptr_t convertCompoundStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::compound_stmt>(n);
   auto statements = v->statements;
 
@@ -146,7 +146,7 @@ ReturnType convertCompoundStmt(Tac *t, AstNode n) {
   return nullptr;
 }
 
-ReturnType convertDeclStmt(Tac *t, AstNode n) {
+Operand::ptr_t convertDeclStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::decl_stmt>(n);
   auto tempVar = v->var;
 
@@ -186,7 +186,7 @@ ReturnType convertDeclStmt(Tac *t, AstNode n) {
   return variable;
 }
 
-ReturnType convertIfStmt(Tac *t, AstNode n) {
+Operand::ptr_t convertIfStmt(Tac *t, AstNode n) {
   auto stmt = std::static_pointer_cast<ast::if_stmt>(n);
 
   auto condition = convertNode(t, stmt->condition);
@@ -221,7 +221,7 @@ ReturnType convertIfStmt(Tac *t, AstNode n) {
   return nullptr;
 }
 
-ReturnType convertWhileStmt(Tac *t, AstNode n) {
+Operand::ptr_t convertWhileStmt(Tac *t, AstNode n) {
   auto whileStmt = std::static_pointer_cast<ast::while_stmt>(n);
 
   auto againLabel = std::make_shared<Label>();

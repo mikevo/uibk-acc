@@ -10,10 +10,14 @@
 
 #include "mcc/tac/operand.h"
 
+#include <memory>
+
 namespace mcc {
 namespace tac {
 class FloatLiteral : public Operand {
  public:
+  typedef std::shared_ptr<FloatLiteral> ptr_t;
+
   FloatLiteral(float value);
   virtual std::string getValue() const override final;
   virtual bool isLeaf() const override final;

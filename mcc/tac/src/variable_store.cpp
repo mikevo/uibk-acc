@@ -33,20 +33,20 @@ VariableStore::set_const_iterator VariableStore::end() const {
 }
 
 VariableStore::const_iterator VariableStore::find(
-    VariableStore::VariableNode const variable) const {
+    Variable::ptr_t const variable) const {
   return this->renameMap.find(variable);
 }
 
-void VariableStore::addVariable(VariableStore::VariableNode variable) {
+void VariableStore::addVariable(Variable::ptr_t variable) {
   auto it = this->insertVariable(variable);
 
-  std::vector<VariableStore::VariableNodeSet::iterator> varVector;
+  std::vector<Variable::set_t::iterator> varVector;
   varVector.push_back(it);
 
   this->renameMap.insert(std::make_pair(variable, varVector));
 }
 
-bool VariableStore::removeVariable(VariableStore::VariableNode const variable) {
+bool VariableStore::removeVariable(Variable::ptr_t const variable) {
   auto var = renameMap.find(variable);
 
   if (var != renameMap.end()) {
@@ -68,8 +68,7 @@ bool VariableStore::removeVariable(VariableStore::VariableNode const variable) {
   return false;
 }
 
-VariableStore::VariableNode VariableStore::renameVariable(
-    VariableStore::VariableNode const variable) {
+Variable::ptr_t VariableStore::renameVariable(Variable::ptr_t const variable) {
   assert(!variable->isTemporary() && "temp variables can't be renamed");
 
   auto valuePair = this->renameMap.find(variable);
@@ -90,8 +89,7 @@ VariableStore::VariableNode VariableStore::renameVariable(
   return variable;
 }
 
-VariableStore::VariableNode VariableStore::findAccordingVariable(
-    std::string const name) {
+Variable::ptr_t VariableStore::findAccordingVariable(std::string const name) {
   this->setCheckPoint();
 
   do {
@@ -114,8 +112,7 @@ VariableStore::VariableNode VariableStore::findAccordingVariable(
   assert(false && "Usage of undeclared variable");
 }
 
-VariableStore::VariableNode VariableStore::findVariable(
-    std::string const name) {
+Variable::ptr_t VariableStore::findVariable(std::string const name) {
   auto const key =
       std::make_shared<Variable>(Type::AUTO, name, this->getCurrentScope());
 
@@ -132,8 +129,8 @@ VariableStore::VariableNode VariableStore::findVariable(
   assert(false && "Usage of undeclared variable");
 }
 
-VariableStore::VariableNodeSet::iterator VariableStore::insertVariable(
-    VariableStore::VariableNode variable) {
+Variable::set_t::iterator VariableStore::insertVariable(
+    Variable::ptr_t variable) {
   auto it = this->store.insert(variable);
   this->variableTable.push_back(it.first);
   return it.first;

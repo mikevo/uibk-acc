@@ -16,25 +16,24 @@
 namespace mcc {
 namespace tac {
 namespace helper {
-typedef std::shared_ptr<Operand> ReturnType;
 typedef std::shared_ptr<ast::node> AstNode;
 
-ReturnType convertNode(Tac *t, AstNode n);
+Operand::ptr_t convertNode(Tac *t, AstNode n);
 
 // base cases
-ReturnType convertIntLiteral(Tac *t, AstNode n);
-ReturnType convertFloatLiteral(Tac *t, AstNode n);
-ReturnType convertVariable(Tac *t, AstNode n);
+Operand::ptr_t convertIntLiteral(Tac *t, AstNode n);
+Operand::ptr_t convertFloatLiteral(Tac *t, AstNode n);
+Operand::ptr_t convertVariable(Tac *t, AstNode n);
 
 // step cases
-ReturnType convertBinaryOp(Tac *t, AstNode n);
-ReturnType convertUnaryOp(Tac *t, AstNode n);
-ReturnType convertExprStmt(Tac *t, AstNode n);
-ReturnType convertParenStmt(Tac *t, AstNode n);
-ReturnType convertCompoundStmt(Tac *t, AstNode n);
-ReturnType convertDeclStmt(Tac *t, AstNode n);
-ReturnType convertIfStmt(Tac *t, AstNode n);
-ReturnType convertWhileStmt(Tac *t, AstNode n);
+Operand::ptr_t convertBinaryOp(Tac *t, AstNode n);
+Operand::ptr_t convertUnaryOp(Tac *t, AstNode n);
+Operand::ptr_t convertExprStmt(Tac *t, AstNode n);
+Operand::ptr_t convertParenStmt(Tac *t, AstNode n);
+Operand::ptr_t convertCompoundStmt(Tac *t, AstNode n);
+Operand::ptr_t convertDeclStmt(Tac *t, AstNode n);
+Operand::ptr_t convertIfStmt(Tac *t, AstNode n);
+Operand::ptr_t convertWhileStmt(Tac *t, AstNode n);
 
 template <typename T>
 bool isType(const AstNode n) {
@@ -42,7 +41,7 @@ bool isType(const AstNode n) {
 }
 
 template <typename T>
-bool isType(const ReturnType n) {
+bool isType(const Operand::ptr_t n) {
   return (typeid(*n.get()) == typeid(T));
 }
 

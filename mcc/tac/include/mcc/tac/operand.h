@@ -7,6 +7,7 @@
 #ifndef MCC_TAC_OPERAND_H
 #define MCC_TAC_OPERAND_H
 
+#include <memory>
 #include <string>
 
 #include "mcc/tac/operator.h"
@@ -17,6 +18,8 @@ namespace tac {
 
 class Operand {
  public:
+  typedef std::shared_ptr<Operand> ptr_t;
+
   Operand();
   Operand(Type t);
   virtual void updateResultType(Operator op);

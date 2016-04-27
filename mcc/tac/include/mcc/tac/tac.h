@@ -23,31 +23,29 @@ namespace mcc {
 namespace tac {
 
 // pair of name and scope level
-typedef std::pair<std::string, std::shared_ptr<Scope>> VarTableKey;
-typedef std::shared_ptr<Variable> VarTableValue;
-typedef std::vector<std::shared_ptr<BasicBlock>> bbVector;
+typedef std::vector<BasicBlock::ptr_t> bbVector;
 typedef std::shared_ptr<bbVector> bb_type;
 
 class Tac {
  public:
   Tac(std::shared_ptr<ast::node> n);
-  void addLine(std::shared_ptr<Triple> line);
+  void addLine(Triple::ptr_t line);
   void addLine(std::shared_ptr<Label> line);
   void nextBasicBlock();
   unsigned basicBlockCount();
 
-  std::shared_ptr<VariableStore> const getVariableStore();
+  VariableStore::ptr_t const getVariableStore();
 
   const bb_type getBasicBlockIndex();
-  void addToVarTable(VarTableValue value);
-  VarTableValue addVarRenaming(VarTableValue const key);
-  void removeFromVarTable(VarTableValue const value);
+  void addToVarTable(Variable::ptr_t value);
+  Variable::ptr_t addVarRenaming(Variable::ptr_t const key);
+  void removeFromVarTable(Variable::ptr_t const value);
 
   std::string toString() const;
-  std::vector<std::shared_ptr<Triple>> codeLines;
+  std::vector<Triple::ptr_t> codeLines;
 
  private:
-  std::shared_ptr<VariableStore> variableStore;
+  VariableStore::ptr_t variableStore;
   void convertAst(std::shared_ptr<ast::node> n);
   void createBasicBlockIndex();
   unsigned currentBasicBlock;

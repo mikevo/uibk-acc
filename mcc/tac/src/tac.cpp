@@ -27,17 +27,17 @@ void Tac::convertAst(std::shared_ptr<ast::node> n) {
   helper::convertNode(this, n);
 }
 
-void Tac::addLine(std::shared_ptr<Triple> line) {
+void Tac::addLine(Triple::ptr_t line) {
   line->setBasicBlockId(currentBasicBlock);
   this->codeLines.push_back(line);
 }
 
-void Tac::addLine(std::shared_ptr<Label> line) {
+void Tac::addLine(Label::ptr_t line) {
   line->setBasicBlockId(currentBasicBlock);
   this->codeLines.push_back(line);
 }
 
-std::shared_ptr<VariableStore> const Tac::getVariableStore() {
+VariableStore::ptr_t const Tac::getVariableStore() {
   return this->variableStore;
 }
 
@@ -88,15 +88,15 @@ const bb_type Tac::getBasicBlockIndex() {
   return basicBlockIndex;
 }
 
-void Tac::addToVarTable(VarTableValue value) {
+void Tac::addToVarTable(Variable::ptr_t value) {
   this->variableStore->addVariable(value);
 }
 
-void Tac::removeFromVarTable(VarTableValue const value) {
+void Tac::removeFromVarTable(Variable::ptr_t const value) {
   this->variableStore->removeVariable(value);
 }
 
-VarTableValue Tac::addVarRenaming(VarTableValue const key) {
+Variable::ptr_t Tac::addVarRenaming(Variable::ptr_t const key) {
   return this->variableStore->renameVariable(key);
 }
 }

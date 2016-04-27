@@ -10,8 +10,8 @@ namespace mcc {
 namespace tac {
 
 TEST(Triple, ID_Test) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-  std::shared_ptr<IntLiteral> j = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   Triple t1 = Triple(op, i);
@@ -22,7 +22,7 @@ TEST(Triple, ID_Test) {
 }
 
 TEST(Triple, Leaf) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   Triple t1 = Triple(op, i);
@@ -31,7 +31,7 @@ TEST(Triple, Leaf) {
 }
 
 TEST(Triple, BBDefaultId) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   Triple t = Triple(op, i);
@@ -40,7 +40,7 @@ TEST(Triple, BBDefaultId) {
 }
 
 TEST(Triple, Value) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   Triple t = Triple(op, i);
@@ -51,7 +51,7 @@ TEST(Triple, Value) {
 }
 
 TEST(Triple, Type) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   Triple t = Triple(op, i);

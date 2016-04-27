@@ -16,7 +16,7 @@
 namespace mcc {
 namespace cfg {
 
-typedef std::shared_ptr<mcc::tac::BasicBlock> Vertex;
+typedef mcc::tac::BasicBlock::ptr_t Vertex;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
                               Vertex> Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
@@ -24,8 +24,7 @@ typedef std::map<VertexDescriptor, VertexDescriptor> VertexVertexMap;
 
 class Cfg {
  public:
-  typedef std::shared_ptr<SubExpression> SubExpressionPtr;
-  typedef std::set<SubExpressionPtr, SubExpression::less> SubExpressionSet;
+  typedef std::shared_ptr<Cfg> ptr_t;
 
   Cfg(mcc::tac::Tac tac);
   std::string toDot() const;
@@ -47,8 +46,7 @@ class Cfg {
 
   unsigned variableSetSize() const;
 
-  mcc::tac::Variable::set_t getNotKilled(
-      const VertexDescriptor vertex) const;
+  mcc::tac::Variable::set_t getNotKilled(const VertexDescriptor vertex) const;
 
   void computeLive(void);
   void computeWorkList();
@@ -57,8 +55,8 @@ class Cfg {
   mcc::tac::Variable::set_t getLiveIn(VertexDescriptor v);
   mcc::tac::Variable::set_t getLiveOut(VertexDescriptor v);
 
-  SubExpressionSet getNotKilledExpr(VertexDescriptor v);
-  SubExpressionSet getAvail(VertexDescriptor v);
+  SubExpression::set_t getNotKilledExpr(VertexDescriptor v);
+  SubExpression::set_t getAvail(VertexDescriptor v);
 
   // TODO: make private
   mcc::tac::Variable::set_t variableSet;
@@ -80,9 +78,9 @@ class Cfg {
   std::map<VertexDescriptor, mcc::tac::Variable::set_t> liveIn;
   std::map<VertexDescriptor, mcc::tac::Variable::set_t> liveOut;
 
-  SubExpressionSet allSubExpressions;
-  std::map<VertexDescriptor, SubExpressionSet> notKilledExpr;
-  std::map<VertexDescriptor, SubExpressionSet> avail;
+  SubExpression::set_t allSubExpressions;
+  std::map<VertexDescriptor, SubExpression::set_t> notKilledExpr;
+  std::map<VertexDescriptor, SubExpression::set_t> avail;
 };
 }
 }

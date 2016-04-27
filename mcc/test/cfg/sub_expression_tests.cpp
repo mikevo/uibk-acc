@@ -20,7 +20,7 @@ namespace cfg {
 using namespace mcc::tac;
 
 TEST(SubExpression, Unary) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   SubExpression se = SubExpression(op, i);
@@ -30,8 +30,8 @@ TEST(SubExpression, Unary) {
 }
 
 TEST(SubExpression, Binary) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-  std::shared_ptr<IntLiteral> j = std::make_shared<IntLiteral>(43);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
   Operator op = Operator(OperatorName::ADD);
 
   SubExpression se = SubExpression(op, i, j);
@@ -42,7 +42,7 @@ TEST(SubExpression, Binary) {
 }
 
 TEST(SubExpression, UnaryToString) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   SubExpression se = SubExpression(op, i);
@@ -51,8 +51,8 @@ TEST(SubExpression, UnaryToString) {
 }
 
 TEST(SubExpression, BinaryToString) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-  std::shared_ptr<IntLiteral> j = std::make_shared<IntLiteral>(43);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
   Operator op = Operator(OperatorName::ADD);
 
   SubExpression se = SubExpression(op, i, j);
@@ -61,7 +61,7 @@ TEST(SubExpression, BinaryToString) {
 }
 
 TEST(SubExpression, UnaryTriple) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
   Operator op = Operator(OperatorName::NOT);
 
   auto const t1 = std::make_shared<Triple>(op, i);
@@ -73,8 +73,8 @@ TEST(SubExpression, UnaryTriple) {
 }
 
 TEST(SubExpression, BinaryTriple) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-  std::shared_ptr<IntLiteral> j = std::make_shared<IntLiteral>(43);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
   Operator op = Operator(OperatorName::ADD);
 
   auto const t1 = std::make_shared<Triple>(op, i, j);
@@ -87,8 +87,8 @@ TEST(SubExpression, BinaryTriple) {
 }
 
 TEST(SubExpression, GetVariables) {
-  std::shared_ptr<IntLiteral> i = std::make_shared<IntLiteral>(42);
-  std::shared_ptr<IntLiteral> j = std::make_shared<IntLiteral>(43);
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
   Operator addOp = Operator(OperatorName::ADD);
 
   SubExpression se1 = SubExpression(addOp, i, j);

@@ -7,10 +7,14 @@
 #ifndef INCLUDES_MCC_TAC_SCOPE_H_
 #define INCLUDES_MCC_TAC_SCOPE_H_
 
+#include <memory>
+
 namespace mcc {
 namespace tac {
 class Scope {
  public:
+  typedef std::shared_ptr<Scope> ptr_t;
+
   Scope(unsigned depth, unsigned index);
 
   bool operator<(Scope const other) const;

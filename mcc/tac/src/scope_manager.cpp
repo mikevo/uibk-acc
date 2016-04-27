@@ -16,7 +16,7 @@ ScopeManager::ScopeManager()
   this->addVertex(this->currentScope);
 }
 
-ScopeManager::Vertex const ScopeManager::getCurrentScope() const {
+Scope::ptr_t const ScopeManager::getCurrentScope() const {
   return currentScope;
 }
 
@@ -36,7 +36,7 @@ bool ScopeManager::goToParentScope() {
   }
 }
 
-ScopeManager::Vertex const ScopeManager::addNewChildScope() {
+Scope::ptr_t const ScopeManager::addNewChildScope() {
   auto childDepth = this->currentScope->getDepth() + 1;
   auto childIndex = this->currentScope->getNextIndex();
   auto child = std::make_shared<Scope>(childDepth, childIndex);
@@ -51,7 +51,7 @@ ScopeManager::Vertex const ScopeManager::addNewChildScope() {
   return this->getCurrentScope();
 }
 
-ScopeManager::Vertex const ScopeManager::addNewSiblingScope() {
+Scope::ptr_t const ScopeManager::addNewSiblingScope() {
   // TODO: maybe a restriction that causes trouble; if so it is necessary to
   // change the tree that it inserts a root that is never used as scope
   auto success = this->goToParentScope();
@@ -72,7 +72,7 @@ void ScopeManager::goToCheckPoint() {
   }
 }
 
-ScopeManager::Vertex ScopeManager::addVertex(ScopeManager::Vertex v) {
+Scope::ptr_t ScopeManager::addVertex(Scope::ptr_t v) {
   auto d = boost::add_vertex(v, this->graph);
 
   vertexMap.insert(std::make_pair(v, d));

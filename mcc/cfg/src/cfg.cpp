@@ -35,19 +35,19 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
     }
 
     notKilled.insert(std::make_pair(block->getBlockId(), set));
-    liveIn.insert(std::make_pair(block->getBlockId(),
-                                 mcc::tac::Variable::set_t()));
+    liveIn.insert(
+        std::make_pair(block->getBlockId(), mcc::tac::Variable::set_t()));
 
-    liveOut.insert(std::make_pair(block->getBlockId(),
-                                  mcc::tac::Variable::set_t()));
+    liveOut.insert(
+        std::make_pair(block->getBlockId(), mcc::tac::Variable::set_t()));
 
-    SubExpressionSet notKilled(allSubExpressions);
+    SubExpression::set_t notKilled(allSubExpressions);
 
     for (auto const expr : block->getKilledExpr()) {
       notKilled.erase(expr);
     }
 
-    avail.insert(std::make_pair(block->getBlockId(), SubExpressionSet()));
+    avail.insert(std::make_pair(block->getBlockId(), SubExpression::set_t()));
     notKilledExpr.insert(std::make_pair(block->getBlockId(), notKilled));
   }
 
@@ -314,7 +314,7 @@ void Cfg::computeAvailableExpressions() {
   auto bbIndex = *basicBlockIndex.get();
 
   for (auto it = bbIndex.begin() + 1; it != bbIndex.end(); ++it) {
-    SubExpressionSet avail;
+    SubExpression::set_t avail;
     bool first = true;
 
     for (auto const p : this->getPredecessor(*it)) {
@@ -341,11 +341,11 @@ mcc::tac::Variable::set_t Cfg::getLiveOut(VertexDescriptor v) {
   return this->liveOut.at(v);
 }
 
-Cfg::SubExpressionSet Cfg::getNotKilledExpr(VertexDescriptor v) {
+SubExpression::set_t Cfg::getNotKilledExpr(VertexDescriptor v) {
   return this->notKilledExpr.at(v);
 }
 
-Cfg::SubExpressionSet Cfg::getAvail(VertexDescriptor v) {
+SubExpression::set_t Cfg::getAvail(VertexDescriptor v) {
   return this->avail.at(v);
 }
 }

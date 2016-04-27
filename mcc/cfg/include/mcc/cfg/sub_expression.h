@@ -20,25 +20,22 @@ namespace cfg {
 
 class SubExpression {
  public:
-  typedef mcc::tac::Operator Operator;
-  typedef std::shared_ptr<mcc::tac::Operand> OperandPtr;
-  typedef std::shared_ptr<mcc::tac::Triple> TriplePtr;
-  typedef std::shared_ptr<mcc::tac::Variable> VariablePtr;
-
   typedef std::shared_ptr<SubExpression> ptr_t;
 
   struct less {
-    bool operator()(const ptr_t &lhs,
-                    const ptr_t &rhs) const {
+    bool operator()(const ptr_t &lhs, const ptr_t &rhs) const {
       return *lhs.get() < *rhs.get();
     }
   };
 
   typedef std::set<ptr_t, less> set_t;
 
-  SubExpression(Operator op, OperandPtr arg);
-  SubExpression(Operator op, OperandPtr arg1, OperandPtr arg2);
-  SubExpression(TriplePtr const triple);
+  typedef mcc::tac::Operator Operator;
+
+  SubExpression(Operator op, mcc::tac::Operand::ptr_t arg);
+  SubExpression(Operator op, mcc::tac::Operand::ptr_t arg1,
+                mcc::tac::Operand::ptr_t arg2);
+  SubExpression(mcc::tac::Triple::ptr_t const triple);
 
   bool operator<(SubExpression const other) const;
   bool operator>(SubExpression const other) const;
@@ -47,14 +44,13 @@ class SubExpression {
   bool operator==(SubExpression const other) const;
   bool operator!=(SubExpression const other) const;
 
-
   std::string toString() const;
 
   bool containsArg1() const;
   bool containsArg2() const;
 
-  OperandPtr getArg1() const;
-  OperandPtr getArg2() const;
+  mcc::tac::Operand::ptr_t getArg1() const;
+  mcc::tac::Operand::ptr_t getArg2() const;
 
   Operator getOperator() const;
 
@@ -62,7 +58,7 @@ class SubExpression {
 
  private:
   Operator op;
-  OperandPtr arg1, arg2;
+  mcc::tac::Operand::ptr_t arg1, arg2;
 };
 }
 }

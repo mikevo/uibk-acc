@@ -22,8 +22,7 @@ class Variable : public Operand {
   typedef std::shared_ptr<Variable> ptr_t;
 
   struct less {
-    bool operator()(const ptr_t &lhs,
-                    const ptr_t &rhs) const {
+    bool operator()(const ptr_t &lhs, const ptr_t &rhs) const {
       return *lhs.get() < *rhs.get();
     }
   };
@@ -34,25 +33,22 @@ class Variable : public Operand {
   Variable(Type t);
 
   // creates a non-temporary variable with default index = 0
-  Variable(Type t, std::string name, std::shared_ptr<Scope> scope,
-           unsigned index = 0);
+  Variable(Type t, std::string name, Scope::ptr_t scope, unsigned index = 0);
 
   bool operator<(Variable const other) const;
-
 
   unsigned getId() const;
   virtual std::string getName() const;
   std::string getNameWithIndex() const;
   virtual std::string getValue() const override;
   virtual bool isLeaf() const override;
-  std::shared_ptr<Scope> const getScope() const;
+  Scope::ptr_t const getScope() const;
   //  void setIndex(unsigned);
   bool isTemporary() const;
 
-
  private:
   std::string name;
-  std::shared_ptr<Scope> scope;
+  Scope::ptr_t scope;
   unsigned index;
   static unsigned nextId;
   unsigned id;

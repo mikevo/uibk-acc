@@ -21,37 +21,37 @@
 namespace mcc {
 namespace tac {
 class VariableStore : public ScopeManager {
-  typedef std::shared_ptr<Variable> VariableNode;
-  typedef std::set<VariableNode> VariableNodeSet;
-  typedef VariableNode const const_shared_ptr;
-  typedef std::map<VariableNode, std::vector<VariableNodeSet::iterator>,
+  typedef Variable::ptr_t const const_shared_ptr;
+  typedef std::map<Variable::ptr_t, std::vector<Variable::set_t::iterator>,
                    Variable::less> VariableMap;
 
-  typedef std::vector<VariableNodeSet::iterator>::size_type size_type;
+  typedef std::vector<Variable::set_t::iterator>::size_type size_type;
   typedef VariableMap::const_iterator const_iterator;
-  typedef VariableNodeSet::const_iterator set_const_iterator;
+  typedef Variable::set_t::const_iterator set_const_iterator;
 
  public:
+  typedef std::shared_ptr<VariableStore> ptr_t;
+
   const_shared_ptr operator[](size_type const pos) const;
   size_type size() const;
 
   set_const_iterator begin() const;
   set_const_iterator end() const;
 
-  VariableNode findAccordingVariable(std::string const name);
-  VariableNode findVariable(std::string const name);
+  Variable::ptr_t findAccordingVariable(std::string const name);
+  Variable::ptr_t findVariable(std::string const name);
 
-  void addVariable(VariableNode variable);
-  bool removeVariable(VariableNode const variable);
-  VariableNode renameVariable(VariableNode const variable);
+  void addVariable(Variable::ptr_t variable);
+  bool removeVariable(Variable::ptr_t const variable);
+  Variable::ptr_t renameVariable(Variable::ptr_t const variable);
 
  private:
-  const_iterator find(VariableNode const variable) const;
+  const_iterator find(Variable::ptr_t const variable) const;
 
-  VariableNodeSet::iterator insertVariable(VariableNode variable);
+  Variable::set_t::iterator insertVariable(Variable::ptr_t variable);
 
-  VariableNodeSet store;
-  std::vector<VariableNodeSet::iterator> variableTable;
+  Variable::set_t store;
+  std::vector<Variable::set_t::iterator> variableTable;
   VariableMap renameMap;
 };
 }

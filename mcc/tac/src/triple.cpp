@@ -11,8 +11,7 @@ namespace mcc {
 namespace tac {
 unsigned Triple::nextId = 0;
 
-Triple::Triple(std::shared_ptr<Operand> arg)
-    : Triple(Operator(OperatorName::NOP), arg) {
+Triple::Triple(Operand::ptr_t arg) : Triple(Operator(OperatorName::NOP), arg) {
   // check if it is a terminal
   assert(arg->isLeaf() && "Operand is non-terminal!");
 }
@@ -22,16 +21,14 @@ Triple::Triple(OperatorName op) : Triple(Operator(op), nullptr) {
   assert(this->op.getType() == OperatorType::NONE && "Operator not NONE!");
 }
 
-Triple::Triple(Operator op, std::shared_ptr<Operand> arg)
-    : Triple(op, arg, nullptr) {
+Triple::Triple(Operator op, Operand::ptr_t arg) : Triple(op, arg, nullptr) {
   // check if operator is UNARY or NONE (NOP)
   assert((this->op.getType() == OperatorType::NONE ||
           this->op.getType() == OperatorType::UNARY) &&
          "Operator not UNARY or NONE!");
 }
 
-Triple::Triple(Operator op, std::shared_ptr<Operand> arg1,
-               std::shared_ptr<Operand> arg2)
+Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
     : Operand(),
       op(op),
       basicBlockId(0),
@@ -156,12 +153,12 @@ std::string Triple::toString() const {
   }
 }
 
-void Triple::setTargetVariable(std::shared_ptr<Variable> var) {
+void Triple::setTargetVariable(Variable::ptr_t var) {
   assert((var != nullptr) && "don't kill the object");
   this->targetVar = var;
 }
 
-std::shared_ptr<Variable> Triple::getTargetVariable() const {
+Variable::ptr_t Triple::getTargetVariable() const {
   assert(this->containsTargetVar() &&
          "use containsTargetVar() before you call this function");
   return this->targetVar;
@@ -175,12 +172,12 @@ bool Triple::containsTargetVar(void) const {
   return (this->targetVar != nullptr);
 }
 
-std::shared_ptr<Operand> Triple::getArg1() const {
+Operand::ptr_t Triple::getArg1() const {
   assert(this->containsArg1() &&
          "use containsArg1() before you call this function");
   return this->arg1;
 }
-std::shared_ptr<Operand> Triple::getArg2() const {
+Operand::ptr_t Triple::getArg2() const {
   assert(this->containsArg2() &&
          "use containsArg2() before you call this function");
   return this->arg2;
@@ -188,12 +185,12 @@ std::shared_ptr<Operand> Triple::getArg2() const {
 
 Operator Triple::getOperator() const { return this->op; }
 
-void Triple::setArg1(std::shared_ptr<Operand> arg) {
+void Triple::setArg1(Operand::ptr_t arg) {
   assert((arg != nullptr) && "nullptr not allowed as operand!");
   this->arg1 = arg;
 }
 
-void Triple::setArg2(std::shared_ptr<Operand> arg) {
+void Triple::setArg2(Operand::ptr_t arg) {
   assert((arg != nullptr) && "nullptr not allowed as operand!");
   this->arg2 = arg;
 }

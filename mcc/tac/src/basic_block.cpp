@@ -13,18 +13,18 @@ namespace tac {
 
 BasicBlock::BasicBlock(const unsigned id) : id(id) {}
 
-std::shared_ptr<Triple> BasicBlock::getStart() { return this->front(); }
+Triple::ptr_t BasicBlock::getStart() { return this->front(); }
 
-std::shared_ptr<Triple> BasicBlock::getEnd() { return this->back(); }
+Triple::ptr_t BasicBlock::getEnd() { return this->back(); }
 
 const unsigned BasicBlock::getBlockId() const { return id; }
 
-std::shared_ptr<Triple> BasicBlock::front() { return blockMembers.front(); }
+Triple::ptr_t BasicBlock::front() { return blockMembers.front(); }
 
-std::shared_ptr<Triple> BasicBlock::back() { return blockMembers.back(); }
+Triple::ptr_t BasicBlock::back() { return blockMembers.back(); }
 
-void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
-  SubExpressionPtr se;
+void BasicBlock::push_back(const Triple::ptr_t line) {
+  mcc::cfg::SubExpression::ptr_t se;
 
   if (convertableToSubExpression(line)) {
     se = std::make_shared<mcc::cfg::SubExpression>(line);
@@ -49,7 +49,7 @@ void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
       if (searchResult != this->varOccurrenceMap.end()) {
         searchResult->second.insert(se);
       } else {
-        SubExpressionSet seSet;
+        mcc::cfg::SubExpression::set_t seSet;
         seSet.insert(se);
 
         this->varOccurrenceMap.insert(std::make_pair(v, seSet));
@@ -95,11 +95,11 @@ void BasicBlock::push_back(const std::shared_ptr<Triple> line) {
   blockMembers.push_back(line);
 }
 
-std::vector<std::shared_ptr<Triple>>::size_type BasicBlock::size() const {
+std::vector<Triple::ptr_t>::size_type BasicBlock::size() const {
   return blockMembers.size();
 }
 
-std::vector<std::shared_ptr<Triple>> BasicBlock::getBlockMembers() const {
+std::vector<Triple::ptr_t> BasicBlock::getBlockMembers() const {
   return blockMembers;
 }
 
@@ -124,21 +124,17 @@ std::string BasicBlock::toString() const {
   return output;
 }
 
-Variable::set_t BasicBlock::getUeVar() const {
-  return ueVar;
-}
+Variable::set_t BasicBlock::getUeVar() const { return ueVar; }
 
-Variable::set_t BasicBlock::getDefVar() const {
-  return defVar;
-}
+Variable::set_t BasicBlock::getDefVar() const { return defVar; }
 
-BasicBlock::SubExpressionSet BasicBlock::getDeExpr() const { return deExpr; }
+mcc::cfg::SubExpression::set_t BasicBlock::getDeExpr() const { return deExpr; }
 
-BasicBlock::SubExpressionSet BasicBlock::getKilledExpr() const {
+mcc::cfg::SubExpression::set_t BasicBlock::getKilledExpr() const {
   return killedExpr;
 }
 
-bool convertableToSubExpression(const std::shared_ptr<Triple> line) {
+bool convertableToSubExpression(const Triple::ptr_t line) {
   if (line->containsArg1()) {
     switch (line->getOperator().getName()) {
       case OperatorName::LABEL:

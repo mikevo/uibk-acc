@@ -11,8 +11,7 @@ Variable::Variable(Type t) : Variable(t, "", std::make_shared<Scope>(0, 0)) {
   this->name = "$t" + std::to_string(this->id);
 }
 
-Variable::Variable(Type t, std::string name, std::shared_ptr<Scope> scope,
-                   unsigned index)
+Variable::Variable(Type t, std::string name, Scope::ptr_t scope, unsigned index)
     : Operand(t), name(name), scope(scope), index(index) {
   this->id = ++Variable::nextId;
 }
@@ -51,7 +50,7 @@ std::string Variable::getValue() const {
   return value;
 }
 
-std::shared_ptr<Scope> const Variable::getScope() const {
+Scope::ptr_t const Variable::getScope() const {
   if (this->isTemporary()) {
     assert((this->scope != std::make_shared<Scope>(0, 0)) &&
            "temp variable has wrong scope");

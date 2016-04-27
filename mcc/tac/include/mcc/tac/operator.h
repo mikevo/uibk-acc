@@ -8,6 +8,7 @@
 #ifndef MCC_TAC_OPERATION_H
 #define MCC_TAC_OPERATION_H
 
+#include <memory>
 #include <string>
 
 #include "mcc/tac/type.h"
@@ -40,6 +41,8 @@ enum class OperatorName {
 
 class Operator {
  public:
+  typedef std::shared_ptr<Operator> ptr_t;
+
   Operator(OperatorName name);
   OperatorType getType() const;
   OperatorName getName() const;

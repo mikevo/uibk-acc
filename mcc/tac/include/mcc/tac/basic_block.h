@@ -22,38 +22,35 @@ namespace mcc {
 namespace tac {
 class BasicBlock {
  public:
-  typedef std::shared_ptr<Triple> TriplePtr;
-  typedef std::shared_ptr<mcc::cfg::SubExpression> SubExpressionPtr;
-  typedef std::set<SubExpressionPtr, mcc::cfg::SubExpression::less>
-      SubExpressionSet;
+  typedef std::shared_ptr<BasicBlock> ptr_t;
 
   BasicBlock(const unsigned id);
-  std::shared_ptr<Triple> getStart();
-  std::shared_ptr<Triple> getEnd();
+  Triple::ptr_t getStart();
+  Triple::ptr_t getEnd();
   const unsigned getBlockId() const;
-  std::shared_ptr<Triple> front();
-  std::shared_ptr<Triple> back();
-  void push_back(const std::shared_ptr<Triple> line);
-  std::vector<std::shared_ptr<Triple>>::size_type size() const;
+  Triple::ptr_t front();
+  Triple::ptr_t back();
+  void push_back(const Triple::ptr_t line);
+  std::vector<Triple::ptr_t>::size_type size() const;
   std::string toString() const;
-  std::vector<std::shared_ptr<Triple>> getBlockMembers() const;
+  std::vector<Triple::ptr_t> getBlockMembers() const;
 
   Variable::set_t getUeVar() const;
   Variable::set_t getDefVar() const;
-  SubExpressionSet getDeExpr() const;
-  SubExpressionSet getKilledExpr() const;
+  mcc::cfg::SubExpression::set_t getDeExpr() const;
+  mcc::cfg::SubExpression::set_t getKilledExpr() const;
 
  private:
-  std::vector<TriplePtr> blockMembers;
+  std::vector<Triple::ptr_t> blockMembers;
   const unsigned id;
   Variable::set_t defVar;
   Variable::set_t ueVar;
-  SubExpressionSet deExpr;
-  SubExpressionSet killedExpr;
-  std::map<Variable::ptr_t, SubExpressionSet> varOccurrenceMap;
+  mcc::cfg::SubExpression::set_t deExpr;
+  mcc::cfg::SubExpression::set_t killedExpr;
+  std::map<Variable::ptr_t, mcc::cfg::SubExpression::set_t> varOccurrenceMap;
 };
 
-bool convertableToSubExpression(const std::shared_ptr<Triple> line);
+bool convertableToSubExpression(const Triple::ptr_t line);
 }
 }
 

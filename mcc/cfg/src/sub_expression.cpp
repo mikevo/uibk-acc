@@ -13,13 +13,14 @@
 namespace mcc {
 namespace cfg {
 
-SubExpression::SubExpression(Operator op, OperandPtr arg)
+SubExpression::SubExpression(Operator op, mcc::tac::Operand::ptr_t arg)
     : SubExpression(op, arg, nullptr) {}
 
-SubExpression::SubExpression(Operator op, OperandPtr arg1, OperandPtr arg2)
+SubExpression::SubExpression(Operator op, mcc::tac::Operand::ptr_t arg1,
+                             mcc::tac::Operand::ptr_t arg2)
     : op(op), arg1(arg1), arg2(arg2) {}
 
-SubExpression::SubExpression(TriplePtr const triple)
+SubExpression::SubExpression(mcc::tac::Triple::ptr_t const triple)
     : SubExpression(triple->getOperator(), triple->getArg1()) {
   if (triple->containsArg2()) {
     this->arg2 = triple->getArg2();
@@ -79,9 +80,9 @@ bool SubExpression::containsArg1() const { return (this->arg1 != nullptr); }
 
 bool SubExpression::containsArg2() const { return (this->arg2 != nullptr); }
 
-SubExpression::OperandPtr SubExpression::getArg1() const { return this->arg1; }
+mcc::tac::Operand::ptr_t SubExpression::getArg1() const { return this->arg1; }
 
-SubExpression::OperandPtr SubExpression::getArg2() const { return this->arg2; }
+mcc::tac::Operand::ptr_t SubExpression::getArg2() const { return this->arg2; }
 
 SubExpression::Operator SubExpression::getOperator() const { return this->op; }
 
