@@ -9,7 +9,7 @@ using namespace mcc::lvn;
 namespace mcc {
 namespace lvn {
     
-std::map<unsigned, std::shared_ptr<Triple>> LVN::tempVarAssignments;
+std::map<unsigned, Triple::ptr_t> LVN::tempVarAssignments;
     
 void LVN::transform(Tac &tac) {
   LVN::tempVarAssignments.clear();
@@ -86,15 +86,15 @@ T LVN::evaluateExpression(T arg1, T arg2, OperatorName op) {
   }
 }
 
-void LVN::updateTriple(Operator op, std::shared_ptr<Operand> arg1,
-                       std::shared_ptr<Operand> arg2, Triple &triple) {
+void LVN::updateTriple(Operator op, Operand::ptr_t arg1,
+                       Operand::ptr_t arg2, Triple &triple) {
   triple.setArg1(arg1);
   triple.setArg2(arg2);
   triple.setOperator(op);
   triple.updateResultType(op);
 }
 
-std::shared_ptr<IntLiteral> LVN::evaluateInt(Triple &triple) {
+IntLiteral::ptr_t LVN::evaluateInt(Triple &triple) {
   auto arg1 = std::static_pointer_cast<IntLiteral>(triple.getArg1());
   auto arg2 = std::static_pointer_cast<IntLiteral>(triple.getArg2());
 
@@ -105,7 +105,7 @@ std::shared_ptr<IntLiteral> LVN::evaluateInt(Triple &triple) {
   return std::make_shared<IntLiteral>(result);
 }
 
-std::shared_ptr<FloatLiteral> LVN::evaluateFloat(Triple &triple) {
+FloatLiteral::ptr_t LVN::evaluateFloat(Triple &triple) {
   auto arg1 = std::static_pointer_cast<FloatLiteral>(triple.getArg1());
   auto arg2 = std::static_pointer_cast<FloatLiteral>(triple.getArg2());
 
@@ -116,8 +116,8 @@ std::shared_ptr<FloatLiteral> LVN::evaluateFloat(Triple &triple) {
   return std::make_shared<FloatLiteral>(result);
 }
 
-std::shared_ptr<Variable> LVN::addTempVarAssignment(unsigned position, 
-                                           std::shared_ptr<Variable> var) {
+Variable::ptr_t LVN::addTempVarAssignment(unsigned position, 
+                                          Variable::ptr_t var) {
     auto tempVar = std::make_shared<Variable>(var->getType());
     auto tempAsgnTriple = std::make_shared<Triple>(Operator(OperatorName::ASSIGN),
             tempVar, var);

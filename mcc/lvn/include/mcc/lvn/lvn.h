@@ -18,16 +18,16 @@ class LVN {
   static void transform(Tac &tac);
 
  private:
-  static std::map<unsigned, std::shared_ptr<Triple>> tempVarAssignments;   
+  static std::map<unsigned, Triple::ptr_t> tempVarAssignments;   
      
   template <typename T>
-  static T evaluateExpression(T arg1, T arg2, mcc::tac::OperatorName op);
-  static void updateTriple(Operator op, std::shared_ptr<Operand> arg1,
-                           std::shared_ptr<Operand> arg2, Triple &triple);
-  static std::shared_ptr<IntLiteral> evaluateInt(Triple &);
-  static std::shared_ptr<FloatLiteral> evaluateFloat(Triple &);
-  static std::shared_ptr<Variable> addTempVarAssignment(unsigned position, 
-                                           std::shared_ptr<Variable> var);
+  static T evaluateExpression(T arg1, T arg2, tac::OperatorName op);
+  static void updateTriple(Operator op, Operand::ptr_t arg1,
+                           Operand::ptr_t arg2, Triple &triple);
+  static IntLiteral::ptr_t evaluateInt(Triple &);
+  static FloatLiteral::ptr_t evaluateFloat(Triple &);
+  static Variable::ptr_t addTempVarAssignment(unsigned position, 
+                                           Variable::ptr_t var);
   static void updateTAC(Tac &tac);
 };
 }
