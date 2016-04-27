@@ -25,6 +25,17 @@ class SubExpression {
   typedef std::shared_ptr<mcc::tac::Triple> TriplePtr;
   typedef std::shared_ptr<mcc::tac::Variable> VariablePtr;
 
+  typedef std::shared_ptr<SubExpression> ptr_t;
+
+  struct less {
+    bool operator()(const ptr_t &lhs,
+                    const ptr_t &rhs) const {
+      return *lhs.get() < *rhs.get();
+    }
+  };
+
+  typedef std::set<ptr_t, less> set_t;
+
   SubExpression(Operator op, OperandPtr arg);
   SubExpression(Operator op, OperandPtr arg1, OperandPtr arg2);
   SubExpression(TriplePtr const triple);
@@ -36,12 +47,6 @@ class SubExpression {
   bool operator==(SubExpression const other) const;
   bool operator!=(SubExpression const other) const;
 
-  struct less {
-    bool operator()(const std::shared_ptr<SubExpression> &lhs,
-                    const std::shared_ptr<SubExpression> &rhs) const {
-      return *lhs.get() < *rhs.get();
-    }
-  };
 
   std::string toString() const;
 
@@ -53,7 +58,7 @@ class SubExpression {
 
   Operator getOperator() const;
 
-  std::set<VariablePtr> getVariables() const;
+  mcc::tac::Variable::set_t getVariables() const;
 
  private:
   Operator op;

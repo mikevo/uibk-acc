@@ -19,16 +19,16 @@ namespace mcc {
 namespace tac {
 class Variable : public Operand {
  public:
-  typedef std::shared_ptr<Variable> Ptr;
+  typedef std::shared_ptr<Variable> ptr_t;
 
   struct less {
-    bool operator()(const Ptr &lhs,
-                    const Ptr &rhs) const {
+    bool operator()(const ptr_t &lhs,
+                    const ptr_t &rhs) const {
       return *lhs.get() < *rhs.get();
     }
   };
 
-  typedef std::set<Ptr, Variable::less> Set;
+  typedef std::set<ptr_t, less> set_t;
 
   // creates a temporary variable with scope (0,0)
   Variable(Type t);

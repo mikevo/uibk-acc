@@ -38,19 +38,19 @@ class BasicBlock {
   std::string toString() const;
   std::vector<std::shared_ptr<Triple>> getBlockMembers() const;
 
-  Variable::Set getUeVar() const;
-  Variable::Set getDefVar() const;
+  Variable::set_t getUeVar() const;
+  Variable::set_t getDefVar() const;
   SubExpressionSet getDeExpr() const;
   SubExpressionSet getKilledExpr() const;
 
  private:
   std::vector<TriplePtr> blockMembers;
   const unsigned id;
-  Variable::Set defVar;
-  Variable::Set ueVar;
+  Variable::set_t defVar;
+  Variable::set_t ueVar;
   SubExpressionSet deExpr;
   SubExpressionSet killedExpr;
-  std::map<Variable::Ptr, SubExpressionSet> varOccurrenceMap;
+  std::map<Variable::ptr_t, SubExpressionSet> varOccurrenceMap;
 };
 
 bool convertableToSubExpression(const std::shared_ptr<Triple> line);

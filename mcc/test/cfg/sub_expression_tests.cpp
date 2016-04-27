@@ -96,7 +96,7 @@ TEST(SubExpression, GetVariables) {
   EXPECT_EQ(0, se1.getVariables().size());
 
   Operator notOp = Operator(OperatorName::NOT);
-  std::set<std::shared_ptr<Variable>> expectedVarSet;
+  Variable::set_t expectedVarSet;
 
   auto const t1 = std::make_shared<Triple>(notOp, i);
   expectedVarSet.insert(t1->getTargetVariable());

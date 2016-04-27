@@ -85,10 +85,10 @@ SubExpression::OperandPtr SubExpression::getArg2() const { return this->arg2; }
 
 SubExpression::Operator SubExpression::getOperator() const { return this->op; }
 
-std::set<SubExpression::VariablePtr> SubExpression::getVariables() const {
+mcc::tac::Variable::set_t SubExpression::getVariables() const {
   using namespace mcc::tac;
 
-  std::set<SubExpression::VariablePtr> vars;
+  Variable::set_t vars;
 
   if (helper::isType<Triple>(this->arg1)) {
     auto triple = std::static_pointer_cast<Triple>(this->arg1);
