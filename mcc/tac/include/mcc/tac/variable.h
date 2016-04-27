@@ -18,8 +18,12 @@ namespace mcc {
 namespace tac {
 class Variable : public Operand {
  public:
+  // creates a temporary variable with scope (0,0)
   Variable(Type t);
-  Variable(Type t, std::string name);
+
+  // creates a non-temporary variable
+  Variable(Type t, std::string name, std::shared_ptr<Scope> scope);
+
   bool operator<(Variable const other) const;
 
   struct less {
@@ -39,9 +43,9 @@ class Variable : public Operand {
   void setIndex(unsigned);
   bool isTemporary() const;
 
-  std::string name;
 
  private:
+  std::string name;
   std::shared_ptr<Scope> scope;
   unsigned index;
   static unsigned nextId;

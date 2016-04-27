@@ -72,17 +72,12 @@ VariableStore::VariableNode VariableStore::renameVariable(
     VariableStore::VariableNode const variable) {
   assert(!variable->isTemporary() && "temp variables can't be renamed");
 
-  auto key =
-      std::make_shared<Variable>(variable->getType(), variable->getName());
-  key->setScope(variable->getScope());
-
   auto valuePair = this->renameMap.find(variable);
 
   if (valuePair != renameMap.end()) {
     auto &varVector = valuePair->second;
-    auto cloneVar =
-        std::make_shared<Variable>(variable->getType(), variable->getName());
-    cloneVar->setScope(variable->getScope());
+    auto cloneVar = std::make_shared<Variable>(
+        variable->getType(), variable->getName(), variable->getScope());
     cloneVar->setIndex(varVector.size());
     auto it = this->insertVariable(cloneVar);
     varVector.push_back(it);
@@ -99,8 +94,8 @@ VariableStore::VariableNode VariableStore::findAccordingVariable(
   this->setCheckPoint();
 
   do {
-    auto key = std::make_shared<Variable>(Type::AUTO, name);
-    key->setScope(this->getCurrentScope());
+    auto key =
+        std::make_shared<Variable>(Type::AUTO, name, this->getCurrentScope());
     auto mapVar = this->find(key);
 
     if (mapVar != this->renameMap.end()) {
@@ -120,8 +115,8 @@ VariableStore::VariableNode VariableStore::findAccordingVariable(
 
 VariableStore::VariableNode VariableStore::findVariable(
     std::string const name) {
-  auto const key = std::make_shared<Variable>(Type::AUTO, name);
-  key->setScope(this->getCurrentScope());
+  auto const key =
+      std::make_shared<Variable>(Type::AUTO, name, this->getCurrentScope());
 
   for (auto const &v : this->renameMap) {
     if (v.first->getName() == key->getName()) {

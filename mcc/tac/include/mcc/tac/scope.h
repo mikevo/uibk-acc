@@ -14,6 +14,8 @@ class Scope {
   Scope(unsigned depth, unsigned index);
 
   bool operator<(Scope const other) const;
+  bool operator==(Scope const other) const;
+  bool operator!=(Scope const other) const;
 
   unsigned getDepth() const;
   unsigned getIndex() const;

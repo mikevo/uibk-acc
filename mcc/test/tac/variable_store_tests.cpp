@@ -41,9 +41,10 @@ TEST(VariableStore, addVariable) {
 TEST(VariableStore, renameVariable) {
   VariableStore store;
 
-  auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
-  auto var1 = std::make_shared<Variable>(Type::INT, "b");
-  var1->setScope(std::make_shared<Scope>(1, 0));
+  auto var0 = std::make_shared<Variable>(Type::FLOAT, "a",
+                                         std::make_shared<Scope>(0, 0));
+  auto var1 =
+      std::make_shared<Variable>(Type::INT, "b", std::make_shared<Scope>(1, 0));
 
   store.addVariable(var0);
 
@@ -83,9 +84,11 @@ TEST(VariableStore, renameVariable) {
 TEST(VariableStore, removeVariable) {
   VariableStore store;
 
-  auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
-  auto var1 = std::make_shared<Variable>(Type::INT, "b");
-  var1->setScope(std::make_shared<Scope>(1, 0));
+  auto var0 =
+      std::make_shared<Variable>(Type::FLOAT, "a", store.getCurrentScope());
+  store.addNewChildScope();
+  auto var1 =
+      std::make_shared<Variable>(Type::INT, "b", store.getCurrentScope());
 
   store.addVariable(var0);
   store.addVariable(var1);
@@ -125,11 +128,11 @@ TEST(VariableStore, removeVariable) {
 TEST(VariableStore, findAccordingVariable) {
   VariableStore store;
 
-  auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
-  var0->setScope(store.getCurrentScope());
-  auto var1 = std::make_shared<Variable>(Type::INT, "b");
+  auto var0 =
+      std::make_shared<Variable>(Type::FLOAT, "a", store.getCurrentScope());
   store.addNewChildScope();
-  var1->setScope(store.getCurrentScope());
+  auto var1 =
+      std::make_shared<Variable>(Type::INT, "b", store.getCurrentScope());
 
   store.addVariable(var0);
   store.addVariable(var1);
@@ -158,11 +161,11 @@ TEST(VariableStore, findAccordingVariable) {
 TEST(VariableStore, findVariable) {
   VariableStore store;
 
-  auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
-  var0->setScope(store.getCurrentScope());
-  auto var1 = std::make_shared<Variable>(Type::INT, "b");
+  auto var0 =
+      std::make_shared<Variable>(Type::FLOAT, "a", store.getCurrentScope());
   store.addNewChildScope();
-  var1->setScope(store.getCurrentScope());
+  auto var1 =
+      std::make_shared<Variable>(Type::INT, "b", store.getCurrentScope());
 
   store.addVariable(var0);
   store.addVariable(var1);

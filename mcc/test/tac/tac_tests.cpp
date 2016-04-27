@@ -368,7 +368,6 @@ TEST(Tac, While) {
   labelId += 2;
   auto exitLabel = "$L" + std::to_string(labelId);
 
-  // FIXME: due to SSA form the loop will not carry results over iterations
   std::string expectedValue = "a0:1:0 = 0\n";
   expectedValue.append("LABEL " + againLabel + "\n");
   expectedValue.append(condVarName + " = a0:1:0 < 30\n");

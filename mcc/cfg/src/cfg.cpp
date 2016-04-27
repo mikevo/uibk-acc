@@ -34,7 +34,6 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
       set.erase(var);
     }
 
-    // TODO: possible insert of sets that are destroyed
     notKilled.insert(std::make_pair(block->getBlockId(), set));
     liveIn.insert(std::make_pair(block->getBlockId(),
                                  std::set<mcc::tac::VarTableValue>()));

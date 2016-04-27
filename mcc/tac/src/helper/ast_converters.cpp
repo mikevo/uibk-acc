@@ -151,8 +151,8 @@ ReturnType convertDeclStmt(Tac *t, AstNode n) {
   auto tempVar = v->var;
 
   auto type = getType(*tempVar->var_type.get());
-  auto variable = std::make_shared<Variable>(type, tempVar->name);
-  variable->setScope(t->getVariableStore()->getCurrentScope());
+  auto variable = std::make_shared<Variable>(
+      type, tempVar->name, t->getVariableStore()->getCurrentScope());
 
   if (isAvailable(v->init_expr)) {
     auto initExpression = convertNode(t, v->init_expr);

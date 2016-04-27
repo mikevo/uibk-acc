@@ -74,7 +74,7 @@ Triple::Triple(Operator op, std::shared_ptr<Operand> arg1,
     case OperatorName::LABEL:
       break;
     default:
-      // Creates a temporary variable that is used for the triple result
+      // Creates a temp variable scope(0,0) that is used for the triple result
       this->setTargetVariable(std::make_shared<Variable>(this->getType()));
   }
 }

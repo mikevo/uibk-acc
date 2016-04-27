@@ -1,20 +1,19 @@
 #include "mcc/tac/variable.h"
 
+#include <cassert>
+
 namespace mcc {
 namespace tac {
 unsigned Variable::nextId = 1;
 
-Variable::Variable(Type t) : Variable(t, "") {
+Variable::Variable(Type t) : Variable(t, "", std::make_shared<Scope>(0, 0)) {
   // necessary to do it after the called constructor has finished
   this->name = "$t" + std::to_string(this->id);
 }
 
-Variable::Variable(Type t, std::string name)
-    : Operand(t), name(name), index(0) {
+Variable::Variable(Type t, std::string name, std::shared_ptr<Scope> scope)
+    : Operand(t), name(name), scope(scope), index(0) {
   this->id = ++Variable::nextId;
-
-  // TODO: wrong scope info
-  this->scope = std::make_shared<Scope>(0, 0);
 }
 
 // needed exactly this way because Variable is used as key elem for maps if
@@ -34,7 +33,11 @@ bool Variable::isLeaf() const { return true; }
 std::string Variable::getName() const { return name; }
 
 std::string Variable::getNameWithIndex() const {
-  return this->getName() + std::to_string(index);
+  if (this->isTemporary()) {
+    return this->getName();
+  } else {
+    return this->getName() + std::to_string(index);
+  }
 }
 
 std::string Variable::getValue() const {
@@ -47,7 +50,13 @@ std::string Variable::getValue() const {
   return value;
 }
 
-std::shared_ptr<Scope> const Variable::getScope() const { return this->scope; }
+std::shared_ptr<Scope> const Variable::getScope() const {
+  if (this->isTemporary()) {
+    assert((this->scope != std::make_shared<Scope>(0, 0)) &&
+           "temp variable has wrong scope");
+  }
+  return this->scope;
+}
 
 void Variable::setScope(std::shared_ptr<Scope> const scope) {
   this->scope = scope;
