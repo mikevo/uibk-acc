@@ -8,7 +8,7 @@ using namespace mcc::tac;
 
 namespace mcc {
 namespace lvn {
-TEST(LVN, DISABLED_ConstantExpression) {
+TEST(LVN, ConstantExpression) {
   auto tree = parser::parse(R"(
         {
             float x = 3.5 - 1.5; 
@@ -30,27 +30,30 @@ TEST(LVN, DISABLED_ConstantExpression) {
   EXPECT_EQ(4, tac.codeLines.size());
 }
 
-TEST(LVN, DISABLED_RedundantExpression) {
+TEST(LVN, RedundantExpression) {
   auto tree = parser::parse(R"(
         {   
-            int x = 5;
-            int y = x + 12; 
+            int x = 8 * 2;
+            int y = x + 12;
+            y = 10;
             int z = x + 12;
-            int a = x + 12;
 
         })");
 
   Tac tac = Tac(tree);
   LVN::transform(tac);
   
-  std::cout << tac.toString();
+  auto tempID = tac.codeLines[2]->getTargetVariable()->getId();
+  auto tempVar = "$t" + std::to_string(tempID) + ":0:0";
 
-  std::string expectedValue = "x0:1:0 = 5\n";
+  std::string expectedValue = "x0:1:0 = 16\n";
   expectedValue.append("y0:1:0 = x0:1:0 + 12\n");
-  expectedValue.append("z0:1:0 = y0:1:0");
+  expectedValue.append(tempVar + " = y0:1:0\n");
+  expectedValue.append("y0:1:0 = 10\n");
+  expectedValue.append("z0:1:0 = " +tempVar);
 
   EXPECT_EQ(expectedValue, tac.toString());
-  EXPECT_EQ(3, tac.codeLines.size());
+  EXPECT_EQ(5, tac.codeLines.size());
 }
 }
 }

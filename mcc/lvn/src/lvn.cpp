@@ -127,8 +127,10 @@ namespace mcc {
             if (var != LVN::tempVarAssign.end()) {
                 auto tacPos = LVN::tempVarTacPos.find(keyVar);
                 if (tacPos != LVN::tempVarTacPos.end()) {
-                    tac.addLine(std::make_shared<Triple>(Operator(OperatorName::ASSIGN),
-                            keyVar, var->second), tacPos->second + offset);
+                    auto triple = std::make_shared<Triple>(Operator(OperatorName::ASSIGN),
+                            keyVar, var->second);
+                    triple->setTargetVariable(keyVar);
+                    tac.addLine(triple, tacPos->second + offset);
                     return true;
                 }
 
