@@ -29,14 +29,17 @@ typedef std::shared_ptr<bbVector> bb_type;
 class Tac {
  public:
   Tac(std::shared_ptr<ast::node> n);
+
   void addLine(Triple::ptr_t line);
-  void addLine(std::shared_ptr<Label> line);
+  void addLine(Triple::ptr_t line, unsigned position);
+  void addLine(Label::ptr_t line);
   void nextBasicBlock();
   unsigned basicBlockCount();
 
   VariableStore::ptr_t const getVariableStore();
 
   const bb_type getBasicBlockIndex();
+  void createBasicBlockIndex();
   void addToVarTable(Variable::ptr_t value);
   Variable::ptr_t addVarRenaming(Variable::ptr_t const key);
   void removeFromVarTable(Variable::ptr_t const value);
@@ -47,7 +50,6 @@ class Tac {
  private:
   VariableStore::ptr_t variableStore;
   void convertAst(std::shared_ptr<ast::node> n);
-  void createBasicBlockIndex();
   unsigned currentBasicBlock;
   bb_type basicBlockIndex;
 };

@@ -37,6 +37,26 @@ void Tac::addLine(Label::ptr_t line) {
   this->codeLines.push_back(line);
 }
 
+void Tac::addLine(Triple::ptr_t line, unsigned position) {
+  assert(position >= 0 && "Position cannot be negative!");
+
+  if (position > 0) {
+    auto prevTriple = (*std::prev(this->codeLines.begin() + position));
+    auto op = prevTriple->getOperator().getName();
+    unsigned blockID = prevTriple->getBasicBlockId();
+    if (op == OperatorName::JUMP || op == OperatorName::JUMPFALSE) {
+      line->setBasicBlockId(blockID + 1);
+    } else {
+      line->setBasicBlockId(blockID);
+    }
+  } else {
+    line->setBasicBlockId(0);
+  }
+
+  auto iterator = this->codeLines.begin();
+  this->codeLines.insert(iterator + position, line);
+}
+
 VariableStore::ptr_t const Tac::getVariableStore() {
   return this->variableStore;
 }
