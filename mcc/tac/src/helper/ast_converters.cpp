@@ -135,13 +135,13 @@ ReturnType convertCompoundStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::compound_stmt>(n);
   auto statements = v->statements;
 
-  t->getVariableStore()->addNewChild();
+  t->getVariableStore()->addNewChildScope();
 
   for (auto const &s : statements) {
     convertNode(t, s);
   }
 
-  t->getVariableStore()->goToParent();
+  t->getVariableStore()->goToParentScope();
 
   return nullptr;
 }

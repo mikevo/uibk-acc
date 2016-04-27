@@ -126,7 +126,7 @@ VariableStore::VariableNode VariableStore::findAccordingVariable(
       auto result = vector.back();
       return *result;
     }
-  } while (this->goToParent());
+  } while (this->goToParentScope());
 
   // Debugging output; this is only printed if something goes terribly
   // wrong

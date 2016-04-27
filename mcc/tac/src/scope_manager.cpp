@@ -1,14 +1,14 @@
 /*
- * scope.cpp
+ * scope_manager.cpp
  *
  *  Created on: Apr 21, 2016
  */
 
-#include "mcc/tac/scope.h"
+#include "mcc/tac/scope_manager.h"
 
 namespace mcc {
 namespace tac {
-Scope::Scope()
+ScopeManager::ScopeManager()
     : root(std::make_shared<ScopeNode>(0, 0)),
       currentScope(this->root),
       checkPoint(this->root),
@@ -16,9 +16,11 @@ Scope::Scope()
   this->addVertex(this->currentScope);
 }
 
-Scope::Vertex const Scope::getCurrentScope() const { return currentScope; }
+ScopeManager::Vertex const ScopeManager::getCurrentScope() const {
+  return currentScope;
+}
 
-bool Scope::goToParent() {
+bool ScopeManager::goToParentScope() {
   auto vd = this->vertexMap.at(this->currentScope);
 
   auto inEdges = boost::in_edges(vd, this->graph);
@@ -34,7 +36,7 @@ bool Scope::goToParent() {
   }
 }
 
-Scope::Vertex const Scope::addNewChild() {
+ScopeManager::Vertex const ScopeManager::addNewChildScope() {
   auto childDepth = this->currentScope->getDepth() + 1;
   auto childIndex = this->currentScope->getNextIndex();
   auto child = std::make_shared<ScopeNode>(childDepth, childIndex);
@@ -49,28 +51,28 @@ Scope::Vertex const Scope::addNewChild() {
   return this->getCurrentScope();
 }
 
-Scope::Vertex const Scope::addNewSibling() {
+ScopeManager::Vertex const ScopeManager::addNewSiblingScope() {
   // TODO: maybe a restriction that causes trouble; if so it is necessary to
   // change the tree that it inserts a root that is never used as scope
-  auto success = this->goToParent();
+  auto success = this->goToParentScope();
   assert(success && "you can not add a sibling to the root");
 
-  return this->addNewChild();
+  return this->addNewChildScope();
 }
 
-void Scope::setCheckPoint() {
+void ScopeManager::setCheckPoint() {
   this->checkPoint = this->currentScope;
   this->checkPointValid = true;
 }
 
-void Scope::goToCheckPoint() {
+void ScopeManager::goToCheckPoint() {
   if (this->checkPointValid) {
     this->currentScope = this->checkPoint;
     this->checkPointValid = false;
   }
 }
 
-Scope::Vertex Scope::addVertex(Scope::Vertex v) {
+ScopeManager::Vertex ScopeManager::addVertex(ScopeManager::Vertex v) {
   auto d = boost::add_vertex(v, this->graph);
 
   vertexMap.insert(std::make_pair(v, d));

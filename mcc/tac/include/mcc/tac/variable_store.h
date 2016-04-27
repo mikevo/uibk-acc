@@ -14,13 +14,13 @@
 #include <utility>
 #include <vector>
 
-#include "mcc/tac/scope.h"
+#include "mcc/tac/scope_manager.h"
 #include "mcc/tac/scope_node.h"
 #include "mcc/tac/variable.h"
 
 namespace mcc {
 namespace tac {
-class VariableStore : public Scope {
+class VariableStore : public ScopeManager {
   typedef std::shared_ptr<Variable> VariableNode;
   typedef std::set<VariableNode> VariableNodeSet;
   typedef VariableNode const const_shared_ptr;

@@ -128,7 +128,7 @@ TEST(VariableStore, findAccordingVariable) {
   auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
   var0->setScope(store.getCurrentScope());
   auto var1 = std::make_shared<Variable>(Type::INT, "b");
-  store.addNewChild();
+  store.addNewChildScope();
   var1->setScope(store.getCurrentScope());
 
   store.addVariable(var0);
@@ -148,7 +148,7 @@ TEST(VariableStore, findAccordingVariable) {
   EXPECT_EQ("b0:1:0", var1->getValue());
   EXPECT_EQ("b1:1:0", rvar1->getValue());
 
-  store.addNewChild();
+  store.addNewChildScope();
 
   auto result = store.findAccordingVariable("b");
 
@@ -161,7 +161,7 @@ TEST(VariableStore, findVariable) {
   auto var0 = std::make_shared<Variable>(Type::FLOAT, "a");
   var0->setScope(store.getCurrentScope());
   auto var1 = std::make_shared<Variable>(Type::INT, "b");
-  store.addNewChild();
+  store.addNewChildScope();
   var1->setScope(store.getCurrentScope());
 
   store.addVariable(var0);
@@ -181,7 +181,7 @@ TEST(VariableStore, findVariable) {
   EXPECT_EQ("b0:1:0", var1->getValue());
   EXPECT_EQ("b1:1:0", rvar1->getValue());
 
-  store.addNewChild();
+  store.addNewChildScope();
 
   auto result = store.findVariable("b");
 

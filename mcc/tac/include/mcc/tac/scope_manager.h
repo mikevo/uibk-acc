@@ -1,11 +1,11 @@
 /*
- * scope.h
+ * scope_manager.h
  *
  *  Created on: Apr 21, 2016
  */
 
-#ifndef INCLUDES_MCC_TAC_SCOPE_H_
-#define INCLUDES_MCC_TAC_SCOPE_H_
+#ifndef INCLUDES_MCC_TAC_SCOPE_MANAGER_H_
+#define INCLUDES_MCC_TAC_SCOPE_MANAGER_H_
 
 #include "mcc/tac/scope_node.h"
 
@@ -13,19 +13,19 @@
 
 namespace mcc {
 namespace tac {
-class Scope {
+class ScopeManager {
  public:
   typedef std::shared_ptr<ScopeNode> Vertex;
   typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
                                 Vertex> Graph;
   typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
 
-  Scope();
+  ScopeManager();
   Vertex const getCurrentScope() const;
 
-  bool goToParent();
-  Vertex const addNewChild();
-  Vertex const addNewSibling();
+  bool goToParentScope();
+  Vertex const addNewChildScope();
+  Vertex const addNewSiblingScope();
 
   void setCheckPoint();
   void goToCheckPoint();
@@ -39,9 +39,9 @@ class Scope {
   std::map<Vertex, VertexDescriptor> vertexMap;
   std::map<VertexDescriptor, Vertex> descriptorMap;
 
-  Scope::Vertex addVertex(Vertex v);
+  ScopeManager::Vertex addVertex(Vertex v);
 };
 }
 }
 
-#endif /* INCLUDES_MCC_TAC_SCOPE_H_ */
+#endif /* INCLUDES_MCC_TAC_SCOPE_MANAGER_H_ */
