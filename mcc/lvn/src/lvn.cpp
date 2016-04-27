@@ -131,6 +131,7 @@ namespace mcc {
                             keyVar, var->second);
                     triple->setTargetVariable(keyVar);
                     tac.addLine(triple, tacPos->second + offset);
+                    tac.getVariableStore()->addVariable(keyVar);
                     return true;
                 }
 
