@@ -301,16 +301,18 @@ void Cfg::computeLive() {
   this->computeWorkList();
 
   for (auto const b : *basicBlockIndex.get()) {
-    auto bLive = this->computeLive(b, b->getBlockMembers().front());
+    auto bLive = this->computeLive(b, b->getBlockMembers().front(), false);
     this->live.insert(std::make_pair(this->getVertexDescriptor(b), bLive));
   }
 }
 
-mcc::tac::Variable::set_t Cfg::computeLive(
-    mcc::tac::BasicBlock::ptr_t const bb,
-    mcc::tac::Triple::ptr_t const triple) {
+mcc::tac::Variable::set_t Cfg::computeLive(mcc::tac::BasicBlock::ptr_t const bb,
+                                           mcc::tac::Triple::ptr_t const triple,
+                                           bool recomputeWorkList) {
   assert((triple->getBasicBlockId() == bb->getBlockId()) &&
          "triple not in block");
+
+  if (recomputeWorkList) this->computeWorkList();
 
   auto bLive = mcc::tac::Variable::set_t(
       this->getLiveOut(this->getVertexDescriptor(bb)));
