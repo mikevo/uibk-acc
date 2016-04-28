@@ -48,15 +48,13 @@ class Cfg {
 
   mcc::tac::Variable::set_t getNotKilled(const VertexDescriptor vertex) const;
 
-  void computeLive(void);
+  void computeLiveInOut();
   void computeWorkList();
-  void computeAvailableExpressions();
+  void computeLive();
 
   mcc::tac::Variable::set_t getLiveIn(VertexDescriptor v);
   mcc::tac::Variable::set_t getLiveOut(VertexDescriptor v);
-
-  SubExpression::set_t getNotKilledExpr(VertexDescriptor v);
-  SubExpression::set_t getAvail(VertexDescriptor v);
+  mcc::tac::Variable::set_t getLive(VertexDescriptor v);
 
   // TODO: make private
   mcc::tac::Variable::set_t variableSet;
@@ -77,10 +75,7 @@ class Cfg {
   std::map<VertexDescriptor, mcc::tac::Variable::set_t> notKilled;
   std::map<VertexDescriptor, mcc::tac::Variable::set_t> liveIn;
   std::map<VertexDescriptor, mcc::tac::Variable::set_t> liveOut;
-
-  SubExpression::set_t allSubExpressions;
-  std::map<VertexDescriptor, SubExpression::set_t> notKilledExpr;
-  std::map<VertexDescriptor, SubExpression::set_t> avail;
+  std::map<VertexDescriptor, mcc::tac::Variable::set_t> live;
 };
 }
 }

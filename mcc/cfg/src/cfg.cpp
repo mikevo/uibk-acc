@@ -19,10 +19,6 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
   }
 
   for (auto const block : *basicBlockIndex.get()) {
-    allSubExpressions = set_union(allSubExpressions, block->getDeExpr());
-  }
-
-  for (auto const block : *basicBlockIndex.get()) {
     auto descriptor = boost::add_vertex(block, graph);
 
     assert((descriptor == block->getBlockId()) &&
@@ -40,15 +36,6 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
     liveOut.insert(
         std::make_pair(block->getBlockId(), mcc::tac::Variable::set_t()));
-
-    SubExpression::set_t notKilled(allSubExpressions);
-
-    for (auto const expr : block->getKilledExpr()) {
-      notKilled.erase(expr);
-    }
-
-    avail.insert(std::make_pair(block->getBlockId(), SubExpression::set_t()));
-    notKilledExpr.insert(std::make_pair(block->getBlockId(), notKilled));
   }
 
   unsigned prevBlockId = 0;
@@ -264,7 +251,7 @@ bool Cfg::updateLiveOut(VertexDescriptor v) {
   return (changed);
 }
 
-void Cfg::computeLive(void) {
+void Cfg::computeLiveInOut() {
   bool changed;
 
   do {
@@ -310,26 +297,24 @@ void Cfg::computeWorkList() {
   }
 }
 
-void Cfg::computeAvailableExpressions() {
-  auto bbIndex = *basicBlockIndex.get();
+void Cfg::computeLive() {
+  this->computeWorkList();
 
-  for (auto it = bbIndex.begin() + 1; it != bbIndex.end(); ++it) {
-    SubExpression::set_t avail;
-    bool first = true;
+  for (auto const b : *basicBlockIndex.get()) {
+    auto bLive = mcc::tac::Variable::set_t(
+        this->getLiveOut(this->getVertexDescriptor(b)));
 
-    for (auto const p : this->getPredecessor(*it)) {
-      auto pId = p->getBlockId();
-      auto pAvail = this->getAvail(pId);
-      auto pNotKilledExpr = this->getNotKilledExpr(pId);
+    auto members = b->getBlockMembers();
+    for (auto it = members.rbegin(); it != members.rend(); ++it) {
+      auto line = *it;
+      auto se = SubExpression(line);
 
-      auto tmp = set_intersect(pAvail, pNotKilledExpr);
-      tmp = set_union(p->getDeExpr(), tmp);
-
-      avail = first ? tmp : set_intersect(avail, tmp);
-      first = false;
+      for (auto const var : se.getVariables()) {
+        bLive.insert(var);
+      }
     }
 
-    this->avail[(*it)->getBlockId()] = avail;
+    this->live.insert(std::make_pair(this->getVertexDescriptor(b), bLive));
   }
 }
 
@@ -341,12 +326,8 @@ mcc::tac::Variable::set_t Cfg::getLiveOut(VertexDescriptor v) {
   return this->liveOut.at(v);
 }
 
-SubExpression::set_t Cfg::getNotKilledExpr(VertexDescriptor v) {
-  return this->notKilledExpr.at(v);
-}
-
-SubExpression::set_t Cfg::getAvail(VertexDescriptor v) {
-  return this->avail.at(v);
+mcc::tac::Variable::set_t Cfg::getLive(VertexDescriptor v) {
+  return this->live.at(v);
 }
 }
 }

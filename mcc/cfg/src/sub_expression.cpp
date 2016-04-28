@@ -21,7 +21,11 @@ SubExpression::SubExpression(Operator op, mcc::tac::Operand::ptr_t arg1,
     : op(op), arg1(arg1), arg2(arg2) {}
 
 SubExpression::SubExpression(mcc::tac::Triple::ptr_t const triple)
-    : SubExpression(triple->getOperator(), triple->getArg1()) {
+    : SubExpression(triple->getOperator(), nullptr) {
+  if (triple->containsArg1()) {
+    this->arg1 = triple->getArg1();
+  }
+
   if (triple->containsArg2()) {
     this->arg2 = triple->getArg2();
   }
@@ -91,7 +95,7 @@ mcc::tac::Variable::set_t SubExpression::getVariables() const {
 
   Variable::set_t vars;
 
-  if (helper::isType<Triple>(this->arg1)) {
+  if (this->containsArg2() && helper::isType<Triple>(this->arg1)) {
     auto triple = std::static_pointer_cast<Triple>(this->arg1);
 
     if (triple->containsTargetVar()) {

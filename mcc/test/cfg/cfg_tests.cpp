@@ -359,7 +359,7 @@ TEST(Cfg, VariableSet) {
   EXPECT_EQ(7, graph->variableSetSize());
 }
 
-TEST(Cfg, ComputeLive) {
+TEST(Cfg, ComputeLiveInOut) {
   auto tree = parser::parse(
       R"(
                                     {
@@ -385,7 +385,7 @@ TEST(Cfg, ComputeLive) {
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  graph->computeLive();
+  graph->computeLiveInOut();
 
   auto expected =
       R"(
@@ -501,109 +501,66 @@ LiveIN
   EXPECT_EQ(expected, result);
 }
 
-// TODO: implement
-TEST(Cfg, ComputeAvailableExpressions) {
+TEST(Cfg, ComputeLive) {
   auto tree = parser::parse(
-      R"({
-                    int x=1;
-                    float y = 3.0;
+      R"(
+                                        {
+                                            int x=1;
+                                            float y = 3.0;
 
-                    if(x > 0) {
-                       y = y * 1.5;
-                    } else {
-                       y = y + 2.0;
-                    }
+                                            if(x > 0) {
+                                               y = y * 1.5;
+                                            } else {
+                                               y = y + 2.0;
+                                            }
 
-                    int a = 0;
+                                            int a = 0;
 
-                    if( 1 <= 2) {
-                        x = a;
-                        a = 1;
-                    } else {
-                        a = 2;
-                    }
-                  })");
+                                            if( 1 <= 2) {
+                                                x = a;
+                                                a = 1;
+                                            } else {
+                                                a = 2;
+                                            }
+                                          })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
-  std::cout << "TAC:" << std::endl << tac.toString() << std::endl;
   auto graph = std::make_shared<Cfg>(tac);
-  std::cout << std::endl << "BB:" << std::endl;
 
-  auto bbIndex = tac.getBasicBlockIndex();
+  graph->computeLive();
 
-  for (auto const b : *bbIndex.get()) {
-    std::cout << b->toString() << std::endl;
-  }
+  std::vector<mcc::tac::Variable::set_t> expected;
+  auto bb = tac.getBasicBlockIndex();
 
-  graph->computeAvailableExpressions();
+  mcc::tac::Variable::set_t set0;
+  set0.insert(bb->at(0)->getBlockMembers().at(1)->getTargetVariable());
+  set0.insert(bb->at(0)->getBlockMembers().at(2)->getTargetVariable());
+  expected.push_back(set0);
 
-  auto expected = R"()";
+  mcc::tac::Variable::set_t set1;
+  set1.insert(bb->at(1)->getBlockMembers().at(0)->getTargetVariable());
+  expected.push_back(set1);
 
-  std::string result = "\nNotKilledExpr\n";
+  mcc::tac::Variable::set_t set2;
+  set2.insert(bb->at(2)->getBlockMembers().at(1)->getTargetVariable());
+  expected.push_back(set2);
+
+  mcc::tac::Variable::set_t set3;
+  set3.insert(bb->at(3)->getBlockMembers().at(1)->getTargetVariable());
+  set3.insert(bb->at(3)->getBlockMembers().at(2)->getTargetVariable());
+  expected.push_back(set3);
+
+  expected.push_back(mcc::tac::Variable::set_t());  // set4
+  expected.push_back(mcc::tac::Variable::set_t());  // set5
+  expected.push_back(mcc::tac::Variable::set_t());  // set6
+
   for (unsigned i = 0; i < 7; ++i) {
-    auto empty = true;
-    for (auto out : graph->getNotKilledExpr(i)) {
-      result.append(std::to_string(i) + ": ");
-      result.append(out->toString() + "\n");
-      empty = false;
+    for (auto const var : expected.at(i)) {
+      EXPECT_NE(graph->getLive(i).end(), graph->getLive(i).find(var));
     }
-
-    if (empty) {
-      result.append(std::to_string(i) + ": \n");
-    }
-
-    result.append("\n");
   }
 
-  result.append("Killed\n");
-  for (auto const bb : *bbIndex.get()) {
-    auto empty = true;
-    for (auto out : bb->getKilledExpr()) {
-      result.append(std::to_string(bb->getBlockId()) + ": ");
-      result.append(out->toString() + "\n");
-      empty = false;
-    }
 
-    if (empty) {
-      result.append(std::to_string(bb->getBlockId()) + ": \n");
-    }
-
-    result.append("\n");
-  }
-
-  result.append("DeExpr\n");
-  for (auto const bb : *bbIndex.get()) {
-    auto empty = true;
-    for (auto out : bb->getDeExpr()) {
-      result.append(std::to_string(bb->getBlockId()) + ": ");
-      result.append(out->toString() + "\n");
-      empty = false;
-    }
-
-    if (empty) {
-      result.append(std::to_string(bb->getBlockId()) + ": \n");
-    }
-
-    result.append("\n");
-  }
-
-  result.append("\nAvail\n");
-  for (unsigned i = 0; i < 7; ++i) {
-    auto empty = true;
-    for (auto out : graph->getAvail(i)) {
-      result.append(std::to_string(i) + ": ");
-      result.append(out->toString() + "\n");
-      empty = false;
-    }
-
-    if (empty) {
-      result.append(std::to_string(i) + ": \n");
-    }
-
-    result.append("\n");
-  }
-
-  std::cout << result;
 }
 }
 }
