@@ -170,7 +170,7 @@ TEST(Cfg, DomSetVertex) {
 
   bbSet.clear();
 
-  for (auto &block : dom5) {
+  for (auto& block : dom5) {
     bbSet.insert(block);
   }
 
@@ -179,7 +179,7 @@ TEST(Cfg, DomSetVertex) {
 
   bbSet.clear();
 
-  for (auto &block : dom6) {
+  for (auto& block : dom6) {
     bbSet.insert(block);
   }
 
@@ -411,6 +411,7 @@ TEST(Cfg, ComputeLiveInOut) {
 
   unsigned bbId = 0;
   for (auto const& set : liveInSet.expected) {
+    EXPECT_EQ(set.size(), graph->getLiveIn(bbId).size());
     for (auto const var : set) {
       EXPECT_NE(graph->getLiveIn(bbId).end(), graph->getLiveIn(bbId).find(var));
     }
@@ -423,6 +424,7 @@ TEST(Cfg, ComputeLiveInOut) {
 
   bbId = 0;
   for (auto const& set : liveOutSet.expected) {
+    EXPECT_EQ(set.size(), graph->getLiveOut(bbId).size());
     for (auto const var : set) {
       EXPECT_NE(graph->getLiveOut(bbId).end(),
                 graph->getLiveOut(bbId).find(var));
@@ -466,6 +468,7 @@ TEST(Cfg, ComputeWorkList) {
 
   unsigned bbId = 0;
   for (auto const& set : liveInSet.expected) {
+    EXPECT_EQ(set.size(), graph->getLiveIn(bbId).size());
     for (auto const var : set) {
       EXPECT_NE(graph->getLiveIn(bbId).end(), graph->getLiveIn(bbId).find(var));
     }
@@ -478,6 +481,7 @@ TEST(Cfg, ComputeWorkList) {
 
   bbId = 0;
   for (auto const& set : liveOutSet.expected) {
+    EXPECT_EQ(set.size(), graph->getLiveOut(bbId).size());
     for (auto const var : set) {
       EXPECT_NE(graph->getLiveOut(bbId).end(),
                 graph->getLiveOut(bbId).find(var));
@@ -515,15 +519,20 @@ TEST(Cfg, ComputeLive) {
   graph->computeLive();
 
   auto liveSet = helper::LiveSetGen(tac);
-  liveSet.addVariable(0, 1, 0);
-  liveSet.addVariable(0, 2, 0);
-  liveSet.addVariable(1, 0, 1);
-  liveSet.addVariable(2, 1, 2);
-  liveSet.addVariable(3, 1, 3);
-  liveSet.addVariable(3, 2, 3);
+  liveSet.addVariable(0, 0, 0);  // x0:1:0
+  liveSet.addVariable(0, 1, 0);  // y0:1:0
+  liveSet.addVariable(0, 2, 0);  // $t154
+  liveSet.addVariable(1, 0, 1);  // $t157
+  liveSet.addVariable(1, 1, 1);  // y0:1:0
+  liveSet.addVariable(2, 1, 2);  // $t160
+  liveSet.addVariable(2, 2, 2);  // y0:1:0
+  liveSet.addVariable(3, 1, 3);  // a0:1:0
+  liveSet.addVariable(3, 2, 3);  // $t162
+  liveSet.addVariable(4, 1, 4);  // a0:1:0
 
   unsigned bbId = 0;
   for (auto const& set : liveSet.expected) {
+    EXPECT_EQ(set.size(), graph->getLive(bbId).size());
     for (auto const var : set) {
       EXPECT_NE(graph->getLive(bbId).end(), graph->getLive(bbId).find(var));
     }

@@ -95,19 +95,35 @@ mcc::tac::Variable::set_t SubExpression::getVariables() const {
 
   Variable::set_t vars;
 
-  if (this->containsArg2() && helper::isType<Triple>(this->arg1)) {
-    auto triple = std::static_pointer_cast<Triple>(this->arg1);
+  if (this->op.getName() != mcc::tac::OperatorName::ASSIGN) {
+    if (this->containsArg1()) {
+      if (helper::isType<Triple>(this->arg1)) {
+        auto triple = std::static_pointer_cast<Triple>(this->arg1);
 
-    if (triple->containsTargetVar()) {
-      vars.insert(triple->getTargetVariable());
+        if (triple->containsTargetVar()) {
+          vars.insert(triple->getTargetVariable());
+        }
+      }
+
+      if (helper::isType<Variable>(this->arg1)) {
+        auto var = std::static_pointer_cast<Variable>(this->arg1);
+        vars.insert(var);
+      }
     }
   }
 
-  if (this->containsArg2() && helper::isType<Triple>(this->arg2)) {
-    auto triple = std::static_pointer_cast<Triple>(this->arg2);
+  if (this->containsArg2()) {
+    if (helper::isType<Triple>(this->arg2)) {
+      auto triple = std::static_pointer_cast<Triple>(this->arg2);
 
-    if (triple->containsTargetVar()) {
-      vars.insert(triple->getTargetVariable());
+      if (triple->containsTargetVar()) {
+        vars.insert(triple->getTargetVariable());
+      }
+    }
+
+    if (helper::isType<Variable>(this->arg2)) {
+      auto var = std::static_pointer_cast<Variable>(this->arg2);
+      vars.insert(var);
     }
   }
 

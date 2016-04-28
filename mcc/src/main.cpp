@@ -43,26 +43,7 @@ int main(int argc, char **argv) {
 
   graph->computeLive();
   graph->computeWorkList();
-  graph->computeAvailableExpressions();
   for (auto const b : *bbIndex.get()) {
-    std::cout << "Avail: { ";
-    for (auto const avail : graph->getAvail(b->getBlockId())) {
-      std::cout << avail->toString() << ", ";
-    }
-    std::cout << "}" << std::endl;
-
-    std::cout << "NotKilledExpr: { ";
-    for (auto const notKilled : graph->getNotKilledExpr(b->getBlockId())) {
-      std::cout << notKilled->toString() << ", ";
-    }
-    std::cout << "}" << std::endl;
-
-    std::cout << "DeExpr: { ";
-    for (auto const deExpr : b->getDeExpr()) {
-      std::cout << deExpr->toString() << ", ";
-    }
-    std::cout << "}" << std::endl;
-
     std::cout << "LiveIn: { ";
     for (auto const in : graph->getLiveIn(b->getBlockId())) {
       std::cout << in->getName() << ", ";

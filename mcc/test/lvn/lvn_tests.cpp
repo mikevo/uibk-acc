@@ -42,7 +42,7 @@ TEST(LVN, RedundantExpression) {
 
   Tac tac = Tac(tree);
   LVN::transform(tac);
-  
+
   auto tempID = tac.codeLines[2]->getTargetVariable()->getId();
   auto tempVar = "$t" + std::to_string(tempID) + ":0:0";
 
@@ -50,7 +50,7 @@ TEST(LVN, RedundantExpression) {
   expectedValue.append("y0:1:0 = x0:1:0 + 12\n");
   expectedValue.append(tempVar + " = y0:1:0\n");
   expectedValue.append("y0:1:0 = 10\n");
-  expectedValue.append("z0:1:0 = " +tempVar);
+  expectedValue.append("z0:1:0 = " + tempVar);
 
   EXPECT_EQ(expectedValue, tac.toString());
   EXPECT_EQ(5, tac.codeLines.size());
