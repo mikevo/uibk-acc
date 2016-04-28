@@ -301,21 +301,34 @@ void Cfg::computeLive() {
   this->computeWorkList();
 
   for (auto const b : *basicBlockIndex.get()) {
-    auto bLive = mcc::tac::Variable::set_t(
-        this->getLiveOut(this->getVertexDescriptor(b)));
-
-    auto members = b->getBlockMembers();
-    for (auto it = members.rbegin(); it != members.rend(); ++it) {
-      auto line = *it;
-      auto se = SubExpression(line);
-
-      for (auto const var : se.getVariables()) {
-        bLive.insert(var);
-      }
-    }
-
+    auto bLive = this->computeLive(b, b->getBlockMembers().front());
     this->live.insert(std::make_pair(this->getVertexDescriptor(b), bLive));
   }
+}
+
+mcc::tac::Variable::set_t Cfg::computeLive(
+    mcc::tac::BasicBlock::ptr_t const bb,
+    mcc::tac::Triple::ptr_t const triple) {
+  assert((triple->getBasicBlockId() == bb->getBlockId()) &&
+         "triple not in block");
+
+  auto bLive = mcc::tac::Variable::set_t(
+      this->getLiveOut(this->getVertexDescriptor(bb)));
+
+  auto members = bb->getBlockMembers();
+  for (auto it = members.rbegin(); it != members.rend(); ++it) {
+    auto line = *it;
+
+    auto se = SubExpression(line);
+
+    for (auto const var : se.getVariables()) {
+      bLive.insert(var);
+    }
+
+    if (line == triple) break;
+  }
+
+  return bLive;
 }
 
 mcc::tac::Variable::set_t Cfg::getLiveIn(VertexDescriptor v) {

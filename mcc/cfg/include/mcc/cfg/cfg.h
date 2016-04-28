@@ -51,6 +51,8 @@ class Cfg {
   void computeLiveInOut();
   void computeWorkList();
   void computeLive();
+  mcc::tac::Variable::set_t computeLive(mcc::tac::BasicBlock::ptr_t const bb,
+                                        mcc::tac::Triple::ptr_t const triple);
 
   mcc::tac::Variable::set_t getLiveIn(VertexDescriptor v);
   mcc::tac::Variable::set_t getLiveOut(VertexDescriptor v);
