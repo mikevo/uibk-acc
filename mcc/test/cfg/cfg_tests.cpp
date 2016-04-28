@@ -8,6 +8,23 @@
 namespace mcc {
 namespace cfg {
 
+namespace helper {
+struct LiveSetGen {
+  std::vector<mcc::tac::Variable::set_t> expected;
+  mcc::tac::bb_type bbI;
+
+  LiveSetGen(mcc::tac::Tac& tac) {
+    this->bbI = tac.getBasicBlockIndex();
+    this->expected = std::vector<mcc::tac::Variable::set_t>(this->bbI->size());
+  };
+
+  void addVariable(unsigned bbId, unsigned posInBb, unsigned destBb) {
+    auto line = bbI->at(bbId)->getBlockMembers().at(posInBb);
+    expected.at(destBb).insert(line->getTargetVariable());
+  };
+};
+}
+
 TEST(Cfg, Cfg) {
   auto tree = parser::parse(
       R"(
@@ -387,47 +404,31 @@ TEST(Cfg, ComputeLiveInOut) {
 
   graph->computeLiveInOut();
 
-  auto expected =
-      R"(
-LiveOUT
-0: y0:1:0 
-1: 
-2: 
-3: a0:1:0 
-4: 
-5: 
-6: 
-LiveIN
-0: 
-1: y0:1:0 
-2: y0:1:0 
-3: 
-4: a0:1:0 
-5: 
-6: 
-)";
+  auto liveInSet = helper::LiveSetGen(tac);
+  liveInSet.addVariable(1, 1, 1);
+  liveInSet.addVariable(2, 2, 2);
+  liveInSet.addVariable(4, 1, 4);
 
-  std::string result = "\nLiveOUT\n";
-  for (unsigned i = 0; i < 7; ++i) {
-    result.append(std::to_string(i) + ": ");
-    for (auto out : graph->getLiveOut(i)) {
-      result.append(out->getValue() + " ");
+  unsigned bbId = 0;
+  for (auto const& set : liveInSet.expected) {
+    for (auto const var : set) {
+      EXPECT_NE(graph->getLiveIn(bbId).end(), graph->getLiveIn(bbId).find(var));
     }
-
-    result.append("\n");
+    ++bbId;
   }
 
-  result.append("LiveIN\n");
-  for (unsigned i = 0; i < 7; ++i) {
-    result.append(std::to_string(i) + ": ");
-    for (auto out : graph->getLiveIn(i)) {
-      result.append(out->getValue() + " ");
+  auto liveOutSet = helper::LiveSetGen(tac);
+  liveOutSet.addVariable(0, 1, 0);
+  liveOutSet.addVariable(3, 1, 3);
+
+  bbId = 0;
+  for (auto const& set : liveOutSet.expected) {
+    for (auto const var : set) {
+      EXPECT_NE(graph->getLiveOut(bbId).end(),
+                graph->getLiveOut(bbId).find(var));
     }
-
-    result.append("\n");
+    ++bbId;
   }
-
-  EXPECT_EQ(expected, result);
 }
 
 TEST(Cfg, ComputeWorkList) {
@@ -458,47 +459,31 @@ TEST(Cfg, ComputeWorkList) {
 
   graph->computeWorkList();
 
-  auto expected =
-      R"(
-LiveOUT
-0: y0:1:0 
-1: 
-2: 
-3: a0:1:0 
-4: 
-5: 
-6: 
-LiveIN
-0: 
-1: y0:1:0 
-2: y0:1:0 
-3: 
-4: a0:1:0 
-5: 
-6: 
-)";
+  auto liveInSet = helper::LiveSetGen(tac);
+  liveInSet.addVariable(1, 1, 1);
+  liveInSet.addVariable(2, 2, 2);
+  liveInSet.addVariable(4, 1, 4);
 
-  std::string result = "\nLiveOUT\n";
-  for (unsigned i = 0; i < 7; ++i) {
-    result.append(std::to_string(i) + ": ");
-    for (auto out : graph->getLiveOut(i)) {
-      result.append(out->getValue() + " ");
+  unsigned bbId = 0;
+  for (auto const& set : liveInSet.expected) {
+    for (auto const var : set) {
+      EXPECT_NE(graph->getLiveIn(bbId).end(), graph->getLiveIn(bbId).find(var));
     }
-
-    result.append("\n");
+    ++bbId;
   }
 
-  result.append("LiveIN\n");
-  for (unsigned i = 0; i < 7; ++i) {
-    result.append(std::to_string(i) + ": ");
-    for (auto out : graph->getLiveIn(i)) {
-      result.append(out->getValue() + " ");
+  auto liveOutSet = helper::LiveSetGen(tac);
+  liveOutSet.addVariable(0, 1, 0);
+  liveOutSet.addVariable(3, 1, 3);
+
+  bbId = 0;
+  for (auto const& set : liveOutSet.expected) {
+    for (auto const var : set) {
+      EXPECT_NE(graph->getLiveOut(bbId).end(),
+                graph->getLiveOut(bbId).find(var));
     }
-
-    result.append("\n");
+    ++bbId;
   }
-
-  EXPECT_EQ(expected, result);
 }
 
 TEST(Cfg, ComputeLive) {
@@ -529,38 +514,21 @@ TEST(Cfg, ComputeLive) {
 
   graph->computeLive();
 
-  std::vector<mcc::tac::Variable::set_t> expected;
-  auto bb = tac.getBasicBlockIndex();
+  auto liveSet = helper::LiveSetGen(tac);
+  liveSet.addVariable(0, 1, 0);
+  liveSet.addVariable(0, 2, 0);
+  liveSet.addVariable(1, 0, 1);
+  liveSet.addVariable(2, 1, 2);
+  liveSet.addVariable(3, 1, 3);
+  liveSet.addVariable(3, 2, 3);
 
-  mcc::tac::Variable::set_t set0;
-  set0.insert(bb->at(0)->getBlockMembers().at(1)->getTargetVariable());
-  set0.insert(bb->at(0)->getBlockMembers().at(2)->getTargetVariable());
-  expected.push_back(set0);
-
-  mcc::tac::Variable::set_t set1;
-  set1.insert(bb->at(1)->getBlockMembers().at(0)->getTargetVariable());
-  expected.push_back(set1);
-
-  mcc::tac::Variable::set_t set2;
-  set2.insert(bb->at(2)->getBlockMembers().at(1)->getTargetVariable());
-  expected.push_back(set2);
-
-  mcc::tac::Variable::set_t set3;
-  set3.insert(bb->at(3)->getBlockMembers().at(1)->getTargetVariable());
-  set3.insert(bb->at(3)->getBlockMembers().at(2)->getTargetVariable());
-  expected.push_back(set3);
-
-  expected.push_back(mcc::tac::Variable::set_t());  // set4
-  expected.push_back(mcc::tac::Variable::set_t());  // set5
-  expected.push_back(mcc::tac::Variable::set_t());  // set6
-
-  for (unsigned i = 0; i < 7; ++i) {
-    for (auto const var : expected.at(i)) {
-      EXPECT_NE(graph->getLive(i).end(), graph->getLive(i).find(var));
+  unsigned bbId = 0;
+  for (auto const& set : liveSet.expected) {
+    for (auto const var : set) {
+      EXPECT_NE(graph->getLive(bbId).end(), graph->getLive(bbId).find(var));
     }
+    ++bbId;
   }
-
-
 }
 }
 }
