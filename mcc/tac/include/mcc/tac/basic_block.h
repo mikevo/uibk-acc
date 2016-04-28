@@ -37,20 +37,13 @@ class BasicBlock {
 
   Variable::set_t getUeVar() const;
   Variable::set_t getDefVar() const;
-  mcc::cfg::SubExpression::set_t getDeExpr() const;
-  mcc::cfg::SubExpression::set_t getKilledExpr() const;
 
  private:
   std::vector<Triple::ptr_t> blockMembers;
   const unsigned id;
   Variable::set_t defVar;
   Variable::set_t ueVar;
-  mcc::cfg::SubExpression::set_t deExpr;
-  mcc::cfg::SubExpression::set_t killedExpr;
-  std::map<Variable::ptr_t, mcc::cfg::SubExpression::set_t> varOccurrenceMap;
 };
-
-bool convertableToSubExpression(const Triple::ptr_t line);
 }
 }
 

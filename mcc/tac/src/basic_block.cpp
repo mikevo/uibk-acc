@@ -26,35 +26,9 @@ Triple::ptr_t BasicBlock::back() { return blockMembers.back(); }
 void BasicBlock::push_back(const Triple::ptr_t line) {
   mcc::cfg::SubExpression::ptr_t se;
 
-  if (convertableToSubExpression(line)) {
-    se = std::make_shared<mcc::cfg::SubExpression>(line);
-    deExpr.insert(se);
-  }
-
   if (line->containsTargetVar()) {
     auto target = line->getTargetVariable();
     defVar.insert(target);
-
-    auto searchResult = this->varOccurrenceMap.find(target);
-
-    if (searchResult != this->varOccurrenceMap.end()) {
-      killedExpr = mcc::cfg::set_union(killedExpr, searchResult->second);
-    }
-  }
-
-  if (convertableToSubExpression(line)) {
-    for (auto const v : se->getVariables()) {
-      auto searchResult = this->varOccurrenceMap.find(v);
-
-      if (searchResult != this->varOccurrenceMap.end()) {
-        searchResult->second.insert(se);
-      } else {
-        mcc::cfg::SubExpression::set_t seSet;
-        seSet.insert(se);
-
-        this->varOccurrenceMap.insert(std::make_pair(v, seSet));
-      }
-    }
   }
 
   if (line->containsArg1()) {
@@ -127,26 +101,5 @@ std::string BasicBlock::toString() const {
 Variable::set_t BasicBlock::getUeVar() const { return ueVar; }
 
 Variable::set_t BasicBlock::getDefVar() const { return defVar; }
-
-mcc::cfg::SubExpression::set_t BasicBlock::getDeExpr() const { return deExpr; }
-
-mcc::cfg::SubExpression::set_t BasicBlock::getKilledExpr() const {
-  return killedExpr;
-}
-
-bool convertableToSubExpression(const Triple::ptr_t line) {
-  if (line->containsArg1()) {
-    switch (line->getOperator().getName()) {
-      case OperatorName::LABEL:
-      case OperatorName::JUMP:
-      case OperatorName::JUMPFALSE:
-        return false;
-      default:
-        return true;
-    }
-  } else {
-    return false;
-  }
-}
 }
 }
