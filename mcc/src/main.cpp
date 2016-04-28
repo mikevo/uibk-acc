@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
   auto bbIndex = tac.getBasicBlockIndex();
 
-  graph->computeLive();
+  graph->computeLiveInOut();
   graph->computeWorkList();
   for (auto const b : *bbIndex.get()) {
     std::cout << "LiveIn: { ";

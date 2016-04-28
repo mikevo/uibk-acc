@@ -297,13 +297,11 @@ void Cfg::computeWorkList() {
   }
 }
 
-mcc::tac::Variable::set_t Cfg::isLiveAt(mcc::tac::BasicBlock::ptr_t const bb,
-                                        mcc::tac::Triple::ptr_t const triple,
-                                        bool recomputeWorkList) {
-  assert((triple->getBasicBlockId() == bb->getBlockId()) &&
-         "triple not in block");
-
+mcc::tac::Variable::set_t Cfg::liveSetAt(mcc::tac::Triple::ptr_t const triple,
+                                         bool recomputeWorkList) {
   if (recomputeWorkList) this->computeWorkList();
+
+  auto bb = basicBlockIndex->at(triple->getBasicBlockId());
 
   auto bLive = mcc::tac::Variable::set_t(
       this->getLiveOut(this->getVertexDescriptor(bb)));
@@ -331,10 +329,12 @@ mcc::tac::Variable::set_t Cfg::isLiveAt(mcc::tac::BasicBlock::ptr_t const bb,
   assert(false && "triple not found in block");
 }
 
-mcc::tac::Variable::set_t Cfg::isLiveAfter(mcc::tac::BasicBlock::ptr_t const bb,
-                                           mcc::tac::Triple::ptr_t const triple,
-                                           bool recomputeWorkList) {
+mcc::tac::Variable::set_t Cfg::liveSetAfter(
+    mcc::tac::Triple::ptr_t const triple, bool recomputeWorkList) {
+  auto bb = basicBlockIndex->at(triple->getBasicBlockId());
+
   if (bb->getBlockMembers().back() == triple) {
+    // TODO maybe recompute worklist if flag is set
     return getLiveOut(this->getVertexDescriptor(bb));
   } else {
     auto members = bb->getBlockMembers();
@@ -345,7 +345,7 @@ mcc::tac::Variable::set_t Cfg::isLiveAfter(mcc::tac::BasicBlock::ptr_t const bb,
       if (line == triple) {
         ++it;
         line = *it;  // set line to following line
-        return this->isLiveAt(bb, line, recomputeWorkList);
+        return this->liveSetAt(line, recomputeWorkList);
       }
     }
   }

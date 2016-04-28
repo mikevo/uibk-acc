@@ -519,7 +519,7 @@ TEST(Cfg, IsLiveAt) {
   for (auto const bb : *tac.getBasicBlockIndex().get()) {
     auto bbId = bb->getBlockId();
 
-    auto liveSet = graph->isLiveAt(bb, bb->getBlockMembers().front());
+    auto liveSet = graph->liveSetAt(bb->getBlockMembers().front());
 
     EXPECT_EQ(graph->getLiveIn(bbId).size(), liveSet.size());
     for (auto const var : graph->getLiveIn(bbId)) {
@@ -562,7 +562,7 @@ TEST(Cfg, IsLiveAfter) {
   for (auto const bb : *tac.getBasicBlockIndex().get()) {
     auto bbId = bb->getBlockId();
 
-    auto live = graph->isLiveAfter(bb, bb->getBlockMembers().front());
+    auto live = graph->liveSetAfter(bb->getBlockMembers().front());
 
     EXPECT_EQ(liveSet.expected.at(bbId).size(), live.size());
     for (auto const var : liveSet.expected.at(bbId)) {
