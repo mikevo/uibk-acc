@@ -297,18 +297,9 @@ void Cfg::computeWorkList() {
   }
 }
 
-void Cfg::computeLive() {
-  this->computeWorkList();
-
-  for (auto const b : *basicBlockIndex.get()) {
-    auto bLive = this->computeLive(b, b->getBlockMembers().front(), false);
-    this->live.insert(std::make_pair(this->getVertexDescriptor(b), bLive));
-  }
-}
-
-mcc::tac::Variable::set_t Cfg::computeLive(mcc::tac::BasicBlock::ptr_t const bb,
-                                           mcc::tac::Triple::ptr_t const triple,
-                                           bool recomputeWorkList) {
+mcc::tac::Variable::set_t Cfg::isLiveAt(mcc::tac::BasicBlock::ptr_t const bb,
+                                        mcc::tac::Triple::ptr_t const triple,
+                                        bool recomputeWorkList) {
   assert((triple->getBasicBlockId() == bb->getBlockId()) &&
          "triple not in block");
 
@@ -327,10 +318,40 @@ mcc::tac::Variable::set_t Cfg::computeLive(mcc::tac::BasicBlock::ptr_t const bb,
       bLive.insert(var);
     }
 
-    if (line == triple) break;
+    if (line->containsTargetVar()) {
+      bLive.erase(line->getTargetVariable());
+    }
+
+    if (line == triple) {
+      return bLive;
+    }
   }
 
-  return bLive;
+  std::cout << bb->getBlockId() << " " << triple->toString() << std::endl;
+  assert(false && "triple not found in block");
+}
+
+mcc::tac::Variable::set_t Cfg::isLiveAfter(mcc::tac::BasicBlock::ptr_t const bb,
+                                           mcc::tac::Triple::ptr_t const triple,
+                                           bool recomputeWorkList) {
+  if (bb->getBlockMembers().back() == triple) {
+    return getLiveOut(this->getVertexDescriptor(bb));
+  } else {
+    auto members = bb->getBlockMembers();
+
+    for (auto it = members.begin(); it != members.end(); ++it) {
+      auto line = *it;
+
+      if (line == triple) {
+        ++it;
+        line = *it;  // set line to following line
+        return this->isLiveAt(bb, line, recomputeWorkList);
+      }
+    }
+  }
+
+  std::cout << bb->getBlockId() << " " << triple->toString() << std::endl;
+  assert(false && "triple not found in block");
 }
 
 mcc::tac::Variable::set_t Cfg::getLiveIn(VertexDescriptor v) {

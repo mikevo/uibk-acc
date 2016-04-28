@@ -490,7 +490,7 @@ TEST(Cfg, ComputeWorkList) {
   }
 }
 
-TEST(Cfg, ComputeLive) {
+TEST(Cfg, IsLiveAt) {
   auto tree = parser::parse(
       R"(
                                         {
@@ -516,27 +516,58 @@ TEST(Cfg, ComputeLive) {
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  graph->computeLive();
+  for (auto const bb : *tac.getBasicBlockIndex().get()) {
+    auto bbId = bb->getBlockId();
+
+    auto liveSet = graph->isLiveAt(bb, bb->getBlockMembers().front());
+
+    EXPECT_EQ(graph->getLiveIn(bbId).size(), liveSet.size());
+    for (auto const var : graph->getLiveIn(bbId)) {
+      EXPECT_NE(liveSet.end(), liveSet.find(var));
+    }
+  }
+}
+
+TEST(Cfg, IsLiveAfter) {
+  auto tree = parser::parse(
+      R"(
+                                        {
+                                            int x=1;
+                                            float y = 3.0;
+
+                                            if(x > 0) {
+                                               y = y * 1.5;
+                                            } else {
+                                               y = y + 2.0;
+                                            }
+
+                                            int a = 0;
+
+                                            if( 1 <= 2) {
+                                                x = a;
+                                                a = 1;
+                                            } else {
+                                                a = 2;
+                                            }
+                                          })");
+
+  mcc::tac::Tac tac = mcc::tac::Tac(tree);
+  auto graph = std::make_shared<Cfg>(tac);
 
   auto liveSet = helper::LiveSetGen(tac);
   liveSet.addVariable(0, 0, 0);  // x0:1:0
-  liveSet.addVariable(0, 1, 0);  // y0:1:0
-  liveSet.addVariable(0, 2, 0);  // $t154
   liveSet.addVariable(1, 0, 1);  // $t157
-  liveSet.addVariable(1, 1, 1);  // y0:1:0
-  liveSet.addVariable(2, 1, 2);  // $t160
   liveSet.addVariable(2, 2, 2);  // y0:1:0
-  liveSet.addVariable(3, 1, 3);  // a0:1:0
-  liveSet.addVariable(3, 2, 3);  // $t162
-  liveSet.addVariable(4, 1, 4);  // a0:1:0
 
-  unsigned bbId = 0;
-  for (auto const& set : liveSet.expected) {
-    EXPECT_EQ(set.size(), graph->getLive(bbId).size());
-    for (auto const var : set) {
-      EXPECT_NE(graph->getLive(bbId).end(), graph->getLive(bbId).find(var));
+  for (auto const bb : *tac.getBasicBlockIndex().get()) {
+    auto bbId = bb->getBlockId();
+
+    auto live = graph->isLiveAfter(bb, bb->getBlockMembers().front());
+
+    EXPECT_EQ(liveSet.expected.at(bbId).size(), live.size());
+    for (auto const var : liveSet.expected.at(bbId)) {
+      EXPECT_NE(live.end(), live.find(var));
     }
-    ++bbId;
   }
 }
 }

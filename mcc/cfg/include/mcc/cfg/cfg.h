@@ -50,8 +50,13 @@ class Cfg {
 
   void computeLiveInOut();
   void computeWorkList();
-  void computeLive();
-  mcc::tac::Variable::set_t computeLive(mcc::tac::BasicBlock::ptr_t const bb,
+
+  // live set including the given line (triple)
+  mcc::tac::Variable::set_t isLiveAt(mcc::tac::BasicBlock::ptr_t const bb,
+                                     mcc::tac::Triple::ptr_t const triple,
+                                     bool recomputeWorkList = true);
+  // live set excluding the given line (triple)
+  mcc::tac::Variable::set_t isLiveAfter(mcc::tac::BasicBlock::ptr_t const bb,
                                         mcc::tac::Triple::ptr_t const triple,
                                         bool recomputeWorkList = true);
 
