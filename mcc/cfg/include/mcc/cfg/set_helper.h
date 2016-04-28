@@ -9,6 +9,7 @@
 
 #include "mcc/tac/tac.h"
 
+#include <algorithm>
 #include <set>
 
 namespace mcc {
@@ -21,19 +22,8 @@ std::set<Key, Compare, Allocator> set_intersect(
     std::set<Key, Compare, Allocator> const &set2) {
   std::set<Key, Compare, Allocator> out;
 
-  if (set1.size() < set2.size()) {
-    for (auto const &var : set2) {
-      if (set1.find(var) != set1.end()) {
-        out.insert(var);
-      }
-    }
-  } else {
-    for (auto const &var : set1) {
-      if (set2.find(var) != set2.end()) {
-        out.insert(var);
-      }
-    }
-  }
+  std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(),
+                        std::inserter(out, out.end()));
 
   return out;
 }
@@ -43,11 +33,10 @@ template <class Key, class Compare = std::less<Key>,
 std::set<Key, Compare, Allocator> set_union(
     std::set<Key, Compare, Allocator> const &set1,
     std::set<Key, Compare, Allocator> const &set2) {
-  std::set<Key, Compare, Allocator> out(set1);
+  std::set<Key, Compare, Allocator> out;
 
-  for (auto const &var : set2) {
-    out.insert(var);
-  }
+  std::set_union(set1.begin(), set1.end(), set2.begin(), set2.end(),
+                 std::inserter(out, out.end()));
 
   return out;
 }
