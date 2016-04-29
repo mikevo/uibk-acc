@@ -492,7 +492,7 @@ TEST(Cfg, ComputeWorkList) {
   }
 }
 
-TEST(Cfg, liveSetAt) {
+TEST(Cfg, LiveSetAt) {
   auto tree = parser::parse(
       R"(
                                         {
@@ -530,7 +530,7 @@ TEST(Cfg, liveSetAt) {
   }
 }
 
-TEST(Cfg, liveSetAfter) {
+TEST(Cfg, LiveSetAfter) {
   auto tree = parser::parse(
       R"(
                                         {
