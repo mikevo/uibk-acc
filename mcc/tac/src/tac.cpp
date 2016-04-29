@@ -17,7 +17,8 @@
 namespace mcc {
 namespace tac {
 
-Tac::Tac(std::shared_ptr<ast::node> n) : currentBasicBlock(0) {
+Tac::Tac(std::shared_ptr<ast::node> n)
+    : currentBasicBlock(0), currentBasicBlockUsed(false) {
   this->variableStore = std::make_shared<VariableStore>();
   this->basicBlockIndex = std::make_shared<bbVector>();
   this->convertAst(n);
@@ -29,11 +30,13 @@ void Tac::convertAst(std::shared_ptr<ast::node> n) {
 
 void Tac::addLine(Triple::ptr_t line) {
   line->setBasicBlockId(currentBasicBlock);
+  currentBasicBlockUsed = true;
   this->codeLines.push_back(line);
 }
 
 void Tac::addLine(Label::ptr_t line) {
   line->setBasicBlockId(currentBasicBlock);
+  currentBasicBlockUsed = true;
   this->codeLines.push_back(line);
 }
 
@@ -61,13 +64,18 @@ VariableStore::ptr_t const Tac::getVariableStore() {
   return this->variableStore;
 }
 
-void Tac::nextBasicBlock() { ++currentBasicBlock; }
+void Tac::nextBasicBlock() {
+  if (currentBasicBlockUsed) {
+    ++currentBasicBlock;
+    currentBasicBlockUsed = false;
+  }
+}
 
 void Tac::createBasicBlockIndex() {
   basicBlockIndex->clear();
 
-  auto currentBasicBlock = std::make_shared<BasicBlock>(0);
   auto currentBasicBlockId = codeLines.front()->getBasicBlockId();
+  auto currentBasicBlock = std::make_shared<BasicBlock>(currentBasicBlockId);
 
   for (auto &triple : codeLines) {
     auto bbId = triple->getBasicBlockId();

@@ -51,6 +51,7 @@ class Tac {
   VariableStore::ptr_t variableStore;
   void convertAst(std::shared_ptr<ast::node> n);
   unsigned currentBasicBlock;
+  bool currentBasicBlockUsed;
   bb_type basicBlockIndex;
 };
 }
