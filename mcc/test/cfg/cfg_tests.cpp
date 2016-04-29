@@ -5,6 +5,8 @@
 #include "boost/graph/graphviz.hpp"
 #include "parser.h"
 
+#include <iostream>
+
 namespace mcc {
 namespace cfg {
 
@@ -490,7 +492,7 @@ TEST(Cfg, ComputeWorkList) {
   }
 }
 
-TEST(Cfg, IsLiveAt) {
+TEST(Cfg, liveSetAt) {
   auto tree = parser::parse(
       R"(
                                         {
@@ -528,7 +530,7 @@ TEST(Cfg, IsLiveAt) {
   }
 }
 
-TEST(Cfg, IsLiveAfter) {
+TEST(Cfg, liveSetAfter) {
   auto tree = parser::parse(
       R"(
                                         {

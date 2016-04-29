@@ -339,12 +339,14 @@ mcc::tac::Variable::set_t Cfg::liveSetAfter(
   } else {
     auto members = bb->getBlockMembers();
 
+    // find line inside BB
     for (auto it = members.begin(); it != members.end(); ++it) {
       auto line = *it;
 
       if (line == triple) {
         ++it;
         line = *it;  // set line to following line
+        // liveSetAfter result is the liveSet of the next line
         return this->liveSetAt(line, recomputeWorkList);
       }
     }
