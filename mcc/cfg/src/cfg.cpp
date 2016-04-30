@@ -132,6 +132,8 @@ const Vertex &Cfg::getIdom(const Vertex &vertex) {
 std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
   std::set<VertexDescriptor> domSet;
 
+  domSet.insert(vertex);
+
   VertexDescriptor idom = getIdom(vertex);
   while (idom > getIdom(idom)) {
     domSet.insert(idom);

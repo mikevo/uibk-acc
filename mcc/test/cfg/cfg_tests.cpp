@@ -3,7 +3,9 @@
 #include "mcc/cfg/cfg.h"
 
 #include "boost/graph/graphviz.hpp"
+#include "mcc/cfg/set_helper.h"
 #include "parser.h"
+#include "test_utils.h"
 
 #include <iostream>
 
@@ -30,28 +32,28 @@ struct LiveSetGen {
 TEST(Cfg, Cfg) {
   auto tree = parser::parse(
       R"(
-                  {
-                      int x=1;
-                      float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                      if(x > 0) {
-                        while(y < 5.0) {
-                            y = y * 1.5;
-                        }
-                      } else {
-                        while(y < 5.0) {
-                            while(y < 10.0) {
-                                y = y + 2.0;
-                            }
-                        }
-                      }
-  
-                      while(y < 10.0) {
-                        y = y + 1.0;
-                      }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                      int a = 0;
-                    })");
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
+
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
@@ -96,331 +98,525 @@ TEST(Cfg, Cfg) {
   EXPECT_EQ(expected, graph->toDot());
 }
 
+TEST(Cfg, DomTree) {
+  auto tree = parser::parse(
+      R"(
+         {
+            int x=1;
+            float y = 3.0;
+
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
+
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
+
+            int a = 0;
+         })");
+
+  mcc::tac::Tac tac = mcc::tac::Tac(tree);
+  auto graph = std::make_shared<Cfg>(tac);
+
+  auto domTree = graph->getDomTree();
+
+  for (auto domMap : domTree) {
+    unsigned expected;
+    switch (domMap.first) {
+      case 1:
+        expected = 0;
+        break;
+      case 2:
+        expected = 1;
+        break;
+      case 3:
+        expected = 1;
+        break;
+      case 4:
+        expected = 0;
+        break;
+      case 5:
+        expected = 4;
+        break;
+      case 6:
+        expected = 5;
+        break;
+      case 7:
+        expected = 6;
+        break;
+      case 8:
+        expected = 6;
+        break;
+      case 9:
+        expected = 5;
+        break;
+      case 10:
+        expected = 0;
+        break;
+      case 11:
+        expected = 10;
+        break;
+      case 12:
+        expected = 11;
+        break;
+      case 13:
+        expected = 11;
+        break;
+    }
+
+    EXPECT_EQ(expected, domMap.second);
+  }
+}
+
 TEST(Cfg, Idom) {
   auto tree = parser::parse(
       R"(
-                  {
-                      int x=1;
-                      float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                      if(x > 0) {
-                         y = y * 1.5;
-                      } else {
-                         y = y + 2.0;
-                      }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                      int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                      if( 1 <= 2) {
-                          a = 1;
-                      } else {
-                          a = 2;
-                      }
-                    })");
-
-  mcc::tac::Tac tac = mcc::tac::Tac(tree);
-  auto graph = std::make_shared<Cfg>(tac);
-
-  auto index = tac.getBasicBlockIndex();
-
-  // TODO find reason why shared pointers need << of *node
-  EXPECT_EQ(graph->getIdom(index->at(0)).get(), index->at(0).get());
-  EXPECT_EQ(graph->getIdom(index->at(1)).get(), index->at(0).get());
-  EXPECT_EQ(graph->getIdom(index->at(2)).get(), index->at(0).get());
-  EXPECT_EQ(graph->getIdom(index->at(3)).get(), index->at(0).get());
-  EXPECT_EQ(graph->getIdom(index->at(4)).get(), index->at(3).get());
-  EXPECT_EQ(graph->getIdom(index->at(5)).get(), index->at(3).get());
-  EXPECT_EQ(graph->getIdom(index->at(6)).get(), index->at(3).get());
-
-  EXPECT_EQ(graph->getIdom(0), 0);
-  EXPECT_EQ(graph->getIdom(1), 0);
-  EXPECT_EQ(graph->getIdom(2), 0);
-  EXPECT_EQ(graph->getIdom(3), 0);
-  EXPECT_EQ(graph->getIdom(4), 3);
-  EXPECT_EQ(graph->getIdom(5), 3);
-  EXPECT_EQ(graph->getIdom(6), 3);
-}
-
-TEST(Cfg, DomSetVertex) {
-  auto tree = parser::parse(
-      R"(
-                  {
-                      int x=1;
-                      float y = 3.0;
-
-                      if(x > 0) {
-                         y = y * 1.5;
-                      } else {
-                         y = y + 2.0;
-                      }
-
-                      int a = 0;
-
-                      if( 1 <= 2) {
-                          a = 1;
-                      } else {
-                          a = 2;
-                      }
-                    })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
   auto index = tac.getBasicBlockIndex();
 
-  auto dom0 = graph->getDomSet(index->at(0));
-  auto dom1 = graph->getDomSet(index->at(1));
-  auto dom2 = graph->getDomSet(index->at(2));
-  auto dom3 = graph->getDomSet(index->at(3));
-  auto dom4 = graph->getDomSet(index->at(4));
-  auto dom5 = graph->getDomSet(index->at(5));
-  auto dom6 = graph->getDomSet(index->at(6));
+  for (auto bb : *index.get()) {
+    auto idomV = graph->getIdom(bb);
+    auto idomVD = graph->getIdom(bb->getBlockId());
 
-  // TODO find reason why shared pointers need << of *node
-  EXPECT_EQ(dom0.begin()->get(), index->at(0).get());
-  EXPECT_EQ(dom1.begin()->get(), index->at(0).get());
-  EXPECT_EQ(dom2.begin()->get(), index->at(0).get());
-  EXPECT_EQ(dom3.begin()->get(), index->at(0).get());
+    Vertex expectedV;
+    VertexDescriptor expectedVD;
+    switch (bb->getBlockId()) {
+      case 0:
+        expectedVD = 0;
+        break;
+      case 1:
+        expectedVD = 0;
+        break;
+      case 2:
+        expectedVD = 1;
+        break;
+      case 3:
+        expectedVD = 1;
+        break;
+      case 4:
+        expectedVD = 0;
+        break;
+      case 5:
+        expectedVD = 4;
+        break;
+      case 6:
+        expectedVD = 5;
+        break;
+      case 7:
+        expectedVD = 6;
+        break;
+      case 8:
+        expectedVD = 6;
+        break;
+      case 9:
+        expectedVD = 5;
+        break;
+      case 10:
+        expectedVD = 0;
+        break;
+      case 11:
+        expectedVD = 10;
+        break;
+      case 12:
+        expectedVD = 11;
+        break;
+      case 13:
+        expectedVD = 11;
+        break;
+    }
+    expectedV = index->at(expectedVD);
 
-  std::set<mcc::tac::BasicBlock::ptr_t> bbSet;
-
-  for (auto const block : dom4) {
-    bbSet.insert(block);
+    // TODO find reason why shared pointers need << of *node
+    EXPECT_EQ(expectedV.get(), idomV.get());
+    EXPECT_EQ(expectedVD, idomVD);
   }
-
-  EXPECT_NE(bbSet.find(index->at(0)), bbSet.end());
-  EXPECT_NE(bbSet.find(index->at(3)), bbSet.end());
-
-  bbSet.clear();
-
-  for (auto& block : dom5) {
-    bbSet.insert(block);
-  }
-
-  EXPECT_NE(bbSet.find(index->at(0)), bbSet.end());
-  EXPECT_NE(bbSet.find(index->at(3)), bbSet.end());
-
-  bbSet.clear();
-
-  for (auto& block : dom6) {
-    bbSet.insert(block);
-  }
-
-  EXPECT_NE(bbSet.find(index->at(0)), bbSet.end());
-  EXPECT_NE(bbSet.find(index->at(3)), bbSet.end());
 }
 
 TEST(Cfg, DomSet) {
   auto tree = parser::parse(
       R"(
-                      {
-                          int x=1;
-                          float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                          if(x > 0) {
-                             y = y * 1.5;
-                          } else {
-                             y = y + 2.0;
-                          }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                          int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                          if( 1 <= 2) {
-                              a = 1;
-                          } else {
-                              a = 2;
-                          }
-                        })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  std::vector<VertexDescriptor> set;
-  set.push_back(0);
-  set.push_back(3);
+  auto index = tac.getBasicBlockIndex();
 
-  auto dom0 = graph->getDomSet(0);
-  auto dom1 = graph->getDomSet(1);
-  auto dom2 = graph->getDomSet(2);
-  auto dom3 = graph->getDomSet(3);
-  auto dom4 = graph->getDomSet(4);
-  auto dom5 = graph->getDomSet(5);
-  auto dom6 = graph->getDomSet(6);
+  for (auto bb : *index.get()) {
+    auto domSetV = graph->getDomSet(bb);
+    auto domSetVD = graph->getDomSet(bb->getBlockId());
 
-  EXPECT_NE(dom0.find(0), dom0.end());
-  EXPECT_NE(dom1.find(0), dom1.end());
-  EXPECT_NE(dom2.find(0), dom2.end());
-  EXPECT_NE(dom3.find(0), dom3.end());
+    std::set<Vertex> expectedV;
+    std::set<VertexDescriptor> expectedVD;
+    switch (bb->getBlockId()) {
+      case 0:
+        expectedVD = {0};
+        break;
+      case 1:
+        expectedVD = {0, 1};
+        break;
+      case 2:
+        expectedVD = {0, 1, 2};
+        break;
+      case 3:
+        expectedVD = {0, 1, 3};
+        break;
+      case 4:
+        expectedVD = {0, 4};
+        break;
+      case 5:
+        expectedVD = {0, 4, 5};
+        break;
+      case 6:
+        expectedVD = {0, 4, 5, 6};
+        break;
+      case 7:
+        expectedVD = {0, 4, 5, 6, 7};
+        break;
+      case 8:
+        expectedVD = {0, 4, 5, 6, 8};
+        break;
+      case 9:
+        expectedVD = {0, 4, 5, 9};
+        break;
+      case 10:
+        expectedVD = {0, 10};
+        break;
+      case 11:
+        expectedVD = {0, 10, 11};
+        break;
+      case 12:
+        expectedVD = {0, 10, 11, 12};
+        break;
+      case 13:
+        expectedVD = {0, 10, 11, 13};
+        break;
+    }
 
-  for (auto e : set) {
-    EXPECT_NE(dom4.find(e), dom4.end());
-    EXPECT_NE(dom5.find(e), dom5.end());
-    EXPECT_NE(dom6.find(e), dom6.end());
+    for (auto vd : expectedVD) {
+      expectedV.insert(index->at(vd));
+    }
+
+    EXPECT_EQ(expectedVD, domSetVD);
+    EXPECT_EQ(expectedV.size(), domSetV.size());
+
+    auto domSetVIt = domSetV.begin();
+    auto expectedVIt = expectedV.begin();
+    while (domSetVIt != domSetV.end() && expectedVIt != expectedV.end()) {
+      // TODO find reason why shared pointers need << of *node
+      EXPECT_EQ((*expectedVIt++).get(), (*domSetVIt++).get());
+    }
   }
 }
 
 TEST(Cfg, SuccessorSet) {
   auto tree = parser::parse(
       R"(
-                          {
-                              int x=1;
-                              float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                              if(x > 0) {
-                                 y = y * 1.5;
-                              } else {
-                                 y = y + 2.0;
-                              }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                              int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                              if( 1 <= 2) {
-                                  a = 1;
-                              } else {
-                                  a = 2;
-                              }
-                            })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  auto succ0 = graph->getSuccessor(0);
-  auto succ1 = graph->getSuccessor(1);
-  auto succ2 = graph->getSuccessor(2);
-  auto succ3 = graph->getSuccessor(3);
-  auto succ4 = graph->getSuccessor(4);
-  auto succ5 = graph->getSuccessor(5);
-  auto succ6 = graph->getSuccessor(6);
+  auto index = tac.getBasicBlockIndex();
 
-  EXPECT_EQ(succ0.size(), 2);
-  EXPECT_NE(succ0.find(1), succ0.end());
-  EXPECT_NE(succ0.find(2), succ0.end());
+  for (auto bb : *index.get()) {
+    auto succSetV = graph->getSuccessor(bb);
+    auto succSetVD = graph->getSuccessor(bb->getBlockId());
 
-  EXPECT_EQ(succ1.size(), 1);
-  EXPECT_NE(succ1.find(3), succ1.end());
+    std::set<Vertex> expectedV;
+    std::set<VertexDescriptor> expectedVD;
+    switch (bb->getBlockId()) {
+      case 0:
+        expectedVD = {1, 4};
+        break;
+      case 1:
+        expectedVD = {2, 3};
+        break;
+      case 2:
+        expectedVD = {1};
+        break;
+      case 3:
+        expectedVD = {10};
+        break;
+      case 4:
+        expectedVD = {5};
+        break;
+      case 5:
+        expectedVD = {6, 9};
+        break;
+      case 6:
+        expectedVD = {7, 8};
+        break;
+      case 7:
+        expectedVD = {6};
+        break;
+      case 8:
+        expectedVD = {5};
+        break;
+      case 9:
+        expectedVD = {10};
+        break;
+      case 10:
+        expectedVD = {11};
+        break;
+      case 11:
+        expectedVD = {12, 13};
+        break;
+      case 12:
+        expectedVD = {11};
+        break;
+      case 13:
+        expectedVD = {};
+        break;
+    }
 
-  EXPECT_EQ(succ2.size(), 1);
-  EXPECT_NE(succ2.find(3), succ2.end());
+    for (auto vd : expectedVD) {
+      expectedV.insert(index->at(vd));
+    }
 
-  EXPECT_EQ(succ3.size(), 2);
-  EXPECT_NE(succ3.find(4), succ3.end());
-  EXPECT_NE(succ3.find(5), succ3.end());
+    EXPECT_EQ(expectedVD, succSetVD);
+    EXPECT_EQ(expectedV.size(), succSetV.size());
 
-  EXPECT_EQ(succ4.size(), 1);
-  EXPECT_NE(succ4.find(6), succ3.end());
-
-  EXPECT_EQ(succ5.size(), 1);
-  EXPECT_NE(succ5.find(6), succ3.end());
-
-  EXPECT_EQ(succ6.size(), 0);
+    auto succSetVIt = succSetV.begin();
+    auto expectedVIt = expectedV.begin();
+    while (succSetVIt != succSetV.end() && expectedVIt != expectedV.end()) {
+      // TODO find reason why shared pointers need << of *node
+      EXPECT_EQ((*expectedVIt++).get(), (*succSetVIt++).get());
+    }
+  }
 }
 
 TEST(Cfg, PredecessorSet) {
   auto tree = parser::parse(
       R"(
-                          {
-                              int x=1;
-                              float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                              if(x > 0) {
-                                 y = y * 1.5;
-                              } else {
-                                 y = y + 2.0;
-                              }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                              int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                              if( 1 <= 2) {
-                                  a = 1;
-                              } else {
-                                  a = 2;
-                              }
-                            })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  auto pred0 = graph->getPredecessor(0);
-  auto pred1 = graph->getPredecessor(1);
-  auto pred2 = graph->getPredecessor(2);
-  auto pred3 = graph->getPredecessor(3);
-  auto pred4 = graph->getPredecessor(4);
-  auto pred5 = graph->getPredecessor(5);
-  auto pred6 = graph->getPredecessor(6);
+  auto index = tac.getBasicBlockIndex();
 
-  EXPECT_EQ(pred0.size(), 0);
+  for (auto bb : *index.get()) {
+    auto predSetV = graph->getPredecessor(bb);
+    auto predSetVD = graph->getPredecessor(bb->getBlockId());
 
-  EXPECT_EQ(pred1.size(), 1);
-  EXPECT_NE(pred1.find(0), pred1.end());
+    std::set<Vertex> expectedV;
+    std::set<VertexDescriptor> expectedVD;
+    switch (bb->getBlockId()) {
+      case 0:
+        expectedVD = {};
+        break;
+      case 1:
+        expectedVD = {0, 2};
+        break;
+      case 2:
+        expectedVD = {1};
+        break;
+      case 3:
+        expectedVD = {1};
+        break;
+      case 4:
+        expectedVD = {0};
+        break;
+      case 5:
+        expectedVD = {4, 8};
+        break;
+      case 6:
+        expectedVD = {5, 7};
+        break;
+      case 7:
+        expectedVD = {6};
+        break;
+      case 8:
+        expectedVD = {6};
+        break;
+      case 9:
+        expectedVD = {5};
+        break;
+      case 10:
+        expectedVD = {3, 9};
+        break;
+      case 11:
+        expectedVD = {10, 12};
+        break;
+      case 12:
+        expectedVD = {11};
+        break;
+      case 13:
+        expectedVD = {11};
+        break;
+    }
 
-  EXPECT_EQ(pred2.size(), 1);
-  EXPECT_NE(pred2.find(0), pred2.end());
+    for (auto vd : expectedVD) {
+      expectedV.insert(index->at(vd));
+    }
 
-  EXPECT_EQ(pred3.size(), 2);
-  EXPECT_NE(pred3.find(2), pred3.end());
-  EXPECT_NE(pred3.find(1), pred3.end());
+    EXPECT_EQ(expectedVD, predSetVD);
+    EXPECT_EQ(expectedV.size(), predSetV.size());
 
-  EXPECT_EQ(pred4.size(), 1);
-  EXPECT_NE(pred4.find(3), pred3.end());
-
-  EXPECT_EQ(pred5.size(), 1);
-  EXPECT_NE(pred5.find(3), pred3.end());
-
-  EXPECT_EQ(pred6.size(), 2);
-  EXPECT_NE(pred6.find(4), pred0.end());
-  EXPECT_NE(pred6.find(5), pred0.end());
+    auto predSetVIt = predSetV.begin();
+    auto expectedVIt = expectedV.begin();
+    while (predSetVIt != predSetV.end() && expectedVIt != expectedV.end()) {
+      // TODO find reason why shared pointers need << of *node
+      EXPECT_EQ((*expectedVIt++).get(), (*predSetVIt++).get());
+    }
+  }
 }
 
-TEST(Cfg, VariableSet) {
+TEST(Cfg, VariableSetSize) {
   auto tree = parser::parse(
       R"(
-                                {
-                                    int x=1;
-                                    float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                                    if(x > 0) {
-                                       y = y * 1.5;
-                                    } else {
-                                       y = y + 2.0;
-                                    }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                                    int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                                    if( 1 <= 2) {
-                                        a = 1;
-                                    } else {
-                                        a = 2;
-                                    }
-                                  })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  EXPECT_EQ(7, graph->variableSetSize());
+  EXPECT_EQ(11, graph->variableSetSize());
 }
 
 TEST(Cfg, ComputeLiveInOut) {
   auto tree = parser::parse(
       R"(
-                                    {
-                                        int x=1;
-                                        float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                                        if(x > 0) {
-                                           y = y * 1.5;
-                                        } else {
-                                           y = y + 2.0;
-                                        }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                                        int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                                        if( 1 <= 2) {
-                                            x = a;
-                                            a = 1;
-                                        } else {
-                                            a = 2;
-                                        }
-                                      })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
@@ -428,9 +624,13 @@ TEST(Cfg, ComputeLiveInOut) {
   graph->computeLiveInOut();
 
   auto liveInSet = helper::LiveSetGen(tac);
-  liveInSet.addVariable(1, 1, 1);
-  liveInSet.addVariable(2, 2, 2);
-  liveInSet.addVariable(4, 1, 4);
+  liveInSet.addVariable(0, 1, 1);   // y in BB1
+  liveInSet.addVariable(0, 1, 2);   // y in BB2
+  liveInSet.addVariable(0, 1, 5);   // y in BB5
+  liveInSet.addVariable(0, 1, 6);   // y in BB6
+  liveInSet.addVariable(0, 1, 7);   // y in BB7
+  liveInSet.addVariable(0, 1, 11);  // y in BB11
+  liveInSet.addVariable(0, 1, 12);  // y in BB12
 
   unsigned bbId = 0;
   for (auto const& set : liveInSet.expected) {
@@ -442,8 +642,17 @@ TEST(Cfg, ComputeLiveInOut) {
   }
 
   auto liveOutSet = helper::LiveSetGen(tac);
-  liveOutSet.addVariable(0, 1, 0);
-  liveOutSet.addVariable(3, 1, 3);
+  liveOutSet.addVariable(0, 1, 0);   // y in BB0
+  liveOutSet.addVariable(0, 1, 1);   // y in BB1
+  liveOutSet.addVariable(0, 1, 2);   // y in BB2
+  liveOutSet.addVariable(0, 1, 4);   // y in BB4
+  liveOutSet.addVariable(0, 1, 5);   // y in BB5
+  liveOutSet.addVariable(0, 1, 6);   // y in BB6
+  liveOutSet.addVariable(0, 1, 7);   // y in BB7
+  liveOutSet.addVariable(0, 1, 8);   // y in BB8
+  liveOutSet.addVariable(0, 1, 10);  // y in BB10
+  liveOutSet.addVariable(0, 1, 11);  // y in BB11
+  liveOutSet.addVariable(0, 1, 12);  // y in BB12
 
   bbId = 0;
   for (auto const& set : liveOutSet.expected) {
@@ -459,25 +668,28 @@ TEST(Cfg, ComputeLiveInOut) {
 TEST(Cfg, ComputeWorkList) {
   auto tree = parser::parse(
       R"(
-                                        {
-                                            int x=1;
-                                            float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                                            if(x > 0) {
-                                               y = y * 1.5;
-                                            } else {
-                                               y = y + 2.0;
-                                            }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                                            int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                                            if( 1 <= 2) {
-                                                x = a;
-                                                a = 1;
-                                            } else {
-                                                a = 2;
-                                            }
-                                          })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
@@ -485,9 +697,13 @@ TEST(Cfg, ComputeWorkList) {
   graph->computeWorkList();
 
   auto liveInSet = helper::LiveSetGen(tac);
-  liveInSet.addVariable(1, 1, 1);
-  liveInSet.addVariable(2, 2, 2);
-  liveInSet.addVariable(4, 1, 4);
+  liveInSet.addVariable(0, 1, 1);   // y in BB1
+  liveInSet.addVariable(0, 1, 2);   // y in BB2
+  liveInSet.addVariable(0, 1, 5);   // y in BB5
+  liveInSet.addVariable(0, 1, 6);   // y in BB6
+  liveInSet.addVariable(0, 1, 7);   // y in BB7
+  liveInSet.addVariable(0, 1, 11);  // y in BB11
+  liveInSet.addVariable(0, 1, 12);  // y in BB12
 
   unsigned bbId = 0;
   for (auto const& set : liveInSet.expected) {
@@ -499,8 +715,17 @@ TEST(Cfg, ComputeWorkList) {
   }
 
   auto liveOutSet = helper::LiveSetGen(tac);
-  liveOutSet.addVariable(0, 1, 0);
-  liveOutSet.addVariable(3, 1, 3);
+  liveOutSet.addVariable(0, 1, 0);   // y in BB0
+  liveOutSet.addVariable(0, 1, 1);   // y in BB1
+  liveOutSet.addVariable(0, 1, 2);   // y in BB2
+  liveOutSet.addVariable(0, 1, 4);   // y in BB4
+  liveOutSet.addVariable(0, 1, 5);   // y in BB5
+  liveOutSet.addVariable(0, 1, 6);   // y in BB6
+  liveOutSet.addVariable(0, 1, 7);   // y in BB7
+  liveOutSet.addVariable(0, 1, 8);   // y in BB8
+  liveOutSet.addVariable(0, 1, 10);  // y in BB10
+  liveOutSet.addVariable(0, 1, 11);  // y in BB11
+  liveOutSet.addVariable(0, 1, 12);  // y in BB12
 
   bbId = 0;
   for (auto const& set : liveOutSet.expected) {
@@ -516,36 +741,61 @@ TEST(Cfg, ComputeWorkList) {
 TEST(Cfg, LiveSetAt) {
   auto tree = parser::parse(
       R"(
-                                        {
-                                            int x=1;
-                                            float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                                            if(x > 0) {
-                                               y = y * 1.5;
-                                            } else {
-                                               y = y + 2.0;
-                                            }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                                            int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                                            if( 1 <= 2) {
-                                                x = a;
-                                                a = 1;
-                                            } else {
-                                                a = 2;
-                                            }
-                                          })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
+
+  auto expected = helper::LiveSetGen(tac);
+  // BB1
+  expected.addVariable(0, 1, 1);  // y
+  // BB2
+  expected.addVariable(0, 1, 2);  // y
+  // BB4
+  expected.addVariable(0, 1, 4);  // y
+  // BB5
+  expected.addVariable(0, 1, 5);  // y
+  // BB6
+  expected.addVariable(0, 1, 6);  // y
+  // BB7
+  expected.addVariable(0, 1, 7);  // y
+  // BB8
+  expected.addVariable(0, 1, 8);  // y
+  // BB10
+  expected.addVariable(0, 1, 10);  // y
+  // BB11
+  expected.addVariable(0, 1, 11);  // y
+  // BB12
+  expected.addVariable(0, 1, 12);  // y
 
   for (auto const bb : *tac.getBasicBlockIndex().get()) {
     auto bbId = bb->getBlockId();
 
     auto liveSet = graph->liveSetAt(bb->getBlockMembers().front());
 
-    EXPECT_EQ(graph->getLiveIn(bbId).size(), liveSet.size());
-    for (auto const var : graph->getLiveIn(bbId)) {
+    EXPECT_EQ(expected.expected.at(bbId).size(), liveSet.size());
+    for (auto const var : expected.expected.at(bbId)) {
       EXPECT_NE(liveSet.end(), liveSet.find(var));
     }
   }
@@ -554,42 +804,64 @@ TEST(Cfg, LiveSetAt) {
 TEST(Cfg, LiveSetAfter) {
   auto tree = parser::parse(
       R"(
-                                        {
-                                            int x=1;
-                                            float y = 3.0;
+         {
+            int x=1;
+            float y = 3.0;
 
-                                            if(x > 0) {
-                                               y = y * 1.5;
-                                            } else {
-                                               y = y + 2.0;
-                                            }
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
 
-                                            int a = 0;
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
 
-                                            if( 1 <= 2) {
-                                                x = a;
-                                                a = 1;
-                                            } else {
-                                                a = 2;
-                                            }
-                                          })");
+            int a = 0;
+         })");
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  auto liveSet = helper::LiveSetGen(tac);
-  liveSet.addVariable(0, 0, 0);  // x0:1:0
-  liveSet.addVariable(1, 0, 1);  // $t157
-  liveSet.addVariable(2, 2, 2);  // y0:1:0
+  auto expected = helper::LiveSetGen(tac);
+  // BB0
+  expected.addVariable(0, 0, 0);  // x
+  // BB1
+  expected.addVariable(0, 1, 1);  // y
+  // BB2
+  expected.addVariable(2, 0, 2);  // tempVar
+  // BB4
+  expected.addVariable(0, 1, 4);  // y
+  // BB5
+  expected.addVariable(0, 1, 5);  // y
+  // BB6
+  expected.addVariable(0, 1, 6);  // y
+  // BB7
+  expected.addVariable(7, 0, 7);  // tempVar
+  // BB8
+  expected.addVariable(0, 1, 8);  // y
+  // BB10
+  expected.addVariable(0, 1, 10);  // y
+  // BB11
+  expected.addVariable(0, 1, 11);  // y
+  // BB12
+  expected.addVariable(12, 0, 12);  // tempVar
 
   for (auto const bb : *tac.getBasicBlockIndex().get()) {
     auto bbId = bb->getBlockId();
 
-    auto live = graph->liveSetAfter(bb->getBlockMembers().front());
+    auto liveSet = graph->liveSetAfter(bb->getBlockMembers().front());
 
-    EXPECT_EQ(liveSet.expected.at(bbId).size(), live.size());
-    for (auto const var : liveSet.expected.at(bbId)) {
-      EXPECT_NE(live.end(), live.find(var));
+    EXPECT_EQ(expected.expected.at(bbId).size(), liveSet.size());
+    for (auto const var : expected.expected.at(bbId)) {
+      EXPECT_NE(liveSet.end(), liveSet.find(var));
     }
   }
 }
