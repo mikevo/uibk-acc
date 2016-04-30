@@ -25,7 +25,8 @@ void LVN::transform(Tac &tac) {
 
     for (auto triple : block->getBlockMembers()) {
       ++currentPos;
-      if (triple->getOperator().getType() == OperatorType::BINARY) {
+      if (triple->getOperator().getType() == OperatorType::BINARY &&
+          triple->getOperator().getName() != OperatorName::JUMPFALSE) {
         std::string valueKey = triple->getArg1()->getValue();
         valueKey.append(triple->getOperator().toString());
         valueKey.append(triple->getArg2()->getValue());

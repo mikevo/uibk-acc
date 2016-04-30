@@ -39,6 +39,7 @@ class Variable : public Operand {
 
   unsigned getId() const;
   virtual std::string getName() const;
+  std::string toString() const;
   std::string getNameWithIndex() const;
   virtual std::string getValue() const override;
   virtual bool isLeaf() const override;

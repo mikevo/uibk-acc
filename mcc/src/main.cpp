@@ -9,6 +9,7 @@
 
 using namespace mcc::tac;
 using namespace mcc::cfg;
+using namespace mcc::lvn;
 
 int main(int argc, char **argv) {
   if (argc != 2) {
@@ -31,10 +32,10 @@ int main(int argc, char **argv) {
   std::cout << "Three-Adress Code:" << std::endl;
   std::cout << tac.toString() << std::endl;
 
-  //    mcc::lvn::LVN::transform(tac);
-  //
-  //    std::cout << std::endl << "Three-Adress Code after LVN:" << std::endl;
-  //    std::cout << tac.toString() << std::endl;
+  LVN::transform(tac);
+
+  std::cout << std::endl << "Three-Adress Code after LVN:" << std::endl;
+  std::cout << tac.toString() << std::endl;
 
   auto graph = std::make_shared<Cfg>(tac);
   std::cout << std::endl << "BB:" << std::endl;
