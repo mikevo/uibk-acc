@@ -13,13 +13,15 @@ using namespace mcc::tac;
 namespace mcc {
 namespace lvn {
 
+typedef Variable::ptr_t tempAssignKey;
+typedef std::pair<Variable::ptr_t, unsigned> tempAssignValue;
+
 class LVN {
  public:
   static void transform(Tac &tac);
 
  private:
-  static std::map<Variable::ptr_t, Variable::ptr_t> tempVarAssign;
-  static std::map<Variable::ptr_t, unsigned> tempVarTacPos;
+  static std::map<tempAssignKey, tempAssignValue>  tempVarAssign;
   static Variable::set_t tempVarUsed;
 
   template <typename T>
@@ -29,7 +31,7 @@ class LVN {
   static IntLiteral::ptr_t evaluateInt(Triple &);
   static FloatLiteral::ptr_t evaluateFloat(Triple &);
   static Variable::ptr_t addTempVar(unsigned position, Variable::ptr_t var);
-  static bool addTempVarAssignment(Variable::ptr_t, Tac &tac, unsigned offset);
+  static void addTempVarAssignment(Variable::ptr_t, tempAssignValue, Tac &tac, unsigned offset);
   static void updateTac(Tac &tac);
 };
 }
