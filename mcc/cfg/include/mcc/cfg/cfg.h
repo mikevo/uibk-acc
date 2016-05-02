@@ -62,10 +62,8 @@ class Cfg {
   mcc::tac::Variable::set_t getLiveOut(VertexDescriptor v);
   mcc::tac::Variable::set_t getLive(VertexDescriptor v);
 
-  // TODO: make private
-  mcc::tac::Variable::set_t variableSet;
-
  private:
+  mcc::tac::Variable::set_t variableSet;
   const VertexDescriptor getVertexDescriptor(const Vertex &vertex) const;
   const Vertex &getVertex(const VertexDescriptor vertex) const;
   std::set<Vertex> convertSet(std::set<VertexDescriptor> inSet) const;
