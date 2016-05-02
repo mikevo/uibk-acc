@@ -396,7 +396,6 @@ TEST(Cfg, SuccessorSet) {
   auto index = tac.getBasicBlockIndex();
 
   for (auto bb : *index.get()) {
-    std::cout << bb->toString() << std::endl;
     auto succSetV = graph->getSuccessor(bb);
     auto succSetVD = graph->getSuccessor(bb->getBlockId());
 
