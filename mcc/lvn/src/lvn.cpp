@@ -3,6 +3,8 @@
 #include <cassert>
 #include <unordered_map>
 
+#include <mcc/tac/helper/ast_converters.h>
+
 using namespace mcc::tac;
 using namespace mcc::lvn;
 
@@ -34,7 +36,7 @@ void LVN::transform(Tac &tac) {
 
         if (value != valueMap.end()) {
           auto target = triple->getTargetVariable();
-          if (typeid(*value->second.get()) == typeid(Variable)) {
+          if (helper::isType<Variable>(value->second)) {
             auto var = std::static_pointer_cast<Variable>(value->second);
             LVN::tempVarUsed.insert(var);
           }
@@ -42,16 +44,16 @@ void LVN::transform(Tac &tac) {
                        *triple);
 
         } else {
-          if (typeid(*triple->getArg1()) == typeid(IntLiteral) &&
-              typeid(*triple->getArg2()) == typeid(IntLiteral)) {
+          if (helper::isType<IntLiteral>(triple->getArg1()) &&
+              helper::isType<IntLiteral>(triple->getArg2())) {
             auto result = evaluateInt(*triple);
             auto target = triple->getTargetVariable();
             valueMap.insert(std::make_pair(valueKey, result));
             updateTriple(Operator(OperatorName::ASSIGN), target, result,
                          *triple);
 
-          } else if (typeid(*triple->getArg1()) == typeid(FloatLiteral) &&
-                     typeid(*triple->getArg2()) == typeid(FloatLiteral)) {
+          } else if (helper::isType<FloatLiteral>(triple->getArg1()) &&
+                     helper::isType<FloatLiteral>(triple->getArg2())) {
             auto result = evaluateFloat(*triple);
             auto target = triple->getTargetVariable();
             valueMap.insert(std::make_pair(valueKey, result));
