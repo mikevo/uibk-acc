@@ -80,7 +80,6 @@ std::string BasicBlock::toString() const {
 
   output.append("BB-ID: " + std::to_string(id) + "\n");
 
-  // TODO: is this const& fine? i'd say yes cause line is only used in loop
   for (auto const &line : blockMembers) {
     output.append(line->toString());
     output.append("\n");

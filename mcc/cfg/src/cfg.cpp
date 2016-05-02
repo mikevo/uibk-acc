@@ -334,7 +334,7 @@ mcc::tac::Variable::set_t Cfg::liveSetAfter(
   auto bb = basicBlockIndex->at(triple->getBasicBlockId());
 
   if (bb->getBlockMembers().back() == triple) {
-    // TODO maybe recompute worklist if flag is set
+    if (recomputeWorkList) this->computeWorkList();
     return getLiveOut(this->getVertexDescriptor(bb));
   } else {
     auto members = bb->getBlockMembers();
