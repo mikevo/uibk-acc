@@ -32,10 +32,7 @@ bool Variable::isLeaf() const { return true; }
 
 std::string Variable::getName() const { return name; }
 
-std::string Variable::toString() const {
-  return getNameWithIndex() + ":" + std::to_string(getScope()->getDepth()) +
-         ":" + std::to_string(getScope()->getIndex());
-}
+std::string Variable::toString() const { return this->getValue(); }
 
 std::string Variable::getNameWithIndex() const {
   if (this->isTemporary()) {

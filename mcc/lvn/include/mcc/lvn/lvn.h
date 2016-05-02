@@ -21,7 +21,7 @@ class LVN {
   static void transform(Tac &tac);
 
  private:
-  static std::map<tempAssignKey, tempAssignValue>  tempVarAssign;
+  static std::map<tempAssignKey, tempAssignValue> tempVarAssign;
   static Variable::set_t tempVarUsed;
 
   template <typename T>
@@ -31,7 +31,8 @@ class LVN {
   static IntLiteral::ptr_t evaluateInt(Triple &);
   static FloatLiteral::ptr_t evaluateFloat(Triple &);
   static Variable::ptr_t addTempVar(unsigned position, Variable::ptr_t var);
-  static void addTempVarAssignment(Variable::ptr_t, tempAssignValue, Tac &tac, unsigned offset);
+  static void addTempVarAssignment(Variable::ptr_t, tempAssignValue, Tac &tac,
+                                   unsigned offset);
   static void updateTac(Tac &tac);
 };
 }
