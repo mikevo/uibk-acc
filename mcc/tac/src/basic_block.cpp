@@ -24,8 +24,6 @@ Triple::ptr_t BasicBlock::front() { return blockMembers.front(); }
 Triple::ptr_t BasicBlock::back() { return blockMembers.back(); }
 
 void BasicBlock::push_back(const Triple::ptr_t line) {
-  mcc::cfg::SubExpression::ptr_t se;
-
   if (line->containsTargetVar()) {
     auto target = line->getTargetVariable();
     defVar.insert(target);
@@ -82,17 +80,10 @@ std::string BasicBlock::toString() const {
 
   output.append("BB-ID: " + std::to_string(id) + "\n");
 
-  unsigned count = 0;
-
   // TODO: is this const& fine? i'd say yes cause line is only used in loop
   for (auto const &line : blockMembers) {
     output.append(line->toString());
-
-    if (blockMembers.size() > 1) {
-      output.append("\n");
-    }
-
-    ++count;
+    output.append("\n");
   }
 
   return output;

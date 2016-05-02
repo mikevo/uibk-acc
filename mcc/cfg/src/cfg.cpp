@@ -222,22 +222,20 @@ unsigned Cfg::variableSetSize() const { return variableSet.size(); }
 
 mcc::tac::Variable::set_t Cfg::getNotKilled(
     const VertexDescriptor vertex) const {
-  auto varSet(variableSet);
-
-  return varSet;
+  return this->notKilled.at(vertex);
 }
 
 bool Cfg::updateLiveIn(VertexDescriptor v) {
   auto const &ueVar = this->getVertex(v)->getUeVar();
-  auto const &notKilled = this->notKilled.at(v);
+  auto const &notKilled = this->getNotKilled(v);
 
-  auto const &liveOutSet = this->liveOut.at(v);
+  auto const &liveOutSet = this->getLiveOut(v);
 
-  auto temp1 = set_intersect(liveOutSet, notKilled);
-  auto temp2 = set_union(ueVar, temp1);
+  auto tmp = set_intersect(liveOutSet, notKilled);
+  tmp = set_union(ueVar, tmp);
 
-  auto changed = (this->liveIn.at(v) != temp2);
-  this->liveIn.at(v).swap(temp2);
+  auto changed = (this->getLiveIn(v) != tmp);
+  this->liveIn.at(v).swap(tmp);
   return changed;
 }
 
@@ -245,11 +243,11 @@ bool Cfg::updateLiveOut(VertexDescriptor v) {
   mcc::tac::Variable::set_t tmp;
 
   for (auto s : this->getSuccessor(v)) {
-    tmp = set_union(tmp, this->liveIn.at(s));
+    tmp = set_union(tmp, this->getLiveIn(s));
   }
 
-  auto changed = (this->liveOut.at(v) != tmp);
-  liveOut.at(v).swap(tmp);
+  auto changed = (this->getLiveOut(v) != tmp);
+  this->liveOut.at(v).swap(tmp);
   return (changed);
 }
 

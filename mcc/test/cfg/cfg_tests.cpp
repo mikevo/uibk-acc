@@ -396,6 +396,7 @@ TEST(Cfg, SuccessorSet) {
   auto index = tac.getBasicBlockIndex();
 
   for (auto bb : *index.get()) {
+    std::cout << bb->toString() << std::endl;
     auto succSetV = graph->getSuccessor(bb);
     auto succSetVD = graph->getSuccessor(bb->getBlockId());
 
@@ -626,9 +627,14 @@ TEST(Cfg, ComputeLiveInOut) {
   auto liveInSet = helper::LiveSetGen(tac);
   liveInSet.addVariable(0, 1, 1);   // y in BB1
   liveInSet.addVariable(0, 1, 2);   // y in BB2
+  liveInSet.addVariable(0, 1, 3);   // y in BB3
+  liveInSet.addVariable(0, 1, 4);   // y in BB4
   liveInSet.addVariable(0, 1, 5);   // y in BB5
   liveInSet.addVariable(0, 1, 6);   // y in BB6
   liveInSet.addVariable(0, 1, 7);   // y in BB7
+  liveInSet.addVariable(0, 1, 8);   // y in BB8
+  liveInSet.addVariable(0, 1, 9);   // y in BB9
+  liveInSet.addVariable(0, 1, 10);  // y in BB10
   liveInSet.addVariable(0, 1, 11);  // y in BB11
   liveInSet.addVariable(0, 1, 12);  // y in BB12
 
@@ -636,6 +642,8 @@ TEST(Cfg, ComputeLiveInOut) {
   for (auto const& set : liveInSet.expected) {
     EXPECT_EQ(set.size(), graph->getLiveIn(bbId).size());
     for (auto const var : set) {
+      std::cout << bbId << std::endl;
+
       EXPECT_NE(graph->getLiveIn(bbId).end(), graph->getLiveIn(bbId).find(var));
     }
     ++bbId;
@@ -645,11 +653,13 @@ TEST(Cfg, ComputeLiveInOut) {
   liveOutSet.addVariable(0, 1, 0);   // y in BB0
   liveOutSet.addVariable(0, 1, 1);   // y in BB1
   liveOutSet.addVariable(0, 1, 2);   // y in BB2
+  liveOutSet.addVariable(0, 1, 3);   // y in BB3
   liveOutSet.addVariable(0, 1, 4);   // y in BB4
   liveOutSet.addVariable(0, 1, 5);   // y in BB5
   liveOutSet.addVariable(0, 1, 6);   // y in BB6
   liveOutSet.addVariable(0, 1, 7);   // y in BB7
   liveOutSet.addVariable(0, 1, 8);   // y in BB8
+  liveOutSet.addVariable(0, 1, 9);   // y in BB9
   liveOutSet.addVariable(0, 1, 10);  // y in BB10
   liveOutSet.addVariable(0, 1, 11);  // y in BB11
   liveOutSet.addVariable(0, 1, 12);  // y in BB12
@@ -658,6 +668,8 @@ TEST(Cfg, ComputeLiveInOut) {
   for (auto const& set : liveOutSet.expected) {
     EXPECT_EQ(set.size(), graph->getLiveOut(bbId).size());
     for (auto const var : set) {
+      std::cout << bbId << std::endl;
+
       EXPECT_NE(graph->getLiveOut(bbId).end(),
                 graph->getLiveOut(bbId).find(var));
     }
@@ -699,9 +711,14 @@ TEST(Cfg, ComputeWorkList) {
   auto liveInSet = helper::LiveSetGen(tac);
   liveInSet.addVariable(0, 1, 1);   // y in BB1
   liveInSet.addVariable(0, 1, 2);   // y in BB2
+  liveInSet.addVariable(0, 1, 3);   // y in BB3
+  liveInSet.addVariable(0, 1, 4);   // y in BB4
   liveInSet.addVariable(0, 1, 5);   // y in BB5
   liveInSet.addVariable(0, 1, 6);   // y in BB6
   liveInSet.addVariable(0, 1, 7);   // y in BB7
+  liveInSet.addVariable(0, 1, 8);   // y in BB8
+  liveInSet.addVariable(0, 1, 9);   // y in BB9
+  liveInSet.addVariable(0, 1, 10);  // y in BB10
   liveInSet.addVariable(0, 1, 11);  // y in BB11
   liveInSet.addVariable(0, 1, 12);  // y in BB12
 
@@ -718,11 +735,13 @@ TEST(Cfg, ComputeWorkList) {
   liveOutSet.addVariable(0, 1, 0);   // y in BB0
   liveOutSet.addVariable(0, 1, 1);   // y in BB1
   liveOutSet.addVariable(0, 1, 2);   // y in BB2
+  liveOutSet.addVariable(0, 1, 3);   // y in BB3
   liveOutSet.addVariable(0, 1, 4);   // y in BB4
   liveOutSet.addVariable(0, 1, 5);   // y in BB5
   liveOutSet.addVariable(0, 1, 6);   // y in BB6
   liveOutSet.addVariable(0, 1, 7);   // y in BB7
   liveOutSet.addVariable(0, 1, 8);   // y in BB8
+  liveOutSet.addVariable(0, 1, 9);   // y in BB9
   liveOutSet.addVariable(0, 1, 10);  // y in BB10
   liveOutSet.addVariable(0, 1, 11);  // y in BB11
   liveOutSet.addVariable(0, 1, 12);  // y in BB12
