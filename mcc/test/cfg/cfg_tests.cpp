@@ -642,8 +642,6 @@ TEST(Cfg, ComputeLiveInOut) {
   for (auto const& set : liveInSet.expected) {
     EXPECT_EQ(set.size(), graph->getLiveIn(bbId).size());
     for (auto const var : set) {
-      std::cout << bbId << std::endl;
-
       EXPECT_NE(graph->getLiveIn(bbId).end(), graph->getLiveIn(bbId).find(var));
     }
     ++bbId;
@@ -668,8 +666,6 @@ TEST(Cfg, ComputeLiveInOut) {
   for (auto const& set : liveOutSet.expected) {
     EXPECT_EQ(set.size(), graph->getLiveOut(bbId).size());
     for (auto const var : set) {
-      std::cout << bbId << std::endl;
-
       EXPECT_NE(graph->getLiveOut(bbId).end(),
                 graph->getLiveOut(bbId).find(var));
     }
@@ -786,35 +782,13 @@ TEST(Cfg, LiveSetAt) {
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
 
-  auto expected = helper::LiveSetGen(tac);
-  // BB1
-  expected.addVariable(0, 1, 1);  // y
-  // BB2
-  expected.addVariable(0, 1, 2);  // y
-  // BB4
-  expected.addVariable(0, 1, 4);  // y
-  // BB5
-  expected.addVariable(0, 1, 5);  // y
-  // BB6
-  expected.addVariable(0, 1, 6);  // y
-  // BB7
-  expected.addVariable(0, 1, 7);  // y
-  // BB8
-  expected.addVariable(0, 1, 8);  // y
-  // BB10
-  expected.addVariable(0, 1, 10);  // y
-  // BB11
-  expected.addVariable(0, 1, 11);  // y
-  // BB12
-  expected.addVariable(0, 1, 12);  // y
-
   for (auto const bb : *tac.getBasicBlockIndex().get()) {
     auto bbId = bb->getBlockId();
 
     auto liveSet = graph->liveSetAt(bb->getBlockMembers().front());
 
-    EXPECT_EQ(expected.expected.at(bbId).size(), liveSet.size());
-    for (auto const var : expected.expected.at(bbId)) {
+    EXPECT_EQ(graph->getLiveIn(bbId).size(), liveSet.size());
+    for (auto const var : graph->getLiveIn(bbId)) {
       EXPECT_NE(liveSet.end(), liveSet.find(var));
     }
   }
@@ -850,28 +824,19 @@ TEST(Cfg, LiveSetAfter) {
   auto graph = std::make_shared<Cfg>(tac);
 
   auto expected = helper::LiveSetGen(tac);
-  // BB0
-  expected.addVariable(0, 0, 0);  // x
-  // BB1
-  expected.addVariable(0, 1, 1);  // y
-  // BB2
-  expected.addVariable(2, 0, 2);  // tempVar
-  // BB4
-  expected.addVariable(0, 1, 4);  // y
-  // BB5
-  expected.addVariable(0, 1, 5);  // y
-  // BB6
-  expected.addVariable(0, 1, 6);  // y
-  // BB7
-  expected.addVariable(7, 0, 7);  // tempVar
-  // BB8
-  expected.addVariable(0, 1, 8);  // y
-  // BB10
-  expected.addVariable(0, 1, 10);  // y
-  // BB11
-  expected.addVariable(0, 1, 11);  // y
-  // BB12
-  expected.addVariable(12, 0, 12);  // tempVar
+  expected.addVariable(0, 0, 0);    // x in BB0
+  expected.addVariable(0, 1, 1);    // y in BB1
+  expected.addVariable(2, 0, 2);    // tempVar in BB2
+  expected.addVariable(0, 1, 3);    // y in BB3
+  expected.addVariable(0, 1, 4);    // y in BB4
+  expected.addVariable(0, 1, 5);    // y in BB5
+  expected.addVariable(0, 1, 6);    // y in BB6
+  expected.addVariable(7, 0, 7);    // tempVar in BB7
+  expected.addVariable(0, 1, 8);    // y in BB8
+  expected.addVariable(0, 1, 9);    // y in BB9
+  expected.addVariable(0, 1, 10);   // y in BB10
+  expected.addVariable(0, 1, 11);   // y in BB11
+  expected.addVariable(12, 0, 12);  // tempVar in BB12
 
   for (auto const bb : *tac.getBasicBlockIndex().get()) {
     auto bbId = bb->getBlockId();

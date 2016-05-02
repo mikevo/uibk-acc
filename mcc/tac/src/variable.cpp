@@ -23,7 +23,7 @@ bool Variable::operator<(Variable const other) const {
   auto pairLhs = std::make_pair(this->getNameWithIndex(), this->getScope());
   auto pairRhs = std::make_pair(other.getNameWithIndex(), other.getScope());
 
-  return (pairLhs < pairRhs);
+  return (this->getValue() < other.getValue());
 }
 
 unsigned Variable::getId() const { return this->id; }

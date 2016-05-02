@@ -26,7 +26,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
     mcc::tac::Variable::set_t set(variableSet);
 
-    for (auto &var : block->getDefVar()) {
+    for (auto const var : block->getDefVar()) {
       set.erase(var);
     }
 
