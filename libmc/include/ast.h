@@ -29,7 +29,7 @@ namespace ast {
 
 	using node_list = std::vector<sptr<node>>;
 	using expr_list = std::vector<sptr<expression>>;
-	using stmt_list = std::vector<sptr<statement>>;
+	using stmt_list = std::vector<sptr<statement>>; 
 
 	bool operator==(const node_list& lhs, const node_list& rhs);
 	bool operator==(const expr_list& lhs, const expr_list& rhs);
@@ -160,6 +160,14 @@ namespace ast {
 	  virtual bool operator==(const node& other) const;
 	  virtual std::ostream& print_to(std::ostream& stream) const;
 	};
+        
+        struct functionCall_stmt : public statement {
+            string name;
+            expr_list arguments;
+            functionCall_stmt(string name, const expr_list& arguments) : name(name), arguments(arguments) {}
+            virtual bool operator==(const node& other) const;
+            virtual std::ostream& print_to(std::ostream& stream) const;
+        };
 }
 
 bool operator==(const sptr<ast::node>& lhs, const sptr<ast::node>& rhs);
