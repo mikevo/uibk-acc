@@ -32,6 +32,10 @@ namespace ast {
     bool operator==(const stmt_list& lhs, const stmt_list& rhs) {
         return list_equal(lhs, rhs);
     }
+    
+    bool operator==(const param_list& lhs, const param_list& rhs) {
+        return list_equal(lhs, rhs);
+    }
 
     bool int_type::operator==(const node& other) const {
         return typeid (other) == typeid (int_type);
@@ -230,7 +234,29 @@ namespace ast {
         paramType->print_to(stream);
         stream << " " << name;
         return stream;
+    }
+    
+    bool functionDef::operator==(const node& other) const {
+         if (typeid (other) != typeid (functionDef)) return false;
+         auto o = dynamic_cast<const functionDef&> (other);
+        return *o.body == *body && o.name == name && o.parameters == parameters && *o.returnType == *returnType;
+    }
+    std::ostream& functionDef::print_to(std::ostream& stream) const {
+        if(returnType != nullptr) {
+            returnType->print_to(stream);
+        }
+        else {
+            stream << "void ";
+        }
         
+        stream << name << "(";
+        for(auto param : parameters) {
+            param->print_to(stream);
+            stream << ", ";
+        }
+         stream << ") ";
+         body->print_to(stream);
+        return stream;
     }
 }
 

@@ -22,16 +22,21 @@ namespace ast {
 	struct expression : public node {};
 	struct literal : public expression {};
 	struct statement : public node {};
+       
 
 	// lists ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+         struct param;
+        
 	using node_list = std::vector<sptr<node>>;
 	using expr_list = std::vector<sptr<expression>>;
 	using stmt_list = std::vector<sptr<statement>>; 
+        using param_list = std::vector<sptr<param>>;  
 
 	bool operator==(const node_list& lhs, const node_list& rhs);
 	bool operator==(const expr_list& lhs, const expr_list& rhs);
 	bool operator==(const stmt_list& lhs, const stmt_list& rhs);
+        bool operator==(const param_list& lhs, const param_list& rhs);
+
 
 	// TYPES ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -173,9 +178,22 @@ namespace ast {
         struct param : public node {
             sptr<type> paramType;
             string name;
-            param();
+            param(sptr<type> paramType, string name) : paramType(paramType), name(name) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
+        };
+        
+        struct functionDef : public node {
+            sptr<type> returnType; //Set to nullptr in case of void
+            string name;
+            param_list parameters;
+            sptr<compound_stmt> body;
+            
+            functionDef(sptr<type> returnType, string name, const param_list& parameters, sptr<compound_stmt> body) 
+                : returnType(returnType), name(name), parameters(parameters), body(body) {}
+            virtual bool operator==(const node& other) const;
+            virtual std::ostream& print_to(std::ostream& stream) const;
+            
         };
         
 }
