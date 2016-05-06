@@ -58,6 +58,7 @@ namespace parser {
 	sptr<ast::unary_operation> unary_operation(parser_state& p);
 
 	sptr<ast::paren_expr> paren_expr(parser_state& p);
+        sptr<ast::functionCall_expr> functionCall_expr(parser_state& p);
 
 	sptr<ast::expression> single_expression(parser_state& p);
 	sptr<ast::expression> expression(parser_state& p);

@@ -263,9 +263,33 @@ namespace parser {
 		if(try_token(p, string(")")).empty()) throw parser_error(p, "Expected ')' at the end of parenthesized expression");
 		return std::make_shared<ast::paren_expr>(sub);
 	}
+        
+         sptr<ast::functionCall_expr> functionCall_expr(parser_state& p) {
+            auto try_p = p;
+            auto identifier = consume_identifier(try_p);
+            if(identifier.empty()) return {};
+            
+            if(try_token(p, "(").empty()) throw parser_error(p, "Expected '(' after function identifier");
+            
+            ast::expr_list arguments;
+            if(auto firstArg = expression(p)) {
+                arguments.push_back(firstArg);
+            }
+           
+            while(auto arg = expression(p)) {
+                if(try_token(p, ",").empty()) throw parser_error(p, "Expected ',' before argument");
+                arguments.push_back(arg);
+            }
+            
+            if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of argument list");
+            if(try_token(p, ";").empty()) throw parser_error(p, "Expected ';' at end of function call");
+            
+            return std::make_shared<ast::functionCall_expr>(identifier, arguments);
+            
+        }
 
 	sptr<ast::expression> single_expression(parser_state& p) {
-		return try_match<sptr<ast::expression>>(p, literal, variable, unary_operation, paren_expr);
+		return try_match<sptr<ast::expression>>(p, literal, variable, unary_operation, paren_expr, functionCall_expr);
 	}
 
 	sptr<ast::expression> expression(parser_state& p) {
@@ -325,6 +349,7 @@ namespace parser {
 	  auto stmt = expect(statement, p);
 	  return std::make_shared<ast::while_stmt>(condition, stmt);
 	}
+        
 
 	sptr<ast::statement> statement(parser_state& p) {
 		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, expr_stmt, while_stmt);

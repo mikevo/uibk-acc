@@ -39,7 +39,6 @@ namespace ast {
 
 
 	// TYPES ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	struct int_type : public type {
 		virtual bool operator==(const node& other) const;
 		virtual std::ostream& print_to(std::ostream& stream) const;
@@ -51,7 +50,14 @@ namespace ast {
 	};
 
 	// EXPRESSIONS /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        struct functionCall_expr : public expression {
+            string name;
+            expr_list arguments;
+            functionCall_expr(string name, const expr_list& arguments) : name(name), arguments(arguments) {}
+            virtual bool operator==(const node& other) const;
+            virtual std::ostream& print_to(std::ostream& stream) const;
+        };
+        
 	// terminals ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	struct int_literal : public literal {
@@ -123,7 +129,6 @@ namespace ast {
         
 
 	// STATEMENTS //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	struct expr_stmt : public statement {
 		sptr<expression> sub;
 		expr_stmt(sptr<expression> sub) : sub(sub) {}
@@ -165,14 +170,6 @@ namespace ast {
 	  virtual bool operator==(const node& other) const;
 	  virtual std::ostream& print_to(std::ostream& stream) const;
 	};
-        
-        struct functionCall_stmt : public statement {
-            string name;
-            expr_list arguments;
-            functionCall_stmt(string name, const expr_list& arguments) : name(name), arguments(arguments) {}
-            virtual bool operator==(const node& other) const;
-            virtual std::ostream& print_to(std::ostream& stream) const;
-        };
         
         // FUNCTION DEFINITION  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         struct param : public node {

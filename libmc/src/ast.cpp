@@ -209,13 +209,13 @@ namespace ast {
         return stream;
     }
     
-    bool functionCall_stmt::operator==(const node& other) const {
-        if (typeid (other) != typeid (functionCall_stmt)) return false;
-        auto o = dynamic_cast<const functionCall_stmt&> (other);
+    bool functionCall_expr::operator==(const node& other) const {
+        if (typeid (other) != typeid (functionCall_expr)) return false;
+        auto o = dynamic_cast<const functionCall_expr&> (other);
         return o.arguments == arguments && o.name == name;
     }
     
-    std::ostream& functionCall_stmt::print_to(std::ostream& stream) const {
+    std::ostream& functionCall_expr::print_to(std::ostream& stream) const {
         stream << name << "(";
         for(auto arg : arguments) {
             arg->print_to(stream);
