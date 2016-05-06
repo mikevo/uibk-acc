@@ -268,22 +268,27 @@ namespace parser {
             auto try_p = p;
             auto identifier = consume_identifier(try_p);
             if(identifier.empty()) return {};
-            
-            if(try_token(p, "(").empty()) throw parser_error(p, "Expected '(' after function identifier");
-            
-            ast::expr_list arguments;
-            if(auto firstArg = expression(p)) {
-                arguments.push_back(firstArg);
-            }
            
+            if(try_token(try_p, "(").empty()) return {};
+            p = try_p;
+             
+            ast::expr_list arguments;
             while(auto arg = expression(p)) {
-                if(try_token(p, ",").empty()) throw parser_error(p, "Expected ',' before argument");
                 arguments.push_back(arg);
+                 if(!try_token(p, ",").empty()) {
+                     auto nextArg = expression(p);
+                     if(nextArg) {
+                       arguments.push_back(nextArg);   
+                     }
+                     else {
+                        throw parser_error(p, "Expected next argument after ','"); 
+                     }
+
+                 }
+                
             }
             
             if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of argument list");
-            if(try_token(p, ";").empty()) throw parser_error(p, "Expected ';' at end of function call");
-            
             return std::make_shared<ast::functionCall_expr>(identifier, arguments);
             
         }

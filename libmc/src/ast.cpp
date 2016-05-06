@@ -32,7 +32,7 @@ namespace ast {
     bool operator==(const stmt_list& lhs, const stmt_list& rhs) {
         return list_equal(lhs, rhs);
     }
-    
+
     bool operator==(const param_list& lhs, const param_list& rhs) {
         return list_equal(lhs, rhs);
     }
@@ -208,54 +208,65 @@ namespace ast {
         stmt->print_to(stream);
         return stream;
     }
-    
+
     bool functionCall_expr::operator==(const node& other) const {
         if (typeid (other) != typeid (functionCall_expr)) return false;
         auto o = dynamic_cast<const functionCall_expr&> (other);
         return o.arguments == arguments && o.name == name;
     }
-    
+
     std::ostream& functionCall_expr::print_to(std::ostream& stream) const {
         stream << name << "(";
-        for(auto arg : arguments) {
-            arg->print_to(stream);
-            stream << ", ";
+        if (arguments.empty()) {
+            stream << ")";
+            return stream;
         }
-        stream << ");\n";
+
+        auto it = arguments.begin();
+        while (it != std::prev(arguments.end())) {
+            (*it)->print_to(stream);
+            stream << ", ";
+            ++it;
+        }
+
+        (*it)->print_to(stream);
+
+        stream << ")";
         return stream;
     }
-    
+
     bool param::operator==(const node& other) const {
-         if (typeid (other) != typeid (param)) return false;
-         auto o = dynamic_cast<const param&> (other);
+        if (typeid (other) != typeid (param)) return false;
+        auto o = dynamic_cast<const param&> (other);
         return *o.paramType == *paramType && o.name == name;
     }
+
     std::ostream& param::print_to(std::ostream& stream) const {
         paramType->print_to(stream);
         stream << " " << name;
         return stream;
     }
-    
+
     bool functionDef::operator==(const node& other) const {
-         if (typeid (other) != typeid (functionDef)) return false;
-         auto o = dynamic_cast<const functionDef&> (other);
+        if (typeid (other) != typeid (functionDef)) return false;
+        auto o = dynamic_cast<const functionDef&> (other);
         return *o.body == *body && o.name == name && o.parameters == parameters && *o.returnType == *returnType;
     }
+
     std::ostream& functionDef::print_to(std::ostream& stream) const {
-        if(returnType != nullptr) {
+        if (returnType != nullptr) {
             returnType->print_to(stream);
-        }
-        else {
+        } else {
             stream << "void ";
         }
-        
+
         stream << name << "(";
-        for(auto param : parameters) {
+        for (auto param : parameters) {
             param->print_to(stream);
             stream << ", ";
         }
-         stream << ") ";
-         body->print_to(stream);
+        stream << ") ";
+        body->print_to(stream);
         return stream;
     }
 }
