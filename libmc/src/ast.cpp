@@ -220,6 +220,18 @@ namespace ast {
         stream << ");\n";
         return stream;
     }
+    
+    bool param::operator==(const node& other) const {
+         if (typeid (other) != typeid (param)) return false;
+         auto o = dynamic_cast<const param&> (other);
+        return *o.paramType == *paramType && o.name == name;
+    }
+    std::ostream& param::print_to(std::ostream& stream) const {
+        paramType->print_to(stream);
+        stream << " " << name;
+        return stream;
+        
+    }
 }
 
 bool operator==(const sptr<ast::node>& lhs, const sptr<ast::node>& rhs) {

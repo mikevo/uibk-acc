@@ -19,10 +19,8 @@ namespace ast {
 	};
 
 	struct type : public node {};
-
 	struct expression : public node {};
 	struct literal : public expression {};
-
 	struct statement : public node {};
 
 	// lists ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +114,8 @@ namespace ast {
 		virtual bool operator==(const node& other) const;
 		virtual std::ostream& print_to(std::ostream& stream) const;
 	};
+        
+        
 
 	// STATEMENTS //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -168,6 +168,16 @@ namespace ast {
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
         };
+        
+        // FUNCTION DEFINITION  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        struct param : public node {
+            sptr<type> paramType;
+            string name;
+            param();
+            virtual bool operator==(const node& other) const;
+            virtual std::ostream& print_to(std::ostream& stream) const;
+        };
+        
 }
 
 bool operator==(const sptr<ast::node>& lhs, const sptr<ast::node>& rhs);
