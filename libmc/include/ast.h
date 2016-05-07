@@ -180,13 +180,13 @@ namespace ast {
             virtual std::ostream& print_to(std::ostream& stream) const;
         };
         
-        struct functionDef : public node {
+        struct function_def : public node {
             sptr<type> returnType; //Set to nullptr in case of void
             string name;
             param_list parameters;
             sptr<compound_stmt> body;
             
-            functionDef(sptr<type> returnType, string name, const param_list& parameters, sptr<compound_stmt> body) 
+            function_def(sptr<type> returnType, string name, const param_list& parameters, sptr<compound_stmt> body) 
                 : returnType(returnType), name(name), parameters(parameters), body(body) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;

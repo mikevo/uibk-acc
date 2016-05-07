@@ -247,13 +247,13 @@ namespace ast {
         return stream;
     }
 
-    bool functionDef::operator==(const node& other) const {
-        if (typeid (other) != typeid (functionDef)) return false;
-        auto o = dynamic_cast<const functionDef&> (other);
+    bool function_def::operator==(const node& other) const {
+        if (typeid (other) != typeid (function_def)) return false;
+        auto o = dynamic_cast<const function_def&> (other);
         return *o.body == *body && o.name == name && o.parameters == parameters && *o.returnType == *returnType;
     }
 
-    std::ostream& functionDef::print_to(std::ostream& stream) const {
+    std::ostream& function_def::print_to(std::ostream& stream) const {
         if (returnType != nullptr) {
             returnType->print_to(stream);
         } else {

@@ -369,6 +369,44 @@ namespace parser {
              
              return std::make_shared<ast::parameter>(param_type, identifier);
              
-         }
+        }
+         
+          sptr<ast::function_def> function_def(parser_state& p) {
+               auto try_p = p;
+               auto return_type = type(try_p);
+		if(!return_type) {
+                     if(try_token(try_p, "void").empty()) return {};
+                     return_type = nullptr;
+                }
+               
+                auto identifier = consume_identifier(try_p);
+                if(identifier.empty()) return {};
+           
+                if(try_token(try_p, "(").empty()) return {};
+                p = try_p;
+                
+                ast::param_list parameters;
+                while(auto param = parameter(p)) {
+                    parameters.push_back(param);
+                    if(!try_token(p, ",").empty()) {
+                        auto nextParam = parameter(p);
+                        if(nextParam) {
+                            parameters.push_back(nextParam);   
+                        }
+                        else {
+                            throw parser_error(p, "Expected next parameter after ','"); 
+                     }
+
+                 }
+                
+            }
+                
+            if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of parameter list");
+            auto body = compound_stmt(p);
+            
+            if(!body) throw parser_error(p, "Expected '{' after parameter list"); 
+            
+            return std::make_shared<ast::function_def>(return_type, identifier, parameters, body);
+        }
 
 }
