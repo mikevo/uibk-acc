@@ -195,7 +195,7 @@ namespace ast {
         
         struct functionList : public node {
             function_list functions;
-            functionList(const function_list& functions);
+            functionList(const function_list& functions) : functions(functions) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
         };

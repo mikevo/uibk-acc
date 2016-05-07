@@ -157,7 +157,7 @@ namespace parser {
 	sptr<ast::node> parse(const string& input) {
 		parser_state s{input.cbegin(), input.cend()};
 		try {
-			return try_match<sptr<ast::node>>(s, function_def, statement, expression);
+			return try_match<sptr<ast::node>>(s, functionList, statement, expression);
 		} catch(const parser_error& err) {
 			report_parser_error(err);
 			return {};
@@ -411,6 +411,20 @@ namespace parser {
             if(!body) throw parser_error(p, "Expected '{' after parameter list"); 
             
             return std::make_shared<ast::function_def>(return_type, identifier, parameters, body);
+        }
+          
+        sptr<ast::functionList> functionList(parser_state& p) {
+                ast::function_list functions;
+                auto fun = function_def(p);
+                if(fun) {
+                   functions.push_back(fun); 
+                }
+                else {
+                    return {};
+                }
+                
+		while(auto nextFun = function_def(p)) functions.push_back(nextFun);
+                return std::make_shared<ast::functionList>(functions);
         }
 
 }
