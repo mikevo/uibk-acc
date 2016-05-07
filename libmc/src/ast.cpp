@@ -217,11 +217,8 @@ namespace ast {
 
     std::ostream& functionCall_expr::print_to(std::ostream& stream) const {
         stream << name << "(";
-        if (arguments.empty()) {
-            stream << ")";
-            return stream;
-        }
-
+        
+        if (!arguments.empty()) {
         auto it = arguments.begin();
         while (it != std::prev(arguments.end())) {
             (*it)->print_to(stream);
@@ -230,6 +227,8 @@ namespace ast {
         }
 
         (*it)->print_to(stream);
+        
+        }
 
         stream << ")";
         return stream;
@@ -257,14 +256,22 @@ namespace ast {
         if (returnType != nullptr) {
             returnType->print_to(stream);
         } else {
-            stream << "void ";
+            stream << "void";
         }
 
-        stream << name << "(";
-        for (auto param : parameters) {
-            param->print_to(stream);
+        stream << " " << name << "(";
+        
+        if(!parameters.empty()) {
+        auto it = parameters.begin();
+        while (it != std::prev(parameters.end())) {
+            (*it)->print_to(stream);
             stream << ", ";
+            ++it;
         }
+
+        (*it)->print_to(stream);
+        }
+        
         stream << ") ";
         body->print_to(stream);
         return stream;

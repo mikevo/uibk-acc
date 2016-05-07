@@ -90,7 +90,7 @@ namespace {
 		return ret;
 	}
 
-	void report_parser_error(const parser_error& err) {
+	/*void report_parser_error(const parser_error& err) {
 		auto p = err.state;
 		// find beginning and end of error line
 		auto ls = p.s;
@@ -111,6 +111,10 @@ namespace {
 		std::cerr << "Context:\n" << line << std::endl;
 		for(size_t i=0; i < char_index; ++i) std::cerr << " ";
 		std::cerr << "^" << std::endl;
+		std::cerr << "Message: " << err.message << std::endl;
+	}*/
+        
+        void report_parser_error(const parser_error& err) {
 		std::cerr << "Message: " << err.message << std::endl;
 	}
 }
@@ -153,7 +157,7 @@ namespace parser {
 	sptr<ast::node> parse(const string& input) {
 		parser_state s{input.cbegin(), input.cend()};
 		try {
-			return try_match<sptr<ast::node>>(s, statement, expression);
+			return try_match<sptr<ast::node>>(s, function_def, statement, expression);
 		} catch(const parser_error& err) {
 			report_parser_error(err);
 			return {};
@@ -273,9 +277,9 @@ namespace parser {
             p = try_p;
              
             ast::expr_list arguments;
-            while(auto arg = expression(p)) {
+            if(auto arg = expression(p)) {
                 arguments.push_back(arg);
-                 if(!try_token(p, ",").empty()) {
+                 while(!try_token(p, ",").empty()) {
                      auto nextArg = expression(p);
                      if(nextArg) {
                        arguments.push_back(nextArg);   
@@ -384,11 +388,11 @@ namespace parser {
            
                 if(try_token(try_p, "(").empty()) return {};
                 p = try_p;
-                
+               
                 ast::param_list parameters;
-                while(auto param = parameter(p)) {
+                if(auto param = parameter(p)) {
                     parameters.push_back(param);
-                    if(!try_token(p, ",").empty()) {
+                    while(!try_token(p, ",").empty()) {
                         auto nextParam = parameter(p);
                         if(nextParam) {
                             parameters.push_back(nextParam);   
