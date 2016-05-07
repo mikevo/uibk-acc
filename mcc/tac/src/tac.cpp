@@ -127,5 +127,21 @@ void Tac::removeFromVarTable(Variable::ptr_t const value) {
 Variable::ptr_t Tac::addVarRenaming(Variable::ptr_t const key) {
   return this->variableStore->renameVariable(key);
 }
+
+void Tac::addFunction(std::string key, Label::ptr_t label) {
+    functionMap[key] = label;
+}
+
+Label::ptr_t Tac::lookupFunction(std::string key) {
+    auto value = functionMap.find(key);
+    
+    if(value != functionMap.end()) {
+        return value->second;
+    }
+    else {
+        return nullptr;
+    }
+}
+
 }
 }

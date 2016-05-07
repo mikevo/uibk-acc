@@ -13,8 +13,8 @@ namespace mcc {
     namespace tac {
 
         TEST(Function, DeclarationTAC) {
-          auto tree = parser::parse(
-      R"(
+            auto tree = parser::parse(
+                    R"(
           int foobar(int arg1, float arg2) {
             arg1 * 5;
             arg2 = 4.0;
@@ -22,8 +22,24 @@ namespace mcc {
           }
         )");
 
-        Tac tac = Tac(tree);
-        std::cout << tac.toString() << std::endl;
+            Tac tac = Tac(tree);
+            std::cout << tac.toString() << std::endl;
+        }
+
+        TEST(Function, FunctionCallTAC) {
+            auto tree = parser::parse(
+                    R"(
+          int foobar(int arg1, int arg2) {
+            return arg1 + arg2;
+          }
+            
+            int main() {
+                foobar(3, 6);
+            }
+        )");
+
+            Tac tac = Tac(tree);
+            std::cout << tac.toString() << std::endl;
+        }
     }
-}
 }

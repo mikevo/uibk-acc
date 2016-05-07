@@ -55,9 +55,12 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::decl_stmt>(n)) return convertDeclStmt(t, n);
   if (isType<ast::if_stmt>(n)) return convertIfStmt(t, n);
   if (isType<ast::while_stmt>(n)) return convertWhileStmt(t, n);
+  if (isType<ast::return_stmt>(n)) return convertReturnStmt(t, n);
   if (isType<ast::functionList>(n)) return convertFunctionDefList(t, n);
   if (isType<ast::function_def>(n)) return convertFunctionDefinition(t, n);
-  if (isType<ast::return_stmt>(n)) return convertReturnStmt(t, n);
+  if (isType<ast::functionCall_expr>(n)) return convertFunctionCall(t, n);
+  
+
 
   // Debugging output; this is only printed if something goes terribly
   // wrong
@@ -281,6 +284,7 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   t->nextBasicBlock();
   t->addLine(entryLabel);
   
+  t->addFunction(function->name, entryLabel);
   t->getVariableStore()->addNewChildScope();
   
   //Declare and init parameters as variables
@@ -299,13 +303,47 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   for (auto statement : function->body->statements) {
     convertNode(t, statement);
   }
-
+  
   t->getVariableStore()->goToParentScope();
   
   
   return nullptr;
   
 }
+
+Operand::ptr_t convertFunctionCall(Tac *t, AstNode n) {
+  auto functionCall = std::static_pointer_cast<ast::functionCall_expr>(n);
+   
+  if(functionCall->arguments.size() != functionCall->function->parameters.size()) {
+      assert(false && "Number call arguments differ from function parameters");
+  }
+  
+  ast::expr_list::reverse_iterator revIt = functionCall->arguments.rbegin(); 
+   while(revIt != functionCall->arguments.rend()) {
+      auto argValue = convertNode(t, *revIt);
+     
+      auto op = Operator(OperatorName::PUSH);
+      auto argPush = std::make_shared<Triple>(op, argValue);
+      t->addLine(argPush);
+      
+      ++revIt;
+  }
+  
+  auto functionName = functionCall->function->name;
+  auto functionEntry = t->lookupFunction(functionName);
+  
+  if(functionEntry == nullptr) {
+      assert(false && "Call of undeclared function!");
+  }
+  
+  auto op = Operator(OperatorName::CALL);
+  auto callTriple = std::make_shared<Triple>(op, functionEntry);
+  t->addLine(callTriple);
+  t->nextBasicBlock();
+  
+  return callTriple;
+}
+
 }
 }
 }

@@ -39,6 +39,7 @@ enum class OperatorName {
   NOT,
   PUSH,
   POP,
+  CALL,
   RET,
 };
 

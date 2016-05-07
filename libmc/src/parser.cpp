@@ -308,10 +308,6 @@ namespace parser {
                 
             }
             
-            if(arguments.size() != function->parameters.size()) {
-                throw parser_error(p, "Argument and parameter count does not match"); 
-            }
-            
             if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of argument list");
             return std::make_shared<ast::functionCall_expr>(function, arguments);
             
