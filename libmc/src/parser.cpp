@@ -343,6 +343,21 @@ namespace parser {
 		if(try_token(p, "}").empty()) throw parser_error(p, "Expected '}' at end of compound statement");
 		return std::make_shared<ast::compound_stmt>(statements);
 	}
+        
+        sptr<ast::compound_stmt> fun_compound_stmt(parser_state& p, const ast::param_list& parameters) {
+		if(try_token(p, "{").empty()) return {};
+		p.scopes.push_back(scope());
+                
+                for(auto parameter : parameters) {
+                    p.scopes.back().declare(p, parameter->paramVar->name, parameter->paramVar);
+                }
+                
+		ast::stmt_list statements;
+		while(auto stmt = statement(p)) statements.push_back(stmt);
+		p.scopes.pop_back();
+		if(try_token(p, "}").empty()) throw parser_error(p, "Expected '}' at end of compound statement");
+		return std::make_shared<ast::compound_stmt>(statements);
+	}
 
 	sptr<ast::if_stmt> if_stmt(parser_state& p) {
 		if(try_token(p, "if").empty()) return {};
@@ -397,8 +412,8 @@ namespace parser {
              
              auto identifier = consume_identifier(p);
 		if(identifier.empty()) throw parser_error(p, "Expected 'identifier' after type");
-             
-             return std::make_shared<ast::parameter>(param_type, identifier);
+             auto var = std::make_shared<ast::variable>(param_type, identifier);
+             return std::make_shared<ast::parameter>(var); 
              
         }
          
@@ -433,7 +448,7 @@ namespace parser {
             }
                 
             if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of parameter list");
-            auto body = compound_stmt(p);
+            auto body = fun_compound_stmt(p, parameters);
             
             if(!body) throw parser_error(p, "Expected '{' after parameter list"); 
             

@@ -21,6 +21,7 @@ class Label : public Triple {
   typedef std::shared_ptr<Label> ptr_t;
 
   Label();
+  Label(std::string name);
   virtual bool isLeaf() const override final;
 };
 }

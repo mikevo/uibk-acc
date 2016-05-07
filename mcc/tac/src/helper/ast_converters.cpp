@@ -55,6 +55,9 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::decl_stmt>(n)) return convertDeclStmt(t, n);
   if (isType<ast::if_stmt>(n)) return convertIfStmt(t, n);
   if (isType<ast::while_stmt>(n)) return convertWhileStmt(t, n);
+  if (isType<ast::functionList>(n)) return convertFunctionDefList(t, n);
+  if (isType<ast::function_def>(n)) return convertFunctionDefinition(t, n);
+  if (isType<ast::return_stmt>(n)) return convertReturnStmt(t, n);
 
   // Debugging output; this is only printed if something goes terribly
   // wrong
@@ -145,6 +148,8 @@ Operand::ptr_t convertCompoundStmt(Tac *t, AstNode n) {
 
   return nullptr;
 }
+
+
 
 Operand::ptr_t convertDeclStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::decl_stmt>(n);
@@ -245,6 +250,61 @@ Operand::ptr_t convertWhileStmt(Tac *t, AstNode n) {
   t->addLine(exitLabel);
 
   return nullptr;
+}
+
+Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
+  auto ret = std::static_pointer_cast<ast::return_stmt>(n);
+  auto returnValue = convertNode(t, ret->returnValue);
+  
+  auto op = Operator(OperatorName::RET);
+  auto retTriple = std::make_shared<Triple>(op, returnValue);
+  t->addLine(retTriple);
+  
+  return nullptr;
+}
+
+Operand::ptr_t convertFunctionDefList(Tac *t, AstNode n) {
+  auto v = std::static_pointer_cast<ast::functionList>(n);
+  
+  for (auto fun : v->functions) {
+    convertNode(t, fun);
+  }
+  
+  return nullptr;
+}
+
+Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
+  auto function = std::static_pointer_cast<ast::function_def>(n);
+  
+  //Add label as entry point to function
+  auto entryLabel = std::make_shared<Label>(function->name);
+  t->nextBasicBlock();
+  t->addLine(entryLabel);
+  
+  t->getVariableStore()->addNewChildScope();
+  
+  //Declare and init parameters as variables
+  for(auto param : function->parameters) {
+      sptr<ast::expression> dummy;
+      auto var = std::static_pointer_cast<Variable>(
+        convertNode(t, std::make_shared<ast::decl_stmt>(param->paramVar, dummy)));
+     
+      auto op = Operator(OperatorName::POP);
+      auto varAssignment = std::make_shared<Triple>(op, var);
+      varAssignment->setTargetVariable(var);
+      t->addLine(varAssignment);
+  }
+  
+  //Convert function body
+  for (auto statement : function->body->statements) {
+    convertNode(t, statement);
+  }
+
+  t->getVariableStore()->goToParentScope();
+  
+  
+  return nullptr;
+  
 }
 }
 }

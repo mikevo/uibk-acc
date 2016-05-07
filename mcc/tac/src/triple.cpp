@@ -128,11 +128,26 @@ std::string Triple::toString() const {
       output.append(this->arg1->getValue());
 
       return output;
+      
+    case OperatorName::POP:
+        output.append(this->getName());
+        output.append(" = ");
+        output.append(this->op.toString());
+        
+        return output;
+        
+    case OperatorName::RET:
+        output.append(this->op.toString());
+        output.append(" ");
+        output.append(this->arg1->getValue());
+         
+        return output; 
 
     default:
       if (this->op.getName() != OperatorName::ASSIGN) {
         output.append(this->getName());
         output.append(" = ");
+        
       }
 
       switch (this->op.getType()) {

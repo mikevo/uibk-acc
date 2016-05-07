@@ -34,6 +34,10 @@ Operand::ptr_t convertCompoundStmt(Tac *t, AstNode n);
 Operand::ptr_t convertDeclStmt(Tac *t, AstNode n);
 Operand::ptr_t convertIfStmt(Tac *t, AstNode n);
 Operand::ptr_t convertWhileStmt(Tac *t, AstNode n);
+Operand::ptr_t convertReturnStmt(Tac *t, AstNode n);
+Operand::ptr_t convertFunctionDefList(Tac *t, AstNode n);
+Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n);
+Operand::ptr_t convertFunctionCall(Tac *t, AstNode n);
 
 template <typename T>
 bool isType(const AstNode n) {

@@ -181,9 +181,8 @@ namespace ast {
         
         // FUNCTION DEFINITION  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         struct parameter : public node {
-            sptr<type> paramType;
-            string name;
-            parameter(sptr<type> paramType, string name) : paramType(paramType), name(name) {}
+            sptr<variable> paramVar;
+            parameter(sptr<variable> paramVar) : paramVar(paramVar) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
         };

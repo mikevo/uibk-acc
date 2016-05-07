@@ -25,7 +25,10 @@ const std::map<OperatorName, OperatorType> operatorMap{
     {OperatorName::MUL, OperatorType::BINARY},
     {OperatorName::SUB, OperatorType::BINARY},
     {OperatorName::MINUS, OperatorType::UNARY},
-    {OperatorName::NOT, OperatorType::UNARY}};
+    {OperatorName::NOT, OperatorType::UNARY},
+    {OperatorName::PUSH, OperatorType::UNARY},
+    {OperatorName::POP, OperatorType::UNARY},
+    {OperatorName::RET, OperatorType::UNARY}};
 
 const std::map<OperatorName, Type> operatorResultType{
     {OperatorName::NOP, Type::AUTO},    {OperatorName::ADD, Type::AUTO},
@@ -36,7 +39,8 @@ const std::map<OperatorName, Type> operatorResultType{
     {OperatorName::JUMP, Type::AUTO},   {OperatorName::JUMPFALSE, Type::AUTO},
     {OperatorName::LABEL, Type::AUTO},  {OperatorName::MUL, Type::AUTO},
     {OperatorName::SUB, Type::AUTO},    {OperatorName::MINUS, Type::AUTO},
-    {OperatorName::NOT, Type::AUTO}};
+    {OperatorName::PUSH, Type::AUTO}, {OperatorName::POP, Type::AUTO},
+    {OperatorName::RET, Type::AUTO}, {OperatorName::NOT, Type::AUTO}};
 
 const std::map<OperatorName, std::string> operatorName{
     {OperatorName::NOP, ""},         {OperatorName::ADD, " + "},
@@ -47,7 +51,8 @@ const std::map<OperatorName, std::string> operatorName{
     {OperatorName::JUMP, "JUMP "},   {OperatorName::JUMPFALSE, "JUMPFALSE "},
     {OperatorName::LABEL, "LABEL "}, {OperatorName::MUL, " * "},
     {OperatorName::SUB, " - "},      {OperatorName::MINUS, "-"},
-    {OperatorName::NOT, "!"}};
+    {OperatorName::NOT, "!"}, {OperatorName::PUSH, "PUSH"},
+    {OperatorName::POP, "POP"}, {OperatorName::RET, "RET"}};
 }
 
 Operator::Operator(OperatorName name)

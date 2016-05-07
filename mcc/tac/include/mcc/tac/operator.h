@@ -36,7 +36,10 @@ enum class OperatorName {
   LT,
   GT,
   MINUS,
-  NOT
+  NOT,
+  PUSH,
+  POP,
+  RET,
 };
 
 class Operator {
