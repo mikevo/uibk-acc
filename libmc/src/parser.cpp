@@ -379,9 +379,16 @@ namespace parser {
 	  return std::make_shared<ast::while_stmt>(condition, stmt);
 	}
         
+         sptr<ast::return_stmt> return_stmt(parser_state& p) {
+             if(try_token(p, "return").empty()) return {};
+             auto returnValue = expect(expression, p);
+             if(try_token(p, ";").empty()) throw parser_error(p, "Expected ';' at end of return  statement");
+             return std::make_shared<ast::return_stmt>(returnValue);
+         }
+        
 
 	sptr<ast::statement> statement(parser_state& p) {
-		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, while_stmt, expr_stmt);
+		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, while_stmt, return_stmt, expr_stmt);
 	}
         
          sptr<ast::parameter> parameter(parser_state& p) {

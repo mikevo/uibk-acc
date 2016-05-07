@@ -208,6 +208,20 @@ namespace ast {
         stmt->print_to(stream);
         return stream;
     }
+    
+    bool return_stmt::operator==(const node& other) const {
+        if (typeid (other) != typeid (return_stmt)) return false;
+        auto o = dynamic_cast<const return_stmt&> (other);
+        return *o.returnValue == *returnValue;
+     }
+     
+     std::ostream& return_stmt::print_to(std::ostream& stream) const {
+        stream << "return ";
+        returnValue->print_to(stream);
+        stream << ";\n";
+        
+        return stream;
+     }
 
     bool functionCall_expr::operator==(const node& other) const {
         if (typeid (other) != typeid (functionCall_expr)) return false;

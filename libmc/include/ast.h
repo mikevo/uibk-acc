@@ -172,6 +172,13 @@ namespace ast {
 	  virtual std::ostream& print_to(std::ostream& stream) const;
 	};
         
+        struct return_stmt : public statement {
+            sptr<expression> returnValue;
+            return_stmt(sptr<expression> returnValue) : returnValue(returnValue) {}
+            virtual bool operator==(const node& other) const;
+	    virtual std::ostream& print_to(std::ostream& stream) const;
+        };
+        
         // FUNCTION DEFINITION  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         struct parameter : public node {
             sptr<type> paramType;
