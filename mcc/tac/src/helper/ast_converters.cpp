@@ -321,12 +321,17 @@ Operand::ptr_t convertFunctionCall(Tac *t, AstNode n) {
   auto functionCall = std::static_pointer_cast<ast::functionCall_expr>(n);
    
   if(functionCall->arguments.size() != functionCall->function->parameters.size()) {
-      assert(false && "Number call arguments differ from function parameters");
+      assert(false && "Number of call arguments differ from function parameters");
   }
   
-  ast::expr_list::reverse_iterator revIt = functionCall->arguments.rbegin(); 
+  ast::expr_list::reverse_iterator revIt = functionCall->arguments.rbegin();
+  ast::param_list::reverse_iterator revItParam = functionCall->function->parameters.rbegin();
    while(revIt != functionCall->arguments.rend()) {
       auto argValue = convertNode(t, *revIt);
+      
+      if(argValue->getType() != getType(*(*revItParam)->paramVar->var_type)) {
+          assert(false && "Argument type mismatch"); 
+      }
      
       auto op = Operator(OperatorName::PUSH);
       auto argPush = std::make_shared<Triple>(op, argValue);
@@ -344,6 +349,13 @@ Operand::ptr_t convertFunctionCall(Tac *t, AstNode n) {
   
   auto op = Operator(OperatorName::CALL);
   auto callTriple = std::make_shared<Triple>(op, functionEntry);
+  if(functionCall->function->returnType != nullptr) {
+    callTriple->setType(getType(*functionCall->function->returnType.get())); 
+  }
+  else {
+       callTriple->setType(Type::NONE);
+  }
+ 
   t->addLine(callTriple);
   t->nextBasicBlock();
   
