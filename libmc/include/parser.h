@@ -20,12 +20,20 @@ namespace parser {
 		void declare(const parser_state& p, string name, sptr<ast::variable> var);
 		sptr<ast::variable> lookup(string name) const;
 	};
+        
+        class functionDefinitions {
+		std::map<string, sptr<ast::function_def>> storage;
+	public:
+		void declare(const parser_state& p, string name, sptr<ast::function_def> function);
+		sptr<ast::function_def> lookup(string name) const;
+	};
 
 	struct parser_state {
 		string::const_iterator beginning;
 		string::const_iterator s;
 		string::const_iterator e;
 		std::vector<scope> scopes;
+                functionDefinitions functions;
 		parser_state(string::const_iterator s, string::const_iterator e);
 		void set_string(const string& to_parse);
 	};

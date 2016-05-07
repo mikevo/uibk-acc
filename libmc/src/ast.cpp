@@ -212,11 +212,11 @@ namespace ast {
     bool functionCall_expr::operator==(const node& other) const {
         if (typeid (other) != typeid (functionCall_expr)) return false;
         auto o = dynamic_cast<const functionCall_expr&> (other);
-        return o.arguments == arguments && o.name == name;
+        return o.arguments == arguments && *o.function == *function;
     }
 
     std::ostream& functionCall_expr::print_to(std::ostream& stream) const {
-        stream << name << "(";
+        stream << function->name << "(";
         
         if (!arguments.empty()) {
         auto it = arguments.begin();

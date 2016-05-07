@@ -122,9 +122,9 @@ namespace ast {
 	};
         
          struct functionCall_expr : public expression {
-            string name;
+            sptr<function_def> function;
             expr_list arguments;
-            functionCall_expr(string name, const expr_list& arguments) : name(name), arguments(arguments) {}
+            functionCall_expr(sptr<function_def> function, const expr_list& arguments) : function(function), arguments(arguments) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
         };

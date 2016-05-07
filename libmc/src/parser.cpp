@@ -134,6 +134,17 @@ namespace parser {
 		if(it == storage.end()) return{};
 		return it->second;
 	}
+        
+        void functionDefinitions::declare(const parser_state& p, string name, sptr<ast::function_def> function) {
+		if(storage.find(name) != storage.end()) throw parser_error(p, "Declaring function with name which already exists");
+		storage[name] = function;
+	}
+
+	sptr<ast::function_def> functionDefinitions::lookup(string name) const {
+		auto it = storage.find(name);
+		if(it == storage.end()) return{};
+		return it->second;
+	}
 
 	sptr<ast::variable> lookup_variable(const parser_state& state, string name) {
 		for(auto it = state.scopes.crbegin(); it != state.scopes.crend(); ++it) {
@@ -142,7 +153,7 @@ namespace parser {
 		}
 		return {};
 	}
-
+      
 	parser_state::parser_state(string::const_iterator s, string::const_iterator e) : beginning(s), s(s), e(e) {
 		scopes.push_back(scope());
 	}
@@ -275,6 +286,11 @@ namespace parser {
            
             if(try_token(try_p, "(").empty()) return {};
             p = try_p;
+            
+            auto function = p.functions.lookup(identifier);
+            if(!function) {
+               throw parser_error(p, "Call of undeclared function"); 
+            }
              
             ast::expr_list arguments;
             if(auto arg = expression(p)) {
@@ -292,8 +308,12 @@ namespace parser {
                 
             }
             
+            if(arguments.size() != function->parameters.size()) {
+                throw parser_error(p, "Argument and parameter count does not match"); 
+            }
+            
             if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of argument list");
-            return std::make_shared<ast::functionCall_expr>(identifier, arguments);
+            return std::make_shared<ast::functionCall_expr>(function, arguments);
             
         }
 
@@ -410,7 +430,10 @@ namespace parser {
             
             if(!body) throw parser_error(p, "Expected '{' after parameter list"); 
             
-            return std::make_shared<ast::function_def>(return_type, identifier, parameters, body);
+            auto function = std::make_shared<ast::function_def>(return_type, identifier, parameters, body);
+            p.functions.declare(p, identifier, function);
+            
+            return function;
         }
           
         sptr<ast::functionList> functionList(parser_state& p) {
