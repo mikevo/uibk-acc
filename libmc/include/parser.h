@@ -71,4 +71,8 @@ namespace parser {
 	sptr<ast::decl_stmt> decl_stmt(parser_state& p);
 	sptr<ast::while_stmt> while_stmt(parser_state& p);
 	sptr<ast::statement> statement(parser_state& p);
+        
+        // FUNCTION DECLARATION ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        sptr<ast::parameter> parameter(parser_state& p);
+        
 }

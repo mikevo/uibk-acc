@@ -359,5 +359,16 @@ namespace parser {
 	sptr<ast::statement> statement(parser_state& p) {
 		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, expr_stmt, while_stmt);
 	}
+        
+         sptr<ast::parameter> parameter(parser_state& p) {
+             auto param_type = type(p);
+		if(!param_type) return {};
+             
+             auto identifier = consume_identifier(p);
+		if(identifier.empty()) throw parser_error(p, "Expected 'identifier' after type");
+             
+             return std::make_shared<ast::parameter>(param_type, identifier);
+             
+         }
 
 }

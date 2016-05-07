@@ -235,13 +235,13 @@ namespace ast {
         return stream;
     }
 
-    bool param::operator==(const node& other) const {
-        if (typeid (other) != typeid (param)) return false;
-        auto o = dynamic_cast<const param&> (other);
+    bool parameter::operator==(const node& other) const {
+        if (typeid (other) != typeid (parameter)) return false;
+        auto o = dynamic_cast<const parameter&> (other);
         return *o.paramType == *paramType && o.name == name;
     }
 
-    std::ostream& param::print_to(std::ostream& stream) const {
+    std::ostream& parameter::print_to(std::ostream& stream) const {
         paramType->print_to(stream);
         stream << " " << name;
         return stream;

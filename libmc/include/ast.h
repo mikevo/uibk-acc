@@ -25,12 +25,12 @@ namespace ast {
        
 
 	// lists ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         struct param;
+         struct parameter;
         
 	using node_list = std::vector<sptr<node>>;
 	using expr_list = std::vector<sptr<expression>>;
 	using stmt_list = std::vector<sptr<statement>>; 
-        using param_list = std::vector<sptr<param>>;  
+        using param_list = std::vector<sptr<parameter>>;  
 
 	bool operator==(const node_list& lhs, const node_list& rhs);
 	bool operator==(const expr_list& lhs, const expr_list& rhs);
@@ -172,10 +172,10 @@ namespace ast {
 	};
         
         // FUNCTION DEFINITION  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        struct param : public node {
+        struct parameter : public node {
             sptr<type> paramType;
             string name;
-            param(sptr<type> paramType, string name) : paramType(paramType), name(name) {}
+            parameter(sptr<type> paramType, string name) : paramType(paramType), name(name) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
         };
