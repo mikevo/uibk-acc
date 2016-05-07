@@ -16,7 +16,7 @@
 namespace mcc {
 namespace tac {
 
-enum class OperatorType { NONE, UNARY, BINARY };
+enum class OperatorType { NONE, UNARY, BINARY, RETURN };
 
 enum class OperatorName {
   // INFO: add mapping in operatorMap (operator.cpp)

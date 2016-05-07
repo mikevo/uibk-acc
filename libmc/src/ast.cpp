@@ -216,8 +216,14 @@ namespace ast {
      }
      
      std::ostream& return_stmt::print_to(std::ostream& stream) const {
-        stream << "return ";
-        returnValue->print_to(stream);
+         if(returnValue != nullptr) {
+           stream << "return ";
+           returnValue->print_to(stream);
+         }
+         else {
+            stream << "return";  
+         }
+        
         stream << ";\n";
         
         return stream;

@@ -257,13 +257,19 @@ Operand::ptr_t convertWhileStmt(Tac *t, AstNode n) {
 
 Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
   auto ret = std::static_pointer_cast<ast::return_stmt>(n);
-  auto returnValue = convertNode(t, ret->returnValue);
-  
-  auto op = Operator(OperatorName::RET);
-  auto retTriple = std::make_shared<Triple>(op, returnValue);
-  t->addLine(retTriple);
-  
-  return nullptr;
+    if(ret->returnValue != nullptr) {
+    auto returnValue = convertNode(t, ret->returnValue);
+    auto op = Operator(OperatorName::RET);
+    auto retTriple = std::make_shared<Triple>(op, returnValue);
+    t->addLine(retTriple);
+    return retTriple;
+    
+  } else {
+    auto op = Operator(OperatorName::RET);
+    auto retTriple = std::make_shared<Triple>(op, nullptr);
+    t->addLine(retTriple);   
+    return retTriple;
+  }
 }
 
 Operand::ptr_t convertFunctionDefList(Tac *t, AstNode n) {

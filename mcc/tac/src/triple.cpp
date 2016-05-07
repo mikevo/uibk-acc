@@ -23,9 +23,11 @@ Triple::Triple(OperatorName op) : Triple(Operator(op), nullptr) {
 
 Triple::Triple(Operator op, Operand::ptr_t arg) : Triple(op, arg, nullptr) {
   // check if operator is UNARY or NONE (NOP)
-  assert((this->op.getType() == OperatorType::NONE ||
-          this->op.getType() == OperatorType::UNARY) &&
-         "Operator not UNARY or NONE!");
+    if(this->op.getType() != OperatorType::RETURN) {
+        assert((this->op.getType() == OperatorType::NONE ||
+            this->op.getType() == OperatorType::UNARY ) &&
+            "Operator not UNARY or NONE!");
+    }
 }
 
 Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
@@ -54,6 +56,9 @@ Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
     case OperatorType::NONE:
       assert((!this->containsArg1() && !this->containsArg2()) &&
              "No argument allowed");
+      break;
+      
+     case OperatorType::RETURN:
       break;
   }
 
@@ -155,7 +160,7 @@ std::string Triple::toString() const {
     case OperatorName::RET:
         output.append(this->op.toString());
         output.append(" ");
-        output.append(this->arg1->getValue());
+        if(this->containsArg1()) output.append(this->arg1->getValue());
          
         return output; 
 

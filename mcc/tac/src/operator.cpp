@@ -29,7 +29,7 @@ const std::map<OperatorName, OperatorType> operatorMap{
     {OperatorName::PUSH, OperatorType::UNARY},
     {OperatorName::POP, OperatorType::UNARY},
     {OperatorName::CALL, OperatorType::UNARY},
-    {OperatorName::RET, OperatorType::UNARY}};
+    {OperatorName::RET, OperatorType::RETURN}};
 
 const std::map<OperatorName, Type> operatorResultType{
     {OperatorName::NOP, Type::AUTO},    {OperatorName::ADD, Type::AUTO},

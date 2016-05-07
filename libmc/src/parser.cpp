@@ -392,7 +392,11 @@ namespace parser {
         
          sptr<ast::return_stmt> return_stmt(parser_state& p) {
              if(try_token(p, "return").empty()) return {};
-             auto returnValue = expect(expression, p);
+             auto returnValue = expression(p);
+             if(!returnValue) {
+                 returnValue == nullptr;
+             }
+             
              if(try_token(p, ";").empty()) throw parser_error(p, "Expected ';' at end of return  statement");
              return std::make_shared<ast::return_stmt>(returnValue);
          }
@@ -444,12 +448,13 @@ namespace parser {
             }
                 
             if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of parameter list");
-            auto body = fun_compound_stmt(p, parameters);
-            
-            if(!body) throw parser_error(p, "Expected '{' after parameter list"); 
-            
+                
+            sptr<ast::compound_stmt> body;
             auto function = std::make_shared<ast::function_def>(return_type, identifier, parameters, body);
             p.functions.declare(p, identifier, function);
+            
+            function->body = fun_compound_stmt(p, parameters);
+            if(!function->body) throw parser_error(p, "Expected '{' after parameter list"); 
             
             return function;
         }
