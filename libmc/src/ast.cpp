@@ -276,6 +276,21 @@ namespace ast {
         body->print_to(stream);
         return stream;
     }
+    
+     bool functionList::operator==(const node& other) const {
+        if (typeid (other) != typeid (functionList())) return false;
+        auto o = dynamic_cast<const functionList&> (other);
+        return functions == o.functions;
+     }
+     
+     std::ostream& functionList::print_to(std::ostream& stream) const {
+         for(auto function : functions) {
+             function->print_to(stream);
+             stream << "\n";
+         } 
+         
+         return stream;
+     }
 }
 
 bool operator==(const sptr<ast::node>& lhs, const sptr<ast::node>& rhs) {

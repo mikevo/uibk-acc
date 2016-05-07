@@ -298,11 +298,11 @@ namespace parser {
         }
 
 	sptr<ast::expression> single_expression(parser_state& p) {
-		return try_match<sptr<ast::expression>>(p, literal, variable, unary_operation, paren_expr, functionCall_expr);
+		return try_match<sptr<ast::expression>>(p, functionCall_expr, literal, variable, unary_operation, paren_expr);
 	}
 
 	sptr<ast::expression> expression(parser_state& p) {
-		return try_match<sptr<ast::expression>>(p, binary_operation, single_expression);
+		return try_match<sptr<ast::expression>>(p,binary_operation, single_expression);
 	}
 
 	sptr<ast::expr_stmt> expr_stmt(parser_state& p) {
@@ -361,7 +361,7 @@ namespace parser {
         
 
 	sptr<ast::statement> statement(parser_state& p) {
-		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, expr_stmt, while_stmt);
+		return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt, while_stmt, expr_stmt);
 	}
         
          sptr<ast::parameter> parameter(parser_state& p) {

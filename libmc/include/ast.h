@@ -25,12 +25,14 @@ namespace ast {
        
 
 	// lists ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         struct parameter;
+        struct parameter;
+        struct function_def;
         
 	using node_list = std::vector<sptr<node>>;
 	using expr_list = std::vector<sptr<expression>>;
 	using stmt_list = std::vector<sptr<statement>>; 
-        using param_list = std::vector<sptr<parameter>>;  
+        using param_list = std::vector<sptr<parameter>>;
+        using function_list = std::vector<sptr<function_def>>;
 
 	bool operator==(const node_list& lhs, const node_list& rhs);
 	bool operator==(const expr_list& lhs, const expr_list& rhs);
@@ -50,13 +52,6 @@ namespace ast {
 	};
 
 	// EXPRESSIONS /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        struct functionCall_expr : public expression {
-            string name;
-            expr_list arguments;
-            functionCall_expr(string name, const expr_list& arguments) : name(name), arguments(arguments) {}
-            virtual bool operator==(const node& other) const;
-            virtual std::ostream& print_to(std::ostream& stream) const;
-        };
         
 	// terminals ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -126,8 +121,14 @@ namespace ast {
 		virtual std::ostream& print_to(std::ostream& stream) const;
 	};
         
+         struct functionCall_expr : public expression {
+            string name;
+            expr_list arguments;
+            functionCall_expr(string name, const expr_list& arguments) : name(name), arguments(arguments) {}
+            virtual bool operator==(const node& other) const;
+            virtual std::ostream& print_to(std::ostream& stream) const;
+        };
         
-
 	// STATEMENTS //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	struct expr_stmt : public statement {
 		sptr<expression> sub;
@@ -190,7 +191,13 @@ namespace ast {
                 : returnType(returnType), name(name), parameters(parameters), body(body) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
-            
+        };
+        
+        struct functionList : public node {
+            function_list functions;
+            functionList(const function_list& functions);
+            virtual bool operator==(const node& other) const;
+            virtual std::ostream& print_to(std::ostream& stream) const;
         };
         
 }
