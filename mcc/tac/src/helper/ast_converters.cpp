@@ -285,11 +285,14 @@ Operand::ptr_t convertFunctionDefList(Tac *t, AstNode n) {
 
 Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   auto function = std::static_pointer_cast<ast::function_def>(n);
+  auto codelines = t->codeLines.size();
   
   //Add label as entry point to function
   auto entryLabel = std::make_shared<Label>(function->name);
   t->nextBasicBlock();
   t->addLine(entryLabel);
+  
+  
   
   t->addFunction(function->name, entryLabel);
   t->getVariableStore()->addNewChildScope();
@@ -298,7 +301,7 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   for(auto param : function->parameters) {
       sptr<ast::expression> dummy;
       auto var = std::static_pointer_cast<Variable>(
-        convertNode(t, std::make_shared<ast::decl_stmt>(param->paramVar, dummy)));
+      convertNode(t, std::make_shared<ast::decl_stmt>(param->paramVar, dummy)));
      
       auto op = Operator(OperatorName::POP);
       auto varAssignment = std::make_shared<Triple>(op, var);
@@ -309,16 +312,17 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   //Convert function body
   std::vector<Triple::ptr_t> retStatements;
   for (auto statement : function->body->statements) {
-    auto stmt = convertNode(t, statement);
-    if(stmt != nullptr && typeid(*stmt) == typeid(Triple)) {
-        auto s = std::static_pointer_cast<Triple>(stmt);
-        
-        if(s->getOperator().getType() == OperatorType::RETURN) {
-            retStatements.push_back(s);
-        }
-    }
-    
+    convertNode(t, statement);
   }
+  
+  auto it = t->codeLines.begin() + codelines;
+  while(it != t->codeLines.end()) {
+        if((*it)->getOperator().getType() == OperatorType::RETURN) {
+            retStatements.push_back(*it);
+        }
+        
+        ++it;
+    }
   
    Type retType;
    if(function->returnType != nullptr) {
