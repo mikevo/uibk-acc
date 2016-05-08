@@ -38,6 +38,7 @@ class Tac {
   unsigned basicBlockCount();
 
   VariableStore::ptr_t const getVariableStore();
+  std::shared_ptr<function_map_type> getFunctionMap();
 
   const bb_type getBasicBlockIndex();
   void createBasicBlockIndex();
@@ -52,7 +53,7 @@ class Tac {
 
  private:
   VariableStore::ptr_t variableStore;
-  function_map_type functionMap;
+  std::shared_ptr<function_map_type> functionMap;
   void convertAst(std::shared_ptr<ast::node> n);
   unsigned currentBasicBlock;
   bool currentBasicBlockUsed;

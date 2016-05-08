@@ -21,6 +21,7 @@ Tac::Tac(std::shared_ptr<ast::node> n)
     : currentBasicBlock(0), currentBasicBlockUsed(false) {
   this->variableStore = std::make_shared<VariableStore>();
   this->basicBlockIndex = std::make_shared<bbVector>();
+  this->functionMap = std::make_shared<function_map_type>();
   this->convertAst(n);
 }
 
@@ -62,6 +63,10 @@ void Tac::addLine(Triple::ptr_t line, unsigned position) {
 
 VariableStore::ptr_t const Tac::getVariableStore() {
   return this->variableStore;
+}
+
+std::shared_ptr<function_map_type> Tac::getFunctionMap() {
+    return this->functionMap;
 }
 
 void Tac::nextBasicBlock() {
@@ -129,13 +134,13 @@ Variable::ptr_t Tac::addVarRenaming(Variable::ptr_t const key) {
 }
 
 void Tac::addFunction(std::string key, Label::ptr_t label) {
-    functionMap[key] = label;
+    functionMap->insert(std::make_pair(key, label));
 }
 
 Label::ptr_t Tac::lookupFunction(std::string key) {
-    auto value = functionMap.find(key);
+    auto value = functionMap->find(key);
     
-    if(value != functionMap.end()) {
+    if(value != functionMap->end()) {
         return value->second;
     }
     else {

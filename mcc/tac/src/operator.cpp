@@ -28,7 +28,7 @@ const std::map<OperatorName, OperatorType> operatorMap{
     {OperatorName::NOT, OperatorType::UNARY},
     {OperatorName::PUSH, OperatorType::UNARY},
     {OperatorName::POP, OperatorType::UNARY},
-    {OperatorName::CALL, OperatorType::UNARY},
+    {OperatorName::CALL, OperatorType::CALL},
     {OperatorName::RET, OperatorType::RETURN}};
 
 const std::map<OperatorName, Type> operatorResultType{

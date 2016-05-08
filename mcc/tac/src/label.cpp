@@ -10,7 +10,7 @@ Label::Label() : Triple(OperatorName::LABEL) {
 }
 
 Label::Label(std::string name) : Triple(OperatorName::LABEL) {
-  this->setName("$" + name);
+  this->setName(name);
 }
 
 bool Label::isLeaf() const { return true; }
