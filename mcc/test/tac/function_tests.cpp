@@ -35,6 +35,7 @@ namespace mcc {
             
             int main() {
                 foobar(3, 6);
+                return 0;
             }
         )");
 
@@ -52,6 +53,7 @@ namespace mcc {
             
          int main() {
             foobar(5);
+            return 0;
          }   
         )");
 

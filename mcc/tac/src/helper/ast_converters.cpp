@@ -310,7 +310,7 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   std::vector<Triple::ptr_t> retStatements;
   for (auto statement : function->body->statements) {
     auto stmt = convertNode(t, statement);
-    if(typeid(*stmt) == typeid(Triple)) {
+    if(stmt != nullptr && typeid(*stmt) == typeid(Triple)) {
         auto s = std::static_pointer_cast<Triple>(stmt);
         
         if(s->getOperator().getType() == OperatorType::RETURN) {
