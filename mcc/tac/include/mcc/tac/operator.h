@@ -48,6 +48,7 @@ class Operator {
   typedef std::shared_ptr<Operator> ptr_t;
 
   Operator(OperatorName name);
+  Operator(OperatorName name, Type type);
   OperatorType getType() const;
   OperatorName getName() const;
   Type getResultType() const;

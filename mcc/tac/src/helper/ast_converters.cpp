@@ -267,6 +267,7 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
   } else {
     auto op = Operator(OperatorName::RET);
     auto retTriple = std::make_shared<Triple>(op, nullptr);
+    retTriple->setType(Type::NONE);
     t->addLine(retTriple);   
     return retTriple;
   }
@@ -306,12 +307,38 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   }
   
   //Convert function body
+  std::vector<Triple::ptr_t> retStatements;
   for (auto statement : function->body->statements) {
-    convertNode(t, statement);
+    auto stmt = convertNode(t, statement);
+    if(typeid(*stmt) == typeid(Triple)) {
+        auto s = std::static_pointer_cast<Triple>(stmt);
+        
+        if(s->getOperator().getType() == OperatorType::RETURN) {
+            retStatements.push_back(s);
+        }
+    }
+    
   }
   
-  t->getVariableStore()->goToParentScope();
+   Type retType;
+   if(function->returnType != nullptr) {
+        retType = getType(*function->returnType); 
+   }
+   else {
+       retType = Type::NONE;
+   }
+         
+   if(retType != Type::NONE && retStatements.size() == 0) {
+       assert(false && "Non void function without return value"); 
+   }
+   
+   for(auto retStmt : retStatements) {
+       if(retStmt->getType() != retType) {
+        assert(false && "Return value type mismatch");  
+       }
+   }
   
+  t->getVariableStore()->goToParentScope();
   
   return nullptr;
   
@@ -321,7 +348,7 @@ Operand::ptr_t convertFunctionCall(Tac *t, AstNode n) {
   auto functionCall = std::static_pointer_cast<ast::functionCall_expr>(n);
    
   if(functionCall->arguments.size() != functionCall->function->parameters.size()) {
-      assert(false && "Number of call arguments differ from function parameters");
+      assert(false && "Number of call arguments differ from function parameter count");
   }
   
   ast::expr_list::reverse_iterator revIt = functionCall->arguments.rbegin();
@@ -347,14 +374,17 @@ Operand::ptr_t convertFunctionCall(Tac *t, AstNode n) {
       assert(false && "Call of undeclared function!");
   }
   
-  auto op = Operator(OperatorName::CALL);
-  auto callTriple = std::make_shared<Triple>(op, functionEntry);
-  if(functionCall->function->returnType != nullptr) {
-    callTriple->setType(getType(*functionCall->function->returnType.get())); 
+  Type type;
+   if(functionCall->function->returnType != nullptr) {
+     type = getType(*functionCall->function->returnType.get());
   }
   else {
-       callTriple->setType(Type::NONE);
+      type = Type::NONE;
   }
+  
+  auto op = Operator(OperatorName::CALL, type);
+  auto callTriple = std::make_shared<Triple>(op, functionEntry);
+  callTriple->setType(type);
  
   t->addLine(callTriple);
   t->nextBasicBlock();

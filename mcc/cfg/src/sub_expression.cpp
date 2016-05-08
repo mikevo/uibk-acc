@@ -38,6 +38,8 @@ SubExpression::SubExpression(mcc::tac::Triple::ptr_t const triple)
     case mcc::tac::OperatorType::UNARY:
       assert(this->containsArg1() && "SubExpression needs arg1");
       break;
+    case mcc::tac::OperatorType::RETURN:
+      break;
   }
 }
 

@@ -63,6 +63,11 @@ Operator::Operator(OperatorName name)
       type(operatorMap.at(name)),
       resultType(operatorResultType.at(name)) {}
 
+Operator::Operator(OperatorName name, Type type)
+    : name(name),
+      type(operatorMap.at(name)),
+      resultType(type) {}
+
 OperatorName Operator::getName() const { return name; }
 
 OperatorType Operator::getType() const { return type; }
