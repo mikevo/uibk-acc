@@ -292,8 +292,6 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   t->nextBasicBlock();
   t->addLine(entryLabel);
   
-  
-  
   t->addFunction(function->name, entryLabel);
   t->getVariableStore()->addNewChildScope();
   
@@ -315,6 +313,7 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
     convertNode(t, statement);
   }
   
+  //Check for return value mismatches
   auto it = t->codeLines.begin() + codelines;
   while(it != t->codeLines.end()) {
         if((*it)->getOperator().getType() == OperatorType::RETURN) {
@@ -343,7 +342,6 @@ Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
    }
   
   t->getVariableStore()->goToParentScope();
-  
   return nullptr;
   
 }
