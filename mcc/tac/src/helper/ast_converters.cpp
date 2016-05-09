@@ -281,29 +281,28 @@ Operand::ptr_t convertFunctionDefList(Tac *t, AstNode n) {
 }
 
 Operand::ptr_t convertFunctionPrototype(Tac *t, AstNode n) {
-    auto proto = std::static_pointer_cast<ast::function_prototype>(n);
-    auto dummyLabel = std::make_shared<Label>(proto->name);
-    t->addFunction(proto->name, dummyLabel);
-    return nullptr;
+  auto proto = std::static_pointer_cast<ast::function_prototype>(n);
+  auto dummyLabel = std::make_shared<Label>(proto->name);
+  t->addFunction(proto->name, dummyLabel);
+  return nullptr;
 }
 
 Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   auto function = std::static_pointer_cast<ast::function_def>(n);
   auto codelines = t->codeLines.size();
-  
-  //Add label as entry point to function
+
+  // Add label as entry point to function
   t->nextBasicBlock();
   auto functionDef = t->lookupFunction(function->name);
-  
-  if(functionDef) {
-     t->addLine(functionDef); 
+
+  if (functionDef) {
+    t->addLine(functionDef);
+  } else {
+    auto entryLabel = std::make_shared<Label>(function->name);
+    t->addFunction(function->name, entryLabel);
+    t->addLine(entryLabel);
   }
-  else {
-     auto entryLabel = std::make_shared<Label>(function->name);
-     t->addFunction(function->name, entryLabel);
-     t->addLine(entryLabel); 
-  }
-  
+
   t->getVariableStore()->addNewChildScope();
 
   // Declare and init parameters as variables
