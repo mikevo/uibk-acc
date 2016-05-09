@@ -394,7 +394,7 @@ TEST(Cfg, SuccessorSet) {
   auto graph = std::make_shared<Cfg>(tac);
 
   auto index = tac.getBasicBlockIndex();
-  
+
   std::cout << tac.toString();
 
   for (auto bb : *index.get()) {

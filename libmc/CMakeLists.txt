@@ -1,4 +1,4 @@
-set(SOURCES 
+set(SOURCES
     ./src/ast.cpp
     ./src/parser.cpp
     ./src/stream_utils.cpp
@@ -11,12 +11,11 @@ set(SOURCES
     ./include/test_utils.h
 )
 
-# do not include for clang-format and cppcheck
-# file(GLOB_RECURSE mc_incs include/*.h)
-# file(GLOB_RECURSE mc_srcs src/*.cpp)
-#
-# set(all_incs ${all_incs} ${mc_incs} PARENT_SCOPE)
-# set(all_srcs ${all_srcs} ${mc_srcs} PARENT_SCOPE)
+file(GLOB_RECURSE mc_incs include/*.h)
+file(GLOB_RECURSE mc_srcs src/*.cpp)
+
+set(all_incs ${all_incs} ${mc_incs} PARENT_SCOPE)
+set(all_srcs ${all_srcs} ${mc_srcs} PARENT_SCOPE)
 
 add_library(mc STATIC ${SOURCES})
 
