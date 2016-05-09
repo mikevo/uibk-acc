@@ -35,6 +35,7 @@ Operand::ptr_t convertDeclStmt(Tac *t, AstNode n);
 Operand::ptr_t convertIfStmt(Tac *t, AstNode n);
 Operand::ptr_t convertWhileStmt(Tac *t, AstNode n);
 Operand::ptr_t convertFunctionList(Tac *t, AstNode n);
+Operand::ptr_t convertFunctionPrototype(Tac *t, AstNode n);
 Operand::ptr_t convertFunctionDef(Tac *t, AstNode n);
 Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n);
 Operand::ptr_t convertReturnStmt(Tac *t, AstNode n);

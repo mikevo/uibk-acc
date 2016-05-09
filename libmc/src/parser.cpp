@@ -20,6 +20,7 @@ void consume_whitespace(parser_state& p) {
 }
 
 bool is_identifier_start(char c) { return isalpha(c) || c == '_'; }
+
 bool is_identifier_char(char c) { return is_identifier_start(c) || isdigit(c); }
 
 string consume_identifier(parser_state& p) {
@@ -52,6 +53,7 @@ string try_token(parser_state& p, Last last_in) {
   }
   return {};
 }
+
 template <class First, class... Tries>
 string try_token(parser_state& p, First first, Tries... tries) {
   auto match = try_token(p, first);
@@ -71,6 +73,7 @@ Production try_match(parser_state& p, Last last) {
   }
   return {};
 }
+
 template <class Production, class First, class... Tries>
 Production try_match(parser_state& p, First first, Tries... tries) {
   auto match = try_match<Production, First>(p, first);
@@ -89,31 +92,6 @@ RetType expect(Parser pp, parser_state& p) {
   }
   return ret;
 }
-
-/*void report_parser_error(const parser_error& err) {
-        auto p = err.state;
-        // find beginning and end of error line
-        auto ls = p.s;
-        size_t char_index = 0;
-        while(ls != p.beginning && *ls != '\n') {
-                char_index += (*ls == '\t') ? 4 : 1;
-                ls--;
-        }
-        auto le = p.s;
-        while(le != p.e && *le != '\n') {
-                le++;
-        }
-        // find line number of error
-        auto line_num = std::count(p.beginning, ls, '\n') + 2;
-        std::cerr << "Parsing error on line number " << line_num << ", column "
-<< char_index << ":" << std::endl;
-        auto line = string(ls+1, le);
-        replace_all(line, "\t", "    ");
-        std::cerr << "Context:\n" << line << std::endl;
-        for(size_t i=0; i < char_index; ++i) std::cerr << " ";
-        std::cerr << "^" << std::endl;
-        std::cerr << "Message: " << err.message << std::endl;
-}*/
 
 void report_parser_error(const parser_error& err) {
   std::cerr << "Message: " << err.message << std::endl;
@@ -473,28 +451,87 @@ sptr<ast::function_def> function_def(parser_state& p) {
   if (try_token(p, ")").empty())
     throw parser_error(p, "Expected ')' at the end of parameter list");
 
-  sptr<ast::compound_stmt> body;
+  // Function already defined with prototype?
+  auto function = p.functions.lookup(identifier);
+  if (function && function->body == nullptr) {
+    function->parameters = parameters;
+    function->body = fun_compound_stmt(p, parameters);
+    if (!function->body)
+      throw parser_error(p, "Expected '{' after parameter list");
+
+    return function;
+
+  } else {
+    sptr<ast::compound_stmt> body;
+    function = std::make_shared<ast::function_def>(return_type, identifier,
+                                                   parameters, body);
+    p.functions.declare(p, identifier, function);
+
+    function->body = fun_compound_stmt(p, parameters);
+    if (!function->body)
+      throw parser_error(p, "Expected '{' after parameter list");
+
+    return function;
+  }
+}
+
+sptr<ast::function_def> function_prototype(parser_state& p) {
+  auto try_p = p;
+  auto return_type = type(try_p);
+  if (!return_type) {
+    if (try_token(try_p, "void").empty()) return {};
+    return_type = nullptr;
+  }
+
+  auto identifier = consume_identifier(try_p);
+  if (identifier.empty()) return {};
+
+  if (try_token(try_p, "(").empty()) return {};
+
+  ast::param_list parameters;
+  if (auto param = parameter(try_p)) {
+    parameters.push_back(param);
+    while (!try_token(try_p, ",").empty()) {
+      auto nextParam = parameter(try_p);
+      if (nextParam) {
+        parameters.push_back(nextParam);
+      } else {
+        throw parser_error(try_p, "Expected next parameter after ','");
+      }
+    }
+  }
+
+  if (try_token(try_p, ")").empty())
+    throw parser_error(try_p, "Expected ')' at the end of parameter list");
+
+  if (try_token(try_p, ";").empty()) return {};
+
   auto function = std::make_shared<ast::function_def>(return_type, identifier,
-                                                      parameters, body);
+                                                      parameters, nullptr);
+  auto functionProto = std::make_shared<ast::function_prototype>(
+      return_type, identifier, parameters);
+  p = try_p;
   p.functions.declare(p, identifier, function);
 
-  function->body = fun_compound_stmt(p, parameters);
-  if (!function->body)
-    throw parser_error(p, "Expected '{' after parameter list");
-
-  return function;
+  return functionProto;
 }
 
 sptr<ast::function_list> function_list(parser_state& p) {
   ast::function_def_list functions;
-  auto fun = function_def(p);
-  if (fun) {
+
+  if (auto proto = function_prototype(p)) {
+    functions.push_back(proto);
+  } else if (auto fun = function_def(p)) {
     functions.push_back(fun);
   } else {
     return {};
   }
 
-  while (auto nextFun = function_def(p)) functions.push_back(nextFun);
+  sptr<ast::function_def> nextFun;
+  while ((nextFun = function_prototype(p)) || (nextFun = function_def(p))) {
+    functions.push_back(nextFun);
+  }
+
   return std::make_shared<ast::function_list>(functions);
 }
 }
