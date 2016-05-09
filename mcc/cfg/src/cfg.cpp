@@ -106,7 +106,7 @@ void Cfg::calculateDOM() {
                                         domTreePredMap);
 }
 
-VertexVertexMap &Cfg::getDomTree() {
+Cfg::VertexVertexMap &Cfg::getDomTree() {
   if (!dominatorTree.empty()) {
     return dominatorTree;
   }
@@ -116,7 +116,7 @@ VertexVertexMap &Cfg::getDomTree() {
   return dominatorTree;
 }
 
-const VertexDescriptor Cfg::getIdom(const VertexDescriptor vertex) {
+const Cfg::VertexDescriptor Cfg::getIdom(const VertexDescriptor vertex) {
   if (dominatorTree.empty()) {
     calculateDOM();
   }
@@ -124,12 +124,12 @@ const VertexDescriptor Cfg::getIdom(const VertexDescriptor vertex) {
   return dominatorTree[vertex];
 }
 
-const Vertex &Cfg::getIdom(const Vertex &vertex) {
+const Cfg::Vertex &Cfg::getIdom(const Vertex &vertex) {
   auto idom = getIdom(getVertexDescriptor(vertex));
   return getVertex(idom);
 }
 
-std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
+std::set<Cfg::VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
   std::set<VertexDescriptor> domSet;
 
   domSet.insert(vertex);
@@ -145,22 +145,23 @@ std::set<VertexDescriptor> Cfg::getDomSet(VertexDescriptor vertex) {
   return domSet;
 }
 
-std::set<Vertex> Cfg::getDomSet(const Vertex &vertex) {
+std::set<Cfg::Vertex> Cfg::getDomSet(const Vertex &vertex) {
   std::set<Vertex> domSet;
   auto dSet = getDomSet(getVertexDescriptor(vertex));
 
   return convertSet(dSet);
 }
 
-const VertexDescriptor Cfg::getVertexDescriptor(const Vertex &vertex) const {
+const Cfg::VertexDescriptor Cfg::getVertexDescriptor(
+    const Vertex &vertex) const {
   return vertex->getBlockId();
 }
 
-const Vertex &Cfg::getVertex(const VertexDescriptor vertex) const {
+const Cfg::Vertex &Cfg::getVertex(const VertexDescriptor vertex) const {
   return basicBlockIndex->at(vertex);
 }
 
-std::set<Vertex> Cfg::convertSet(std::set<VertexDescriptor> inSet) const {
+std::set<Cfg::Vertex> Cfg::convertSet(std::set<VertexDescriptor> inSet) const {
   std::set<Vertex> outSet;
 
   for (auto e : inSet) {
@@ -170,7 +171,7 @@ std::set<Vertex> Cfg::convertSet(std::set<VertexDescriptor> inSet) const {
   return outSet;
 }
 
-std::set<VertexDescriptor> Cfg::convertSet(std::set<Vertex> inSet) const {
+std::set<Cfg::VertexDescriptor> Cfg::convertSet(std::set<Vertex> inSet) const {
   std::set<VertexDescriptor> outSet;
 
   for (auto e : inSet) {
@@ -180,7 +181,8 @@ std::set<VertexDescriptor> Cfg::convertSet(std::set<Vertex> inSet) const {
   return outSet;
 }
 
-std::set<VertexDescriptor> Cfg::getSuccessor(const VertexDescriptor vertex) {
+std::set<Cfg::VertexDescriptor> Cfg::getSuccessor(
+    const VertexDescriptor vertex) {
   auto outEdges = boost::out_edges(vertex, graph);
 
   std::set<VertexDescriptor> sSet;
@@ -193,13 +195,14 @@ std::set<VertexDescriptor> Cfg::getSuccessor(const VertexDescriptor vertex) {
   return sSet;
 }
 
-std::set<Vertex> Cfg::getSuccessor(const Vertex &vertex) {
+std::set<Cfg::Vertex> Cfg::getSuccessor(const Vertex &vertex) {
   auto sSet = getSuccessor(getVertexDescriptor(vertex));
 
   return convertSet(sSet);
 }
 
-std::set<VertexDescriptor> Cfg::getPredecessor(const VertexDescriptor vertex) {
+std::set<Cfg::VertexDescriptor> Cfg::getPredecessor(
+    const VertexDescriptor vertex) {
   auto inEdges = boost::in_edges(vertex, graph);
 
   std::set<VertexDescriptor> pSet;
@@ -212,7 +215,7 @@ std::set<VertexDescriptor> Cfg::getPredecessor(const VertexDescriptor vertex) {
   return pSet;
 }
 
-std::set<Vertex> Cfg::getPredecessor(const Vertex &vertex) {
+std::set<Cfg::Vertex> Cfg::getPredecessor(const Vertex &vertex) {
   auto sSet = getPredecessor(getVertexDescriptor(vertex));
 
   return convertSet(sSet);
