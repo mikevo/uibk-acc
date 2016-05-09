@@ -23,11 +23,12 @@ Triple::Triple(OperatorName op) : Triple(Operator(op), nullptr) {
 
 Triple::Triple(Operator op, Operand::ptr_t arg) : Triple(op, arg, nullptr) {
   // check if operator is UNARY or NONE (NOP)
-    if(this->op.getType() != OperatorType::RETURN && this->op.getType() != OperatorType::CALL) {
-        assert((this->op.getType() == OperatorType::NONE ||
-            this->op.getType() == OperatorType::UNARY ) &&
-            "Operator not UNARY or NONE!");
-    }
+  if (this->op.getType() != OperatorType::RETURN &&
+      this->op.getType() != OperatorType::CALL) {
+    assert((this->op.getType() == OperatorType::NONE ||
+            this->op.getType() == OperatorType::UNARY) &&
+           "Operator not UNARY or NONE!");
+  }
 }
 
 Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
@@ -57,12 +58,12 @@ Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
       assert((!this->containsArg1() && !this->containsArg2()) &&
              "No argument allowed");
       break;
-      
-     case OperatorType::RETURN:
+
+    case OperatorType::RETURN:
       break;
-      
-      case OperatorType::CALL:
-           assert(this->containsArg1() && "first argument needed");
+
+    case OperatorType::CALL:
+      assert(this->containsArg1() && "first argument needed");
       break;
   }
 
@@ -137,42 +138,41 @@ std::string Triple::toString() const {
       output.append(this->arg1->getValue());
 
       return output;
-      
+
     case OperatorName::PUSH:
-        output.append(this->op.toString());
-        output.append(" ");
-        output.append(this->arg1->getValue());
-         
-        return output; 
-      
+      output.append(this->op.toString());
+      output.append(" ");
+      output.append(this->arg1->getValue());
+
+      return output;
+
     case OperatorName::POP:
-        output.append(this->getName());
-        output.append(" = ");
-        output.append(this->op.toString());
-        
-        return output;
-        
+      output.append(this->getName());
+      output.append(" = ");
+      output.append(this->op.toString());
+
+      return output;
+
     case OperatorName::CALL:
-        output.append(this->getName());
-        output.append(" = ");
-        output.append(this->op.toString());
-        output.append(" ");
-        output.append(this->arg1->getValue());
-         
-        return output; 
-        
+      output.append(this->getName());
+      output.append(" = ");
+      output.append(this->op.toString());
+      output.append(" ");
+      output.append(this->arg1->getValue());
+
+      return output;
+
     case OperatorName::RET:
-        output.append(this->op.toString());
-        output.append(" ");
-        if(this->containsArg1()) output.append(this->arg1->getValue());
-         
-        return output; 
+      output.append(this->op.toString());
+      output.append(" ");
+      if (this->containsArg1()) output.append(this->arg1->getValue());
+
+      return output;
 
     default:
       if (this->op.getName() != OperatorName::ASSIGN) {
         output.append(this->getName());
         output.append(" = ");
-        
       }
 
       switch (this->op.getType()) {

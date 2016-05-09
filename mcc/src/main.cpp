@@ -26,8 +26,7 @@ int main(int argc, char **argv) {
 
   formatted_ostream out(std::cout);
   out << "Parsed:\n" << tree << "\n";
-  
-  
+
   // three adress code
   Tac tac = Tac(tree);
   std::cout << "Three-Adress Code:" << std::endl;
@@ -60,5 +59,4 @@ int main(int argc, char **argv) {
     }
     std::cout << "}" << std::endl << std::endl;
   }
-   
 }

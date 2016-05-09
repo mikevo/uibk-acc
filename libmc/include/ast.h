@@ -215,14 +215,15 @@ namespace ast {
             virtual std::ostream& print_to(std::ostream& stream) const;
         };
         
+
 }
 
 bool operator==(const sptr<ast::node>& lhs, const sptr<ast::node>& rhs);
 
 std::ostream& operator<<(std::ostream& stream, const ast::node& node);
 
-template<class T>
+template <class T>
 std::ostream& operator<<(std::ostream& stream, const sptr<T>& node) {
-	if(!node) return stream << "NULL";
-	return stream << *node;
+  if (!node) return stream << "NULL";
+  return stream << *node;
 }

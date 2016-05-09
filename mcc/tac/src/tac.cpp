@@ -66,7 +66,7 @@ VariableStore::ptr_t const Tac::getVariableStore() {
 }
 
 std::shared_ptr<function_map_type> Tac::getFunctionMap() {
-    return this->functionMap;
+  return this->functionMap;
 }
 
 void Tac::nextBasicBlock() {
@@ -134,19 +134,17 @@ Variable::ptr_t Tac::addVarRenaming(Variable::ptr_t const key) {
 }
 
 void Tac::addFunction(std::string key, Label::ptr_t label) {
-    functionMap->insert(std::make_pair(key, label));
+  functionMap->insert(std::make_pair(key, label));
 }
 
 Label::ptr_t Tac::lookupFunction(std::string key) {
-    auto value = functionMap->find(key);
-    
-    if(value != functionMap->end()) {
-        return value->second;
-    }
-    else {
-        return nullptr;
-    }
-}
+  auto value = functionMap->find(key);
 
+  if (value != functionMap->end()) {
+    return value->second;
+  } else {
+    return nullptr;
+  }
+}
 }
 }

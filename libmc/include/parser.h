@@ -4,7 +4,6 @@
 #include "ast.h"
 
 namespace parser {
-
 	// main interfaces
 
 	sptr<ast::node> parse(const string& input);

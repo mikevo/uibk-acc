@@ -40,6 +40,8 @@ SubExpression::SubExpression(mcc::tac::Triple::ptr_t const triple)
       break;
     case mcc::tac::OperatorType::RETURN:
       break;
+    case mcc::tac::OperatorType::CALL:
+      break;
   }
 }
 
