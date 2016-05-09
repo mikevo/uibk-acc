@@ -393,6 +393,7 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
     auto op = Operator(OperatorName::RET);
     auto retTriple = std::make_shared<Triple>(op, returnValue);
     t->addLine(retTriple);
+    t->addReturn();
     t->nextBasicBlock();
     return retTriple;
 

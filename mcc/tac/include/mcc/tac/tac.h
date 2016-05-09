@@ -26,6 +26,7 @@ namespace tac {
 typedef std::vector<BasicBlock::ptr_t> bbVector;
 typedef std::shared_ptr<bbVector> bb_type;
 typedef std::map<std::string, Label::ptr_t> function_map_type;
+typedef std::map<Label::ptr_t, std::set<unsigned>> function_return_map_type;
 
 class Tac {
  public:
@@ -48,12 +49,17 @@ class Tac {
   void addFunction(std::string key, Label::ptr_t);
   Label::ptr_t lookupFunction(std::string key);
 
+  void addReturn();
+  std::set<unsigned> lookupFunctionReturn(Label::ptr_t);
+
   std::string toString() const;
   std::vector<Triple::ptr_t> codeLines;
 
  private:
   VariableStore::ptr_t variableStore;
+  Label::ptr_t currentFunctionLabel;
   std::shared_ptr<function_map_type> functionMap;
+  std::shared_ptr<function_return_map_type> functionReturnMap;
   void convertAst(std::shared_ptr<ast::node> n);
   unsigned currentBasicBlock;
   bool currentBasicBlockUsed;

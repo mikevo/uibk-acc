@@ -22,6 +22,7 @@ Tac::Tac(std::shared_ptr<ast::node> n)
   this->variableStore = std::make_shared<VariableStore>();
   this->basicBlockIndex = std::make_shared<bbVector>();
   this->functionMap = std::make_shared<function_map_type>();
+  this->functionReturnMap = std::make_shared<function_return_map_type>();
   this->convertAst(n);
 }
 
@@ -135,6 +136,7 @@ Variable::ptr_t Tac::addVarRenaming(Variable::ptr_t const key) {
 
 void Tac::addFunction(std::string key, Label::ptr_t label) {
   functionMap->insert(std::make_pair(key, label));
+  currentFunctionLabel = label;
 }
 
 Label::ptr_t Tac::lookupFunction(std::string key) {
@@ -144,6 +146,35 @@ Label::ptr_t Tac::lookupFunction(std::string key) {
     return value->second;
   } else {
     return nullptr;
+  }
+}
+
+void Tac::addReturn() {
+  auto entry = functionReturnMap->find(currentFunctionLabel);
+
+  if (entry != functionReturnMap->end()) {
+    auto list = entry->second;
+    list.insert(this->currentBasicBlock);
+    auto pair = std::make_pair(currentFunctionLabel, list);
+
+    functionReturnMap->insert(pair);
+  } else {
+    std::set<unsigned> list;
+    list.insert(this->currentBasicBlock);
+    auto pair = std::make_pair(currentFunctionLabel, list);
+
+    functionReturnMap->insert(pair);
+  }
+}
+
+std::set<unsigned> Tac::lookupFunctionReturn(Label::ptr_t key) {
+  auto value = functionReturnMap->find(key);
+
+  if (value != functionReturnMap->end()) {
+    return value->second;
+  } else {
+    std::set<unsigned> empty;
+    return empty;
   }
 }
 }

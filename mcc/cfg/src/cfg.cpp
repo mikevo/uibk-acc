@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "mcc/cfg/set_helper.h"
+#include "mcc/tac/helper/ast_converters.h"
 #include "mcc/tac/operator.h"
 
 namespace mcc {
@@ -39,19 +40,40 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
   }
 
   unsigned prevBlockId = 0;
-  bool prevMatched = false;
+  std::set<unsigned> returnBbIdSet;
+  bool matched = false;
 
   for (auto line : tac.codeLines) {
-    bool matched = false;
+    if (prevBlockId < line->getBasicBlockId()) {
+      if (!matched) {
+        if (prevBlockId != line->getBasicBlockId()) {
+          boost::add_edge(prevBlockId, line->getBasicBlockId(), graph);
+        }
+      } else {
+        // add edges from function returns to Basic Block after function call
+        for (auto const returnBbId : returnBbIdSet) {
+          if (returnBbId != line->getBasicBlockId()) {
+            boost::add_edge(returnBbId, line->getBasicBlockId(), graph);
+          }
+        }
+      }
+    }
+
+    returnBbIdSet.clear();
+    matched = false;
 
     auto op = line->getOperator();
 
-    if (op.getName() == mcc::tac::OperatorName::JUMP) {
-      if (typeid(*line->getArg1().get()) == typeid(mcc::tac::Label)) {
+    if (op.getName() == mcc::tac::OperatorName::JUMP ||
+        op.getName() == mcc::tac::OperatorName::CALL) {
+      if (mcc::tac::helper::isType<mcc::tac::Label>(line->getArg1())) {
         auto label = std::static_pointer_cast<mcc::tac::Label>(line->getArg1());
 
         boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
                         graph);
+
+        // prepare to add return edges
+        returnBbIdSet = tac.lookupFunctionReturn(label);
 
         matched = true;
       } else {
@@ -60,7 +82,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
     }
 
     if (op.getName() == mcc::tac::OperatorName::JUMPFALSE) {
-      if (typeid(*line->getArg2().get()) == typeid(mcc::tac::Label)) {
+      if (mcc::tac::helper::isType<mcc::tac::Label>(line->getArg2())) {
         auto label = std::static_pointer_cast<mcc::tac::Label>(line->getArg2());
 
         boost::add_edge(line->getBasicBlockId(), line->getBasicBlockId() + 1,
@@ -74,15 +96,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
       }
     }
 
-    if (prevBlockId < line->getBasicBlockId()) {
-      if (!prevMatched) {
-        boost::add_edge(prevBlockId, line->getBasicBlockId(), graph);
-      }
-
-      prevBlockId = line->getBasicBlockId();
-    }
-
-    prevMatched = matched;
+    prevBlockId = line->getBasicBlockId();
   }
 }
 
