@@ -262,7 +262,7 @@ namespace ast {
 
     std::ostream& parameter::print_to(std::ostream& stream) const {
         paramVar->var_type->print_to(stream);
-        stream << " " << paramVar->name;
+        stream << " " << paramVar->name;  
         return stream;
     }
 
@@ -294,6 +294,36 @@ namespace ast {
         
         stream << ") ";
         body->print_to(stream);
+        return stream;
+    }
+    
+    bool function_prototype::operator==(const node& other) const {
+        if (typeid (other) != typeid (function_prototype)) return false;
+        auto o = dynamic_cast<const function_prototype&> (other);
+        return o.name == name && o.parameters == parameters && *o.returnType == *returnType;
+    }
+
+    std::ostream& function_prototype::print_to(std::ostream& stream) const {
+        if (returnType != nullptr) {
+            returnType->print_to(stream);
+        } else {
+            stream << "void";
+        }
+
+        stream << " " << name << "(";
+        
+        if(!parameters.empty()) {
+        auto it = parameters.begin();
+        while (it != std::prev(parameters.end())) {
+            (*it)->print_to(stream);
+            stream << ", ";
+            ++it;
+        }
+
+        (*it)->print_to(stream);
+        }
+        
+        stream << ");";
         return stream;
     }
     
