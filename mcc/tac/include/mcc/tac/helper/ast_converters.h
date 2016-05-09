@@ -37,6 +37,7 @@ Operand::ptr_t convertWhileStmt(Tac *t, AstNode n);
 Operand::ptr_t convertReturnStmt(Tac *t, AstNode n);
 Operand::ptr_t convertFunctionDefList(Tac *t, AstNode n);
 Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n);
+Operand::ptr_t convertFunctionPrototype(Tac *t, AstNode n);
 Operand::ptr_t convertFunctionCall(Tac *t, AstNode n);
 
 template <typename T>

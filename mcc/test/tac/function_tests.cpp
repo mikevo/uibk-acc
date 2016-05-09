@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "mcc/tac/tac.h"
-#include "mcc/cfg/StaticCallGraph.h"
+#include "mcc/cfg/static_call_graph.h"
 
 #include <memory>
 #include <string>

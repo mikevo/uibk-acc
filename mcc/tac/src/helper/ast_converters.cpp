@@ -58,6 +58,7 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::return_stmt>(n)) return convertReturnStmt(t, n);
   if (isType<ast::functionList>(n)) return convertFunctionDefList(t, n);
   if (isType<ast::function_def>(n)) return convertFunctionDefinition(t, n);
+  if (isType<ast::function_prototype>(n)) return convertFunctionPrototype(t, n);
   if (isType<ast::functionCall_expr>(n)) return convertFunctionCall(t, n);
   
 
@@ -283,16 +284,30 @@ Operand::ptr_t convertFunctionDefList(Tac *t, AstNode n) {
   return nullptr;
 }
 
+Operand::ptr_t convertFunctionPrototype(Tac *t, AstNode n) {
+    auto proto = std::static_pointer_cast<ast::function_prototype>(n);
+    auto dummyLabel = std::make_shared<Label>(proto->name);
+    t->addFunction(proto->name, dummyLabel);
+    return nullptr;
+}
+
 Operand::ptr_t convertFunctionDefinition(Tac *t, AstNode n) {
   auto function = std::static_pointer_cast<ast::function_def>(n);
   auto codelines = t->codeLines.size();
   
   //Add label as entry point to function
-  auto entryLabel = std::make_shared<Label>(function->name);
   t->nextBasicBlock();
-  t->addLine(entryLabel);
+  auto functionDef = t->lookupFunction(function->name);
   
-  t->addFunction(function->name, entryLabel);
+  if(functionDef) {
+     t->addLine(functionDef); 
+  }
+  else {
+     auto entryLabel = std::make_shared<Label>(function->name);
+     t->addFunction(function->name, entryLabel);
+     t->addLine(entryLabel); 
+  }
+  
   t->getVariableStore()->addNewChildScope();
   
   //Declare and init parameters as variables

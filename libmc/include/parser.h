@@ -85,6 +85,7 @@ namespace parser {
         // FUNCTION DECLARATION ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         sptr<ast::parameter> parameter(parser_state& p);
         sptr<ast::function_def> function_def(parser_state& p);
+        sptr<ast::function_def> function_prototype(parser_state& p);
         sptr<ast::functionList> functionList(parser_state& p);
         
 }

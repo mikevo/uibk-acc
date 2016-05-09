@@ -187,16 +187,7 @@ namespace ast {
             virtual std::ostream& print_to(std::ostream& stream) const;
         };
         
-          struct function_prototype : public node {
-            sptr<type> returnType; //Set to nullptr in case of void
-            string name;
-            param_list parameters;
-            
-            function_prototype(sptr<type> returnType, string name, const param_list& parameters) 
-                : returnType(returnType), name(name), parameters(parameters) {}
-            virtual bool operator==(const node& other) const;
-            virtual std::ostream& print_to(std::ostream& stream) const;
-        };
+          
         
         struct function_def : public node {
             sptr<type> returnType; //Set to nullptr in case of void
@@ -206,6 +197,13 @@ namespace ast {
             
             function_def(sptr<type> returnType, string name, const param_list& parameters, sptr<compound_stmt> body) 
                 : returnType(returnType), name(name), parameters(parameters), body(body) {}
+            virtual bool operator==(const node& other) const;
+            virtual std::ostream& print_to(std::ostream& stream) const;
+        };
+        
+        struct function_prototype : public function_def {
+            function_prototype(sptr<type> returnType, string name, const param_list& parameters) 
+                : function_def(returnType, name, parameters, nullptr) {}
             virtual bool operator==(const node& other) const;
             virtual std::ostream& print_to(std::ostream& stream) const;
         };

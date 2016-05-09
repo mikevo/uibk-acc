@@ -1,4 +1,4 @@
-#include "mcc/cfg/StaticCallGraph.h"
+#include "mcc/cfg/static_call_graph.h"
 
 #include <cassert>
 #include <iterator>

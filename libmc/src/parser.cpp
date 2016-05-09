@@ -417,7 +417,7 @@ namespace parser {
              
         }
          
-          sptr<ast::function_def> function_def(parser_state& p) {
+             sptr<ast::function_def> function_def(parser_state& p) {
                auto try_p = p;
                auto return_type = type(try_p);
 		if(!return_type) {
@@ -448,28 +448,89 @@ namespace parser {
             }
                 
             if(try_token(p, ")").empty()) throw parser_error(p, "Expected ')' at the end of parameter list");
+            
+            //Function already defined with prototype?
+            auto function = p.functions.lookup(identifier);
+            if(function && function->body == nullptr) {
+                function->parameters = parameters;
+                function->body = fun_compound_stmt(p, parameters);
+                if(!function->body) throw parser_error(p, "Expected '{' after parameter list");
                 
-            sptr<ast::compound_stmt> body;
-            auto function = std::make_shared<ast::function_def>(return_type, identifier, parameters, body);
+                return function;
+                
+            } else {
+              sptr<ast::compound_stmt> body;
+              function = std::make_shared<ast::function_def>(return_type, identifier, parameters, body);
+              p.functions.declare(p, identifier, function);
+            
+              function->body = fun_compound_stmt(p, parameters);
+              if(!function->body) throw parser_error(p, "Expected '{' after parameter list"); 
+            
+              return function; 
+            }   
+        }
+         
+          sptr<ast::function_def> function_prototype(parser_state& p) {
+               auto try_p = p;
+               auto return_type = type(try_p);
+		if(!return_type) {
+                     if(try_token(try_p, "void").empty()) return {};
+                     return_type = nullptr;
+                }
+               
+                auto identifier = consume_identifier(try_p);
+                if(identifier.empty()) return {};
+           
+                if(try_token(try_p, "(").empty()) return {};
+               
+               
+                ast::param_list parameters;
+                if(auto param = parameter(try_p)) {
+                    parameters.push_back(param);
+                    while(!try_token(try_p, ",").empty()) {
+                        auto nextParam = parameter(try_p);
+                        if(nextParam) {
+                            parameters.push_back(nextParam);   
+                        }
+                        else {
+                            throw parser_error(try_p, "Expected next parameter after ','"); 
+                     }
+
+                 }
+                
+            }
+                
+            if(try_token(try_p, ")").empty()) throw parser_error(try_p, "Expected ')' at the end of parameter list");
+         
+            if(try_token(try_p, ";").empty()) return {};
+            
+            auto function = std::make_shared<ast::function_def>(return_type, identifier, parameters, nullptr);
+            auto functionProto = std::make_shared<ast::function_prototype>(return_type, identifier, parameters); 
+            p = try_p;
             p.functions.declare(p, identifier, function);
+                
+            return functionProto;
             
-            function->body = fun_compound_stmt(p, parameters);
-            if(!function->body) throw parser_error(p, "Expected '{' after parameter list"); 
-            
-            return function;
         }
           
         sptr<ast::functionList> functionList(parser_state& p) {
                 ast::function_list functions;
-                auto fun = function_def(p);
-                if(fun) {
+              
+                if(auto proto = function_prototype(p)) {
+                    functions.push_back(proto);
+                }
+                else if(auto fun = function_def(p)) {
                    functions.push_back(fun); 
                 }
                 else {
                     return {};
                 }
                 
-		while(auto nextFun = function_def(p)) functions.push_back(nextFun);
+                sptr<ast::function_def> nextFun;
+		while((nextFun = function_prototype(p)) || (nextFun = function_def(p))) {
+                    functions.push_back(nextFun);
+                }
+                
                 return std::make_shared<ast::functionList>(functions);
         }
 
