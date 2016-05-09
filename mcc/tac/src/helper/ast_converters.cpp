@@ -57,6 +57,7 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::while_stmt>(n)) return convertWhileStmt(t, n);
   if (isType<ast::function_list>(n)) return convertFunctionList(t, n);
   if (isType<ast::function_def>(n)) return convertFunctionDef(t, n);
+  if (isType<ast::function_prototype>(n)) return convertFunctionPrototype(t, n);
   if (isType<ast::function_call_expr>(n)) return convertfunctionCallExpr(t, n);
   if (isType<ast::return_stmt>(n)) return convertReturnStmt(t, n);
 

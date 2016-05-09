@@ -122,26 +122,3 @@ TEST(Function, FunctionRecursionTAC) {
 }
 }
 }
-
-namespace mcc {
-namespace cfg {
-TEST(Function, StaticCallGraph) {
-  auto tree = parser::parse(
-      R"(
-          int foobar(int arg1, int arg2) {
-            foobar(2,3);
-            return arg1 + arg2;
-          }
-            
-            int main() {
-                foobar(3, 6);
-                return 0;
-            }
-        )");
-
-  Tac tac = Tac(tree);
-  Scg scg = Scg(tac);
-  std::cout << scg.toDot();
-}
-}
-}
