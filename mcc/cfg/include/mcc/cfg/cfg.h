@@ -16,14 +16,14 @@
 namespace mcc {
 namespace cfg {
 
-typedef mcc::tac::BasicBlock::ptr_t Vertex;
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-                              Vertex> Graph;
-typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
-typedef std::map<VertexDescriptor, VertexDescriptor> VertexVertexMap;
-
 class Cfg {
  public:
+  typedef mcc::tac::BasicBlock::ptr_t Vertex;
+  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
+                                Vertex> Graph;
+  typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
+  typedef std::map<VertexDescriptor, VertexDescriptor> VertexVertexMap;
+
   typedef std::shared_ptr<Cfg> ptr_t;
 
   Cfg(mcc::tac::Tac tac);

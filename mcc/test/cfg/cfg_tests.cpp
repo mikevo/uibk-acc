@@ -212,8 +212,8 @@ TEST(Cfg, Idom) {
     auto idomV = graph->getIdom(bb);
     auto idomVD = graph->getIdom(bb->getBlockId());
 
-    Vertex expectedV;
-    VertexDescriptor expectedVD;
+    Cfg::Vertex expectedV;
+    Cfg::VertexDescriptor expectedVD;
     switch (bb->getBlockId()) {
       case 0:
         expectedVD = 0;
@@ -301,8 +301,8 @@ TEST(Cfg, DomSet) {
     auto domSetV = graph->getDomSet(bb);
     auto domSetVD = graph->getDomSet(bb->getBlockId());
 
-    std::set<Vertex> expectedV;
-    std::set<VertexDescriptor> expectedVD;
+    std::set<Cfg::Vertex> expectedV;
+    std::set<Cfg::VertexDescriptor> expectedVD;
     switch (bb->getBlockId()) {
       case 0:
         expectedVD = {0};
@@ -401,8 +401,8 @@ TEST(Cfg, SuccessorSet) {
     auto succSetV = graph->getSuccessor(bb);
     auto succSetVD = graph->getSuccessor(bb->getBlockId());
 
-    std::set<Vertex> expectedV;
-    std::set<VertexDescriptor> expectedVD;
+    std::set<Cfg::Vertex> expectedV;
+    std::set<Cfg::VertexDescriptor> expectedVD;
     switch (bb->getBlockId()) {
       case 0:
         expectedVD = {1, 4};
@@ -499,8 +499,8 @@ TEST(Cfg, PredecessorSet) {
     auto predSetV = graph->getPredecessor(bb);
     auto predSetVD = graph->getPredecessor(bb->getBlockId());
 
-    std::set<Vertex> expectedV;
-    std::set<VertexDescriptor> expectedVD;
+    std::set<Cfg::Vertex> expectedV;
+    std::set<Cfg::VertexDescriptor> expectedVD;
     switch (bb->getBlockId()) {
       case 0:
         expectedVD = {};
