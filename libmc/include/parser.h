@@ -70,7 +70,7 @@ sptr<ast::binary_operation> binary_operation(parser_state& p);
 sptr<ast::unary_operation> unary_operation(parser_state& p);
 
 sptr<ast::paren_expr> paren_expr(parser_state& p);
-sptr<ast::functionCall_expr> functionCall_expr(parser_state& p);
+sptr<ast::function_call_expr> function_call_expr(parser_state& p);
 
 sptr<ast::expression> single_expression(parser_state& p);
 sptr<ast::expression> expression(parser_state& p);
@@ -92,5 +92,5 @@ sptr<ast::statement> statement(parser_state& p);
 // /////////////////////////////////////////////////////////////////////////////
 sptr<ast::parameter> parameter(parser_state& p);
 sptr<ast::function_def> function_def(parser_state& p);
-sptr<ast::functionList> functionList(parser_state& p);
+sptr<ast::function_list> function_list(parser_state& p);
 }

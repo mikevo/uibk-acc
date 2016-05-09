@@ -55,9 +55,9 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::decl_stmt>(n)) return convertDeclStmt(t, n);
   if (isType<ast::if_stmt>(n)) return convertIfStmt(t, n);
   if (isType<ast::while_stmt>(n)) return convertWhileStmt(t, n);
-  if (isType<ast::functionList>(n)) return convertFunctionList(t, n);
+  if (isType<ast::function_list>(n)) return convertFunctionList(t, n);
   if (isType<ast::function_def>(n)) return convertFunctionDef(t, n);
-  if (isType<ast::functionCall_expr>(n)) return convertfunctionCallExpr(t, n);
+  if (isType<ast::function_call_expr>(n)) return convertfunctionCallExpr(t, n);
   if (isType<ast::return_stmt>(n)) return convertReturnStmt(t, n);
 
   // Debugging output; this is only printed if something goes terribly
@@ -252,7 +252,7 @@ Operand::ptr_t convertWhileStmt(Tac *t, AstNode n) {
 }
 
 Operand::ptr_t convertFunctionList(Tac *t, AstNode n) {
-  auto v = std::static_pointer_cast<ast::functionList>(n);
+  auto v = std::static_pointer_cast<ast::function_list>(n);
 
   for (auto fun : v->functions) {
     convertNode(t, fun);
@@ -323,7 +323,7 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
 }
 
 Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
-  auto functionCall = std::static_pointer_cast<ast::functionCall_expr>(n);
+  auto functionCall = std::static_pointer_cast<ast::function_call_expr>(n);
 
   if (functionCall->arguments.size() !=
       functionCall->function->parameters.size()) {

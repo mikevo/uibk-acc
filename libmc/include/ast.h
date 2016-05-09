@@ -33,7 +33,7 @@ using node_list = std::vector<sptr<node>>;
 using expr_list = std::vector<sptr<expression>>;
 using stmt_list = std::vector<sptr<statement>>;
 using param_list = std::vector<sptr<parameter>>;
-using function_list = std::vector<sptr<function_def>>;
+using function_def_list = std::vector<sptr<function_def>>;
 
 bool operator==(const node_list& lhs, const node_list& rhs);
 bool operator==(const expr_list& lhs, const expr_list& rhs);
@@ -133,10 +133,10 @@ struct paren_expr : public expression {
   virtual std::ostream& print_to(std::ostream& stream) const;
 };
 
-struct functionCall_expr : public expression {
+struct function_call_expr : public expression {
   sptr<function_def> function;
   expr_list arguments;
-  functionCall_expr(sptr<function_def> function, const expr_list& arguments)
+  function_call_expr(sptr<function_def> function, const expr_list& arguments)
       : function(function), arguments(arguments) {}
   virtual bool operator==(const node& other) const;
   virtual std::ostream& print_to(std::ostream& stream) const;
@@ -234,9 +234,9 @@ struct function_def : public node {
   virtual std::ostream& print_to(std::ostream& stream) const;
 };
 
-struct functionList : public node {
-  function_list functions;
-  functionList(const function_list& functions) : functions(functions) {}
+struct function_list : public node {
+  function_def_list functions;
+  function_list(const function_def_list& functions) : functions(functions) {}
   virtual bool operator==(const node& other) const;
   virtual std::ostream& print_to(std::ostream& stream) const;
 };

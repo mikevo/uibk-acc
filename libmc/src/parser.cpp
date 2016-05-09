@@ -176,7 +176,7 @@ void parser_state::set_string(const string& to_parse) {
 sptr<ast::node> parse(const string& input) {
   parser_state s{input.cbegin(), input.cend()};
   try {
-    return try_match<sptr<ast::node>>(s, functionList, statement, expression);
+    return try_match<sptr<ast::node>>(s, function_list, statement, expression);
   } catch (const parser_error& err) {
     report_parser_error(err);
     return {};
@@ -299,7 +299,7 @@ sptr<ast::paren_expr> paren_expr(parser_state& p) {
   return std::make_shared<ast::paren_expr>(sub);
 }
 
-sptr<ast::functionCall_expr> functionCall_expr(parser_state& p) {
+sptr<ast::function_call_expr> function_call_expr(parser_state& p) {
   auto try_p = p;
   auto identifier = consume_identifier(try_p);
   if (identifier.empty()) return {};
@@ -327,12 +327,12 @@ sptr<ast::functionCall_expr> functionCall_expr(parser_state& p) {
 
   if (try_token(p, ")").empty())
     throw parser_error(p, "Expected ')' at the end of argument list");
-  return std::make_shared<ast::functionCall_expr>(function, arguments);
+  return std::make_shared<ast::function_call_expr>(function, arguments);
 }
 
 sptr<ast::expression> single_expression(parser_state& p) {
   return try_match<sptr<ast::expression>>(
-      p, functionCall_expr, literal, variable, unary_operation, paren_expr);
+      p, function_call_expr, literal, variable, unary_operation, paren_expr);
 }
 
 sptr<ast::expression> expression(parser_state& p) {
@@ -485,8 +485,8 @@ sptr<ast::function_def> function_def(parser_state& p) {
   return function;
 }
 
-sptr<ast::functionList> functionList(parser_state& p) {
-  ast::function_list functions;
+sptr<ast::function_list> function_list(parser_state& p) {
+  ast::function_def_list functions;
   auto fun = function_def(p);
   if (fun) {
     functions.push_back(fun);
@@ -495,6 +495,6 @@ sptr<ast::functionList> functionList(parser_state& p) {
   }
 
   while (auto nextFun = function_def(p)) functions.push_back(nextFun);
-  return std::make_shared<ast::functionList>(functions);
+  return std::make_shared<ast::function_list>(functions);
 }
 }

@@ -231,13 +231,13 @@ std::ostream& return_stmt::print_to(std::ostream& stream) const {
   return stream;
 }
 
-bool functionCall_expr::operator==(const node& other) const {
-  if (typeid(other) != typeid(functionCall_expr)) return false;
-  auto o = dynamic_cast<const functionCall_expr&>(other);
+bool function_call_expr::operator==(const node& other) const {
+  if (typeid(other) != typeid(function_call_expr)) return false;
+  auto o = dynamic_cast<const function_call_expr&>(other);
   return o.arguments == arguments && *o.function == *function;
 }
 
-std::ostream& functionCall_expr::print_to(std::ostream& stream) const {
+std::ostream& function_call_expr::print_to(std::ostream& stream) const {
   stream << function->name << "(";
 
   if (!arguments.empty()) {
@@ -330,13 +330,13 @@ std::ostream& function_prototype::print_to(std::ostream& stream) const {
   return stream;
 }
 
-bool functionList::operator==(const node& other) const {
-  if (typeid(other) != typeid(functionList())) return false;
-  auto o = dynamic_cast<const functionList&>(other);
+bool function_list::operator==(const node& other) const {
+  if (typeid(other) != typeid(function_list())) return false;
+  auto o = dynamic_cast<const function_list&>(other);
   return functions == o.functions;
 }
 
-std::ostream& functionList::print_to(std::ostream& stream) const {
+std::ostream& function_list::print_to(std::ostream& stream) const {
   for (auto function : functions) {
     function->print_to(stream);
     stream << "\n";
