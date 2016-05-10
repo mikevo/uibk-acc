@@ -127,6 +127,7 @@ Variable::ptr_t VariableStore::findVariable(std::string const name) {
   std::cout << name << ":" << this->getCurrentScope()->getDepth() << ":"
             << this->getCurrentScope()->getIndex() << std::endl;
   assert(false && "Usage of undeclared variable");
+  return nullptr;
 }
 
 Variable::set_t::iterator VariableStore::insertVariable(

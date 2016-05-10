@@ -293,6 +293,9 @@ std::ostream& function_def::print_to(std::ostream& stream) const {
 
     (*it)->print_to(stream);
   }
+  else {
+      stream << "void";
+  }
 
   stream << ") ";
   body->print_to(stream);

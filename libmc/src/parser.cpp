@@ -411,6 +411,7 @@ sptr<ast::statement> statement(parser_state& p) {
 }
 
 sptr<ast::parameter> parameter(parser_state& p) {
+  if (!try_token(p, "void").empty()) return {};
   auto param_type = type(p);
   if (!param_type) return {};
 
