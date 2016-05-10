@@ -46,7 +46,16 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
   for (auto line : tac.codeLines) {
     if (prevBlockId < line->getBasicBlockId()) {
       if (!matched) {
-        if (prevBlockId != line->getBasicBlockId()) {
+        bool isFunctionEntryLabel = false;
+        if (mcc::tac::helper::isType<mcc::tac::Label>(line)) {
+          auto label = std::static_pointer_cast<mcc::tac::Label>(line);
+
+          isFunctionEntryLabel = label->isFunctionEntry();
+        }
+
+        // only link subsequent BB if not a function call or any other linking
+        // is done already
+        if ((prevBlockId != line->getBasicBlockId()) && !isFunctionEntryLabel) {
           boost::add_edge(prevBlockId, line->getBasicBlockId(), graph);
         }
       } else {
@@ -77,7 +86,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
         matched = true;
       } else {
-        assert(false && "Unknown jump destination");
+        assert(false && "Unknown jump or call destination");
       }
     }
 

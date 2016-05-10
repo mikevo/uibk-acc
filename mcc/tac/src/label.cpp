@@ -5,14 +5,17 @@
 namespace mcc {
 namespace tac {
 
-Label::Label() : Triple(OperatorName::LABEL) {
+Label::Label() : Triple(OperatorName::LABEL), functionEntryLabel(false) {
   this->setName("$L" + std::to_string(this->getId()));
 }
 
-Label::Label(std::string name) : Triple(OperatorName::LABEL) {
-  this->setName(name);
+Label::Label(std::string functionName)
+    : Triple(OperatorName::LABEL), functionEntryLabel(true) {
+  this->setName(functionName);
 }
 
 bool Label::isLeaf() const { return true; }
+
+bool Label::isFunctionEntry() const { return this->functionEntryLabel; }
 }
 }

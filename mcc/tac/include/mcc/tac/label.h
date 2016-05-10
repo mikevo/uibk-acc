@@ -21,8 +21,12 @@ class Label : public Triple {
   typedef std::shared_ptr<Label> ptr_t;
 
   Label();
-  Label(std::string name);
+  Label(std::string functionName);
   virtual bool isLeaf() const override final;
+  bool isFunctionEntry() const;
+
+ private:
+  bool functionEntryLabel;
 };
 }
 }
