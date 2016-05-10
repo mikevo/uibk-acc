@@ -52,6 +52,11 @@ struct float_type : public type {
   virtual std::ostream& print_to(std::ostream& stream) const;
 };
 
+struct void_type : public type {
+  virtual bool operator==(const node& other) const;
+  virtual std::ostream& print_to(std::ostream& stream) const;
+};
+
 // EXPRESSIONS
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -207,7 +212,7 @@ struct parameter : public node {
 };
 
 struct function_def : public node {
-  sptr<type> returnType;  // Set to nullptr in case of void
+  sptr<type> returnType;
   string name;
   param_list parameters;
   sptr<compound_stmt> body;

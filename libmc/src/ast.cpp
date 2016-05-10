@@ -51,6 +51,14 @@ std::ostream& float_type::print_to(std::ostream& stream) const {
   return stream << "float";
 }
 
+bool void_type::operator==(const node& other) const {
+  return typeid(other) == typeid(void_type);
+}
+
+std::ostream& void_type::print_to(std::ostream& stream) const {
+  return stream << "void";
+}
+
 bool int_literal::operator==(const node& other) const {
   return typeid(other) == typeid(int_literal) &&
          dynamic_cast<const int_literal&>(other).value == value;
@@ -281,12 +289,7 @@ bool function_def::operator==(const node& other) const {
 }
 
 std::ostream& function_def::print_to(std::ostream& stream) const {
-  if (returnType != nullptr) {
-    returnType->print_to(stream);
-  } else {
-    stream << "void";
-  }
-
+  returnType->print_to(stream);
   stream << " " << name << "(";
 
   if (!parameters.empty()) {
@@ -316,12 +319,7 @@ bool function_prototype::operator==(const node& other) const {
 }
 
 std::ostream& function_prototype::print_to(std::ostream& stream) const {
-  if (returnType != nullptr) {
-    returnType->print_to(stream);
-  } else {
-    stream << "void";
-  }
-
+  returnType->print_to(stream);
   stream << " " << name << "(";
 
   if (!parameters.empty()) {

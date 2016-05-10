@@ -39,6 +39,7 @@ static const std::map<ast::unary_operand, OperatorName> unaryOperatorMap{
 Type getType(ast::type &type) {
   if (typeid(type) == typeid(ast::int_type &)) return Type::INT;
   if (typeid(type) == typeid(ast::float_type &)) return Type::FLOAT;
+  if (typeid(type) == typeid(ast::void_type &)) return Type::NONE;
   assert(false && "Unknown data type");
   return Type::NONE;
 }
@@ -370,11 +371,7 @@ Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
   }
 
   Type type;
-  if (functionCall->function->returnType != nullptr) {
-    type = getType(*functionCall->function->returnType.get());
-  } else {
-    type = Type::NONE;
-  }
+  type = getType(*functionCall->function->returnType.get());
 
   auto op = Operator(OperatorName::CALL, type);
   auto callTriple = std::make_shared<Triple>(op, functionEntry);

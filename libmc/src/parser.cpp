@@ -440,13 +440,12 @@ sptr<ast::parameter> parameter_proto(parser_state& p) {
   
 }
 
-
 sptr<ast::function_def> function_def(parser_state& p) {
   auto try_p = p;
   auto return_type = type(try_p);
   if (!return_type) {
     if (try_token(try_p, "void").empty()) return {};
-    return_type = nullptr;
+    return_type = std::make_shared<ast::void_type>();
   }
 
   auto identifier = consume_identifier(try_p);
@@ -474,27 +473,20 @@ sptr<ast::function_def> function_def(parser_state& p) {
   // Function already defined with prototype?
   auto function = p.functions.lookup(identifier);
   if (function && function->body == nullptr) {
-      if((return_type != nullptr) && (function->returnType != nullptr) && *return_type != *function->returnType) {
-         throw parser_error(p, "Return type of definition differs from declaration"); 
-      }
-      
-      if((return_type == nullptr) && (function->returnType != nullptr)) {
-         throw parser_error(p, "Return type of definition differs from declaration"); 
-      }
-      
-      if((return_type != nullptr) && (function->returnType == nullptr)) {
-         throw parser_error(p, "Return type of definition differs from declaration"); 
+      if(*return_type != *function->returnType) {
+         throw parser_error(p, "Return type of function definition differs from declaration"); 
       }
       
       if(function->parameters.size() != parameters.size()) {
-         throw parser_error(p, "Parameter count of definition differs from declaration");  
+         throw parser_error(p, "Parameter count of function definition differs from declaration");  
       }
       
       for(uint i = 0; i < parameters.size(); ++i) {
           if(typeid(*function->parameters[i]->paramVar->var_type) != typeid(*parameters[i]->paramVar->var_type)) {
-              throw parser_error(p, "Parameter type of definition differs from declaration");   
+              throw parser_error(p, "Parameter type of function definition differs from declaration");   
           }
       }
+      
     function->parameters = parameters;
     function->body = fun_compound_stmt(p, parameters);
     if (!function->body)
@@ -521,7 +513,7 @@ sptr<ast::function_def> function_prototype(parser_state& p) {
   auto return_type = type(try_p);
   if (!return_type) {
     if (try_token(try_p, "void").empty()) return {};
-    return_type = nullptr;
+    return_type = std::make_shared<ast::void_type>();
   }
 
   auto identifier = consume_identifier(try_p);

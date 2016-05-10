@@ -358,6 +358,7 @@ mcc::tac::Variable::set_t Cfg::liveSetAt(mcc::tac::Triple::ptr_t const triple,
 
   std::cout << bb->getBlockId() << " " << triple->toString() << std::endl;
   assert(false && "triple not found in block");
+  return {};
 }
 
 mcc::tac::Variable::set_t Cfg::liveSetAfter(
@@ -385,6 +386,7 @@ mcc::tac::Variable::set_t Cfg::liveSetAfter(
 
   std::cout << bb->getBlockId() << " " << triple->toString() << std::endl;
   assert(false && "triple not found in block");
+  return {};
 }
 
 mcc::tac::Variable::set_t Cfg::getLiveIn(VertexDescriptor v) {
