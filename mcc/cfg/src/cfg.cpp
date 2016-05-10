@@ -96,6 +96,11 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
       }
     }
 
+    // do not link BB with return in it with the subsequent BB
+    if (op.getName() == mcc::tac::OperatorName::RET) {
+      matched = true;
+    }
+
     prevBlockId = line->getBasicBlockId();
   }
 }
