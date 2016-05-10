@@ -395,8 +395,6 @@ TEST(Cfg, SuccessorSet) {
 
   auto index = tac.getBasicBlockIndex();
 
-  std::cout << tac.toString();
-
   for (auto bb : *index.get()) {
     auto succSetV = graph->getSuccessor(bb);
     auto succSetVD = graph->getSuccessor(bb->getBlockId());
@@ -872,11 +870,6 @@ TEST(Cfg, FunctionCfg) {
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   auto graph = std::make_shared<Cfg>(tac);
-
-  //  for (auto bb : *tac.getBasicBlockIndex().get()) {
-  //      std::cout << bb->toString() << std::endl;
-  //  }
-  //  std::cout << graph->toDot() << std::endl;
 
   std::string expected =
       R"(digraph G {
