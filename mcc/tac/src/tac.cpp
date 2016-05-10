@@ -153,11 +153,7 @@ void Tac::addReturn() {
   auto entry = functionReturnMap->find(currentFunctionLabel);
 
   if (entry != functionReturnMap->end()) {
-    auto list = entry->second;
-    list.insert(this->currentBasicBlock);
-    auto pair = std::make_pair(currentFunctionLabel, list);
-
-    functionReturnMap->insert(pair);
+    entry->second.insert(this->currentBasicBlock);
   } else {
     std::set<unsigned> list;
     list.insert(this->currentBasicBlock);

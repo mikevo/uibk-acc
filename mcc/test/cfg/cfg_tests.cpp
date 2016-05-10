@@ -850,5 +850,56 @@ TEST(Cfg, LiveSetAfter) {
     }
   }
 }
+
+TEST(Cfg, FunctionCfg) {
+  auto tree = parser::parse(
+      R"(
+            int foo(int bar) {
+                int a = bar;
+  
+                if (a < 10) {
+                    return a;
+                } else {
+                    return foo(a);
+                }
+            }
+            
+            int main() {
+                foo(42);
+                return 0;
+            }
+         )");
+
+  mcc::tac::Tac tac = mcc::tac::Tac(tree);
+  auto graph = std::make_shared<Cfg>(tac);
+
+  //  for (auto bb : *tac.getBasicBlockIndex().get()) {
+  //      std::cout << bb->toString() << std::endl;
+  //  }
+  //  std::cout << graph->toDot() << std::endl;
+
+  std::string expected =
+      R"(digraph G {
+0;
+1;
+2;
+3;
+4;
+5;
+6;
+7;
+0->1 ;
+0->3 ;
+2->5 ;
+3->0 ;
+1->4 ;
+6->0 ;
+1->7 ;
+4->7 ;
+}
+)";
+
+  EXPECT_EQ(expected, graph->toDot());
+}
 }
 }
