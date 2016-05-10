@@ -92,6 +92,7 @@ sptr<ast::statement> statement(parser_state& p);
 // FUNCTION DECLARATION
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 sptr<ast::parameter> parameter(parser_state& p);
+sptr<ast::parameter> parameter_proto(parser_state& p);
 sptr<ast::function_def> function_def(parser_state& p);
 sptr<ast::function_def> function_prototype(parser_state& p);
 sptr<ast::function_list> function_list(parser_state& p);

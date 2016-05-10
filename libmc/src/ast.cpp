@@ -263,7 +263,13 @@ bool parameter::operator==(const node& other) const {
 
 std::ostream& parameter::print_to(std::ostream& stream) const {
   paramVar->var_type->print_to(stream);
-  stream << " " << paramVar->name;
+  if(paramVar->name.size() == 0) {
+    stream << paramVar->name;  
+  }
+  else {
+    stream << " " << paramVar->name;  
+  }
+  
   return stream;
 }
 

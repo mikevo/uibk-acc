@@ -422,6 +422,25 @@ sptr<ast::parameter> parameter(parser_state& p) {
   return std::make_shared<ast::parameter>(var);
 }
 
+sptr<ast::parameter> parameter_proto(parser_state& p) {
+  if (!try_token(p, "void").empty()) return {};
+  auto param_type = type(p);
+  if (!param_type) return {};
+
+  auto identifier = consume_identifier(p);
+  if (identifier.empty()) {
+    auto var = std::make_shared<ast::variable>(param_type, "");
+  return std::make_shared<ast::parameter>(var);
+  
+  }
+  else {
+    auto var = std::make_shared<ast::variable>(param_type, identifier);
+  return std::make_shared<ast::parameter>(var);  
+  }
+  
+}
+
+
 sptr<ast::function_def> function_def(parser_state& p) {
   auto try_p = p;
   auto return_type = type(try_p);
@@ -455,6 +474,27 @@ sptr<ast::function_def> function_def(parser_state& p) {
   // Function already defined with prototype?
   auto function = p.functions.lookup(identifier);
   if (function && function->body == nullptr) {
+      if((return_type != nullptr) && (function->returnType != nullptr) && *return_type != *function->returnType) {
+         throw parser_error(p, "Return type of definition differs from declaration"); 
+      }
+      
+      if((return_type == nullptr) && (function->returnType != nullptr)) {
+         throw parser_error(p, "Return type of definition differs from declaration"); 
+      }
+      
+      if((return_type != nullptr) && (function->returnType == nullptr)) {
+         throw parser_error(p, "Return type of definition differs from declaration"); 
+      }
+      
+      if(function->parameters.size() != parameters.size()) {
+         throw parser_error(p, "Parameter count of definition differs from declaration");  
+      }
+      
+      for(uint i = 0; i < parameters.size(); ++i) {
+          if(typeid(*function->parameters[i]->paramVar->var_type) != typeid(*parameters[i]->paramVar->var_type)) {
+              throw parser_error(p, "Parameter type of definition differs from declaration");   
+          }
+      }
     function->parameters = parameters;
     function->body = fun_compound_stmt(p, parameters);
     if (!function->body)
@@ -490,10 +530,10 @@ sptr<ast::function_def> function_prototype(parser_state& p) {
   if (try_token(try_p, "(").empty()) return {};
 
   ast::param_list parameters;
-  if (auto param = parameter(try_p)) {
+  if (auto param = parameter_proto(try_p)) {
     parameters.push_back(param);
     while (!try_token(try_p, ",").empty()) {
-      auto nextParam = parameter(try_p);
+      auto nextParam = parameter_proto(try_p);
       if (nextParam) {
         parameters.push_back(nextParam);
       } else {
