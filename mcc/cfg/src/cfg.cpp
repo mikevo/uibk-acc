@@ -41,11 +41,13 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
   unsigned prevBlockId = 0;
   std::set<unsigned> returnBbIdSet;
-  bool matched = false;
+  bool alreadyHandled = false;
 
   for (auto line : tac.codeLines) {
-    if (prevBlockId < line->getBasicBlockId()) {
-      if (!matched) {
+    // if entered a new block
+    if (prevBlockId != line->getBasicBlockId()) {
+      // if candidate edge not already handled
+      if (!alreadyHandled) {
         bool isFunctionEntryLabel = false;
         if (mcc::tac::helper::isType<mcc::tac::Label>(line)) {
           auto label = std::static_pointer_cast<mcc::tac::Label>(line);
@@ -53,9 +55,9 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
           isFunctionEntryLabel = label->isFunctionEntry();
         }
 
-        // only link subsequent BB if not a function call or any other linking
-        // is done already
-        if ((prevBlockId != line->getBasicBlockId()) && !isFunctionEntryLabel) {
+        // do not connect subsequent BBs of different functions in their
+        // definitions
+        if (!isFunctionEntryLabel) {
           boost::add_edge(prevBlockId, line->getBasicBlockId(), graph);
         }
       } else {
@@ -68,8 +70,9 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
       }
     }
 
+    // reset variables belonging to previous iteration
     returnBbIdSet.clear();
-    matched = false;
+    alreadyHandled = false;
 
     auto op = line->getOperator();
 
@@ -84,7 +87,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
         // prepare to add return edges
         returnBbIdSet = tac.lookupFunctionReturn(label);
 
-        matched = true;
+        alreadyHandled = true;
       } else {
         assert(false && "Unknown jump or call destination");
       }
@@ -99,7 +102,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
         boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
                         graph);
-        matched = true;
+        alreadyHandled = true;
       } else {
         assert(false && "Unknown jump destination");
       }
@@ -107,7 +110,7 @@ Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
 
     // do not link BB with return in it with the subsequent BB
     if (op.getName() == mcc::tac::OperatorName::RET) {
-      matched = true;
+      alreadyHandled = true;
     }
 
     prevBlockId = line->getBasicBlockId();
