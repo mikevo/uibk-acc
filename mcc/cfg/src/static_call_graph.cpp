@@ -16,7 +16,7 @@ namespace cfg {
 Scg::Scg(mcc::tac::Tac &tac) {
   auto functionMap = tac.getFunctionMap();
   auto graphIndex = std::map<std::string, VertexDescriptor>();
-  Label::ptr_t currentFunction;
+  std::string currentFunctionName;
 
   for (auto function : *functionMap) {
     auto vt = boost::add_vertex(function.second, graph);
@@ -26,16 +26,15 @@ Scg::Scg(mcc::tac::Tac &tac) {
   for (auto triple : tac.codeLines) {
     if (typeid(*triple) == typeid(Label)) {
       auto label = std::static_pointer_cast<Label>(triple);
-      auto functionEntry = tac.lookupFunction(label->getName());
-      if (functionEntry != nullptr) {
-        currentFunction = functionEntry;
+      if (label->isFunctionEntry()) {
+        currentFunctionName = label->getName();
       }
     } else if (triple->getOperator().getType() == OperatorType::CALL) {
       if (typeid(*(triple->getArg1())) == typeid(Label)) {
-        auto targetFunction =
-            std::static_pointer_cast<Label>(triple->getArg1());
-        boost::add_edge(graphIndex[currentFunction->getName()],
-                        graphIndex[targetFunction->getName()], graph);
+        auto callTarget = std::static_pointer_cast<Label>(triple->getArg1());
+        auto targetName = callTarget->getName();
+        boost::add_edge(graphIndex[currentFunctionName], graphIndex[targetName],
+                        graph);
       }
     }
   }

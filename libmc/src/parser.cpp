@@ -430,14 +430,12 @@ sptr<ast::parameter> parameter_proto(parser_state& p) {
   auto identifier = consume_identifier(p);
   if (identifier.empty()) {
     auto var = std::make_shared<ast::variable>(param_type, "");
-  return std::make_shared<ast::parameter>(var);
-  
-  }
-  else {
+    return std::make_shared<ast::parameter>(var);
+
+  } else {
     auto var = std::make_shared<ast::variable>(param_type, identifier);
-  return std::make_shared<ast::parameter>(var);  
+    return std::make_shared<ast::parameter>(var);
   }
-  
 }
 
 sptr<ast::function_def> function_def(parser_state& p) {
@@ -473,20 +471,25 @@ sptr<ast::function_def> function_def(parser_state& p) {
   // Function already defined with prototype?
   auto function = p.functions.lookup(identifier);
   if (function && function->body == nullptr) {
-      if(*return_type != *function->returnType) {
-         throw parser_error(p, "Return type of function definition differs from declaration"); 
+    if (*return_type != *function->returnType) {
+      throw parser_error(
+          p, "Return type of function definition differs from declaration");
+    }
+
+    if (function->parameters.size() != parameters.size()) {
+      throw parser_error(
+          p, "Parameter count of function definition differs from declaration");
+    }
+
+    for (uint i = 0; i < parameters.size(); ++i) {
+      if (typeid(*function->parameters[i]->paramVar->var_type) !=
+          typeid(*parameters[i]->paramVar->var_type)) {
+        throw parser_error(
+            p,
+            "Parameter type of function definition differs from declaration");
       }
-      
-      if(function->parameters.size() != parameters.size()) {
-         throw parser_error(p, "Parameter count of function definition differs from declaration");  
-      }
-      
-      for(uint i = 0; i < parameters.size(); ++i) {
-          if(typeid(*function->parameters[i]->paramVar->var_type) != typeid(*parameters[i]->paramVar->var_type)) {
-              throw parser_error(p, "Parameter type of function definition differs from declaration");   
-          }
-      }
-      
+    }
+
     function->parameters = parameters;
     function->body = fun_compound_stmt(p, parameters);
     if (!function->body)
