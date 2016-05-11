@@ -396,9 +396,6 @@ sptr<ast::while_stmt> while_stmt(parser_state& p) {
 sptr<ast::return_stmt> return_stmt(parser_state& p) {
   if (try_token(p, "return").empty()) return {};
   auto returnValue = expression(p);
-  if (!returnValue) {
-    returnValue == nullptr;
-  }
 
   if (try_token(p, ";").empty())
     throw parser_error(p, "Expected ';' at end of return  statement");
