@@ -1,9 +1,14 @@
-{
-	int x=1;
-	float y = 3.0;
-	if(x > 0) {
-		y = y * 1.5;
-	} else {
-		y = y + 2.0;
-	}
+int foo(int bar) {
+    int a = bar;
+
+    if (a < 10) {
+        return a;
+    } else {
+        return foo(a);
+    }
+}
+
+int main() {
+    foo(42);
+    return 0;
 }

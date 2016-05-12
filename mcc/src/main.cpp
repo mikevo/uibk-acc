@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "mcc/cfg/cfg.h"
+#include "mcc/gas/gas.h"
 #include "mcc/lvn/lvn.h"
 #include "mcc/main.h"
 #include "mcc/tac/tac.h"
@@ -10,6 +11,7 @@
 using namespace mcc::tac;
 using namespace mcc::cfg;
 using namespace mcc::lvn;
+using namespace mcc::gas;
 
 int main(int argc, char **argv) {
   if (argc != 2) {
@@ -58,5 +60,19 @@ int main(int argc, char **argv) {
       std::cout << out->getName() << ", ";
     }
     std::cout << "}" << std::endl << std::endl;
+  }
+
+  // GNU Assembly
+  std::cout << "GAS:" << std::endl;
+  Gas gas = Gas(tac);
+  auto map1 = gas.getFunctionStackSpaceMap();
+  for (auto it = map1->begin(); it != map1->end(); ++it) {
+    std::cout << it->first << ": Stack Space = " << it->second << std::endl;
+  }
+
+  auto map2 = gas.getVariableStackOffsetMap();
+  for (auto it = map2->begin(); it != map2->end(); ++it) {
+    std::cout << it->first->getValue() << ": Stack Offset = " << it->second
+              << std::endl;
   }
 }

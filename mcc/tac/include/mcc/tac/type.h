@@ -16,6 +16,7 @@
 namespace mcc {
 namespace tac {
 
+// do not forget to add sizeof datatype in operand.cpp
 enum Type { NONE, AUTO, INT, FLOAT, BOOL };
 }
 }

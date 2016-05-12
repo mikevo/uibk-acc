@@ -79,6 +79,8 @@ Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
     case OperatorName::JUMPFALSE:
     case OperatorName::JUMP:
     case OperatorName::LABEL:
+    case OperatorName::PUSH:
+    case OperatorName::RET:
       break;
     default:
       // Creates a temp variable scope(0,0) that is used for the triple result
