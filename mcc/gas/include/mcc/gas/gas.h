@@ -17,6 +17,7 @@ using namespace mcc::tac;
 
 namespace mcc {
 namespace gas {
+
 typedef std::map<std::string, Label::ptr_t> function_map_type;
 typedef std::map<std::string, unsigned> function_stack_space_map_type;
 typedef std::map<Variable::ptr_t, unsigned> variable_stack_offset_map_type;

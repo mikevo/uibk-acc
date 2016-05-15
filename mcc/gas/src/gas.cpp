@@ -6,6 +6,8 @@
 #include <ostream>
 #include <typeinfo>
 
+#include "mcc/gas/x86_instruction_set.h"
+
 namespace mcc {
 
 namespace gas {
