@@ -14,6 +14,7 @@
 #ifndef X86_INSTRUCTION_SET_H
 #define X86_INSTRUCTION_SET_H
 
+#include <map>
 #include <string>
 
 namespace mcc {
@@ -51,7 +52,7 @@ enum class Instruction {
 
 };
 
-static const std::map<Instruction, std::string> InstructionName{
+static std::map<Instruction, std::string> InstructionName{
     // Data instructions
     {Instruction::MOV, "mov"},
     {Instruction::PUSH, "push"},
@@ -93,10 +94,16 @@ enum class Register {
   EBP,
 };
 
-static const std::map<Register, std::string> RegisterName{
+static std::map<Register, std::string> RegisterName{
     {Register::EAX, "eax"}, {Register::EBX, "ebx"}, {Register::ECX, "ecx"},
     {Register::EDX, "edx"}, {Register::ESI, "esi"}, {Register::EDI, "edi"},
     {Register::ESP, "esp"}, {Register::EBP, "ebp"}};
+
+enum class OperandType {
+  REGISTER,
+  ADDRESS,
+  CONSTANT,
+};
 }
 }
 
