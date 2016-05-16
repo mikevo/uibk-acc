@@ -46,13 +46,13 @@ class Gas {
   void setFunctionStackSpace(Label::ptr_t functionLabel, unsigned stackSpace);
   unsigned lookupFunctionArgSize(std::string functionName);
   unsigned lookupFunctionStackSize(std::string functionName);
-  unsigned lookupVariableStackOffset(Variable::ptr_t var,
-                                     std::string functionName);
+  unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
   void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertCall(Triple::ptr_t triple);
-  void convertPush(Triple::ptr_t triple, Label::ptr_t currentFunction);
+  void convertPush(Triple::ptr_t triple);
+  void convertAssign(Triple::ptr_t triple);
 };
 }
 }

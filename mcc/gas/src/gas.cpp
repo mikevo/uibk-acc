@@ -119,8 +119,7 @@ unsigned Gas::lookupFunctionStackSize(std::string functionName) {
   }
 }
 
-unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var,
-                                        std::string functionName) {
+unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
   auto found = variableStackOffsetMap->find(var);
 
   if (found != variableStackOffsetMap->end()) {
@@ -155,6 +154,7 @@ void Gas::convertTac(Tac &tac) {
         break;
 
       case OperatorName::ASSIGN:
+        convertAssign(triple);
         break;
 
       case OperatorName::LABEL:
@@ -182,7 +182,7 @@ void Gas::convertTac(Tac &tac) {
         break;
 
       case OperatorName::PUSH:
-        convertPush(triple, currentFunction);
+        convertPush(triple);
         break;
 
       case OperatorName::POP:
@@ -254,6 +254,18 @@ void Gas::convertCall(Triple::ptr_t triple) {
       }
     }
   }
+
+  // Assign result to variable
+  if (triple->containsTargetVar()) {
+    auto eax = std::make_shared<Operand>(Register::EAX);
+    auto var = triple->getTargetVariable();
+
+    unsigned varOffset = lookupVariableStackOffset(var);
+    auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
+  }
 }
 
 void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
@@ -276,8 +288,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 
     } else if (helper::isType<Variable>(op)) {
       auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset =
-          lookupVariableStackOffset(variableOp, currentFunction->getName());
+      unsigned varOffset = lookupVariableStackOffset(variableOp);
       auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
 
       asmInstructions.push_back(
@@ -299,7 +310,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::RET));
 }
 
-void Gas::convertPush(Triple::ptr_t triple, Label::ptr_t currentFunction) {
+void Gas::convertPush(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     auto op = triple->getArg1();
 
@@ -315,12 +326,48 @@ void Gas::convertPush(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 
     } else if (helper::isType<Variable>(op)) {
       auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset =
-          lookupVariableStackOffset(variableOp, currentFunction->getName());
+      unsigned varOffset = lookupVariableStackOffset(variableOp);
       auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
 
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
+    }
+  }
+}
+
+void Gas::convertAssign(Triple::ptr_t triple) {
+  if (triple->containsArg1()) {
+    auto op = triple->getArg1();
+    if (helper::isType<Variable>(op)) {
+      auto variableOp = std::static_pointer_cast<Variable>(op);
+      unsigned varOffset = lookupVariableStackOffset(variableOp);
+      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+      if (triple->containsArg2()) {
+        auto op2 = triple->getArg2();
+
+        if (helper::isType<IntLiteral>(op2)) {
+          auto intOp = std::static_pointer_cast<IntLiteral>(op2);
+          auto asmInt = std::make_shared<Operand>(intOp->getValue());
+
+          asmInstructions.push_back(
+              std::make_shared<Mnemonic>(Instruction::MOV, asmVar, asmInt));
+
+        } else if (helper::isType<FloatLiteral>(op2)) {
+          /*TODO*/
+        } else if (helper::isType<Variable>(op2)) {
+          auto eax = std::make_shared<Operand>(Register::EAX);
+          auto variableOp2 = std::static_pointer_cast<Variable>(op2);
+          unsigned varOffset2 = lookupVariableStackOffset(variableOp2);
+          auto asmVar2 = std::make_shared<Operand>(Register::EBP, varOffset2);
+
+          asmInstructions.push_back(
+              std::make_shared<Mnemonic>(Instruction::MOV, eax, asmVar2));
+
+          asmInstructions.push_back(
+              std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
+        }
+      }
     }
   }
 }
