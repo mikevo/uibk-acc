@@ -27,6 +27,7 @@ class Operand {
   Operand(Register reg);
   Operand(Register reg, int offset);
   Operand(int constant);
+  Operand(std::string label);
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Operand& op);
@@ -36,6 +37,7 @@ class Operand {
   Register mRegister;
   int mAddrOffset;
   int mConstValue;
+  std::string mLabelName;
 };
 }
 }

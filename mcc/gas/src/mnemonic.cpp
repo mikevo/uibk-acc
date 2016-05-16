@@ -25,7 +25,7 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Mnemonic& mnemonic) {
     return os << mnemonic.mlabelName << ":";
   }
 
-  os << InstructionName[mnemonic.mInstruction];
+  os << "\t" << InstructionName[mnemonic.mInstruction];
   if (mnemonic.mOperandOne) {
     os << " " << (*mnemonic.mOperandOne);
   }

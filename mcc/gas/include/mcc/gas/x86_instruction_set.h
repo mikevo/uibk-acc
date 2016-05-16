@@ -107,6 +107,7 @@ enum class OperandType {
   REGISTER,
   ADDRESS,
   CONSTANT,
+  LABEL,
 };
 }
 }

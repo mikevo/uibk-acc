@@ -19,6 +19,7 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
       std::make_shared<function_stack_space_map_type>();
   this->variableStackOffsetMap =
       std::make_shared<variable_stack_offset_map_type>();
+  this->functionArgSizeMap = std::make_shared<function_arg_size_type>();
 
   this->convertTac(tac);
         }
@@ -29,6 +30,17 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
           unsigned currentStackOffset = 0;
           for (auto codeLine : tac.codeLines) {
             auto opName = codeLine->getOperator().getName();
+            if (opName == OperatorName::POP) {
+              auto found =
+                  functionArgSizeMap->find(currentFunctionLabel->getName());
+
+              if (found != functionArgSizeMap->end()) {
+                found->second = found->second + codeLine->getArg1()->getSize();
+              } else {
+                (*functionArgSizeMap)[currentFunctionLabel->getName()] =
+                    codeLine->getArg1()->getSize();
+              }
+            }
             if (opName == OperatorName::LABEL) {
               auto label = std::static_pointer_cast<Label>(codeLine);
               if (label->isFunctionEntry()) {
@@ -51,10 +63,10 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
                 stackSpace += targetVar->getSize();
               }
             }
-          }
+            }
 
-          // add last function
-          this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+            // add last function
+            this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
         }
 
         void Gas::setFunctionStackSpace(std::string functionName,
@@ -78,6 +90,16 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
         std::shared_ptr<variable_stack_offset_map_type>
         Gas::getVariableStackOffsetMap() {
           return this->variableStackOffsetMap;
+        }
+
+        unsigned Gas::lookupFunctionArgSize(std::string functionName) {
+          auto found = functionArgSizeMap->find(functionName);
+
+          if (found != functionArgSizeMap->end()) {
+            return found->second;
+          } else {
+            return 0;
+          }
         }
 
         void Gas::convertTac(Tac &tac) {
@@ -137,12 +159,14 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
                 break;
 
               case OperatorName::CALL:
+                convertCall(triple);
                 break;
 
               case OperatorName::RET:
+                convertReturn(triple);
                 break;
             }
-          }
+            }
         }
 
         void Gas::convertLabel(Triple::ptr_t triple) {
@@ -160,6 +184,42 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
             asmInstructions.push_back(
                 std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
           }
+        }
+
+        void Gas::convertCall(Triple::ptr_t triple) {
+          if (triple->containsArg1()) {
+            auto operand = triple->getArg1();
+            if (typeid(*operand.get()) == typeid(Label)) {
+              auto label = std::static_pointer_cast<Label>(operand);
+              auto asmLabel = std::make_shared<Operand>(label->getName());
+
+              asmInstructions.push_back(
+                  std::make_shared<Mnemonic>(Instruction::CALL, asmLabel));
+
+              // Cleanup stack
+              unsigned argSize = lookupFunctionArgSize(label->getName());
+
+              if (argSize > 0) {
+                auto esp = std::make_shared<Operand>(Register::ESP);
+                auto stackspaceOp = std::make_shared<Operand>(argSize);
+
+                asmInstructions.push_back(std::make_shared<Mnemonic>(
+                    Instruction::ADD, esp, stackspaceOp));
+              }
+            }
+          }
+        }
+
+        void Gas::convertReturn(Triple::ptr_t triple) {}
+
+        std::string Gas::toString() const {
+          std::ostringstream stream;
+
+          for (auto mnemonic : asmInstructions) {
+            stream << mnemonic << "\n";
+          }
+
+          return stream.str();
         }
         }
 }

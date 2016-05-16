@@ -75,4 +75,6 @@ int main(int argc, char **argv) {
     std::cout << it->first->getValue() << ": Stack Offset = " << it->second
               << std::endl;
   }
+
+  std::cout << "Assembly:" << std::endl << gas.toString();
 }
