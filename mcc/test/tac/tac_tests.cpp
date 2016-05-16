@@ -385,14 +385,14 @@ TEST(Tac, While) {
   expectedValue.append(condVarName + " = b0:2:0 < 5\n");
   expectedValue.append("JUMPFALSE " + condVarName + " " + exit2Label + "\n");
 
-  condVarId += 3;
+  condVarId += 5;
   condVarName = "$t" + std::to_string(condVarId);
   expectedValue.append(condVarName + " = b0:2:0 + 1\n");
   expectedValue.append("b0:2:0 = " + condVarName + "\n");
   expectedValue.append("JUMP " + again2Label + "\n");
   expectedValue.append("LABEL " + exit2Label + "\n");
 
-  condVarId += 4;
+  condVarId += 6;
   condVarName = "$t" + std::to_string(condVarId);
   expectedValue.append(condVarName + " = a0:1:0 + b0:2:0\n");
   expectedValue.append("a0:1:0 = " + condVarName + "\n");
