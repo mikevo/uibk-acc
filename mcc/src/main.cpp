@@ -23,58 +23,27 @@ int main(int argc, char **argv) {
   std::stringstream buffer;
   buffer << input.rdbuf();
   auto source = buffer.str();
-
   auto tree = parser::parse(source);
 
-  formatted_ostream out(std::cout);
-  out << "Parsed:\n" << tree << "\n";
-
-  // three adress code
   Tac tac = Tac(tree);
-  std::cout << "Three-Adress Code:" << std::endl;
-  std::cout << tac.toString() << std::endl;
-
   LVN::transform(tac);
 
-  std::cout << std::endl << "Three-Adress Code after LVN:" << std::endl;
-  std::cout << tac.toString() << std::endl;
-
   auto graph = std::make_shared<Cfg>(tac);
-  std::cout << std::endl << "BB:" << std::endl;
-
-  auto bbIndex = tac.getBasicBlockIndex();
-
-  graph->computeLiveInOut();
-  graph->computeWorkList();
-  for (auto const b : *bbIndex.get()) {
-    std::cout << "LiveIn: { ";
-    for (auto const in : graph->getLiveIn(b->getBlockId())) {
-      std::cout << in->getName() << ", ";
-    }
-    std::cout << "}" << std::endl;
-
-    std::cout << b->toString();
-
-    std::cout << "LiveOut: { ";
-    for (auto const out : graph->getLiveOut(b->getBlockId())) {
-      std::cout << out->getName() << ", ";
-    }
-    std::cout << "}" << std::endl << std::endl;
-  }
 
   // GNU Assembly
   std::cout << "GAS:" << std::endl;
   Gas gas = Gas(tac);
   auto map1 = gas.getFunctionStackSpaceMap();
   for (auto it = map1->begin(); it != map1->end(); ++it) {
-    std::cout << it->first << ": Stack Space = " << it->second << std::endl;
-  }
-
-  auto map2 = gas.getVariableStackOffsetMap();
-  for (auto it = map2->begin(); it != map2->end(); ++it) {
-    std::cout << it->first->getValue() << ": Stack Offset = " << it->second
+    std::cout << it->first.get() << ": Stack Space = " << it->second
               << std::endl;
   }
 
-  std::cout << "Assembly:" << std::endl << gas.toString();
+  auto outFileName = std::string(argv[1]) + ".s";
+  std::ofstream output{outFileName};
+
+  output << gas;
+
+  output.flush();
+  output.close();
 }
