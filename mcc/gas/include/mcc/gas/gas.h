@@ -61,6 +61,8 @@ class Gas {
   void convertAddSubMul(Triple::ptr_t triple);
   void convertDiv(Triple::ptr_t triple);
   void convertLogicOperator(Triple::ptr_t triple);
+  void convertJump(Triple::ptr_t triple);
+  void convertJumpFalse(Triple::ptr_t triple);
 };
 }
 }

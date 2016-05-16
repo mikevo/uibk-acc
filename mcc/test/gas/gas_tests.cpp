@@ -42,8 +42,8 @@ TEST(Gas, FunctionStackSpace) {
   auto l2 = std::make_shared<Label>("bar");
   auto l3 = std::make_shared<Label>("main");
 
-  expected[l1] = 5;
-  expected[l2] = 9;
+  expected[l1] = 4;
+  expected[l2] = 8;
   expected[l3] = 0;
 
   EXPECT_EQ(expected.size(), gas.getFunctionStackSpaceMap()->size());
@@ -84,7 +84,7 @@ TEST(Gas, VariableStackOffset) {
   auto stackOffsetMap = gas.getVariableStackOffsetMap();
 
   int varCounter = 0;
-  unsigned expectedOffsets[] = {8, 12, 13, 17, 8, 12, 13, 17, 17, 21, 8};
+  unsigned expectedOffsets[] = {8, 12, 12, 16, 8, 12, 12, 16, 16, 20, 8};
   for (auto codeLine : tac.codeLines) {
     if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();

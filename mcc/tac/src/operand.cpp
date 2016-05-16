@@ -21,7 +21,7 @@ void Operand::setType(Type type) { this->t = type; }
 unsigned Operand::getSize() const {
   switch (t) {
     case Type::BOOL:
-      return 1;
+      return 0;  // Gets not stored in assembly
       break;
     case Type::INT:
       return 4;

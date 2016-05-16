@@ -22,7 +22,7 @@ Mnemonic::Mnemonic(std::string labelName)
 
 std::ostream& operator<<(std::ostream& os, const mcc::gas::Mnemonic& mnemonic) {
   if (mnemonic.mIsLabel) {
-    return os << mnemonic.mlabelName << ":";
+    return os << "\n" << mnemonic.mlabelName << ":";
   }
 
   os << "\t" << InstructionName[mnemonic.mInstruction];
