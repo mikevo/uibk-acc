@@ -50,13 +50,15 @@ class Gas {
 
   unsigned lookupFunctionArgSize(Label::ptr_t functionLabel);
   unsigned lookupFunctionStackSize(Label::ptr_t functionLabel);
-  unsigned lookupVariableStackOffset(Variable::ptr_t var,
-                                     Label::ptr_t functionLabel);
+  unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
   void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertCall(Triple::ptr_t triple);
-  void convertPush(Triple::ptr_t triple, Label::ptr_t currentFunction);
+  void convertPush(Triple::ptr_t triple);
+  void convertAssign(Triple::ptr_t triple);
+  void convertAddSubMul(Triple::ptr_t triple);
+  void convertDiv(Triple::ptr_t triple);
 };
 }
 }

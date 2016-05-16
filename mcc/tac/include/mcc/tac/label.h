@@ -7,8 +7,8 @@
 #ifndef MCC_TAC_LABEL_H
 #define MCC_TAC_LABEL_H
 
-#include <string>
 #include <ostream>
+#include <string>
 
 #include "mcc/tac/triple.h"
 
