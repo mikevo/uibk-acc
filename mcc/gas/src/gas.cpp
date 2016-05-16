@@ -32,7 +32,10 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
         void Gas::analyzeTac(Tac &tac) {
           Label::ptr_t currentFunctionLabel = nullptr;
           unsigned stackSpace = 0;
-          unsigned currentStackOffset = 0;
+
+          // Begin offset space for ebp and return address
+          unsigned currentStackOffset = 8;
+
           for (auto codeLine : tac.codeLines) {
             auto opName = codeLine->getOperator().getName();
             if (opName == OperatorName::POP) {
@@ -53,7 +56,9 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
                 if (currentFunctionLabel) {
                   this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
                   stackSpace = 0;
-                  currentStackOffset = 0;
+
+                  // Begin with space for ebp and return address
+                  currentStackOffset = 8;
                 }
 
                 currentFunctionLabel = label;
@@ -122,7 +127,7 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
           auto found = variableStackOffsetMap->find(var);
 
           if (found != variableStackOffsetMap->end()) {
-            return found->second + lookupFunctionArgSize(functionName) + 4;
+            return found->second;
           } else {
             return 0;
           }
@@ -137,7 +142,7 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
 
             switch (op.getName()) {
               case OperatorName::NOP:
-                /*Ignore*/
+                /*Do nothing*/
                 break;
 
               case OperatorName::ADD:
@@ -180,9 +185,11 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
                 break;
 
               case OperatorName::PUSH:
+                convertPush(triple, currentFunction);
                 break;
 
               case OperatorName::POP:
+                /*Do nothing*/
                 break;
 
               case OperatorName::CALL:
@@ -212,17 +219,20 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
 
             asmInstructions.push_back(
                 std::make_shared<Mnemonic>(Instruction::PUSH, ebp));
+
             asmInstructions.push_back(
                 std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
 
-            // Make space on stack for variables
             unsigned stackSize =
                 lookupFunctionStackSize(labelTriple->getName());
 
+            // Do we need space for temporaries?
             if (stackSize > 0) {
               auto stackspaceOp = std::make_shared<Operand>(stackSize);
               asmInstructions.push_back(std::make_shared<Mnemonic>(
                   Instruction::SUB, esp, stackspaceOp));
+
+              // Make space on stack for variables
             }
           }
         }
@@ -248,7 +258,7 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
                     Instruction::ADD, esp, stackspaceOp));
               }
             }
-          }
+            }
         }
 
         void Gas::convertReturn(Triple::ptr_t triple,
@@ -296,6 +306,33 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
 
           asmInstructions.push_back(
               std::make_shared<Mnemonic>(Instruction::RET));
+        }
+
+        void Gas::convertPush(Triple::ptr_t triple,
+                              Label::ptr_t currentFunction) {
+          if (triple->containsArg1()) {
+            auto op = triple->getArg1();
+
+            if (helper::isType<IntLiteral>(op)) {
+              auto intOp = std::static_pointer_cast<IntLiteral>(op);
+              auto asmInt = std::make_shared<Operand>(intOp->value);
+
+              asmInstructions.push_back(
+                  std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
+
+            } else if (helper::isType<FloatLiteral>(op)) {
+              /*TODO*/
+
+            } else if (helper::isType<Variable>(op)) {
+              auto variableOp = std::static_pointer_cast<Variable>(op);
+              unsigned varOffset = lookupVariableStackOffset(
+                  variableOp, currentFunction->getName());
+              auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+              asmInstructions.push_back(
+                  std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
+            }
+          }
         }
 
         std::string Gas::toString() const {

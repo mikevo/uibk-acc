@@ -52,6 +52,7 @@ class Gas {
   void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertCall(Triple::ptr_t triple);
+  void convertPush(Triple::ptr_t triple, Label::ptr_t currentFunction);
 };
 }
 }
