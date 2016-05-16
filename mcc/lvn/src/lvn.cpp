@@ -11,6 +11,21 @@ using namespace mcc::lvn;
 namespace mcc {
 namespace lvn {
 
+namespace {
+bool isValidOperator(Operator op) {
+  switch (op.getName()) {
+    case OperatorName::ADD:
+    case OperatorName::SUB:
+    case OperatorName::MUL:
+    case OperatorName::DIV:
+      return true;
+
+    default:
+      return false;
+  }
+}
+}
+
 std::map<tempAssignKey, tempAssignValue> LVN::tempVarAssign;
 Variable::set_t LVN::tempVarUsed;
 
@@ -43,7 +58,7 @@ void LVN::transform(Tac &tac) {
           updateTriple(Operator(OperatorName::ASSIGN), target, value->second,
                        *triple);
 
-        } else {
+        } else if (isValidOperator(triple->getOperator())) {
           if (helper::isType<IntLiteral>(triple->getArg1()) &&
               helper::isType<IntLiteral>(triple->getArg2())) {
             auto result = evaluateInt(*triple);
@@ -88,6 +103,7 @@ T LVN::evaluateExpression(T arg1, T arg2, OperatorName op) {
       return arg1 / arg2;
 
     default:
+      // FIXME: there are additional operations!
       assert(false && "Unsupported binary operation");
   }
 }

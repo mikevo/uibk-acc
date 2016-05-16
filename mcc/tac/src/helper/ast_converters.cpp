@@ -81,7 +81,7 @@ Operand::ptr_t convertFloatLiteral(Tac *t, AstNode n) {
 
 Operand::ptr_t convertVariable(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::variable>(n);
-  return t->getVariableStore()->findVariable(v->name);
+  return t->getVariableStore()->findAccordingVariable(v->name);
 }
 
 Operand::ptr_t convertBinaryOp(Tac *t, AstNode n) {

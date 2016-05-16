@@ -28,7 +28,7 @@ Gas::Gas(Tac tac) {
   this->convertTac(tac);
 }
 
-void Gas::analyzeTac(Tac &tac) {
+void Gas::analyzeTac(Tac& tac) {
   Label::ptr_t currentFunctionLabel = nullptr;
   unsigned stackSpace = 0;
 
@@ -74,7 +74,9 @@ void Gas::analyzeTac(Tac &tac) {
   }
 
   // add last function
-  this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+  if (currentFunctionLabel) {
+    this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+  }
 }
 
 void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
@@ -130,7 +132,7 @@ unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
   }
 }
 
-void Gas::convertTac(Tac &tac) {
+void Gas::convertTac(Tac& tac) {
   this->analyzeTac(tac);
   Label::ptr_t currentFunction = std::make_shared<Label>();
 
