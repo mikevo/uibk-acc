@@ -144,13 +144,12 @@ void Gas::convertTac(Tac &tac) {
 
       case OperatorName::ADD:
       case OperatorName::SUB:
-        convertAddSub(triple);
-        break;
-
       case OperatorName::MUL:
+        convertAddSubMul(triple);
         break;
 
       case OperatorName::DIV:
+        convertDiv(triple);
         break;
 
       case OperatorName::ASSIGN:
@@ -375,7 +374,7 @@ void Gas::convertAssign(Triple::ptr_t triple) {
   }
 }
 
-void Gas::convertAddSub(Triple::ptr_t triple) {
+void Gas::convertAddSubMul(Triple::ptr_t triple) {
   auto eax = std::make_shared<Operand>(Register::EAX);
   auto edx = std::make_shared<Operand>(Register::EDX);
   auto operatorName = triple->getOperator().getName();
@@ -428,7 +427,70 @@ void Gas::convertAddSub(Triple::ptr_t triple) {
   } else if (operatorName == OperatorName::SUB) {
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::SUB, eax, edx));
+  } else if (operatorName == OperatorName::MUL) {
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::IMUL, eax, edx));
   }
+
+  if (triple->containsTargetVar()) {
+    auto var = triple->getTargetVariable();
+    unsigned varOffset = lookupVariableStackOffset(var);
+    auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
+  }
+}
+
+void Gas::convertDiv(Triple::ptr_t triple) {
+  auto eax = std::make_shared<Operand>(Register::EAX);
+  auto ecx = std::make_shared<Operand>(Register::ECX);
+
+  if (triple->containsArg1()) {
+    auto op = triple->getArg1();
+    if (helper::isType<IntLiteral>(op)) {
+      auto intOp = std::static_pointer_cast<IntLiteral>(op);
+      auto asmInt = std::make_shared<Operand>(intOp->getValue());
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmInt));
+
+    } else if (helper::isType<FloatLiteral>(op)) {
+      /*TODO*/
+    } else if (helper::isType<Variable>(op)) {
+      auto variableOp = std::static_pointer_cast<Variable>(op);
+      unsigned varOffset = lookupVariableStackOffset(variableOp);
+      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmVar));
+    }
+  }
+
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::CDQ));
+
+  if (triple->containsArg2()) {
+    auto op = triple->getArg2();
+    if (helper::isType<IntLiteral>(op)) {
+      auto intOp = std::static_pointer_cast<IntLiteral>(op);
+      auto asmInt = std::make_shared<Operand>(intOp->getValue());
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, ecx, asmInt));
+
+    } else if (helper::isType<FloatLiteral>(op)) {
+      /*TODO*/
+    } else if (helper::isType<Variable>(op)) {
+      auto variableOp = std::static_pointer_cast<Variable>(op);
+      unsigned varOffset = lookupVariableStackOffset(variableOp);
+      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, ecx, asmVar));
+    }
+  }
+
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::IDIV, ecx));
 
   if (triple->containsTargetVar()) {
     auto var = triple->getTargetVariable();
