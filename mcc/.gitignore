@@ -1,6 +1,7 @@
 ## CMake created files:
 *.cmake
 *.json
+*.mC.s
 Makefile
 CMakeCache.txt
 /CMakeFiles
