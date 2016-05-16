@@ -39,6 +39,7 @@ class Gas {
   std::shared_ptr<function_stack_space_map_type> functionStackSpaceMap;
   std::shared_ptr<variable_stack_offset_map_type> variableStackOffsetMap;
   std::shared_ptr<function_arg_size_type> functionArgSizeMap;
+  OperatorName lastOperator;
 
   std::vector<Mnemonic::ptr_t> asmInstructions;
 
@@ -59,6 +60,7 @@ class Gas {
   void convertAssign(Triple::ptr_t triple);
   void convertAddSubMul(Triple::ptr_t triple);
   void convertDiv(Triple::ptr_t triple);
+  void convertLogicOperator(Triple::ptr_t triple);
 };
 }
 }

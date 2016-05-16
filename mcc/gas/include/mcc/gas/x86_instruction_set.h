@@ -49,6 +49,9 @@ enum class Instruction {
   // Control flow
   JMP,
   JNE,
+  JE,
+  JG,
+  JL,
   CMP,
   CALL,
   RET,
@@ -84,6 +87,9 @@ static std::map<Instruction, std::string> InstructionName{
     // Control flow
     {Instruction::JMP, "jmp"},
     {Instruction::JNE, "jne"},
+    {Instruction::JE, "je"},
+    {Instruction::JG, "jg"},
+    {Instruction::JL, "jl"},
     {Instruction::CMP, "cmp"},
     {Instruction::CALL, "call"},
     {Instruction::RET, "ret"},

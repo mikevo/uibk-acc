@@ -172,6 +172,7 @@ void Gas::convertTac(Tac &tac) {
       case OperatorName::GE:
       case OperatorName::LT:
       case OperatorName::GT:
+        convertLogicOperator(triple);
         break;
 
       case OperatorName::MINUS:
@@ -500,6 +501,59 @@ void Gas::convertDiv(Triple::ptr_t triple) {
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
   }
+}
+
+void Gas::convertLogicOperator(Triple::ptr_t triple) {
+  auto eax = std::make_shared<Operand>(Register::EAX);
+  auto edx = std::make_shared<Operand>(Register::EDX);
+  auto operatorName = triple->getOperator().getName();
+
+  if (triple->containsArg1()) {
+    auto op = triple->getArg1();
+    if (helper::isType<IntLiteral>(op)) {
+      auto intOp = std::static_pointer_cast<IntLiteral>(op);
+      auto asmInt = std::make_shared<Operand>(intOp->getValue());
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmInt));
+
+    } else if (helper::isType<FloatLiteral>(op)) {
+      /*TODO*/
+    } else if (helper::isType<Variable>(op)) {
+      auto variableOp = std::static_pointer_cast<Variable>(op);
+      unsigned varOffset = lookupVariableStackOffset(variableOp);
+      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmVar));
+    }
+  }
+
+  if (triple->containsArg2()) {
+    auto op = triple->getArg2();
+    if (helper::isType<IntLiteral>(op)) {
+      auto intOp = std::static_pointer_cast<IntLiteral>(op);
+      auto asmInt = std::make_shared<Operand>(intOp->getValue());
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, edx, asmInt));
+
+    } else if (helper::isType<FloatLiteral>(op)) {
+      /*TODO*/
+    } else if (helper::isType<Variable>(op)) {
+      auto variableOp = std::static_pointer_cast<Variable>(op);
+      unsigned varOffset = lookupVariableStackOffset(variableOp);
+      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, edx, asmVar));
+    }
+  }
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::CMP, eax, edx));
+
+  lastOperator = operatorName;
 }
 
 std::string Gas::toString() const {

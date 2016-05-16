@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
   auto tree = parser::parse(source);
 
   Tac tac = Tac(tree);
-  LVN::transform(tac);
+  // LVN::transform(tac);
 
   auto graph = std::make_shared<Cfg>(tac);
 
