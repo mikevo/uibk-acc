@@ -20,6 +20,7 @@ class Mnemonic {
   Mnemonic(Instruction instruction);
   Mnemonic(Instruction instruction, Operand::ptr_t opOne);
   Mnemonic(Instruction instruction, Operand::ptr_t opOne, Operand::ptr_t opTwo);
+  Mnemonic(std::string labelName);
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Mnemonic& mnemonic);
@@ -27,6 +28,8 @@ class Mnemonic {
  private:
   Instruction mInstruction;
   Operand::ptr_t mOperandOne, mOperandTwo;
+  bool mIsLabel = false;
+  std::string mlabelName;
 };
 }
 }

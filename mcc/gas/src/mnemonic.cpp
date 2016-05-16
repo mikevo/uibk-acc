@@ -4,7 +4,7 @@
 namespace mcc {
 namespace gas {
 Mnemonic::Mnemonic(Instruction instruction)
-    : mInstruction(instruction), mOperandOne{nullptr}, mOperandTwo{nullptr} {}
+    : mInstruction(instruction), mOperandOne(nullptr), mOperandTwo(nullptr) {}
 
 Mnemonic::Mnemonic(Instruction instruction, Operand::ptr_t opOne)
     : mInstruction(instruction), mOperandOne(opOne), mOperandTwo(nullptr) {}
@@ -13,7 +13,18 @@ Mnemonic::Mnemonic(Instruction instruction, Operand::ptr_t opOne,
                    Operand::ptr_t opTwo)
     : mInstruction(instruction), mOperandOne(opOne), mOperandTwo(opTwo) {}
 
+Mnemonic::Mnemonic(std::string labelName)
+    : mInstruction(Instruction::NOP),
+      mOperandOne(nullptr),
+      mOperandTwo(nullptr),
+      mIsLabel(true),
+      mlabelName(labelName) {}
+
 std::ostream& operator<<(std::ostream& os, const mcc::gas::Mnemonic& mnemonic) {
+  if (mnemonic.mIsLabel) {
+    return os << mnemonic.mlabelName << ":";
+  }
+
   os << InstructionName[mnemonic.mInstruction];
   if (mnemonic.mOperandOne) {
     os << " " << (*mnemonic.mOperandOne);

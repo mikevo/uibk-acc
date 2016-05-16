@@ -40,6 +40,8 @@ class Gas {
 
   void setFunctionStackSpace(std::string functionName, unsigned stackSpace);
   void setFunctionStackSpace(Label::ptr_t functionLabel, unsigned stackSpace);
+
+  void convertLabel(Triple::ptr_t triple);
 };
 }
 }

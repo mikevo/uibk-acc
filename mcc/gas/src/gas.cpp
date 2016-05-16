@@ -88,6 +88,7 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
 
             switch (op.getName()) {
               case OperatorName::NOP:
+                /*Ignore*/
                 break;
 
               case OperatorName::ADD:
@@ -106,6 +107,7 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
                 break;
 
               case OperatorName::LABEL:
+                convertLabel(triple);
                 break;
 
               case OperatorName::JUMP:
@@ -140,6 +142,23 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
               case OperatorName::RET:
                 break;
             }
+          }
+        }
+
+        void Gas::convertLabel(Triple::ptr_t triple) {
+          auto labelTriple = std::static_pointer_cast<Label>(triple);
+
+          auto label = std::make_shared<Mnemonic>(labelTriple->getName());
+          asmInstructions.push_back(label);
+
+          if (labelTriple->isFunctionEntry()) {
+            auto ebp = std::make_shared<Operand>(Register::EBP);
+            auto esp = std::make_shared<Operand>(Register::ESP);
+
+            asmInstructions.push_back(
+                std::make_shared<Mnemonic>(Instruction::PUSH, ebp));
+            asmInstructions.push_back(
+                std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
           }
         }
         }

@@ -21,6 +21,8 @@ namespace mcc {
 namespace gas {
 
 enum class Instruction {
+  NOP,
+
   // Data instructions
   MOV,
   PUSH,
@@ -53,6 +55,8 @@ enum class Instruction {
 };
 
 static std::map<Instruction, std::string> InstructionName{
+    {Instruction::NOP, "nop"},
+
     // Data instructions
     {Instruction::MOV, "mov"},
     {Instruction::PUSH, "push"},
