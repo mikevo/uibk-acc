@@ -8,6 +8,7 @@
 #define MCC_TAC_LABEL_H
 
 #include <string>
+#include <ostream>
 
 #include "mcc/tac/triple.h"
 
@@ -20,10 +21,19 @@ class Label : public Triple {
  public:
   typedef std::shared_ptr<Label> ptr_t;
 
+  struct less {
+    bool operator()(const ptr_t& lhs, const ptr_t& rhs) const {
+      return *lhs.get() < *rhs.get();
+    }
+  };
+
   Label();
   Label(std::string functionName);
   virtual bool isLeaf() const override final;
   bool isFunctionEntry() const;
+
+  std::ostream& operator<<(std::ostream& os) const;
+  bool operator<(Label const other) const;
 
  private:
   bool functionEntryLabel;

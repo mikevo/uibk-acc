@@ -67,7 +67,8 @@ int main(int argc, char **argv) {
   Gas gas = Gas(tac);
   auto map1 = gas.getFunctionStackSpaceMap();
   for (auto it = map1->begin(); it != map1->end(); ++it) {
-    std::cout << it->first << ": Stack Space = " << it->second << std::endl;
+    std::cout << it->first.get() << ": Stack Space = " << it->second
+              << std::endl;
   }
 
   auto map2 = gas.getVariableStackOffsetMap();

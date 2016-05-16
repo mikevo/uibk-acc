@@ -19,10 +19,11 @@ using namespace mcc::tac;
 namespace mcc {
 namespace gas {
 
-typedef std::map<std::string, Label::ptr_t> function_map_type;
-typedef std::map<std::string, unsigned> function_stack_space_map_type;
+// typedef std::map<std::string, Label::ptr_t> function_map_type;
+typedef std::map<Label::ptr_t, unsigned, Label::less>
+    function_stack_space_map_type;
 typedef std::map<Variable::ptr_t, unsigned> variable_stack_offset_map_type;
-typedef std::map<std::string, unsigned> function_arg_size_type;
+typedef std::map<Label::ptr_t, unsigned> function_arg_size_type;
 
 class Gas {
  public:
@@ -32,7 +33,7 @@ class Gas {
   std::string toString() const;
 
  private:
-  std::shared_ptr<function_map_type> functionMap;
+  //  std::shared_ptr<function_map_type> functionMap;
   std::shared_ptr<function_stack_space_map_type> functionStackSpaceMap;
   std::shared_ptr<variable_stack_offset_map_type> variableStackOffsetMap;
   std::shared_ptr<function_arg_size_type> functionArgSizeMap;
@@ -42,9 +43,9 @@ class Gas {
   void convertTac(Tac &tac);
   void analyzeTac(Tac &tac);
 
-  void setFunctionStackSpace(std::string functionName, unsigned stackSpace);
+  //  void setFunctionStackSpace(std::string functionName, unsigned stackSpace);
   void setFunctionStackSpace(Label::ptr_t functionLabel, unsigned stackSpace);
-  unsigned lookupFunctionArgSize(std::string functionName);
+  unsigned lookupFunctionArgSize(Label::ptr_t functionLabel);
 
   void convertLabel(Triple::ptr_t triple);
   void convertReturn(Triple::ptr_t triple);

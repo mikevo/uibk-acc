@@ -17,5 +17,15 @@ Label::Label(std::string functionName)
 bool Label::isLeaf() const { return true; }
 
 bool Label::isFunctionEntry() const { return this->functionEntryLabel; }
+
+std::ostream& Label::operator<<(std::ostream& os) const {
+  os << this->getName();
+
+  return os;
+}
+
+bool Label::operator<(Label const other) const {
+  return this->getName() < other.getName();
+}
 }
 }

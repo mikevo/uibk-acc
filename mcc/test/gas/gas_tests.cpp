@@ -36,13 +36,24 @@ TEST(Gas, FunctionStackSpace) {
   Tac tac = Tac(tree);
   Gas gas = Gas(tac);
 
-  std::shared_ptr<function_stack_space_map_type> expected =
-      std::make_shared<function_stack_space_map_type>();
-  (*expected)["foo"] = 5;
-  (*expected)["bar"] = 9;
-  (*expected)["main"] = 0;
+  function_stack_space_map_type expected;
 
-  EXPECT_EQ(*expected, *(gas.getFunctionStackSpaceMap()));
+  auto l1 = std::make_shared<Label>("foo");
+  auto l2 = std::make_shared<Label>("bar");
+  auto l3 = std::make_shared<Label>("main");
+
+  expected[l1] = 5;
+  expected[l2] = 9;
+  expected[l3] = 0;
+
+  EXPECT_EQ(expected.size(), gas.getFunctionStackSpaceMap()->size());
+
+  for (auto const e : expected) {
+    auto result = gas.getFunctionStackSpaceMap()->find(e.first);
+
+    EXPECT_NE(gas.getFunctionStackSpaceMap()->end(), result);
+    EXPECT_EQ(e.second, result->second);
+  }
 }
 
 TEST(Gas, VariableStackOffset) {
