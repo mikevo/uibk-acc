@@ -22,204 +22,207 @@ Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
   this->functionArgSizeMap = std::make_shared<function_arg_size_type>();
 
   this->convertTac(tac);
+}
+
+void Gas::analyzeTac(Tac& tac) {
+  Label::ptr_t currentFunctionLabel = nullptr;
+  unsigned stackSpace = 0;
+  unsigned currentStackOffset = 0;
+  for (auto codeLine : tac.codeLines) {
+    auto opName = codeLine->getOperator().getName();
+    if (opName == OperatorName::POP) {
+      auto found = functionArgSizeMap->find(currentFunctionLabel->getName());
+
+      if (found != functionArgSizeMap->end()) {
+        found->second = found->second + codeLine->getArg1()->getSize();
+      } else {
+        (*functionArgSizeMap)[currentFunctionLabel->getName()] =
+            codeLine->getArg1()->getSize();
+      }
+    }
+    if (opName == OperatorName::LABEL) {
+      auto label = std::static_pointer_cast<Label>(codeLine);
+      if (label->isFunctionEntry()) {
+        // if new function is entered
+        if (currentFunctionLabel) {
+          this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+          stackSpace = 0;
+          currentStackOffset = 0;
         }
 
-        void Gas::analyzeTac(Tac &tac) {
-          Label::ptr_t currentFunctionLabel = nullptr;
-          unsigned stackSpace = 0;
-          unsigned currentStackOffset = 0;
-          for (auto codeLine : tac.codeLines) {
-            auto opName = codeLine->getOperator().getName();
-            if (opName == OperatorName::POP) {
-              auto found =
-                  functionArgSizeMap->find(currentFunctionLabel->getName());
+        currentFunctionLabel = label;
+      }
+    } else if (codeLine->containsTargetVar()) {
+      auto targetVar = codeLine->getTargetVariable();
+      (*variableStackOffsetMap)[targetVar] = currentStackOffset;
+      currentStackOffset += targetVar->getSize();
 
-              if (found != functionArgSizeMap->end()) {
-                found->second = found->second + codeLine->getArg1()->getSize();
-              } else {
-                (*functionArgSizeMap)[currentFunctionLabel->getName()] =
-                    codeLine->getArg1()->getSize();
-              }
-            }
-            if (opName == OperatorName::LABEL) {
-              auto label = std::static_pointer_cast<Label>(codeLine);
-              if (label->isFunctionEntry()) {
-                // if new function is entered
-                if (currentFunctionLabel) {
-                  this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
-                  stackSpace = 0;
-                  currentStackOffset = 0;
-                }
+      // if variable not parameter of function
+      if (codeLine->getOperator().getName() != OperatorName::POP) {
+        stackSpace += targetVar->getSize();
+      }
+    }
+  }
 
-                currentFunctionLabel = label;
-              }
-            } else if (codeLine->containsTargetVar()) {
-              auto targetVar = codeLine->getTargetVariable();
-              (*variableStackOffsetMap)[targetVar] = currentStackOffset;
-              currentStackOffset += targetVar->getSize();
+  // add last function
+  this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+}
 
-              // if variable not parameter of function
-              if (codeLine->getOperator().getName() != OperatorName::POP) {
-                stackSpace += targetVar->getSize();
-              }
-            }
-            }
+void Gas::setFunctionStackSpace(std::string functionName, unsigned stackSpace) {
+  assert(functionMap->find(functionName) != functionMap->end() &&
+         "Function not declared!");
+  (*functionStackSpaceMap)[functionName] = stackSpace;
+}
 
-            // add last function
-            this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
-        }
+void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
+                                unsigned stackSpace) {
+  assert(functionLabel->isFunctionEntry() && "Not a function label!");
+  setFunctionStackSpace(functionLabel->getName(), stackSpace);
+}
 
-        void Gas::setFunctionStackSpace(std::string functionName,
-                                        unsigned stackSpace) {
-          assert(functionMap->find(functionName) != functionMap->end() &&
-                 "Function not declared!");
-          (*functionStackSpaceMap)[functionName] = stackSpace;
-        }
+std::shared_ptr<function_stack_space_map_type> Gas::getFunctionStackSpaceMap() {
+  return this->functionStackSpaceMap;
+}
 
-        void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
-                                        unsigned stackSpace) {
-          assert(functionLabel->isFunctionEntry() && "Not a function label!");
-          setFunctionStackSpace(functionLabel->getName(), stackSpace);
-        }
+std::shared_ptr<variable_stack_offset_map_type>
+Gas::getVariableStackOffsetMap() {
+  return this->variableStackOffsetMap;
+}
 
-        std::shared_ptr<function_stack_space_map_type>
-        Gas::getFunctionStackSpaceMap() {
-          return this->functionStackSpaceMap;
-        }
+unsigned Gas::lookupFunctionArgSize(std::string functionName) {
+  auto found = functionArgSizeMap->find(functionName);
 
-        std::shared_ptr<variable_stack_offset_map_type>
-        Gas::getVariableStackOffsetMap() {
-          return this->variableStackOffsetMap;
-        }
+  if (found != functionArgSizeMap->end()) {
+    return found->second;
+  } else {
+    return 0;
+  }
+}
 
-        unsigned Gas::lookupFunctionArgSize(std::string functionName) {
-          auto found = functionArgSizeMap->find(functionName);
+void Gas::convertTac(Tac& tac) {
+  this->analyzeTac(tac);
 
-          if (found != functionArgSizeMap->end()) {
-            return found->second;
-          } else {
-            return 0;
-          }
-        }
+  for (auto triple : tac.codeLines) {
+    auto op = triple->getOperator();
 
-        void Gas::convertTac(Tac &tac) {
-          this->analyzeTac(tac);
+    switch (op.getName()) {
+      case OperatorName::NOP:
+        /*Ignore*/
+        break;
 
-          for (auto triple : tac.codeLines) {
-            auto op = triple->getOperator();
+      case OperatorName::ADD:
+        break;
 
-            switch (op.getName()) {
-              case OperatorName::NOP:
-                /*Ignore*/
-                break;
+      case OperatorName::SUB:
+        break;
 
-              case OperatorName::ADD:
-                break;
+      case OperatorName::MUL:
+        break;
 
-              case OperatorName::SUB:
-                break;
+      case OperatorName::DIV:
+        break;
 
-              case OperatorName::MUL:
-                break;
+      case OperatorName::ASSIGN:
+        break;
 
-              case OperatorName::DIV:
-                break;
+      case OperatorName::LABEL:
+        convertLabel(triple);
+        break;
 
-              case OperatorName::ASSIGN:
-                break;
+      case OperatorName::JUMP:
+        break;
 
-              case OperatorName::LABEL:
-                convertLabel(triple);
-                break;
+      case OperatorName::JUMPFALSE:
+        break;
 
-              case OperatorName::JUMP:
-                break;
+      case OperatorName::EQ:
+      case OperatorName::NE:
+      case OperatorName::LE:
+      case OperatorName::GE:
+      case OperatorName::LT:
+      case OperatorName::GT:
+        break;
 
-              case OperatorName::JUMPFALSE:
-                break;
+      case OperatorName::MINUS:
+        break;
 
-              case OperatorName::EQ:
-              case OperatorName::NE:
-              case OperatorName::LE:
-              case OperatorName::GE:
-              case OperatorName::LT:
-              case OperatorName::GT:
-                break;
+      case OperatorName::NOT:
+        break;
 
-              case OperatorName::MINUS:
-                break;
+      case OperatorName::PUSH:
+        break;
 
-              case OperatorName::NOT:
-                break;
+      case OperatorName::POP:
+        break;
 
-              case OperatorName::PUSH:
-                break;
+      case OperatorName::CALL:
+        convertCall(triple);
+        break;
 
-              case OperatorName::POP:
-                break;
+      case OperatorName::RET:
+        convertReturn(triple);
+        break;
+    }
+  }
+}
 
-              case OperatorName::CALL:
-                convertCall(triple);
-                break;
+void Gas::convertLabel(Triple::ptr_t triple) {
+  auto labelTriple = std::static_pointer_cast<Label>(triple);
 
-              case OperatorName::RET:
-                convertReturn(triple);
-                break;
-            }
-            }
-        }
+  auto label = std::make_shared<Mnemonic>(labelTriple->getName());
+  asmInstructions.push_back(label);
 
-        void Gas::convertLabel(Triple::ptr_t triple) {
-          auto labelTriple = std::static_pointer_cast<Label>(triple);
+  if (labelTriple->isFunctionEntry()) {
+    auto ebp = std::make_shared<Operand>(Register::EBP);
+    auto esp = std::make_shared<Operand>(Register::ESP);
 
-          auto label = std::make_shared<Mnemonic>(labelTriple->getName());
-          asmInstructions.push_back(label);
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::PUSH, ebp));
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
+  }
+}
 
-          if (labelTriple->isFunctionEntry()) {
-            auto ebp = std::make_shared<Operand>(Register::EBP);
-            auto esp = std::make_shared<Operand>(Register::ESP);
+void Gas::convertCall(Triple::ptr_t triple) {
+  if (triple->containsArg1()) {
+    auto operand = triple->getArg1();
+    if (typeid(*operand.get()) == typeid(Label)) {
+      auto label = std::static_pointer_cast<Label>(operand);
+      auto asmLabel = std::make_shared<Operand>(label->getName());
 
-            asmInstructions.push_back(
-                std::make_shared<Mnemonic>(Instruction::PUSH, ebp));
-            asmInstructions.push_back(
-                std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
-          }
-        }
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::CALL, asmLabel));
 
-        void Gas::convertCall(Triple::ptr_t triple) {
-          if (triple->containsArg1()) {
-            auto operand = triple->getArg1();
-            if (typeid(*operand.get()) == typeid(Label)) {
-              auto label = std::static_pointer_cast<Label>(operand);
-              auto asmLabel = std::make_shared<Operand>(label->getName());
+      // Cleanup stack
+      unsigned argSize = lookupFunctionArgSize(label->getName());
 
-              asmInstructions.push_back(
-                  std::make_shared<Mnemonic>(Instruction::CALL, asmLabel));
+      if (argSize > 0) {
+        auto esp = std::make_shared<Operand>(Register::ESP);
+        auto stackspaceOp = std::make_shared<Operand>(argSize);
 
-              // Cleanup stack
-              unsigned argSize = lookupFunctionArgSize(label->getName());
+        asmInstructions.push_back(
+            std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
+      }
+    }
+  }
+}
 
-              if (argSize > 0) {
-                auto esp = std::make_shared<Operand>(Register::ESP);
-                auto stackspaceOp = std::make_shared<Operand>(argSize);
+void Gas::convertReturn(Triple::ptr_t triple) {}
 
-                asmInstructions.push_back(std::make_shared<Mnemonic>(
-                    Instruction::ADD, esp, stackspaceOp));
-              }
-            }
-          }
-        }
+std::string Gas::toString() const {
+  std::ostringstream stream;
 
-        void Gas::convertReturn(Triple::ptr_t triple) {}
+  for (auto mnemonic : asmInstructions) {
+    stream << mnemonic << "\n";
+  }
 
-        std::string Gas::toString() const {
-          std::ostringstream stream;
+  return stream.str();
+}
 
-          for (auto mnemonic : asmInstructions) {
-            stream << mnemonic << "\n";
-          }
+std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas) {
+  os << gas.toString();
 
-          return stream.str();
-        }
-        }
+  return os;
+}
+}
 }

@@ -25,7 +25,7 @@ TEST(SCG, FunctionCall) {
 
   Tac tac = Tac(tree);
   auto callgraph = std::make_shared<Scg>(tac);
- 
+
   std::string expected =
       R"(digraph G {
 0[label=foobar];
@@ -34,7 +34,7 @@ TEST(SCG, FunctionCall) {
 }
 )";
 
- EXPECT_EQ(expected, callgraph->toDot());
+  EXPECT_EQ(expected, callgraph->toDot());
 }
 
 TEST(SCG, FunctionRecursion) {
@@ -62,8 +62,7 @@ TEST(SCG, FunctionRecursion) {
 }
 )";
 
- EXPECT_EQ(expected, callgraph->toDot());
-
+  EXPECT_EQ(expected, callgraph->toDot());
 }
 
 TEST(SCG, MutualRecursion) {
@@ -87,7 +86,7 @@ TEST(SCG, MutualRecursion) {
           }
         )");
 
- Tac tac = Tac(tree);
+  Tac tac = Tac(tree);
   auto callgraph = std::make_shared<Scg>(tac);
   std::string expected =
       R"(digraph G {
@@ -100,8 +99,7 @@ TEST(SCG, MutualRecursion) {
 }
 )";
 
- EXPECT_EQ(expected, callgraph->toDot());
+  EXPECT_EQ(expected, callgraph->toDot());
 }
-
 }
 }

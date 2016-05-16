@@ -31,6 +31,8 @@ class Gas {
   std::shared_ptr<variable_stack_offset_map_type> getVariableStackOffsetMap();
   std::string toString() const;
 
+  friend std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas);
+
  private:
   std::shared_ptr<function_map_type> functionMap;
   std::shared_ptr<function_stack_space_map_type> functionStackSpaceMap;
@@ -39,8 +41,8 @@ class Gas {
 
   std::vector<Mnemonic::ptr_t> asmInstructions;
 
-  void convertTac(Tac &tac);
-  void analyzeTac(Tac &tac);
+  void convertTac(Tac& tac);
+  void analyzeTac(Tac& tac);
 
   void setFunctionStackSpace(std::string functionName, unsigned stackSpace);
   void setFunctionStackSpace(Label::ptr_t functionLabel, unsigned stackSpace);
