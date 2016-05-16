@@ -57,6 +57,7 @@ class Gas {
   void convertCall(Triple::ptr_t triple);
   void convertPush(Triple::ptr_t triple);
   void convertAssign(Triple::ptr_t triple);
+  void convertAddSub(Triple::ptr_t triple);
 };
 }
 }
