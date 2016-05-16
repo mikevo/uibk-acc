@@ -18,7 +18,7 @@
 namespace mcc {
 namespace gas {
 
-Gas::Gas(Tac tac) : functionMap(tac.getFunctionMap()) {
+Gas::Gas(Tac tac) {
   this->functionStackSpaceMap =
       std::make_shared<function_stack_space_map_type>();
   this->variableStackOffsetMap =
@@ -38,12 +38,12 @@ void Gas::analyzeTac(Tac &tac) {
   for (auto codeLine : tac.codeLines) {
     auto opName = codeLine->getOperator().getName();
     if (opName == OperatorName::POP) {
-      auto found = functionArgSizeMap->find(currentFunctionLabel->getName());
+      auto found = functionArgSizeMap->find(currentFunctionLabel);
 
       if (found != functionArgSizeMap->end()) {
         found->second = found->second + codeLine->getArg1()->getSize();
       } else {
-        (*functionArgSizeMap)[currentFunctionLabel->getName()] =
+        (*functionArgSizeMap)[currentFunctionLabel] =
             codeLine->getArg1()->getSize();
       }
     }
@@ -51,7 +51,7 @@ void Gas::analyzeTac(Tac &tac) {
       auto label = std::static_pointer_cast<Label>(codeLine);
       if (label->isFunctionEntry()) {
         // if new function is entered
-        if (currentFunctionLabel) {
+        if (currentFunctionLabel != nullptr) {
           this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
           stackSpace = 0;
 
@@ -77,16 +77,18 @@ void Gas::analyzeTac(Tac &tac) {
   this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
 }
 
-void Gas::setFunctionStackSpace(std::string functionName, unsigned stackSpace) {
-  assert(functionMap->find(functionName) != functionMap->end() &&
-         "Function not declared!");
-  (*functionStackSpaceMap)[functionName] = stackSpace;
-}
-
 void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
                                 unsigned stackSpace) {
   assert(functionLabel->isFunctionEntry() && "Not a function label!");
-  setFunctionStackSpace(functionLabel->getName(), stackSpace);
+
+  auto result = functionStackSpaceMap->find(functionLabel);
+
+  if (result != functionStackSpaceMap->end()) {
+    //    functionStackSpaceMap->at(functionLabel) = stackSpace;
+    (*functionStackSpaceMap)[functionLabel] = stackSpace;
+  } else {
+    functionStackSpaceMap->insert(std::make_pair(functionLabel, stackSpace));
+  }
 }
 
 std::shared_ptr<function_stack_space_map_type> Gas::getFunctionStackSpaceMap() {
@@ -98,8 +100,8 @@ Gas::getVariableStackOffsetMap() {
   return this->variableStackOffsetMap;
 }
 
-unsigned Gas::lookupFunctionArgSize(std::string functionName) {
-  auto found = functionArgSizeMap->find(functionName);
+unsigned Gas::lookupFunctionArgSize(Label::ptr_t functionLabel) {
+  auto found = functionArgSizeMap->find(functionLabel);
 
   if (found != functionArgSizeMap->end()) {
     return found->second;
@@ -108,8 +110,8 @@ unsigned Gas::lookupFunctionArgSize(std::string functionName) {
   }
 }
 
-unsigned Gas::lookupFunctionStackSize(std::string functionName) {
-  auto found = functionStackSpaceMap->find(functionName);
+unsigned Gas::lookupFunctionStackSize(Label::ptr_t functionLabel) {
+  auto found = functionStackSpaceMap->find(functionLabel);
 
   if (found != functionStackSpaceMap->end()) {
     return found->second;
@@ -119,7 +121,7 @@ unsigned Gas::lookupFunctionStackSize(std::string functionName) {
 }
 
 unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var,
-                                        std::string functionName) {
+                                        Label::ptr_t functionName) {
   auto found = variableStackOffsetMap->find(var);
 
   if (found != variableStackOffsetMap->end()) {
@@ -218,7 +220,7 @@ void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
 
-    unsigned stackSize = lookupFunctionStackSize(labelTriple->getName());
+    unsigned stackSize = lookupFunctionStackSize(labelTriple);
 
     // Do we need space for temporaries?
     if (stackSize > 0) {
@@ -242,7 +244,7 @@ void Gas::convertCall(Triple::ptr_t triple) {
           std::make_shared<Mnemonic>(Instruction::CALL, asmLabel));
 
       // Cleanup stack
-      unsigned argSize = lookupFunctionArgSize(label->getName());
+      unsigned argSize = lookupFunctionArgSize(label);
 
       if (argSize > 0) {
         auto esp = std::make_shared<Operand>(Register::ESP);
@@ -276,7 +278,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
     } else if (helper::isType<Variable>(op)) {
       auto variableOp = std::static_pointer_cast<Variable>(op);
       unsigned varOffset =
-          lookupVariableStackOffset(variableOp, currentFunction->getName());
+          lookupVariableStackOffset(variableOp, currentFunction);
       auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
 
       asmInstructions.push_back(
@@ -284,7 +286,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
     }
   }
 
-  unsigned stackSize = lookupFunctionStackSize(currentFunction->getName());
+  unsigned stackSize = lookupFunctionStackSize(currentFunction);
 
   // Cleanup stack
   if (stackSize > 0) {
@@ -315,7 +317,7 @@ void Gas::convertPush(Triple::ptr_t triple, Label::ptr_t currentFunction) {
     } else if (helper::isType<Variable>(op)) {
       auto variableOp = std::static_pointer_cast<Variable>(op);
       unsigned varOffset =
-          lookupVariableStackOffset(variableOp, currentFunction->getName());
+          lookupVariableStackOffset(variableOp, currentFunction);
       auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
 
       asmInstructions.push_back(

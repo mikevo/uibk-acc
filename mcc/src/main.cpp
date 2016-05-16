@@ -30,10 +30,16 @@ int main(int argc, char **argv) {
 
   auto graph = std::make_shared<Cfg>(tac);
 
+  // GNU Assembly
+  std::cout << "GAS:" << std::endl;
   Gas gas = Gas(tac);
+  auto map1 = gas.getFunctionStackSpaceMap();
+  for (auto it = map1->begin(); it != map1->end(); ++it) {
+    std::cout << it->first.get() << ": Stack Space = " << it->second
+              << std::endl;
+  }
 
   auto outFileName = std::string(argv[1]) + ".s";
-
   std::ofstream output{outFileName};
 
   output << gas;
