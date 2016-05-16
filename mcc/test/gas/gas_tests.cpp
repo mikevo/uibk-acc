@@ -84,7 +84,7 @@ TEST(Gas, VariableStackOffset) {
   auto stackOffsetMap = gas.getVariableStackOffsetMap();
 
   int varCounter = 0;
-  unsigned expectedOffsets[] = {0, 4, 5, 9, 0, 4, 5, 9, 9, 13, 0};
+  unsigned expectedOffsets[] = {8, 12, 13, 17, 8, 12, 13, 17, 17, 21, 8};
   for (auto codeLine : tac.codeLines) {
     if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
