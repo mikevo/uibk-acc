@@ -2,6 +2,7 @@
 
 #include "mcc/gas/gas.h"
 
+#include "mcc/tac/helper/ast_converters.h"
 #include "parser.h"
 #include "test_utils.h"
 
@@ -82,13 +83,21 @@ TEST(Gas, VariableStackOffset) {
   Gas gas = Gas(tac);
 
   auto stackOffsetMap = gas.getVariableStackOffsetMap();
-
+  Label::ptr_t currentFunction;
   int varCounter = 0;
-  signed expectedOffsets[] = {-4, -8, 8, 8, 12, -4, 8, 8, 12, 12, 16, 8};
+  signed expectedOffsets[] = {8, 12, -4, -4, -8, 8, -4, -4, -8, -8, -12, -4};
   for (auto codeLine : tac.codeLines) {
+    if (helper::isType<Label>(codeLine)) {
+      auto label = std::static_pointer_cast<Label>(codeLine);
+      if (label->isFunctionEntry()) {
+        currentFunction = label;
+      }
+    }
+
     if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
-      auto targetVarOffset = stackOffsetMap->find(targetVar);
+      auto targetVarOffset =
+          stackOffsetMap->find(std::make_pair(currentFunction, targetVar));
       // target variable has to be in stackOffsetMap
       EXPECT_NE(targetVarOffset, stackOffsetMap->end());
 
