@@ -182,7 +182,7 @@ void Gas::convertTac(Tac& tac) {
       case OperatorName::SUB:
       case OperatorName::MUL:
       case OperatorName::DIV:
-        convertAddSubMulDiv(triple);
+        convertArithmetic(triple);
         break;
 
       case OperatorName::ASSIGN:
@@ -370,7 +370,20 @@ void Gas::convertAssign(Triple::ptr_t triple) {
   }
 }
 
-void Gas::convertAddSubMulDiv(Triple::ptr_t triple) {
+void Gas::convertArithmetic(Triple::ptr_t triple) {
+  switch (triple->getType()) {
+    case Type::INT:
+      convertIntArithmetic(triple);
+      break;
+    case Type::FLOAT:
+      convertFloatArithmetic(triple);
+      break;
+    default:
+      assert(false && "Unhandled operator type in arithmetic conversion");
+  }
+}
+
+void Gas::convertIntArithmetic(Triple::ptr_t triple) {
   Operand::ptr_t reg0;
   Operand::ptr_t reg1;
 
@@ -406,6 +419,10 @@ void Gas::convertAddSubMulDiv(Triple::ptr_t triple) {
   }
 
   this->storeVariableFromRegister(triple->getTargetVariable(), reg0);
+}
+
+void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
+  // TODO implement
 }
 
 void Gas::convertLogicOperator(Triple::ptr_t triple) {
