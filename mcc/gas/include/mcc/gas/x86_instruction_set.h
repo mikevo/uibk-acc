@@ -31,9 +31,7 @@ enum class Instruction {
   LEA,
 
   // float
-  MOVSS,
   FSTP,
-  DD,
 
   // Arithmetic
   // int
@@ -42,29 +40,19 @@ enum class Instruction {
   IMUL,
   IDIV,
   CDQ,
+  NEG,
+
+  // float
   FADD,
   FSUB,
   FMUL,
   FDIV,
-  NEG,
-
-  // float
-  ADDSS,
-  SUBSS,
-  MULSS,
-  DIVSS,
 
   // Logic
-  // int
   AND,
   OR,
   XOR,
   NOT,
-
-  // float
-  ANDPS,
-  ORPS,
-  XORPS,
 
   // Control flow
   JMP,
@@ -91,9 +79,8 @@ static std::map<Instruction, std::string> InstructionName{
     {Instruction::LEA, "lea"},
 
     // float
-    {Instruction::MOVSS, "movss"},
     {Instruction::FSTP, "fstp"},
-    {Instruction::DD, "dd"},
+    {Instruction::FLD, "fld"},
 
     // Arithmetic
     // int
@@ -102,29 +89,19 @@ static std::map<Instruction, std::string> InstructionName{
     {Instruction::IMUL, "imul"},
     {Instruction::IDIV, "idiv"},
     {Instruction::CDQ, "cdq"},
+    {Instruction::NEG, "neg"},
+
+    // float
     {Instruction::FADD, "fadd"},
     {Instruction::FSUB, "fsub"},
     {Instruction::FMUL, "fmul"},
     {Instruction::FDIV, "fdiv"},
-    {Instruction::NEG, "neg"},
-
-    // float
-    {Instruction::ADDSS, "addss"},
-    {Instruction::SUBSS, "subss"},
-    {Instruction::MULSS, "mulss"},
-    {Instruction::DIVSS, "divss"},
 
     // Logic
-    // int
     {Instruction::AND, "and"},
     {Instruction::OR, "or"},
     {Instruction::XOR, "xor"},
     {Instruction::NOT, "not"},
-
-    // float
-    {Instruction::ANDPS, "andps"},
-    {Instruction::ORPS, "orps"},
-    {Instruction::XORPS, "xorps"},
 
     // Control flow
     {Instruction::JMP, "jmp"},
@@ -149,26 +126,6 @@ enum class Register {
   EDI,
   ESP,
   EBP,
-
-  // float registers
-  XMM0,
-  XMM1,
-  XMM2,
-  XMM3,
-  XMM4,
-  XMM5,
-  XMM6,
-  XMM7,
-  XMM8,
-  XMM9,
-  XMM10,
-  XMM11,
-  XMM12,
-  XMM13,
-  XMM14,
-  XMM15,
-  RSP,
-  RBP,
 };
 
 static std::map<Register, std::string> RegisterName{
@@ -176,15 +133,6 @@ static std::map<Register, std::string> RegisterName{
     {Register::ECX, "ecx"},     {Register::EDX, "edx"},
     {Register::ESI, "esi"},     {Register::EDI, "edi"},
     {Register::ESP, "esp"},     {Register::EBP, "ebp"},
-    {Register::XMM0, "xmm0"},   {Register::XMM1, "xmm1"},
-    {Register::XMM2, "xmm2"},   {Register::XMM3, "xmm3"},
-    {Register::XMM4, "xmm4"},   {Register::XMM5, "xmm5"},
-    {Register::XMM6, "xmm6"},   {Register::XMM7, "xmm7"},
-    {Register::XMM8, "xmm8"},   {Register::XMM9, "xmm9"},
-    {Register::XMM10, "xmm10"}, {Register::XMM11, "xmm11"},
-    {Register::XMM12, "xmm12"}, {Register::XMM13, "xmm13"},
-    {Register::XMM14, "xmm14"}, {Register::XMM15, "xmm15"},
-    {Register::RSP, "rsp"},     {Register::RBP, "rbp"},
 };
 
 enum class OperandType {
