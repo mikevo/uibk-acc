@@ -708,6 +708,16 @@ void Gas::convertMinus(Triple::ptr_t triple) {
   }
 }
 
+void Gas::convertNot(Triple::ptr_t triple) {
+  auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::NOT, eax));
+
+  if (triple->containsTargetVar()) {
+    auto var = triple->getTargetVariable();
+    this->storeVariableFromRegister(var, eax);
+  }
+}
+
 std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
                                                     Register r) {
   // TODO do not allways create a new register

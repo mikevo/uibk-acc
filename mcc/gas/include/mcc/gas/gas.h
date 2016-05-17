@@ -69,6 +69,7 @@ class Gas {
   void convertJump(Triple::ptr_t triple);
   void convertJumpFalse(Triple::ptr_t triple);
   void convertMinus(Triple::ptr_t triple);
+  void convertNot(Triple::ptr_t triple);
 };
 }
 }
