@@ -614,9 +614,14 @@ void Gas::convertJumpFalse(Triple::ptr_t triple) {
 std::string Gas::toString() const {
   std::ostringstream stream;
 
+  stream << ".intel_syntax noprefix" << std::endl;
+  stream << ".global main" << std::endl;
+
   for (auto mnemonic : asmInstructions) {
     stream << mnemonic << "\n";
   }
+
+  stream << std::endl << ".att_syntax noprefix" << std::endl;
 
   return stream.str();
 }
