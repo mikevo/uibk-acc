@@ -358,33 +358,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 }
 
 void Gas::convertPush(Triple::ptr_t triple) {
-  if (triple->containsArg1()) {
-    auto op = triple->getArg1();
-
-    if (helper::isType<IntLiteral>(op)) {
-      auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->value);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
-
-    } else if (helper::isType<FloatLiteral>(op)) {
-      auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->value);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::PUSH, asmFloat));
-
-    } else if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
-    }
-  }
+  convertUnary(triple, Instruction::PUSH);
 }
 
 void Gas::convertAssign(Triple::ptr_t triple) {
@@ -700,18 +674,16 @@ void Gas::convertJumpFalse(Triple::ptr_t triple) {
 }
 
 void Gas::convertMinus(Triple::ptr_t triple) {
-  auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::NEG, eax));
-
-  if (triple->containsTargetVar()) {
-    auto var = triple->getTargetVariable();
-    this->storeVariableFromRegister(var, eax);
-  }
+  convertUnary(triple, Instruction::NEG);
 }
 
 void Gas::convertNot(Triple::ptr_t triple) {
+  convertUnary(triple, Instruction::NOT);
+}
+
+void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
   auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::NOT, eax));
+  asmInstructions.push_back(std::make_shared<Mnemonic>(i, eax));
 
   if (triple->containsTargetVar()) {
     auto var = triple->getTargetVariable();
