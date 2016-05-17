@@ -80,7 +80,6 @@ static std::map<Instruction, std::string> InstructionName{
 
     // float
     {Instruction::FSTP, "fstp"},
-    {Instruction::FLD, "fld"},
 
     // Arithmetic
     // int
@@ -129,10 +128,9 @@ enum class Register {
 };
 
 static std::map<Register, std::string> RegisterName{
-    {Register::EAX, "eax"},     {Register::EBX, "ebx"},
-    {Register::ECX, "ecx"},     {Register::EDX, "edx"},
-    {Register::ESI, "esi"},     {Register::EDI, "edi"},
-    {Register::ESP, "esp"},     {Register::EBP, "ebp"},
+    {Register::EAX, "eax"}, {Register::EBX, "ebx"}, {Register::ECX, "ecx"},
+    {Register::EDX, "edx"}, {Register::ESI, "esi"}, {Register::EDI, "edi"},
+    {Register::ESP, "esp"}, {Register::EBP, "ebp"},
 };
 
 enum class OperandType {

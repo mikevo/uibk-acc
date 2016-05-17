@@ -4,8 +4,7 @@
 namespace mcc {
 namespace gas {
 
-Operand::Operand(Register reg) 
-    : mType(OperandType::REGISTER), mRegister(reg) {}
+Operand::Operand(Register reg) : mType(OperandType::REGISTER), mRegister(reg) {}
 Operand::Operand(Register reg, int offset)
     : mType(OperandType::ADDRESS), mRegister(reg), mAddrOffset(offset) {}
 Operand::Operand(std::string label)
