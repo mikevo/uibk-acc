@@ -272,7 +272,7 @@ void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 void Gas::convertCall(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     auto operand = triple->getArg1();
-    if (typeid(*operand.get()) == typeid(Label)) {
+    if (helper::isType<Label>(operand)) {
       auto label = std::static_pointer_cast<Label>(operand);
       auto asmLabel = std::make_shared<Operand>(label->getName());
 
@@ -294,14 +294,9 @@ void Gas::convertCall(Triple::ptr_t triple) {
 
   // Assign result to variable
   if (triple->containsTargetVar()) {
-    auto eax = std::make_shared<Operand>(Register::EAX);
-    auto var = triple->getTargetVariable();
-
-    unsigned varOffset = lookupVariableStackOffset(var);
-    auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
+    auto result = std::make_shared<Operand>(Register::EAX);
+    auto destVar = triple->getTargetVariable();
+    this->storeVariableFromRegister(destVar, result);
   }
 }
 
