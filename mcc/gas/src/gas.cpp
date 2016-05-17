@@ -263,7 +263,7 @@ void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 
     // Do we need space for temporaries?
     if (stackSize > 0) {
-      auto stackspaceOp = std::make_shared<Operand>(stackSize);
+      auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::SUB, esp, stackspaceOp));
 
@@ -287,7 +287,7 @@ void Gas::convertCall(Triple::ptr_t triple) {
 
       if (argSize > 0) {
         auto esp = std::make_shared<Operand>(Register::ESP);
-        auto stackspaceOp = std::make_shared<Operand>(argSize);
+        auto stackspaceOp = std::make_shared<Operand>(std::to_string(argSize));
 
         asmInstructions.push_back(
             std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
@@ -319,14 +319,14 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 
     if (helper::isType<IntLiteral>(op)) {
       auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->value);
+      auto asmInt = std::make_shared<Operand>(intOp->getValue());
 
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::MOV, eax, asmInt));
 
     } else if (helper::isType<FloatLiteral>(op)) {
       auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->value);
+      auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
 
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::MOVSS, xmm0, asmFloat));
@@ -347,7 +347,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 
   // Cleanup stack
   if (stackSize > 0) {
-    auto stackspaceOp = std::make_shared<Operand>(stackSize);
+    auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
   }
@@ -363,14 +363,14 @@ void Gas::convertPush(Triple::ptr_t triple) {
 
     if (helper::isType<IntLiteral>(op)) {
       auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->value);
+      auto asmInt = std::make_shared<Operand>(intOp->getValue());
 
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
 
     } else if (helper::isType<FloatLiteral>(op)) {
       auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->value);
+      auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
 
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::PUSH, asmFloat));
