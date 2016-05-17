@@ -62,6 +62,7 @@ class Gas {
   void storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
   void pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op);
   Operand::ptr_t getAsmVar(Variable::ptr_t var);
+  std::pair<std::string, std::string> createFloatConstant(std::string value);
 
   void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);

@@ -121,7 +121,6 @@ void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
 
   auto result = functionStackSpaceMap->find(functionLabel);
   if (result != functionStackSpaceMap->end()) {
-    //    functionStackSpaceMap->at(functionLabel) = stackSpace;
     (*functionStackSpaceMap)[functionLabel] = stackSpace;
   } else {
     functionStackSpaceMap->insert(std::make_pair(functionLabel, stackSpace));
@@ -541,9 +540,7 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
   } else {
     // constant values
     if (op->getType() == Type::FLOAT) {
-      auto constName = ".FC" + std::to_string(constantFloatsMap->size());
-      auto floatConstant = std::make_pair(constName, op->getValue());
-      constantFloatsMap->insert(floatConstant);
+      auto floatConstant = createFloatConstant(op->getValue());
 
       auto operand = std::make_shared<Operand>(floatConstant);
       asmInstructions.push_back(
@@ -577,20 +574,31 @@ void Gas::storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg) {
 void Gas::pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op) {
   assert(op->getType() == Type::FLOAT && "Variable is not of type float!");
 
-  Variable::ptr_t var;
+  Operand::ptr_t asmVar;
   if (helper::isType<Variable>(op)) {
-    var = std::static_pointer_cast<Variable>(op);
+    auto var = std::static_pointer_cast<Variable>(op);
+    asmVar = getAsmVar(var);
   } else if (helper::isType<Triple>(op)) {
     auto triple = std::static_pointer_cast<Triple>(op);
-    var = triple->getTargetVariable();
+    auto var = triple->getTargetVariable();
+    asmVar = getAsmVar(var);
   } else {
-    assert(false && "Constant operand not handled!");
+    // constant values
+    auto floatConstant = createFloatConstant(op->getValue());
+    asmVar = std::make_shared<Operand>(floatConstant);
   }
-
-  auto asmVar = getAsmVar(var);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::FLD, asmVar));
+}
+
+std::pair<std::string, std::string> Gas::createFloatConstant(
+    std::string value) {
+  auto constName = ".FC" + std::to_string(constantFloatsMap->size());
+  auto floatConstant = std::make_pair(constName, value);
+  constantFloatsMap->insert(floatConstant);
+
+  return floatConstant;
 }
 
 Operand::ptr_t Gas::getAsmVar(Variable::ptr_t var) {
