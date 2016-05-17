@@ -63,8 +63,7 @@ class Gas {
   void convertCall(Triple::ptr_t triple);
   void convertPush(Triple::ptr_t triple);
   void convertAssign(Triple::ptr_t triple);
-  void convertAddSubMul(Triple::ptr_t triple);
-  void convertDiv(Triple::ptr_t triple);
+  void convertAddSubMulDiv(Triple::ptr_t triple);
   void convertLogicOperator(Triple::ptr_t triple);
   void convertJump(Triple::ptr_t triple);
   void convertJumpFalse(Triple::ptr_t triple);

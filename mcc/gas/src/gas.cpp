@@ -181,11 +181,8 @@ void Gas::convertTac(Tac& tac) {
       case OperatorName::ADD:
       case OperatorName::SUB:
       case OperatorName::MUL:
-        convertAddSubMul(triple);
-        break;
-
       case OperatorName::DIV:
-        convertDiv(triple);
+        convertAddSubMulDiv(triple);
         break;
 
       case OperatorName::ASSIGN:
@@ -373,91 +370,42 @@ void Gas::convertAssign(Triple::ptr_t triple) {
   }
 }
 
-void Gas::convertAddSubMul(Triple::ptr_t triple) {
+void Gas::convertAddSubMulDiv(Triple::ptr_t triple) {
   Operand::ptr_t reg0;
   Operand::ptr_t reg1;
 
   auto operatorName = triple->getOperator().getName();
 
   reg0 = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
-  reg1 = this->loadOperandToRegister(triple->getArg2(), Register::EDX);
 
-  if (operatorName == OperatorName::ADD) {
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::ADD, reg0, reg1));
-  } else if (operatorName == OperatorName::SUB) {
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::SUB, reg0, reg1));
-  } else if (operatorName == OperatorName::MUL) {
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::IMUL, reg0, reg1));
+  if (operatorName == OperatorName::DIV) {
+    asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::CDQ));
+  }
+
+  reg1 = this->loadOperandToRegister(triple->getArg2(), Register::ECX);
+
+  switch (operatorName) {
+    case OperatorName::ADD:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::ADD, reg0, reg1));
+      break;
+    case OperatorName::SUB:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::SUB, reg0, reg1));
+      break;
+    case OperatorName::MUL:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::IMUL, reg0, reg1));
+      break;
+    case OperatorName::DIV:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::IDIV, reg1));
+      break;
+    default:
+      assert(false && "unknown operation");
   }
 
   this->storeVariableFromRegister(triple->getTargetVariable(), reg0);
-}
-
-void Gas::convertDiv(Triple::ptr_t triple) {
-  auto eax = std::make_shared<Operand>(Register::EAX);
-  auto ecx = std::make_shared<Operand>(Register::ECX);
-
-  if (triple->containsArg1()) {
-    auto op = triple->getArg1();
-    if (helper::isType<IntLiteral>(op)) {
-      auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->getValue());
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmInt));
-
-    } else if (helper::isType<FloatLiteral>(op)) {
-      auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
-
-    } else if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmVar));
-    }
-  }
-
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::CDQ));
-
-  if (triple->containsArg2()) {
-    auto op = triple->getArg2();
-    if (helper::isType<IntLiteral>(op)) {
-      auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->getValue());
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, ecx, asmInt));
-
-    } else if (helper::isType<FloatLiteral>(op)) {
-      auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
-
-    } else if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, ecx, asmVar));
-    }
-  }
-
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::IDIV, ecx));
-
-  if (triple->containsTargetVar()) {
-    auto var = triple->getTargetVariable();
-    unsigned varOffset = lookupVariableStackOffset(var);
-    auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
-  }
 }
 
 void Gas::convertLogicOperator(Triple::ptr_t triple) {
