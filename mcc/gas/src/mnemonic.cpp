@@ -36,5 +36,12 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Mnemonic& mnemonic) {
 
   return os;
 }
+
+std::ostream& operator<<(std::ostream& os,
+                         const mcc::gas::Mnemonic::ptr_t mnemonic) {
+  os << (*mnemonic);
+
+  return os;
+}
 }
 }

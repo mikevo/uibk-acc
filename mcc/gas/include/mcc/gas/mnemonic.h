@@ -24,6 +24,8 @@ class Mnemonic {
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Mnemonic& mnemonic);
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const mcc::gas::Mnemonic::ptr_t mnemonic);
 
  private:
   Instruction mInstruction;
