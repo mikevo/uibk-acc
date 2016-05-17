@@ -365,41 +365,13 @@ void Gas::convertAssign(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     auto op = triple->getArg1();
     if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+      auto destVar = std::static_pointer_cast<Variable>(op);
 
       if (triple->containsArg2()) {
-        auto op2 = triple->getArg2();
+        auto srcOp = triple->getArg2();
 
-        if (helper::isType<IntLiteral>(op2)) {
-          auto intOp = std::static_pointer_cast<IntLiteral>(op2);
-          auto asmInt = std::make_shared<Operand>(intOp->getValue());
-
-          asmInstructions.push_back(
-              std::make_shared<Mnemonic>(Instruction::MOV, asmVar, asmInt));
-
-        } else if (helper::isType<FloatLiteral>(op2)) {
-          asmVar = std::make_shared<Operand>(Register::RBP, varOffset);
-          auto floatOp = std::static_pointer_cast<FloatLiteral>(op2);
-          auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
-
-          asmInstructions.push_back(
-              std::make_shared<Mnemonic>(Instruction::MOVSS, asmVar, asmFloat));
-
-        } else if (helper::isType<Variable>(op2) ||
-                   helper::isType<Triple>(op2)) {
-          auto eax = std::make_shared<Operand>(Register::EAX);
-          auto variableOp2 = std::static_pointer_cast<Variable>(op2);
-          unsigned varOffset2 = lookupVariableStackOffset(variableOp2);
-          auto asmVar2 = std::make_shared<Operand>(Register::EBP, varOffset2);
-
-          asmInstructions.push_back(
-              std::make_shared<Mnemonic>(Instruction::MOV, eax, asmVar2));
-
-          asmInstructions.push_back(
-              std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
-        }
+        auto reg = this->loadOperandToRegister(srcOp, Register::EAX);
+        this->storeVariableFromRegister(destVar, reg);
       }
     }
   }
@@ -699,11 +671,14 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
   if (helper::isType<Variable>(op)) {
     auto variableOp = std::static_pointer_cast<Variable>(op);
     this->loadVariableToRegister(variableOp, reg);
+  } else if (helper::isType<Triple>(op)) {
+    auto triple = std::static_pointer_cast<Triple>(op);
+    this->loadVariableToRegister(triple->getTargetVariable(), reg);
   } else {
-    auto asmInt = std::make_shared<Operand>(op->getValue());
+    auto operand = std::make_shared<Operand>(op->getValue());
 
     asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, reg, asmInt));
+        std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
   }
 
   return reg;

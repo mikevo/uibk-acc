@@ -4,6 +4,7 @@ int main(void) {
   int i;
 
   i = 12;
+  i = i + 1;
 
   print_int(i);
 
