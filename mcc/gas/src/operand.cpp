@@ -4,19 +4,15 @@
 namespace mcc {
 namespace gas {
 
-Operand::Operand(Register reg) : mType(OperandType::REGISTER), mRegister(reg) {}
+Operand::Operand(Register reg) 
+    : mType(OperandType::REGISTER), mRegister(reg) {}
 Operand::Operand(Register reg, int offset)
     : mType(OperandType::ADDRESS), mRegister(reg), mAddrOffset(offset) {}
-Operand::Operand(int constant)
-    : mType(OperandType::CONSTANT), mConstValue(constant) {}
 Operand::Operand(std::string label)
     : mType(OperandType::LABEL), mLabelName(label) {}
 
 std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
   switch (op.mType) {
-    case OperandType::CONSTANT:
-      return os << std::to_string(op.mConstValue);
-
     case OperandType::LABEL:
       return os << op.mLabelName;
 
