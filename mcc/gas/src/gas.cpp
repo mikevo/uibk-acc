@@ -358,33 +358,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 }
 
 void Gas::convertPush(Triple::ptr_t triple) {
-  if (triple->containsArg1()) {
-    auto op = triple->getArg1();
-
-    if (helper::isType<IntLiteral>(op)) {
-      auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->value);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
-
-    } else if (helper::isType<FloatLiteral>(op)) {
-      auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->value);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::PUSH, asmFloat));
-
-    } else if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
-    }
-  }
+  convertUnary(triple, Instruction::PUSH);
 }
 
 void Gas::convertAssign(Triple::ptr_t triple) {
@@ -406,7 +380,6 @@ void Gas::convertAssign(Triple::ptr_t triple) {
               std::make_shared<Mnemonic>(Instruction::MOV, asmVar, asmInt));
 
         } else if (helper::isType<FloatLiteral>(op2)) {
-
           asmVar = std::make_shared<Operand>(Register::RBP, varOffset);
           auto floatOp = std::static_pointer_cast<FloatLiteral>(op2);
           auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
@@ -414,7 +387,7 @@ void Gas::convertAssign(Triple::ptr_t triple) {
           asmInstructions.push_back(
               std::make_shared<Mnemonic>(Instruction::MOVSS, asmVar, asmFloat));
 
-        } else if (helper::isType<Variable>(op2)  ||
+        } else if (helper::isType<Variable>(op2) ||
                    helper::isType<Triple>(op2)) {
           auto eax = std::make_shared<Operand>(Register::EAX);
           auto variableOp2 = std::static_pointer_cast<Variable>(op2);
@@ -428,9 +401,9 @@ void Gas::convertAssign(Triple::ptr_t triple) {
               std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
         }
       }
-      }
     }
   }
+}
 
 void Gas::convertAddSubMul(Triple::ptr_t triple) {
   auto eax = std::make_shared<Operand>(Register::EAX);
@@ -701,18 +674,16 @@ void Gas::convertJumpFalse(Triple::ptr_t triple) {
 }
 
 void Gas::convertMinus(Triple::ptr_t triple) {
-  auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::NEG, eax));
-
-  if (triple->containsTargetVar()) {
-    auto var = triple->getTargetVariable();
-    this->storeVariableFromRegister(var, eax);
-  }
+  convertUnary(triple, Instruction::NEG);
 }
 
 void Gas::convertNot(Triple::ptr_t triple) {
+  convertUnary(triple, Instruction::NOT);
+}
+
+void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
   auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::NOT, eax));
+  asmInstructions.push_back(std::make_shared<Mnemonic>(i, eax));
 
   if (triple->containsTargetVar()) {
     auto var = triple->getTargetVariable();
@@ -725,18 +696,14 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
   // TODO do not allways create a new register
   auto reg = std::make_shared<Operand>(r);
 
-  if (helper::isType<IntLiteral>(op)) {
-    auto intOp = std::static_pointer_cast<IntLiteral>(op);
-    auto asmInt = std::make_shared<Operand>(intOp->getValue());
+  if (helper::isType<Variable>(op)) {
+    auto variableOp = std::static_pointer_cast<Variable>(op);
+    this->loadVariableToRegister(variableOp, reg);
+  } else {
+    auto asmInt = std::make_shared<Operand>(op->getValue());
 
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::MOV, reg, asmInt));
-
-  } else if (helper::isType<FloatLiteral>(op)) {
-    /*TODO*/
-  } else if (helper::isType<Variable>(op)) {
-    auto variableOp = std::static_pointer_cast<Variable>(op);
-    this->loadVariableToRegister(variableOp, reg);
   }
 
   return reg;

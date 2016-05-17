@@ -70,6 +70,7 @@ class Gas {
   void convertJumpFalse(Triple::ptr_t triple);
   void convertMinus(Triple::ptr_t triple);
   void convertNot(Triple::ptr_t triple);
+  void convertUnary(Triple::ptr_t triple, Instruction i);
 };
 }
 }
