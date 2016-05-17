@@ -12,6 +12,8 @@ void bar(int arg1) {
 }   
 
  int main() {
-    foo(10);
+    float a = 10.0;
+    float b = 10.0;
+    float c = a + b;
     return 0;
  }

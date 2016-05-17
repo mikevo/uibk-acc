@@ -58,6 +58,7 @@ Gas::Gas(Tac tac) {
   this->variableStackOffsetMap =
       std::make_shared<variable_stack_offset_map_type>();
   this->functionArgSizeMap = std::make_shared<function_arg_size_type>();
+  this->constantFloatsMap = std::make_shared<constant_floats_map_type>();
 
   this->convertTac(tac);
 }
@@ -219,7 +220,7 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::PUSH:
-        convertPush(triple);
+        convertUnary(triple, Instruction::PUSH);
         break;
 
       case OperatorName::POP:
@@ -345,10 +346,6 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::RET));
 }
 
-void Gas::convertPush(Triple::ptr_t triple) {
-  convertUnary(triple, Instruction::PUSH);
-}
-
 void Gas::convertAssign(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     auto op = triple->getArg1();
@@ -356,9 +353,8 @@ void Gas::convertAssign(Triple::ptr_t triple) {
       auto destVar = std::static_pointer_cast<Variable>(op);
 
       if (triple->containsArg2()) {
-        auto srcOp = triple->getArg2();
-
-        auto reg = this->loadOperandToRegister(srcOp, Register::EAX);
+        auto reg =
+            this->loadOperandToRegister(triple->getArg2(), Register::EAX);
         this->storeVariableFromRegister(destVar, reg);
       }
     }
@@ -417,7 +413,35 @@ void Gas::convertIntArithmetic(Triple::ptr_t triple) {
 }
 
 void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
-  // TODO implement
+  pushOperandToFloatRegister(triple->getArg1());
+  auto arg2Var = std::static_pointer_cast<Variable>(triple->getArg2());
+  auto arg2 = getAsmVar(arg2Var);
+
+  auto operatorName = triple->getOperator().getName();
+  switch (operatorName) {
+    case OperatorName::ADD:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::FADD, arg2));
+      break;
+    case OperatorName::SUB:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::FSUB, arg2));
+      break;
+    case OperatorName::MUL:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::FMUL, arg2));
+      break;
+    case OperatorName::DIV:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::FDIV, arg2));
+      break;
+    default:
+      assert(false && "unknown operation");
+  }
+
+  auto targetVar = getAsmVar(triple->getTargetVariable());
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::FSTP, targetVar));
 }
 
 void Gas::convertLogicOperator(Triple::ptr_t triple) {
@@ -505,7 +529,7 @@ void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
 
 std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
                                                     Register r) {
-  // TODO do not allways create a new register
+  // TODO do not always create a new register
   auto reg = std::make_shared<Operand>(r);
 
   if (helper::isType<Variable>(op)) {
@@ -515,10 +539,20 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
     auto triple = std::static_pointer_cast<Triple>(op);
     this->loadVariableToRegister(triple->getTargetVariable(), reg);
   } else {
-    auto operand = std::make_shared<Operand>(op->getValue());
+    // constant values
+    if (op->getType() == Type::FLOAT) {
+      auto constName = ".FC" + std::to_string(constantFloatsMap->size());
+      auto floatConstant = std::make_pair(constName, op->getValue());
+      constantFloatsMap->insert(floatConstant);
 
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
+      auto operand = std::make_shared<Operand>(floatConstant);
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
+    } else {
+      auto operand = std::make_shared<Operand>(op->getValue());
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
+    }
   }
 
   return reg;
@@ -531,12 +565,39 @@ void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, reg, asmVar));
 }
+
 void Gas::storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg) {
   unsigned varOffset = lookupVariableStackOffset(var);
   auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
+}
+
+void Gas::pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op) {
+  assert(op->getType() == Type::FLOAT && "Variable is not of type float!");
+
+  Variable::ptr_t var;
+  if (helper::isType<Variable>(op)) {
+    var = std::static_pointer_cast<Variable>(op);
+  } else if (helper::isType<Triple>(op)) {
+    auto triple = std::static_pointer_cast<Triple>(op);
+    var = triple->getTargetVariable();
+  } else {
+    assert(false && "Constant operand not handled!");
+  }
+
+  auto asmVar = getAsmVar(var);
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::FLD, asmVar));
+}
+
+Operand::ptr_t Gas::getAsmVar(Variable::ptr_t var) {
+  unsigned varOffset = lookupVariableStackOffset(var);
+  auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+  return asmVar;
 }
 
 std::string Gas::toString() const {
@@ -546,7 +607,14 @@ std::string Gas::toString() const {
   stream << ".global main" << std::endl;
 
   for (auto mnemonic : asmInstructions) {
-    stream << mnemonic << "\n";
+    stream << mnemonic << std::endl;
+  }
+
+  stream << std::endl;
+  for (auto floatConstant : *constantFloatsMap.get()) {
+    auto varName = floatConstant.first;
+    auto value = floatConstant.second;
+    stream << varName << ": .float " << value << std::endl;
   }
 
   stream << std::endl << ".att_syntax noprefix" << std::endl;

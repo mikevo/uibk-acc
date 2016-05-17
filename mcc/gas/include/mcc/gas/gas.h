@@ -24,6 +24,8 @@ typedef std::map<Label::ptr_t, unsigned, Label::less>
     function_stack_space_map_type;
 typedef std::map<Variable::ptr_t, signed> variable_stack_offset_map_type;
 typedef std::map<std::string, unsigned> function_arg_size_type;
+// map: variableName -> value
+typedef std::map<std::string, std::string> constant_floats_map_type;
 
 class Gas {
  public:
@@ -40,6 +42,7 @@ class Gas {
   std::shared_ptr<variable_stack_offset_map_type> variableStackOffsetMap;
   std::shared_ptr<function_arg_size_type> functionArgSizeMap;
   OperatorName lastOperator;
+  std::shared_ptr<constant_floats_map_type> constantFloatsMap;
 
   std::vector<Mnemonic::ptr_t> asmInstructions;
 
@@ -57,6 +60,8 @@ class Gas {
                                                  Register r);
   void loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t);
   void storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
+  void pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op);
+  Operand::ptr_t getAsmVar(Variable::ptr_t var);
 
   void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);

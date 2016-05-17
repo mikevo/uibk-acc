@@ -32,6 +32,7 @@ enum class Instruction {
 
   // float
   FSTP,
+  FLD,
 
   // Arithmetic
   // int
@@ -80,6 +81,7 @@ static std::map<Instruction, std::string> InstructionName{
 
     // float
     {Instruction::FSTP, "fstp"},
+    {Instruction::FLD, "fld"},
 
     // Arithmetic
     // int
@@ -137,6 +139,7 @@ enum class OperandType {
   REGISTER,
   ADDRESS,
   CONSTANT,
+  FLOAT_CONSTANT,
   LABEL,
 };
 }

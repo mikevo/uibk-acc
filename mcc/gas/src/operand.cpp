@@ -9,6 +9,9 @@ Operand::Operand(Register reg, int offset)
     : mType(OperandType::ADDRESS), mRegister(reg), mAddrOffset(offset) {}
 Operand::Operand(std::string label)
     : mType(OperandType::LABEL), mLabelName(label) {}
+// float constant
+Operand::Operand(std::pair<std::string, std::string> floatConstant)
+    : mType(OperandType::FLOAT_CONSTANT), mLabelName(floatConstant.first) {}
 
 std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
   switch (op.mType) {
@@ -27,6 +30,11 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
       } else {
         return os << "]";
       }
+
+    case OperandType::FLOAT_CONSTANT:
+      os << "DWORD PTR " << op.mLabelName;
+      return os;
+
     default:
       assert(false && "Unknown assembly operand type");
       return os;

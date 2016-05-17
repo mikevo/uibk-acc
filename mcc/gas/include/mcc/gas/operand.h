@@ -27,6 +27,7 @@ class Operand {
   Operand(Register reg);
   Operand(Register reg, int offset);
   Operand(std::string label);
+  Operand(std::pair<std::string, std::string> floatConstant);
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Operand& op);

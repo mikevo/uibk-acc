@@ -93,8 +93,6 @@ TEST(Gas, VariableStackOffset) {
       EXPECT_NE(targetVarOffset, stackOffsetMap->end());
 
       EXPECT_EQ(expectedOffsets[varCounter++], targetVarOffset->second);
-      std::cout << targetVar->toString() << " -- " << targetVarOffset->second
-                << std::endl;
     }
   }
 }
