@@ -32,8 +32,8 @@ enum class Instruction {
 
   // float
   MOVSS,
-  FLD,
   FSTP,
+  DD,
 
   // Arithmetic
   // int
@@ -91,8 +91,8 @@ static std::map<Instruction, std::string> InstructionName{
 
     // float
     {Instruction::MOVSS, "movss"},
-    {Instruction::FLD, "fld"},
     {Instruction::FSTP, "fstp"},
+    {Instruction::DD, "dd"},
 
     // Arithmetic
     // int
@@ -157,17 +157,32 @@ enum class Register {
   XMM5,
   XMM6,
   XMM7,
+  XMM8,
+  XMM9,
+  XMM10,
+  XMM11,
+  XMM12,
+  XMM13,
+  XMM14,
+  XMM15,
+  RSP,
+  RBP,
 };
 
 static std::map<Register, std::string> RegisterName{
-    {Register::EAX, "eax"},   {Register::EBX, "ebx"},
-    {Register::ECX, "ecx"},   {Register::EDX, "edx"},
-    {Register::ESI, "esi"},   {Register::EDI, "edi"},
-    {Register::ESP, "esp"},   {Register::EBP, "ebp"},
-    {Register::XMM0, "xmm0"}, {Register::XMM1, "xmm1"},
-    {Register::XMM2, "xmm2"}, {Register::XMM3, "xmm3"},
-    {Register::XMM4, "xmm4"}, {Register::XMM5, "xmm5"},
-    {Register::XMM6, "xmm6"}, {Register::XMM7, "xmm7"},
+    {Register::EAX, "eax"},     {Register::EBX, "ebx"},
+    {Register::ECX, "ecx"},     {Register::EDX, "edx"},
+    {Register::ESI, "esi"},     {Register::EDI, "edi"},
+    {Register::ESP, "esp"},     {Register::EBP, "ebp"},
+    {Register::XMM0, "xmm0"},   {Register::XMM1, "xmm1"},
+    {Register::XMM2, "xmm2"},   {Register::XMM3, "xmm3"},
+    {Register::XMM4, "xmm4"},   {Register::XMM5, "xmm5"},
+    {Register::XMM6, "xmm6"},   {Register::XMM7, "xmm7"},
+    {Register::XMM8, "xmm8"},   {Register::XMM9, "xmm9"},
+    {Register::XMM10, "xmm10"}, {Register::XMM11, "xmm11"},
+    {Register::XMM12, "xmm12"}, {Register::XMM13, "xmm13"},
+    {Register::XMM14, "xmm14"}, {Register::XMM15, "xmm15"},
+    {Register::RSP, "rsp"},     {Register::RBP, "rbp"},
 };
 
 enum class OperandType {
