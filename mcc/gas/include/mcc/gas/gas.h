@@ -22,7 +22,7 @@ namespace gas {
 // typedef std::map<std::string, Label::ptr_t> function_map_type;
 typedef std::map<Label::ptr_t, unsigned, Label::less>
     function_stack_space_map_type;
-typedef std::map<Variable::ptr_t, unsigned> variable_stack_offset_map_type;
+typedef std::map<Variable::ptr_t, signed> variable_stack_offset_map_type;
 typedef std::map<std::string, unsigned> function_arg_size_type;
 
 class Gas {
@@ -53,7 +53,7 @@ class Gas {
   unsigned lookupFunctionStackSize(Label::ptr_t functionLabel);
   unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
-  std::shared_ptr<Operand> loadOperantToRegister(mcc::tac::Operand::ptr_t op,
+  std::shared_ptr<Operand> loadOperandToRegister(mcc::tac::Operand::ptr_t op,
                                                  Register r);
   void loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t);
   void storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
@@ -69,6 +69,7 @@ class Gas {
   void convertJump(Triple::ptr_t triple);
   void convertJumpFalse(Triple::ptr_t triple);
   void convertMinus(Triple::ptr_t triple);
+  void convertNot(Triple::ptr_t triple);
 };
 }
 }
