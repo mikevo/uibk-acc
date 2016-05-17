@@ -91,4 +91,20 @@ int main(int argc, char **argv) {
 
   output.flush();
   output.close();
+
+  auto libFileName = std::string(argv[0]);
+
+  // remove mcc at end to get path to mcc file
+  libFileName = libFileName.substr(0, libFileName.size() - 3);
+
+  // relative location of lib.c to mcc executable
+  libFileName.append("../lib.c");
+
+  std::string gccCall = "gcc ";
+  gccCall.append(outFileName);
+  gccCall.append(" ");
+  gccCall.append(libFileName);
+  gccCall.append(" -m32");
+
+  std::system(gccCall.c_str());
 }
