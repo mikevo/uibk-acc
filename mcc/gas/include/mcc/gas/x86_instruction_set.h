@@ -44,10 +44,10 @@ enum class Instruction {
   NEG,
 
   // float
-  FADD,
-  FSUB,
-  FMUL,
-  FDIV,
+  FADDP,
+  FSUBP,
+  FMULP,
+  FDIVP,
 
   // Logic
   AND,
@@ -93,10 +93,10 @@ static std::map<Instruction, std::string> InstructionName{
     {Instruction::NEG, "neg"},
 
     // float
-    {Instruction::FADD, "fadd"},
-    {Instruction::FSUB, "fsub"},
-    {Instruction::FMUL, "fmul"},
-    {Instruction::FDIV, "fdiv"},
+    {Instruction::FADDP, "faddp"},
+    {Instruction::FSUBP, "fsubp"},
+    {Instruction::FMULP, "fmulp"},
+    {Instruction::FDIVP, "fdivp"},
 
     // Logic
     {Instruction::AND, "and"},

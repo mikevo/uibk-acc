@@ -73,8 +73,8 @@ void Gas::analyzeTac(Tac& tac) {
   unsigned stackSpace = 0;
 
   // Begin offset space for ebp and return address
-  unsigned curLocalOffset = 8;
-  signed curParamOffset = -4;
+  unsigned curLocalOffset = -4;
+  signed curParamOffset = 8;
 
   for (auto codeLine : tac.codeLines) {
     auto opName = codeLine->getOperator().getName();
@@ -88,8 +88,8 @@ void Gas::analyzeTac(Tac& tac) {
           stackSpace = 0;
 
           // Begin with space for ebp and return address
-          curLocalOffset = 8;
-          curParamOffset = -4;
+          curLocalOffset = -4;
+          curParamOffset = 8;
         }
 
         currentFunctionLabel = label;
@@ -98,11 +98,11 @@ void Gas::analyzeTac(Tac& tac) {
       auto targetVar = codeLine->getTargetVariable();
       if (codeLine->getOperator().getName() == OperatorName::POP) {
         (*variableStackOffsetMap)[targetVar] = curParamOffset;
-        curParamOffset -= getSize(targetVar);
+        curParamOffset += getSize(targetVar);
       } else {
         // if variable not parameter of function
         (*variableStackOffsetMap)[targetVar] = curLocalOffset;
-        curLocalOffset += getSize(targetVar);
+        curLocalOffset -= getSize(targetVar);
 
         stackSpace += getSize(targetVar);
       }
@@ -211,11 +211,13 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::MINUS:
-        convertMinus(triple);
+        convertUnary(triple, Instruction::NEG);
         break;
 
       case OperatorName::NOT:
-        // TODO implement
+        assert(triple->getType() == Type::BOOL &&
+               "NOT operation only for booleans!");
+        convertUnary(triple, Instruction::NOT);
         break;
 
       case OperatorName::PUSH:
@@ -316,9 +318,7 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
           std::make_shared<Mnemonic>(Instruction::MOV, eax, asmInt));
 
     } else if (helper::isType<FloatLiteral>(op)) {
-      auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
-
+      // TODO implement - if constant is returned, stack space needed
     } else if (helper::isType<Variable>(op)) {
       auto variableOp = std::static_pointer_cast<Variable>(op);
 
@@ -413,26 +413,27 @@ void Gas::convertIntArithmetic(Triple::ptr_t triple) {
 
 void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
   pushOperandToFloatRegister(triple->getArg1());
-  auto arg2Var = std::static_pointer_cast<Variable>(triple->getArg2());
-  auto arg2 = getAsmVar(arg2Var);
+  pushOperandToFloatRegister(triple->getArg2());
 
+  Operand::ptr_t op1 = std::make_shared<Operand>("st(1)");
+  Operand::ptr_t op2 = std::make_shared<Operand>("st");
   auto operatorName = triple->getOperator().getName();
   switch (operatorName) {
     case OperatorName::ADD:
       asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::FADD, arg2));
+          std::make_shared<Mnemonic>(Instruction::FADDP, op1, op2));
       break;
     case OperatorName::SUB:
       asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::FSUB, arg2));
+          std::make_shared<Mnemonic>(Instruction::FSUBP, op1, op2));
       break;
     case OperatorName::MUL:
       asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::FMUL, arg2));
+          std::make_shared<Mnemonic>(Instruction::FMULP, op1, op2));
       break;
     case OperatorName::DIV:
       asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::FDIV, arg2));
+          std::make_shared<Mnemonic>(Instruction::FDIVP, op1, op2));
       break;
     default:
       assert(false && "unknown operation");
@@ -506,14 +507,6 @@ void Gas::convertJumpFalse(Triple::ptr_t triple) {
       }
     }
   }
-}
-
-void Gas::convertMinus(Triple::ptr_t triple) {
-  convertUnary(triple, Instruction::NEG);
-}
-
-void Gas::convertNot(Triple::ptr_t triple) {
-  convertUnary(triple, Instruction::NOT);
 }
 
 void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
