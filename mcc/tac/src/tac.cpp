@@ -180,5 +180,10 @@ void Tac::addFunctionPrototype(std::string label, std::vector<Type> argList) {
 
   this->functionPrototypeMap->insert(pair);
 }
+
+std::shared_ptr<Tac::function_prototype_map_type>
+Tac::getFunctionPrototypeMap() {
+  return this->functionPrototypeMap;
+}
 }
 }

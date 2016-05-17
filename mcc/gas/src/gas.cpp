@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <memory>
 #include <ostream>
 #include <typeinfo>
@@ -13,10 +14,43 @@
 #include "mcc/tac/int_literal.h"
 #include "mcc/tac/operator.h"
 #include "mcc/tac/triple.h"
+#include "mcc/tac/type.h"
 #include "mcc/tac/variable.h"
 
 namespace mcc {
 namespace gas {
+namespace {
+
+unsigned getSize(mcc::tac::Type t) {
+  switch (t) {
+    case Type::BOOL:
+      return 0;  // Is not stored in assembly
+      break;
+    case Type::INT:
+      return sizeof(int);
+      break;
+    case Type::FLOAT:
+      return sizeof(float);
+      break;
+    default:
+      return 0;
+  }
+}
+
+unsigned getSize(std::shared_ptr<mcc::tac::Operand> operand) {
+  return getSize(operand->getType());
+}
+
+unsigned getSize(std::vector<mcc::tac::Type> argList) {
+  unsigned size = 0;
+
+  for (auto arg : argList) {
+    size += getSize(arg);
+  }
+
+  return size;
+}
+}
 
 Gas::Gas(Tac tac) {
   this->functionStackSpaceMap =
@@ -29,6 +63,11 @@ Gas::Gas(Tac tac) {
 }
 
 void Gas::analyzeTac(Tac& tac) {
+  // get argSize of all declared functions
+  for (auto e : *tac.getFunctionPrototypeMap().get()) {
+    (*this->functionArgSizeMap)[e.first] = getSize(e.second);
+  }
+
   Label::ptr_t currentFunctionLabel = nullptr;
   unsigned stackSpace = 0;
 
@@ -37,22 +76,13 @@ void Gas::analyzeTac(Tac& tac) {
 
   for (auto codeLine : tac.codeLines) {
     auto opName = codeLine->getOperator().getName();
-    if (opName == OperatorName::POP) {
-      auto found = functionArgSizeMap->find(currentFunctionLabel);
-
-      if (found != functionArgSizeMap->end()) {
-        found->second = found->second + codeLine->getArg1()->getSize();
-      } else {
-        (*functionArgSizeMap)[currentFunctionLabel] =
-            codeLine->getArg1()->getSize();
-      }
-    }
     if (opName == OperatorName::LABEL) {
       auto label = std::static_pointer_cast<Label>(codeLine);
       if (label->isFunctionEntry()) {
         // if new function is entered
         if (currentFunctionLabel != nullptr) {
           this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+
           stackSpace = 0;
 
           // Begin with space for ebp and return address
@@ -64,11 +94,11 @@ void Gas::analyzeTac(Tac& tac) {
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       (*variableStackOffsetMap)[targetVar] = currentStackOffset;
-      currentStackOffset += targetVar->getSize();
+      currentStackOffset += getSize(targetVar);
 
       // if variable not parameter of function
       if (codeLine->getOperator().getName() != OperatorName::POP) {
-        stackSpace += targetVar->getSize();
+        stackSpace += getSize(targetVar);
       }
     }
   }
@@ -84,7 +114,6 @@ void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
   assert(functionLabel->isFunctionEntry() && "Not a function label!");
 
   auto result = functionStackSpaceMap->find(functionLabel);
-
   if (result != functionStackSpaceMap->end()) {
     //    functionStackSpaceMap->at(functionLabel) = stackSpace;
     (*functionStackSpaceMap)[functionLabel] = stackSpace;
@@ -103,7 +132,7 @@ Gas::getVariableStackOffsetMap() {
 }
 
 unsigned Gas::lookupFunctionArgSize(Label::ptr_t functionLabel) {
-  auto found = functionArgSizeMap->find(functionLabel);
+  auto found = functionArgSizeMap->find(functionLabel->getName());
 
   if (found != functionArgSizeMap->end()) {
     return found->second;

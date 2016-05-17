@@ -54,6 +54,7 @@ class Tac {
   std::set<unsigned> lookupFunctionReturn(Label::ptr_t);
 
   void addFunctionPrototype(std::string label, std::vector<Type> argList);
+  std::shared_ptr<function_prototype_map_type> getFunctionPrototypeMap();
 
   std::string toString() const;
   std::vector<Triple::ptr_t> codeLines;
