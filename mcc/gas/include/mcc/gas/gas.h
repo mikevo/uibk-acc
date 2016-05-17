@@ -22,7 +22,7 @@ namespace gas {
 // typedef std::map<std::string, Label::ptr_t> function_map_type;
 typedef std::map<Label::ptr_t, unsigned, Label::less>
     function_stack_space_map_type;
-typedef std::map<Variable::ptr_t, signed> variable_stack_offset_map_type;
+typedef std::map<std::pair<Label::ptr_t, Variable::ptr_t>, signed> variable_stack_offset_map_type;
 typedef std::map<std::string, unsigned> function_arg_size_type;
 
 class Gas {
@@ -40,6 +40,7 @@ class Gas {
   std::shared_ptr<variable_stack_offset_map_type> variableStackOffsetMap;
   std::shared_ptr<function_arg_size_type> functionArgSizeMap;
   OperatorName lastOperator;
+  Label::ptr_t currentFunction;
 
   std::vector<Mnemonic::ptr_t> asmInstructions;
 
@@ -58,8 +59,8 @@ class Gas {
   void loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t);
   void storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
 
-  void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
-  void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);
+  void convertLabel(Triple::ptr_t triple);
+  void convertReturn(Triple::ptr_t triple);
   void convertCall(Triple::ptr_t triple);
   void convertPush(Triple::ptr_t triple);
   void convertAssign(Triple::ptr_t triple);

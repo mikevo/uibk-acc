@@ -72,8 +72,8 @@ void Gas::analyzeTac(Tac& tac) {
   unsigned stackSpace = 0;
 
   // Begin offset space for ebp and return address
-  unsigned curLocalOffset = 8;
-  signed curParamOffset = -4;
+  unsigned curLocalOffset = -4;
+  signed curParamOffset = 8;
 
   for (auto codeLine : tac.codeLines) {
     auto opName = codeLine->getOperator().getName();
@@ -87,8 +87,8 @@ void Gas::analyzeTac(Tac& tac) {
           stackSpace = 0;
 
           // Begin with space for ebp and return address
-          curLocalOffset = 8;
-          curParamOffset = -4;
+          curLocalOffset = -4;
+          curParamOffset = 8;
         }
 
         currentFunctionLabel = label;
@@ -96,12 +96,12 @@ void Gas::analyzeTac(Tac& tac) {
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       if (codeLine->getOperator().getName() == OperatorName::POP) {
-        (*variableStackOffsetMap)[targetVar] = curParamOffset;
-        curParamOffset -= getSize(targetVar);
+        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel, targetVar)] = curParamOffset;
+        curParamOffset += getSize(targetVar);
       } else {
         // if variable not parameter of function
-        (*variableStackOffsetMap)[targetVar] = curLocalOffset;
-        curLocalOffset += getSize(targetVar);
+        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel, targetVar)] = curLocalOffset;
+        curLocalOffset -= getSize(targetVar);
 
         stackSpace += getSize(targetVar);
       }
@@ -157,7 +157,7 @@ unsigned Gas::lookupFunctionStackSize(Label::ptr_t functionLabel) {
 }
 
 unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
-  auto found = variableStackOffsetMap->find(var);
+  auto found = variableStackOffsetMap->find(std::make_pair(currentFunction, var));
 
   if (found != variableStackOffsetMap->end()) {
     return found->second;
@@ -168,7 +168,6 @@ unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
 
 void Gas::convertTac(Tac& tac) {
   this->analyzeTac(tac);
-  Label::ptr_t currentFunction = std::make_shared<Label>();
 
   for (auto triple : tac.codeLines) {
     auto op = triple->getOperator();
@@ -190,7 +189,7 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::LABEL:
-        convertLabel(triple, currentFunction);
+        convertLabel(triple);
         break;
 
       case OperatorName::JUMP:
@@ -231,13 +230,13 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::RET:
-        convertReturn(triple, currentFunction);
+        convertReturn(triple);
         break;
     }
   }
 }
 
-void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
+void Gas::convertLabel(Triple::ptr_t triple) {
   auto labelTriple = std::static_pointer_cast<Label>(triple);
 
   auto label = std::make_shared<Mnemonic>(labelTriple->getName());
@@ -245,7 +244,7 @@ void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 
   // Add function entry
   if (labelTriple->isFunctionEntry()) {
-    *currentFunction.get() = *labelTriple.get();
+    currentFunction = labelTriple;
 
     auto ebp = std::make_shared<Operand>(Register::EBP);
     auto esp = std::make_shared<Operand>(Register::ESP);
@@ -294,13 +293,15 @@ void Gas::convertCall(Triple::ptr_t triple) {
 
   // Assign result to variable
   if (triple->containsTargetVar()) {
-    auto result = std::make_shared<Operand>(Register::EAX);
     auto destVar = triple->getTargetVariable();
+    if(getSize(destVar) > 0) {
+    auto result = std::make_shared<Operand>(Register::EAX);
     this->storeVariableFromRegister(destVar, result);
+    }
   }
 }
 
-void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
+void Gas::convertReturn(Triple::ptr_t triple) {
   auto eax = std::make_shared<Operand>(Register::EAX);
   auto ebp = std::make_shared<Operand>(Register::EBP);
   auto esp = std::make_shared<Operand>(Register::ESP);

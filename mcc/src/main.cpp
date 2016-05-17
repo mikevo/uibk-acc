@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
   auto map2 = gas.getVariableStackOffsetMap();
   for (auto it = map2->begin(); it != map2->end(); ++it) {
-    std::cout << it->first->getValue() << ": Stack Offset = " << it->second
+    std::cout << it->first.second->getValue() << ": Stack Offset = " << it->second
               << std::endl;
   }
 
