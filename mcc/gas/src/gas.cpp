@@ -392,7 +392,8 @@ void Gas::convertAssign(Triple::ptr_t triple) {
 
         } else if (helper::isType<FloatLiteral>(op2)) {
           /*TODO*/
-        } else if (helper::isType<Variable>(op2)) {
+        } else if (helper::isType<Variable>(op2) ||
+                   helper::isType<Triple>(op2)) {
           auto eax = std::make_shared<Operand>(Register::EAX);
           auto variableOp2 = std::static_pointer_cast<Variable>(op2);
           unsigned varOffset2 = lookupVariableStackOffset(variableOp2);
@@ -405,9 +406,9 @@ void Gas::convertAssign(Triple::ptr_t triple) {
               std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
         }
       }
+      }
     }
   }
-}
 
 void Gas::convertAddSubMul(Triple::ptr_t triple) {
   auto eax = std::make_shared<Operand>(Register::EAX);
