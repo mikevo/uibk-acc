@@ -272,7 +272,7 @@ void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 void Gas::convertCall(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     auto operand = triple->getArg1();
-    if (typeid(*operand.get()) == typeid(Label)) {
+    if (helper::isType<Label>(operand)) {
       auto label = std::static_pointer_cast<Label>(operand);
       auto asmLabel = std::make_shared<Operand>(label->getName());
 
@@ -294,14 +294,9 @@ void Gas::convertCall(Triple::ptr_t triple) {
 
   // Assign result to variable
   if (triple->containsTargetVar()) {
-    auto eax = std::make_shared<Operand>(Register::EAX);
-    auto var = triple->getTargetVariable();
-
-    unsigned varOffset = lookupVariableStackOffset(var);
-    auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, asmVar, eax));
+    auto result = std::make_shared<Operand>(Register::EAX);
+    auto destVar = triple->getTargetVariable();
+    this->storeVariableFromRegister(destVar, result);
   }
 }
 
@@ -426,58 +421,15 @@ void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
 }
 
 void Gas::convertLogicOperator(Triple::ptr_t triple) {
-  auto eax = std::make_shared<Operand>(Register::EAX);
-  auto edx = std::make_shared<Operand>(Register::EDX);
+  auto reg0 = std::make_shared<Operand>(Register::EAX);
+  auto reg1 = std::make_shared<Operand>(Register::EDX);
   auto operatorName = triple->getOperator().getName();
 
-  if (triple->containsArg1()) {
-    auto op = triple->getArg1();
-    if (helper::isType<IntLiteral>(op)) {
-      auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->getValue());
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmInt));
-
-    } else if (helper::isType<FloatLiteral>(op)) {
-      auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
-
-    } else if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmVar));
-    }
-  }
-
-  if (triple->containsArg2()) {
-    auto op = triple->getArg2();
-    if (helper::isType<IntLiteral>(op)) {
-      auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->getValue());
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, edx, asmInt));
-
-    } else if (helper::isType<FloatLiteral>(op)) {
-      auto floatOp = std::static_pointer_cast<FloatLiteral>(op);
-      auto asmFloat = std::make_shared<Operand>(floatOp->getValue());
-
-    } else if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, edx, asmVar));
-    }
-  }
+  reg0 = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
+  reg1 = this->loadOperandToRegister(triple->getArg2(), Register::EDX);
 
   asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::CMP, eax, edx));
+      std::make_shared<Mnemonic>(Instruction::CMP, reg0, reg1));
 
   lastOperator = operatorName;
 }
