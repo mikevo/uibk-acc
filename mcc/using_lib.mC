@@ -5,8 +5,6 @@ int main(void) {
 
   i = 12;
 
-  i = -i;
-
   print_int(i);
 
   return 0;
