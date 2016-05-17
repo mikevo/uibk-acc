@@ -22,13 +22,14 @@
 namespace mcc {
 namespace tac {
 
-// pair of name and scope level
 typedef std::vector<BasicBlock::ptr_t> bbVector;
 typedef std::shared_ptr<bbVector> bb_type;
-typedef std::map<std::string, Label::ptr_t> function_map_type;
-typedef std::map<Label::ptr_t, std::set<unsigned>> function_return_map_type;
 
 class Tac {
+  typedef std::map<std::string, Label::ptr_t> function_map_type;
+  typedef std::map<Label::ptr_t, std::set<unsigned>> function_return_map_type;
+  typedef std::map<std::string, std::vector<Type>> function_prototype_map_type;
+
  public:
   Tac(std::shared_ptr<ast::node> n);
 
@@ -52,6 +53,8 @@ class Tac {
   void addReturn();
   std::set<unsigned> lookupFunctionReturn(Label::ptr_t);
 
+  void addFunctionPrototype(std::string label, std::vector<Type> argList);
+
   std::string toString() const;
   std::vector<Triple::ptr_t> codeLines;
 
@@ -59,6 +62,7 @@ class Tac {
   VariableStore::ptr_t variableStore;
   Label::ptr_t currentFunctionLabel;
   std::shared_ptr<function_map_type> functionMap;
+  std::shared_ptr<function_prototype_map_type> functionPrototypeMap;
   std::shared_ptr<function_return_map_type> functionReturnMap;
   void convertAst(std::shared_ptr<ast::node> n);
   unsigned currentBasicBlock;

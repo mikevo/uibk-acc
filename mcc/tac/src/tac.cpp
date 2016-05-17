@@ -22,6 +22,7 @@ Tac::Tac(std::shared_ptr<ast::node> n)
   this->variableStore = std::make_shared<VariableStore>();
   this->basicBlockIndex = std::make_shared<bbVector>();
   this->functionMap = std::make_shared<function_map_type>();
+  this->functionPrototypeMap = std::make_shared<function_prototype_map_type>();
   this->functionReturnMap = std::make_shared<function_return_map_type>();
   this->convertAst(n);
 }
@@ -66,7 +67,7 @@ VariableStore::ptr_t const Tac::getVariableStore() {
   return this->variableStore;
 }
 
-std::shared_ptr<function_map_type> Tac::getFunctionMap() {
+std::shared_ptr<Tac::function_map_type> Tac::getFunctionMap() {
   return this->functionMap;
 }
 
@@ -172,6 +173,12 @@ std::set<unsigned> Tac::lookupFunctionReturn(Label::ptr_t key) {
     std::set<unsigned> empty;
     return empty;
   }
+}
+
+void Tac::addFunctionPrototype(std::string label, std::vector<Type> argList) {
+  auto pair = std::make_pair(label, argList);
+
+  this->functionPrototypeMap->insert(pair);
 }
 }
 }

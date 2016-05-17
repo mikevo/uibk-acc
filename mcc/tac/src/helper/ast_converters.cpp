@@ -44,6 +44,16 @@ Type getType(ast::type &type) {
   return Type::NONE;
 }
 
+std::vector<Type> convertArgList(ast::param_list argList) {
+  std::vector<Type> argv;
+
+  for (auto arg : argList) {
+    argv.push_back(getType(*arg->paramVar->var_type.get()));
+  }
+
+  return argv;
+}
+
 Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::int_literal>(n)) return convertIntLiteral(t, n);
   if (isType<ast::float_literal>(n)) return convertFloatLiteral(t, n);
@@ -267,6 +277,7 @@ Operand::ptr_t convertFunctionPrototype(Tac *t, AstNode n) {
   auto proto = std::static_pointer_cast<ast::function_prototype>(n);
   auto dummyLabel = std::make_shared<Label>(proto->name);
   t->addFunction(proto->name, dummyLabel);
+  t->addFunctionPrototype(proto->name, convertArgList(proto->parameters));
   return nullptr;
 }
 
@@ -283,6 +294,8 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
   } else {
     auto entryLabel = std::make_shared<Label>(function->name);
     t->addFunction(function->name, entryLabel);
+    auto argList = convertArgList(function->parameters);
+    t->addFunctionPrototype(function->name, argList);
     t->addLine(entryLabel);
   }
 
