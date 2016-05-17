@@ -214,7 +214,7 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::MINUS:
-        // TODO implement
+        convertMinus(triple);
         break;
 
       case OperatorName::NOT:
@@ -696,6 +696,53 @@ void Gas::convertJumpFalse(Triple::ptr_t triple) {
       }
     }
   }
+}
+
+void Gas::convertMinus(Triple::ptr_t triple) {
+  auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::NEG, eax));
+
+  if (triple->containsTargetVar()) {
+    auto var = triple->getTargetVariable();
+    this->storeVariableFromRegister(var, eax);
+  }
+}
+
+std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
+                                                    Register r) {
+  // TODO do not allways create a new register
+  auto reg = std::make_shared<Operand>(r);
+
+  if (helper::isType<IntLiteral>(op)) {
+    auto intOp = std::static_pointer_cast<IntLiteral>(op);
+    auto asmInt = std::make_shared<Operand>(intOp->getValue());
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, reg, asmInt));
+
+  } else if (helper::isType<FloatLiteral>(op)) {
+    /*TODO*/
+  } else if (helper::isType<Variable>(op)) {
+    auto variableOp = std::static_pointer_cast<Variable>(op);
+    this->loadVariableToRegister(variableOp, reg);
+  }
+
+  return reg;
+}
+
+void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
+  unsigned varOffset = lookupVariableStackOffset(var);
+  auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, reg, asmVar));
+}
+void Gas::storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg) {
+  unsigned varOffset = lookupVariableStackOffset(var);
+  auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
 }
 
 std::string Gas::toString() const {

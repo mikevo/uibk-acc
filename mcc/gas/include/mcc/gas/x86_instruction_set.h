@@ -46,6 +46,7 @@ enum class Instruction {
   FSUB,
   FMUL,
   FDIV,
+  NEG,
 
   // float
   ADDSS,
@@ -105,6 +106,7 @@ static std::map<Instruction, std::string> InstructionName{
     {Instruction::FSUB, "fsub"},
     {Instruction::FMUL, "fmul"},
     {Instruction::FDIV, "fdiv"},
+    {Instruction::NEG, "neg"},
 
     // float
     {Instruction::ADDSS, "addss"},

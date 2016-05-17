@@ -53,6 +53,11 @@ class Gas {
   unsigned lookupFunctionStackSize(Label::ptr_t functionLabel);
   unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
+  std::shared_ptr<Operand> loadOperandToRegister(mcc::tac::Operand::ptr_t op,
+                                                 Register r);
+  void loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t);
+  void storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
+
   void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);
   void convertCall(Triple::ptr_t triple);
@@ -63,6 +68,7 @@ class Gas {
   void convertLogicOperator(Triple::ptr_t triple);
   void convertJump(Triple::ptr_t triple);
   void convertJumpFalse(Triple::ptr_t triple);
+  void convertMinus(Triple::ptr_t triple);
 };
 }
 }
