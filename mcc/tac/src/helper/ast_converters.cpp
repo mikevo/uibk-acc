@@ -365,9 +365,12 @@ Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
   while (revIt != functionCall->arguments.rend()) {
     auto argValue = convertNode(t, *revIt);
 
-    if (argValue->getType() != getType(*(*revItParam)->paramVar->var_type)) {
-      assert(false && "Argument type mismatch");
-    }
+    // TODO check if this assertion is necessary, if not delete it to allow
+    // different datatypes as function parameters
+    //    if (argValue->getType() !=
+    //    getType(*(*revItParam)->paramVar->var_type)) {
+    //      assert(false && "Argument type mismatch");
+    //    }
 
     auto op = Operator(OperatorName::PUSH);
     auto argPush = std::make_shared<Triple>(op, argValue);

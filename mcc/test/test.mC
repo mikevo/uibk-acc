@@ -1,19 +1,20 @@
-void bar(int arg1);
-  
-void foo(int arg1) {
-   if(arg1 < 0) return;
-   bar(arg1 - 1);
+void print_int(int);
+void print_float(float);
+
+float foo(int arg1, float arg2) {
+    if(arg1 <= 5) {
+        return 42.0;
+    } else {
+        return arg2;
+    }
 }
 
-void bar(int arg1) {
-   if(arg1 < 0) return;
-   foo(arg1 - 1);
-   bar(arg1 - 1);
-}   
+int main() {
+  int i = 0;
+  while(i < 10) {
+    print_float(foo(i, 13.2));
+    i = i + 1;
+  }
 
- int main() {
-    float a = 10.0;
-    float b = 10.0;
-    float c = a + b;
-    return 0;
- }
+  return 0;
+}

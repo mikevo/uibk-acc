@@ -48,6 +48,7 @@ enum class Instruction {
   FSUBP,
   FMULP,
   FDIVP,
+  FCHS,
 
   // Logic
   AND,
@@ -97,6 +98,7 @@ static std::map<Instruction, std::string> InstructionName{
     {Instruction::FSUBP, "fsubp"},
     {Instruction::FMULP, "fmulp"},
     {Instruction::FDIVP, "fdivp"},
+    {Instruction::FCHS, "fchs"},
 
     // Logic
     {Instruction::AND, "and"},

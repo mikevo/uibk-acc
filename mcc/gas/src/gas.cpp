@@ -207,6 +207,8 @@ void Gas::convertTac(Tac& tac) {
       case OperatorName::GE:
       case OperatorName::LT:
       case OperatorName::GT:
+        // TODO godbolt produces different gas code for float, but it seems to
+        // work with the int implementation
         convertLogicOperator(triple);
         break;
 
@@ -215,6 +217,7 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::NOT:
+        // TODO should be checked in previous stages
         assert(triple->getType() == Type::BOOL &&
                "NOT operation only for booleans!");
         convertUnary(triple, Instruction::NOT);
@@ -303,32 +306,10 @@ void Gas::convertCall(Triple::ptr_t triple) {
 }
 
 void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
-  auto eax = std::make_shared<Operand>(Register::EAX);
-  auto ebp = std::make_shared<Operand>(Register::EBP);
-  auto esp = std::make_shared<Operand>(Register::ESP);
-
   if (triple->containsArg1()) {
-    auto op = triple->getArg1();
-
-    if (helper::isType<IntLiteral>(op)) {
-      auto intOp = std::static_pointer_cast<IntLiteral>(op);
-      auto asmInt = std::make_shared<Operand>(intOp->getValue());
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmInt));
-
-    } else if (helper::isType<FloatLiteral>(op)) {
-      // TODO implement - if constant is returned, stack space needed
-    } else if (helper::isType<Variable>(op)) {
-      auto variableOp = std::static_pointer_cast<Variable>(op);
-
-      unsigned varOffset = lookupVariableStackOffset(variableOp);
-
-      auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, eax, asmVar));
-    }
+    // TODO godbolt produces different gas code for float, but it seems to work
+    // with the int implementation
+    this->loadOperandToRegister(triple->getArg1(), Register::EAX);
   }
 
   unsigned stackSize = lookupFunctionStackSize(currentFunction);
@@ -336,10 +317,12 @@ void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
   // Cleanup stack
   if (stackSize > 0) {
     auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
+    auto esp = std::make_shared<Operand>(Register::ESP);
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
   }
 
+  auto ebp = std::make_shared<Operand>(Register::EBP);
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::POP, ebp));
 
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::RET));
@@ -415,6 +398,8 @@ void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
   pushOperandToFloatRegister(triple->getArg1());
   pushOperandToFloatRegister(triple->getArg2());
 
+  // TODO calling this constructor creates LABEL operands, maybe this leads to
+  // problems later
   Operand::ptr_t op1 = std::make_shared<Operand>("st(1)");
   Operand::ptr_t op2 = std::make_shared<Operand>("st");
   auto operatorName = triple->getOperator().getName();
@@ -510,12 +495,28 @@ void Gas::convertJumpFalse(Triple::ptr_t triple) {
 }
 
 void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
-  auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
-  asmInstructions.push_back(std::make_shared<Mnemonic>(i, eax));
+  if (i == Instruction::NEG && triple->getType() == Type::FLOAT) {
+    convertFloatMinus(triple);
+  } else {
+    // convert all other unary operands as follows
+    auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
+    asmInstructions.push_back(std::make_shared<Mnemonic>(i, eax));
+
+    if (triple->containsTargetVar()) {
+      auto var = triple->getTargetVariable();
+      this->storeVariableFromRegister(var, eax);
+    }
+  }
+}
+
+void Gas::convertFloatMinus(Triple::ptr_t triple) {
+  this->pushOperandToFloatRegister(triple->getArg1());
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::FCHS));
 
   if (triple->containsTargetVar()) {
-    auto var = triple->getTargetVariable();
-    this->storeVariableFromRegister(var, eax);
+    auto targetVar = getAsmVar(triple->getTargetVariable());
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::FSTP, targetVar));
   }
 }
 
