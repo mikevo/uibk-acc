@@ -81,7 +81,11 @@ int main(int argc, char **argv) {
   }
 
   auto outFileName = std::string(argv[1]) + ".s";
-  std::ofstream output{outFileName};
+  std::ofstream output;
+
+  std::cout << "Assembly:" << std::endl << gas.toString();
+
+  output.open(outFileName);
 
   output << gas;
 
