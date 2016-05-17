@@ -22,7 +22,7 @@ namespace gas {
 // typedef std::map<std::string, Label::ptr_t> function_map_type;
 typedef std::map<Label::ptr_t, unsigned, Label::less>
     function_stack_space_map_type;
-typedef std::map<Variable::ptr_t, unsigned> variable_stack_offset_map_type;
+typedef std::map<Variable::ptr_t, signed> variable_stack_offset_map_type;
 typedef std::map<std::string, unsigned> function_arg_size_type;
 
 class Gas {

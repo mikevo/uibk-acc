@@ -61,19 +61,19 @@ TEST(Gas, VariableStackOffset) {
       R"(
          void bar(int arg1);
   
-         void foo(int arg1) {
+         void foo(int arg1, int arg2) {
             if(arg1 < 0) return;
             bar(arg1 - 1);
          }
          
          void bar(int arg1) {
             if(arg1 < 0) return;
-            foo(arg1 - 1);
+            foo(arg1 - 1, arg1);
             bar(arg1 - 1);
          }   
             
           int main() {
-             foo(10);
+             foo(10, 10);
              return 0;
           }
         )");
@@ -84,7 +84,7 @@ TEST(Gas, VariableStackOffset) {
   auto stackOffsetMap = gas.getVariableStackOffsetMap();
 
   int varCounter = 0;
-  unsigned expectedOffsets[] = {8, 12, 12, 16, 8, 12, 12, 16, 16, 20, 8};
+  signed expectedOffsets[] = {-4, -8, 8, 8, 12, -4, 8, 8, 12, 12, 16, 8};
   for (auto codeLine : tac.codeLines) {
     if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
@@ -93,6 +93,8 @@ TEST(Gas, VariableStackOffset) {
       EXPECT_NE(targetVarOffset, stackOffsetMap->end());
 
       EXPECT_EQ(expectedOffsets[varCounter++], targetVarOffset->second);
+      std::cout << targetVar->toString() << " -- " << targetVarOffset->second
+                << std::endl;
     }
   }
 }

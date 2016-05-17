@@ -72,7 +72,8 @@ void Gas::analyzeTac(Tac& tac) {
   unsigned stackSpace = 0;
 
   // Begin offset space for ebp and return address
-  unsigned currentStackOffset = 8;
+  unsigned curLocalOffset = 8;
+  signed curParamOffset = -4;
 
   for (auto codeLine : tac.codeLines) {
     auto opName = codeLine->getOperator().getName();
@@ -86,18 +87,22 @@ void Gas::analyzeTac(Tac& tac) {
           stackSpace = 0;
 
           // Begin with space for ebp and return address
-          currentStackOffset = 8;
+          curLocalOffset = 8;
+          curParamOffset = -4;
         }
 
         currentFunctionLabel = label;
       }
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
-      (*variableStackOffsetMap)[targetVar] = currentStackOffset;
-      currentStackOffset += getSize(targetVar);
+      if (codeLine->getOperator().getName() == OperatorName::POP) {
+        (*variableStackOffsetMap)[targetVar] = curParamOffset;
+        curParamOffset -= getSize(targetVar);
+      } else {
+        // if variable not parameter of function
+        (*variableStackOffsetMap)[targetVar] = curLocalOffset;
+        curLocalOffset += getSize(targetVar);
 
-      // if variable not parameter of function
-      if (codeLine->getOperator().getName() != OperatorName::POP) {
         stackSpace += getSize(targetVar);
       }
     }
@@ -209,9 +214,11 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::MINUS:
+        // TODO implement
         break;
 
       case OperatorName::NOT:
+        // TODO implement
         break;
 
       case OperatorName::PUSH:

@@ -28,7 +28,7 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
       if (op.mAddrOffset > 0) {
         return os << " + " << op.mAddrOffset << "]";
       } else if (op.mAddrOffset < 0) {
-        return os << " - " << op.mAddrOffset << "]";
+        return os << " - " << -op.mAddrOffset << "]";
       } else {
         return os << "]";
       }
