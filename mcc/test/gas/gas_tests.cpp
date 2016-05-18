@@ -6,6 +6,7 @@
 #include "test_utils.h"
 
 #include <iostream>
+#include <regex>
 
 using namespace mcc::gas;
 
@@ -84,7 +85,7 @@ TEST(Gas, VariableStackOffset) {
   auto stackOffsetMap = gas.getVariableStackOffsetMap();
 
   int varCounter = 0;
-  signed expectedOffsets[] = {-4, -8, 8, 8, 12, -4, 8, 8, 12, 12, 16, 8};
+  signed expectedOffsets[] = {8, 12, -4, -4, -8, 8, -4, -4, -8, -8, -12, -4};
   for (auto codeLine : tac.codeLines) {
     if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
@@ -95,6 +96,197 @@ TEST(Gas, VariableStackOffset) {
       EXPECT_EQ(expectedOffsets[varCounter++], targetVarOffset->second);
     }
   }
+}
+
+// TODO stupid test -> reimplement it
+TEST(Gas, GasGeneration) {
+  auto tree = parser::parse(
+      R"(
+        void print_int(int);
+        void print_float(float);
+
+        float foo(int arg1, float arg2);
+        float bar(float arg1, int arg2);
+
+        float bar(float arg1, int arg2) {
+            print_int(2);
+
+            if(arg1 > 5.0) {
+                arg1 = arg1 - 1.0;
+            }
+
+            return foo(arg1, arg2);
+        }
+
+        float foo(int arg1, float arg2) {
+            print_int(1);
+
+            if(arg1 <= 5) {
+                return 42.0;
+            } else {
+                return bar(arg2, arg1);
+            }
+        }
+
+        int main() {
+          int i = 0;
+          while(i < 10) {
+            print_float(foo(i, 13.2));
+            i = i + 1;
+          }
+
+          return 0;
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  Gas gas = Gas(tac);
+
+  auto labels = std::vector<std::string>();
+  for (auto triple : tac.codeLines) {
+    switch (triple->getOperator().getName()) {
+      case OperatorName::LABEL: {
+        auto label = std::static_pointer_cast<Label>(triple);
+        if (!label->isFunctionEntry()) {
+          labels.push_back(label->getValue());
+        }
+      } break;
+      case OperatorName::JUMP: {
+        auto label = std::static_pointer_cast<Label>(triple->getArg1());
+        if (!label->isFunctionEntry()) {
+          labels.push_back(label->getValue());
+        }
+      } break;
+      case OperatorName::JUMPFALSE: {
+        auto label = std::static_pointer_cast<Label>(triple->getArg2());
+        if (!label->isFunctionEntry()) {
+          labels.push_back(label->getValue());
+        }
+      } break;
+      default:
+        // ignore
+        break;
+    }
+  }
+
+  auto curLabel = labels.begin();
+
+  auto expected = std::string(".intel_syntax noprefix\n");
+  expected.append(".global main\n\n");
+
+  expected.append("bar:\n");
+  expected.append("\tpush ebp\n");
+  expected.append("\tmov ebp, esp\n");
+  expected.append("\tsub esp, 12\n");
+  expected.append("\tmov eax, 2\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tcall print_int\n");
+  expected.append("\tadd esp, 4\n");
+  expected.append("\tmov DWORD PTR [ebp - 4], eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 8]\n");
+  expected.append("\tmov edx, DWORD PTR .FC0\n");
+  expected.append("\tcmp eax, edx\n");
+  expected.append("\tjle " + *curLabel++ + "\n");
+  expected.append("\tfld DWORD PTR [ebp - 8]\n");
+  expected.append("\tfld DWORD PTR .FC1\n");
+  expected.append("\tfsubp st(1), st\n");
+  expected.append("\tfstp DWORD PTR [ebp - 4]\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 4]\n");
+  expected.append("\tmov DWORD PTR [ebp - 8], eax\n\n");
+
+  expected.append(*curLabel++ + ":\n");
+  expected.append("\tmov eax, DWORD PTR [ebp + 12]\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 8]\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tcall foo\n");
+  expected.append("\tadd esp, 8\n");
+  expected.append("\tmov DWORD PTR [ebp - 12], eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 12]\n");
+  expected.append("\tadd esp, 12\n");
+  expected.append("\tpop ebp\n");
+  expected.append("\tret\n\n");
+
+  expected.append("foo:\n");
+  expected.append("\tpush ebp\n");
+  expected.append("\tmov ebp, esp\n");
+  expected.append("\tsub esp, 4\n");
+  expected.append("\tmov eax, 1\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tcall print_int\n");
+  expected.append("\tadd esp, 4\n");
+  expected.append("\tmov DWORD PTR [ebp - 4], eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp + 8]\n");
+  expected.append("\tmov edx, 5\n");
+  expected.append("\tcmp eax, edx\n");
+  expected.append("\tjg " + *curLabel++ + "\n");
+  expected.append("\tmov eax, DWORD PTR .FC2\n");
+  expected.append("\tadd esp, 4\n");
+  expected.append("\tpop ebp\n");
+  expected.append("\tret\n");
+  expected.append("\tjmp " + *curLabel++ + "\n\n");
+
+  expected.append(*curLabel++ + ":\n");
+  expected.append("\tmov eax, DWORD PTR [ebp + 8]\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp + 12]\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tcall bar\n");
+  expected.append("\tadd esp, 8\n");
+  expected.append("\tmov DWORD PTR [ebp - 4], eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 4]\n");
+  expected.append("\tadd esp, 4\n");
+  expected.append("\tpop ebp\n");
+  expected.append("\tret\n\n");
+
+  expected.append(*curLabel++ + ":\n\n");
+
+  expected.append("main:\n");
+  expected.append("\tpush ebp\n");
+  expected.append("\tmov ebp, esp\n");
+  expected.append("\tsub esp, 16\n");
+  expected.append("\tmov eax, 0\n");
+  expected.append("\tmov DWORD PTR [ebp - 16], eax\n\n");
+
+  expected.append(*curLabel++ + ":\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 16]\n");
+  expected.append("\tmov edx, 10\n");
+  expected.append("\tcmp eax, edx\n");
+  expected.append("\tjge " + *curLabel++ + "\n");
+  expected.append("\tmov eax, DWORD PTR .FC3\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 16]\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tcall foo\n");
+  expected.append("\tadd esp, 8\n");
+  expected.append("\tmov DWORD PTR [ebp - 8], eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 8]\n");
+  expected.append("\tpush eax\n");
+  expected.append("\tcall print_float\n");
+  expected.append("\tadd esp, 4\n");
+  expected.append("\tmov DWORD PTR [ebp - 12], eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 16]\n");
+  expected.append("\tmov ecx, 1\n");
+  expected.append("\tadd eax, ecx\n");
+  expected.append("\tmov DWORD PTR [ebp - 12], eax\n");
+  expected.append("\tmov eax, DWORD PTR [ebp - 12]\n");
+  expected.append("\tmov DWORD PTR [ebp - 16], eax\n");
+  expected.append("\tjmp " + *curLabel++ + "\n\n");
+
+  expected.append(*curLabel++ + ":\n");
+  expected.append("\tmov eax, 0\n");
+  expected.append("\tadd esp, 16\n");
+  expected.append("\tpop ebp\n");
+  expected.append("\tret\n\n");
+
+  expected.append(".FC0: .float 5.000000\n");
+  expected.append(".FC1: .float 1.000000\n");
+  expected.append(".FC2: .float 42.000000\n");
+  expected.append(".FC3: .float 13.200000\n\n");
+
+  expected.append(".att_syntax noprefix\n");
+
+  EXPECT_EQ(expected, gas.toString());
 }
 }
 }
