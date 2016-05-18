@@ -508,9 +508,9 @@ void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
 
     if (triple->containsTargetVar()) {
       auto var = triple->getTargetVariable();
-      if (helper::isType<Triple>(var)) {
-        var = std::static_pointer_cast<Variable>(var);
-      }
+      //      if (helper::isType<Triple>(var)) {
+      //        var = std::static_pointer_cast<Variable>(var);
+      //      }
       this->storeVariableFromRegister(var, eax);
     }
   }
