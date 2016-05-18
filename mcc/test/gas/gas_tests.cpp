@@ -2,6 +2,7 @@
 
 #include "mcc/gas/gas.h"
 
+#include "mcc/tac/helper/ast_converters.h"
 #include "parser.h"
 #include "test_utils.h"
 
@@ -83,13 +84,21 @@ TEST(Gas, VariableStackOffset) {
   Gas gas = Gas(tac);
 
   auto stackOffsetMap = gas.getVariableStackOffsetMap();
-
+  Label::ptr_t currentFunction;
   int varCounter = 0;
   signed expectedOffsets[] = {8, 12, -4, -4, -8, 8, -4, -4, -8, -8, -12, -4};
   for (auto codeLine : tac.codeLines) {
+    if (helper::isType<Label>(codeLine)) {
+      auto label = std::static_pointer_cast<Label>(codeLine);
+      if (label->isFunctionEntry()) {
+        currentFunction = label;
+      }
+    }
+
     if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
-      auto targetVarOffset = stackOffsetMap->find(targetVar);
+      auto targetVarOffset =
+          stackOffsetMap->find(std::make_pair(currentFunction, targetVar));
       // target variable has to be in stackOffsetMap
       EXPECT_NE(targetVarOffset, stackOffsetMap->end());
 
@@ -182,7 +191,6 @@ TEST(Gas, GasGeneration) {
   expected.append("\tpush eax\n");
   expected.append("\tcall print_int\n");
   expected.append("\tadd esp, 4\n");
-  expected.append("\tmov DWORD PTR [ebp - 4], eax\n");
   expected.append("\tmov eax, DWORD PTR [ebp - 8]\n");
   expected.append("\tmov edx, DWORD PTR .FC0\n");
   expected.append("\tcmp eax, edx\n");
@@ -215,7 +223,6 @@ TEST(Gas, GasGeneration) {
   expected.append("\tpush eax\n");
   expected.append("\tcall print_int\n");
   expected.append("\tadd esp, 4\n");
-  expected.append("\tmov DWORD PTR [ebp - 4], eax\n");
   expected.append("\tmov eax, DWORD PTR [ebp + 8]\n");
   expected.append("\tmov edx, 5\n");
   expected.append("\tcmp eax, edx\n");
@@ -264,7 +271,6 @@ TEST(Gas, GasGeneration) {
   expected.append("\tpush eax\n");
   expected.append("\tcall print_float\n");
   expected.append("\tadd esp, 4\n");
-  expected.append("\tmov DWORD PTR [ebp - 12], eax\n");
   expected.append("\tmov eax, DWORD PTR [ebp - 16]\n");
   expected.append("\tmov ecx, 1\n");
   expected.append("\tadd eax, ecx\n");

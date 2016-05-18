@@ -22,7 +22,8 @@ namespace gas {
 // typedef std::map<std::string, Label::ptr_t> function_map_type;
 typedef std::map<Label::ptr_t, unsigned, Label::less>
     function_stack_space_map_type;
-typedef std::map<Variable::ptr_t, signed> variable_stack_offset_map_type;
+typedef std::map<std::pair<Label::ptr_t, Variable::ptr_t>, signed>
+    variable_stack_offset_map_type;
 typedef std::map<std::string, unsigned> function_arg_size_type;
 // map: variableName -> value
 typedef std::map<std::string, std::string> constant_floats_map_type;
@@ -43,6 +44,7 @@ class Gas {
   std::shared_ptr<function_arg_size_type> functionArgSizeMap;
   OperatorName lastOperator;
   std::shared_ptr<constant_floats_map_type> constantFloatsMap;
+  Label::ptr_t currentFunction;
 
   std::vector<Mnemonic::ptr_t> asmInstructions;
 
@@ -64,8 +66,8 @@ class Gas {
   Operand::ptr_t getAsmVar(Variable::ptr_t var);
   std::pair<std::string, std::string> createFloatConstant(std::string value);
 
-  void convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction);
-  void convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction);
+  void convertLabel(Triple::ptr_t triple);
+  void convertReturn(Triple::ptr_t triple);
   void convertCall(Triple::ptr_t triple);
   void convertPush(Triple::ptr_t triple);
   void convertAssign(Triple::ptr_t triple);

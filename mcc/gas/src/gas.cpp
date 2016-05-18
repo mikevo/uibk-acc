@@ -97,11 +97,13 @@ void Gas::analyzeTac(Tac& tac) {
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       if (codeLine->getOperator().getName() == OperatorName::POP) {
-        (*variableStackOffsetMap)[targetVar] = curParamOffset;
+        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
+                                                 targetVar)] = curParamOffset;
         curParamOffset += getSize(targetVar);
       } else {
         // if variable not parameter of function
-        (*variableStackOffsetMap)[targetVar] = curLocalOffset;
+        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
+                                                 targetVar)] = curLocalOffset;
         curLocalOffset -= getSize(targetVar);
 
         stackSpace += getSize(targetVar);
@@ -157,7 +159,8 @@ unsigned Gas::lookupFunctionStackSize(Label::ptr_t functionLabel) {
 }
 
 unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
-  auto found = variableStackOffsetMap->find(var);
+  auto found =
+      variableStackOffsetMap->find(std::make_pair(currentFunction, var));
 
   if (found != variableStackOffsetMap->end()) {
     return found->second;
@@ -168,7 +171,6 @@ unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
 
 void Gas::convertTac(Tac& tac) {
   this->analyzeTac(tac);
-  Label::ptr_t currentFunction = std::make_shared<Label>();
 
   for (auto triple : tac.codeLines) {
     auto op = triple->getOperator();
@@ -190,7 +192,7 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::LABEL:
-        convertLabel(triple, currentFunction);
+        convertLabel(triple);
         break;
 
       case OperatorName::JUMP:
@@ -236,13 +238,13 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::RET:
-        convertReturn(triple, currentFunction);
+        convertReturn(triple);
         break;
     }
   }
 }
 
-void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
+void Gas::convertLabel(Triple::ptr_t triple) {
   auto labelTriple = std::static_pointer_cast<Label>(triple);
 
   auto label = std::make_shared<Mnemonic>(labelTriple->getName());
@@ -250,7 +252,7 @@ void Gas::convertLabel(Triple::ptr_t triple, Label::ptr_t currentFunction) {
 
   // Add function entry
   if (labelTriple->isFunctionEntry()) {
-    *currentFunction.get() = *labelTriple.get();
+    currentFunction = labelTriple;
 
     auto ebp = std::make_shared<Operand>(Register::EBP);
     auto esp = std::make_shared<Operand>(Register::ESP);
@@ -299,13 +301,15 @@ void Gas::convertCall(Triple::ptr_t triple) {
 
   // Assign result to variable
   if (triple->containsTargetVar()) {
-    auto result = std::make_shared<Operand>(Register::EAX);
     auto destVar = triple->getTargetVariable();
-    this->storeVariableFromRegister(destVar, result);
+    if (getSize(destVar) > 0) {
+      auto result = std::make_shared<Operand>(Register::EAX);
+      this->storeVariableFromRegister(destVar, result);
+    }
   }
 }
 
-void Gas::convertReturn(Triple::ptr_t triple, Label::ptr_t currentFunction) {
+void Gas::convertReturn(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     // TODO godbolt produces different gas code for float, but it seems to work
     // with the int implementation
@@ -504,6 +508,9 @@ void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
 
     if (triple->containsTargetVar()) {
       auto var = triple->getTargetVariable();
+      if (helper::isType<Triple>(var)) {
+        var = std::static_pointer_cast<Variable>(var);
+      }
       this->storeVariableFromRegister(var, eax);
     }
   }
