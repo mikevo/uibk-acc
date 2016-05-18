@@ -75,6 +75,8 @@ class Gas {
   void convertIntArithmetic(Triple::ptr_t triple);
   void convertFloatArithmetic(Triple::ptr_t triple);
   void convertLogicOperator(Triple::ptr_t triple);
+  void convertIntLogicOperator(Triple::ptr_t triple);
+  void convertFloatLogicOperator(Triple::ptr_t triple);
   void convertJump(Triple::ptr_t triple);
   void convertJumpFalse(Triple::ptr_t triple);
   void convertMinus(Triple::ptr_t triple);

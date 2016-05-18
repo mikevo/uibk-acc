@@ -32,6 +32,7 @@ enum class Instruction {
 
   // float
   FSTP,
+  FXCH,
   FLD,
 
   // Arithmetic
@@ -65,6 +66,7 @@ enum class Instruction {
   JL,
   JLE,
   CMP,
+  FCOMIP,
   CALL,
   RET,
 
@@ -82,6 +84,7 @@ static std::map<Instruction, std::string> InstructionName{
 
     // float
     {Instruction::FSTP, "fstp"},
+    {Instruction::FXCH, "fxch"},
     {Instruction::FLD, "fld"},
 
     // Arithmetic
@@ -115,6 +118,7 @@ static std::map<Instruction, std::string> InstructionName{
     {Instruction::JL, "jl"},
     {Instruction::JLE, "jle"},
     {Instruction::CMP, "cmp"},
+    {Instruction::FCOMIP, "fcomip"},
     {Instruction::CALL, "call"},
     {Instruction::RET, "ret"},
 };

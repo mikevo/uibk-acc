@@ -434,17 +434,52 @@ void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
 }
 
 void Gas::convertLogicOperator(Triple::ptr_t triple) {
-  auto reg0 = std::make_shared<Operand>(Register::EAX);
-  auto reg1 = std::make_shared<Operand>(Register::EDX);
   auto operatorName = triple->getOperator().getName();
+
+  // use type of an argument becuase
+  switch (triple->getArg1()->getType()) {
+    case Type::INT:
+      convertIntLogicOperator(triple);
+      break;
+    case Type::FLOAT:
+      convertFloatLogicOperator(triple);
+      break;
+    default:
+      std::cout << triple->getType() << std::endl;
+      assert(false && "Unhandled operator type in arithmetic conversion");
+  }
+
+  lastOperator = operatorName;
+}
+
+void Gas::convertIntLogicOperator(Triple::ptr_t triple) {
+  Operand::ptr_t reg0;
+  Operand::ptr_t reg1;
 
   reg0 = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
   reg1 = this->loadOperandToRegister(triple->getArg2(), Register::EDX);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::CMP, reg0, reg1));
+}
 
-  lastOperator = operatorName;
+void Gas::convertFloatLogicOperator(Triple::ptr_t triple) {
+  pushOperandToFloatRegister(triple->getArg1());
+  pushOperandToFloatRegister(triple->getArg2());
+
+  // TODO calling this constructor creates LABEL operands, maybe this leads to
+  // problems later
+  Operand::ptr_t op1 = std::make_shared<Operand>("st");
+  Operand::ptr_t op0 = std::make_shared<Operand>("st(0)");
+  Operand::ptr_t op2 = std::make_shared<Operand>("st(1)");
+
+  //  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::FXCH,
+  //  op2));
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::FCOMIP, op1, op2));
+
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::FSTP, op0));
 }
 
 void Gas::convertJump(Triple::ptr_t triple) {
@@ -508,9 +543,6 @@ void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
 
     if (triple->containsTargetVar()) {
       auto var = triple->getTargetVariable();
-      //      if (helper::isType<Triple>(var)) {
-      //        var = std::static_pointer_cast<Variable>(var);
-      //      }
       this->storeVariableFromRegister(var, eax);
     }
   }
