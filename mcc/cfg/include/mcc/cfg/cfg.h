@@ -5,13 +5,12 @@
 #include <string>
 #include <vector>
 
-#include "mcc/tac/tac.h"
-
 #include "boost/graph/adjacency_list.hpp"
 #include "boost/graph/dominator_tree.hpp"
 #include "boost/graph/graphviz.hpp"
 
 #include "mcc/tac/basic_block.h"
+#include "mcc/tac/tac.h"
 
 namespace mcc {
 namespace cfg {
@@ -26,7 +25,10 @@ class Cfg {
 
   typedef std::shared_ptr<Cfg> ptr_t;
 
-  Cfg(mcc::tac::Tac tac);
+  typedef std::map<mcc::tac::Variable::ptr_t, mcc::tac::Tac::code_lines_range,
+                   mcc::tac::Variable::less> variable_live_range_map_type;
+
+  Cfg(mcc::tac::Tac &tac);
   std::string toDot() const;
   void storeDot(std::string fileName) const;
 
@@ -62,6 +64,8 @@ class Cfg {
   mcc::tac::Variable::set_t getLiveOut(VertexDescriptor v);
   mcc::tac::Variable::set_t getLive(VertexDescriptor v);
 
+  variable_live_range_map_type getVariableLiveRangeMap();
+
  private:
   mcc::tac::Variable::set_t variableSet;
   const VertexDescriptor getVertexDescriptor(const Vertex &vertex) const;
@@ -73,6 +77,9 @@ class Cfg {
   bool updateLiveOut(VertexDescriptor v);
 
   const mcc::tac::bb_type basicBlockIndex;
+  mcc::tac::VariableStore::ptr_t variableStore;
+  //  std::vector<mcc::tac::Triple::ptr_t> & codeLines;
+  mcc::tac::Tac &tac;
   Graph graph;
   VertexVertexMap dominatorTree;
 

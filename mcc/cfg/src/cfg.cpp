@@ -11,10 +11,16 @@
 #include "mcc/tac/helper/ast_converters.h"
 #include "mcc/tac/operator.h"
 
+typedef std::map<mcc::tac::Variable::ptr_t, mcc::tac::Tac::code_lines_iter,
+                 mcc::tac::Variable::less> var_iter_map;
+
 namespace mcc {
 namespace cfg {
 
-Cfg::Cfg(mcc::tac::Tac tac) : basicBlockIndex(tac.getBasicBlockIndex()) {
+Cfg::Cfg(mcc::tac::Tac &tac)
+    : basicBlockIndex(tac.getBasicBlockIndex()),
+      variableStore(tac.getVariableStore()),
+      tac(tac) {
   for (auto const var : *tac.getVariableStore().get()) {
     variableSet.insert(var);
   }
@@ -402,6 +408,47 @@ mcc::tac::Variable::set_t Cfg::getLiveOut(VertexDescriptor v) {
 
 mcc::tac::Variable::set_t Cfg::getLive(VertexDescriptor v) {
   return this->live.at(v);
+}
+
+Cfg::variable_live_range_map_type Cfg::getVariableLiveRangeMap() {
+  var_iter_map startMap;
+  var_iter_map endMap;
+
+  for (auto var : *this->variableStore.get()) {
+    auto start = std::make_pair(var, this->tac.codeLines.end());
+    startMap.insert(start);
+
+    auto end = std::make_pair(var, this->tac.codeLines.begin());
+    endMap.insert(end);
+  }
+
+  this->computeWorkList();
+
+  for (auto it = this->tac.codeLines.begin(); it < this->tac.codeLines.end();
+       ++it) {
+    for (auto var : this->liveSetAt(*it, false)) {
+      if (startMap.at(var) > it) {
+        startMap[var] = it;
+      }
+
+      if (endMap.at(var) < it + 1) {
+        endMap[var] = it + 1;
+      }
+    }
+  }
+
+  Cfg::variable_live_range_map_type map;
+
+  for (auto var : *this->variableStore.get()) {
+    if (startMap.at(var) != this->tac.codeLines.end()) {
+      auto range = boost::make_iterator_range(startMap.at(var), endMap.at(var));
+      auto pair = std::make_pair(var, range);
+
+      map.insert(pair);
+    }
+  }
+
+  return map;
 }
 }
 }

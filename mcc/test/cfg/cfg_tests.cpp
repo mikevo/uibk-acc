@@ -27,6 +27,22 @@ struct LiveSetGen {
     expected.at(destBb).insert(line->getTargetVariable());
   };
 };
+
+struct LiveRangeGen {
+  Cfg::variable_live_range_map_type expected;
+  mcc::tac::Tac& tac;
+
+  LiveRangeGen(mcc::tac::Tac& tac) : tac(tac){};
+
+  void addRange(unsigned varLineNo, unsigned beginLineNo, unsigned endLineNo) {
+    auto var = tac.codeLines.at(varLineNo)->getTargetVariable();
+    auto begin = tac.codeLines.begin() + beginLineNo;
+    auto end = tac.codeLines.begin() + endLineNo;
+
+    auto pair = std::make_pair(var, boost::make_iterator_range(begin, end));
+    expected.insert(pair);
+  };
+};
 }
 
 TEST(Cfg, Cfg) {
@@ -846,6 +862,57 @@ TEST(Cfg, LiveSetAfter) {
     for (auto const var : expected.expected.at(bbId)) {
       EXPECT_NE(liveSet.end(), liveSet.find(var));
     }
+  }
+}
+
+TEST(Cfg, LiveRange) {
+  auto tree = parser::parse(
+      R"(
+         {
+            int x=1;
+            float y = 3.0;
+
+            if(x > 0) {
+              while(y < 5.0) {
+                  y = y * 1.5;
+              }
+            } else {
+              while(y < 5.0) {
+                  while(y < 10.0) {
+                      y = y + 2.0;
+                  }
+              }
+            }
+
+            while(y < 10.0) {
+              y = y + 1.0;
+            }
+
+            int a = 0;
+         })");
+
+  mcc::tac::Tac tac = mcc::tac::Tac(tree);
+  auto graph = std::make_shared<Cfg>(tac);
+
+  auto liveRangeMap = graph->getVariableLiveRangeMap();
+
+  auto expected = helper::LiveRangeGen(tac);
+  expected.addRange(0, 1, 3);     // x0:1:0
+  expected.addRange(1, 2, 32);    // y0:1:0
+  expected.addRange(2, 3, 4);     // $t546
+  expected.addRange(5, 6, 7);     // $t549
+  expected.addRange(7, 8, 9);     // $t556
+  expected.addRange(14, 15, 16);  // $t559
+  expected.addRange(17, 18, 19);  // $t563
+  expected.addRange(19, 20, 21);  // $t572
+  expected.addRange(27, 28, 29);  // $t574
+  expected.addRange(29, 30, 31);  // $t579
+
+  EXPECT_EQ(expected.expected.size(), liveRangeMap.size());
+
+  for (auto& var : liveRangeMap) {
+    EXPECT_EQ(expected.expected.at(var.first).begin(), var.second.begin());
+    EXPECT_EQ(expected.expected.at(var.first).end(), var.second.end());
   }
 }
 
