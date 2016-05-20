@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 
+#include "boost/range/distance.hpp"
+
 #include "ast.h"
 #include "mcc/tac/type.h"
 #include "parser.h"
@@ -119,6 +121,53 @@ TEST(Function, FunctionRecursionTAC) {
 
   EXPECT_EQ(13, tac.codeLines.size());
   EXPECT_EQ(expectedValue, tac.toString());
+}
+
+TEST(Function, FunctionRangesTAC) {
+  auto tree = parser::parse(
+      R"(
+          int foobar(int arg1, int arg2) {
+            return arg1 + arg2;
+          }
+            
+            int main() {
+                foobar(3, 6);
+                return 0;
+            }
+        )");
+
+  Tac tac = Tac(tree);
+
+  std::stringstream sStream;
+  unsigned size = 0;
+
+  for (auto e : tac.getFunctionRangeMap()) {
+    sStream << e.first->getName() << std::endl;
+
+    size += boost::size(e.second);
+
+    for (auto &l : e.second) {
+      sStream << l->toString() << std::endl;
+    }
+  }
+
+  auto expected = R"(foobar
+LABEL foobar
+arg10:1:0 = POP
+arg20:1:0 = POP
+$t672 = arg10:1:0 + arg20:1:0
+RET $t672
+main
+LABEL main
+PUSH 6
+PUSH 3
+$t673 = CALL foobar
+RET 0
+)";
+
+  EXPECT_EQ(10, tac.codeLines.size());
+  EXPECT_EQ(tac.codeLines.size(), size);
+  EXPECT_EQ(expected, sStream.str());
 }
 }
 }

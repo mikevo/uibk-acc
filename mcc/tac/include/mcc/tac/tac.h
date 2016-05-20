@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#include "boost/range/irange.hpp"
+
 #include "ast.h"
 #include "mcc/tac/basic_block.h"
 #include "mcc/tac/label.h"
@@ -29,8 +31,12 @@ class Tac {
   typedef std::map<std::string, Label::ptr_t> function_map_type;
   typedef std::map<Label::ptr_t, std::set<unsigned>> function_return_map_type;
   typedef std::map<std::string, std::vector<Type>> function_prototype_map_type;
+  typedef std::vector<Triple::ptr_t>::iterator code_lines_iter;
+  typedef boost::iterator_range<code_lines_iter> code_lines_range;
 
  public:
+  typedef std::map<Label::ptr_t, code_lines_range> function_range_map_type;
+
   Tac(std::shared_ptr<ast::node> n);
 
   void addLine(Triple::ptr_t line);
@@ -57,6 +63,9 @@ class Tac {
   std::shared_ptr<function_prototype_map_type> getFunctionPrototypeMap();
 
   std::string toString() const;
+
+  function_range_map_type getFunctionRangeMap();
+
   std::vector<Triple::ptr_t> codeLines;
 
  private:

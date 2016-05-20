@@ -185,5 +185,35 @@ std::shared_ptr<Tac::function_prototype_map_type>
 Tac::getFunctionPrototypeMap() {
   return this->functionPrototypeMap;
 }
+
+Tac::function_range_map_type Tac::getFunctionRangeMap() {
+  function_range_map_type map;
+
+  code_lines_iter start = this->codeLines.begin();
+  Label::ptr_t currentLabel = std::static_pointer_cast<Label>(*start);
+
+  for (auto it = start + 1; it != this->codeLines.end(); ++it) {
+    if (helper::isType<Label>(*it)) {
+      auto label = std::static_pointer_cast<Label>(*it);
+
+      if (label->isFunctionEntry()) {
+        auto range = boost::make_iterator_range(start, it);
+        auto pair = std::make_pair(currentLabel, range);
+
+        map.insert(pair);
+
+        currentLabel = label;
+        start = it;
+      }
+    }
+  }
+
+  auto range = boost::make_iterator_range(start, this->codeLines.end());
+  auto pair = std::make_pair(currentLabel, range);
+
+  map.insert(pair);
+
+  return map;
+}
 }
 }
