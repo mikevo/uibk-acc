@@ -123,6 +123,7 @@ void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
 
   auto result = functionStackSpaceMap->find(functionLabel);
   if (result != functionStackSpaceMap->end()) {
+    // TODO this line alone should do the same functionality, or am I wrong?
     (*functionStackSpaceMap)[functionLabel] = stackSpace;
   } else {
     functionStackSpaceMap->insert(std::make_pair(functionLabel, stackSpace));
@@ -436,7 +437,7 @@ void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
 void Gas::convertLogicOperator(Triple::ptr_t triple) {
   auto operatorName = triple->getOperator().getName();
 
-  // use type of an argument becuase
+  // use type of an argument because
   switch (triple->getArg1()->getType()) {
     case Type::INT:
       convertIntLogicOperator(triple);
@@ -446,7 +447,7 @@ void Gas::convertLogicOperator(Triple::ptr_t triple) {
       break;
     default:
       std::cout << triple->getType() << std::endl;
-      assert(false && "Unhandled operator type in arithmetic conversion");
+      assert(false && "Unhandled operator type in logic conversion");
   }
 
   lastOperator = operatorName;
@@ -464,22 +465,50 @@ void Gas::convertIntLogicOperator(Triple::ptr_t triple) {
 }
 
 void Gas::convertFloatLogicOperator(Triple::ptr_t triple) {
-  pushOperandToFloatRegister(triple->getArg1());
-  pushOperandToFloatRegister(triple->getArg2());
+  // implementation little bit adapted from godbolt
+  auto operatorName = triple->getOperator().getName();
 
   // TODO calling this constructor creates LABEL operands, maybe this leads to
   // problems later
-  Operand::ptr_t op1 = std::make_shared<Operand>("st");
-  Operand::ptr_t op0 = std::make_shared<Operand>("st(0)");
-  Operand::ptr_t op2 = std::make_shared<Operand>("st(1)");
+  Operand::ptr_t st = std::make_shared<Operand>("st");
+  Operand::ptr_t st0 = std::make_shared<Operand>("st(0)");
+  Operand::ptr_t st1 = std::make_shared<Operand>("st(1)");
 
-  //  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::FXCH,
-  //  op2));
+  switch (operatorName) {
+    case OperatorName::EQ:
+    case OperatorName::NE:
+    case OperatorName::GT:
+    case OperatorName::GE:
+      pushOperandToFloatRegister(triple->getArg1());
+      pushOperandToFloatRegister(triple->getArg2());
+      break;
+    case OperatorName::LT:
+    case OperatorName::LE:
+      pushOperandToFloatRegister(triple->getArg2());
+      pushOperandToFloatRegister(triple->getArg1());
+      break;
+    default:
+      assert(false && "Unknown operator name in float logic conversion!");
+  }
+
+  switch (operatorName) {
+    case OperatorName::LT:
+    case OperatorName::LE:
+    case OperatorName::GT:
+    case OperatorName::GE:
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::FXCH, st1));
+      break;
+    default:
+      // ignore
+      break;
+  }
 
   asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::FCOMIP, op1, op2));
+      std::make_shared<Mnemonic>(Instruction::FUCOMIP, st, st1));
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::FSTP, st0));
 
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::FSTP, op0));
+  // jump handled later
 }
 
 void Gas::convertJump(Triple::ptr_t triple) {
@@ -496,6 +525,21 @@ void Gas::convertJump(Triple::ptr_t triple) {
 }
 
 void Gas::convertJumpFalse(Triple::ptr_t triple) {
+  auto condition = std::static_pointer_cast<Triple>(triple->getArg1());
+  switch (condition->getArg1()->getType()) {
+    case Type::INT:
+      convertIntJumpFalse(triple);
+      break;
+    case Type::FLOAT:
+      convertFloatJumpFalse(triple);
+      break;
+    default:
+      std::cout << triple->getType() << std::endl;
+      assert(false && "Unhandled operator type in logic conversion");
+  }
+}
+
+void Gas::convertIntJumpFalse(Triple::ptr_t triple) {
   if (triple->containsArg2()) {
     auto operand = triple->getArg2();
     if (helper::isType<Label>(operand)) {
@@ -525,6 +569,38 @@ void Gas::convertJumpFalse(Triple::ptr_t triple) {
         case OperatorName::GT:
           asmInstructions.push_back(
               std::make_shared<Mnemonic>(Instruction::JLE, asmLabel));
+          break;
+        default:
+          assert(false && "Unknown compare for jump false");
+      }
+    }
+  }
+}
+
+void Gas::convertFloatJumpFalse(Triple::ptr_t triple) {
+  if (triple->containsArg2()) {
+    auto operand = triple->getArg2();
+    if (helper::isType<Label>(operand)) {
+      auto label = std::static_pointer_cast<Label>(operand);
+      auto asmLabel = std::make_shared<Operand>(label->getName());
+      switch (lastOperator) {
+        case OperatorName::EQ:
+          asmInstructions.push_back(
+              std::make_shared<Mnemonic>(Instruction::JNE, asmLabel));
+          break;
+        case OperatorName::NE:
+          asmInstructions.push_back(
+              std::make_shared<Mnemonic>(Instruction::JE, asmLabel));
+          break;
+        case OperatorName::GE:
+        case OperatorName::LE:
+          asmInstructions.push_back(
+              std::make_shared<Mnemonic>(Instruction::JB, asmLabel));
+          break;
+        case OperatorName::GT:
+        case OperatorName::LT:
+          asmInstructions.push_back(
+              std::make_shared<Mnemonic>(Instruction::JBE, asmLabel));
           break;
         default:
           assert(false && "Unknown compare for jump false");
