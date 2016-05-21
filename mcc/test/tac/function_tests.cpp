@@ -154,19 +154,39 @@ TEST(Function, FunctionRangesTAC) {
     actual[e.first->getName()] = sStream.str();
   }
 
+  auto tempVarNames = std::vector<std::string>();
+  for (auto line : tac.codeLines) {
+    if (line->containsTargetVar()) {
+      auto targetVar = line->getTargetVariable();
+      if (targetVar->isTemporary()) {
+        tempVarNames.push_back(targetVar->getName());
+      }
+    }
+  }
+
+  auto tempVarIt = tempVarNames.begin();
+
   std::map<std::string, std::string> expected;
-  expected["foobar"] = R"(LABEL foobar
+  std::string fooExpect = R"(LABEL foobar
 arg10:1:0 = POP
 arg20:1:0 = POP
-$t710 = arg10:1:0 + arg20:1:0
-RET $t710
 )";
-  expected["main"] = R"(LABEL main
+  fooExpect.append(*tempVarIt);
+  fooExpect.append(R"( = arg10:1:0 + arg20:1:0
+RET )");
+  fooExpect.append(*tempVarIt++ + "\n");
+
+  expected["foobar"] = fooExpect;
+
+  std::string mainExpect = R"(LABEL main
 PUSH 6
 PUSH 3
-$t711 = CALL foobar
-RET 0
 )";
+  mainExpect.append(*tempVarIt++);
+  mainExpect.append(R"( = CALL foobar
+RET 0
+)");
+  expected["main"] = mainExpect;
 
   EXPECT_EQ(10, tac.codeLines.size());
   EXPECT_EQ(tac.codeLines.size(), size);

@@ -191,10 +191,12 @@ TEST(Gas, GasGeneration) {
   expected.append("\tpush eax\n");
   expected.append("\tcall print_int\n");
   expected.append("\tadd esp, 4\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 8]\n");
-  expected.append("\tmov edx, DWORD PTR .FC0\n");
-  expected.append("\tcmp eax, edx\n");
-  expected.append("\tjle " + *curLabel++ + "\n");
+  expected.append("\tfld DWORD PTR [ebp - 8]\n");
+  expected.append("\tfld DWORD PTR .FC0\n");
+  expected.append("\tfxch st(1)\n");
+  expected.append("\tfucomip st, st(1)\n");
+  expected.append("\tfstp st(0)\n");
+  expected.append("\tjbe " + *curLabel++ + "\n");
   expected.append("\tfld DWORD PTR [ebp - 8]\n");
   expected.append("\tfld DWORD PTR .FC1\n");
   expected.append("\tfsubp st(1), st\n");
