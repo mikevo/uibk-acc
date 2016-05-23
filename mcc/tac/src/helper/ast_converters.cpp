@@ -307,6 +307,9 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
     auto var = std::static_pointer_cast<Variable>(convertNode(
         t, std::make_shared<ast::decl_stmt>(param->paramVar, dummy)));
 
+    var->setTypeArgument();
+    t->addToVarTable(var);
+
     auto op = Operator(OperatorName::POP);
     auto varAssignment = std::make_shared<Triple>(op, var);
     varAssignment->setTargetVariable(var);

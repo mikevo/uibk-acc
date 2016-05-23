@@ -38,11 +38,14 @@ class BasicBlock {
   Variable::set_t getUeVar() const;
   Variable::set_t getDefVar() const;
 
+  bool isFunctionEntryPoint() const;
+
  private:
   std::vector<Triple::ptr_t> blockMembers;
   const unsigned id;
   Variable::set_t defVar;
   Variable::set_t ueVar;
+  bool isFunctionStart;
 };
 }
 }

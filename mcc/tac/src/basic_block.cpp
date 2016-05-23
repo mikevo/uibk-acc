@@ -11,7 +11,7 @@
 namespace mcc {
 namespace tac {
 
-BasicBlock::BasicBlock(const unsigned id) : id(id) {}
+BasicBlock::BasicBlock(const unsigned id) : id(id), isFunctionStart(false) {}
 
 Triple::ptr_t BasicBlock::getStart() { return this->front(); }
 
@@ -24,6 +24,14 @@ Triple::ptr_t BasicBlock::front() { return blockMembers.front(); }
 Triple::ptr_t BasicBlock::back() { return blockMembers.back(); }
 
 void BasicBlock::push_back(const Triple::ptr_t line) {
+  if (this->blockMembers.size() == 0) {
+    if (helper::isType<Label>(line)) {
+      auto label = std::static_pointer_cast<Label>(line);
+
+      this->isFunctionStart = label->isFunctionEntry();
+    }
+  }
+
   if (line->containsTargetVar()) {
     auto target = line->getTargetVariable();
     defVar.insert(target);
@@ -91,5 +99,7 @@ std::string BasicBlock::toString() const {
 Variable::set_t BasicBlock::getUeVar() const { return ueVar; }
 
 Variable::set_t BasicBlock::getDefVar() const { return defVar; }
+
+bool BasicBlock::isFunctionEntryPoint() const { return this->isFunctionStart; }
 }
 }

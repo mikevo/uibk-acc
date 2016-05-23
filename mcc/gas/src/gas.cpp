@@ -52,7 +52,7 @@ unsigned getSize(std::vector<mcc::tac::Type> argList) {
 }
 }
 
-Gas::Gas(Tac tac) {
+Gas::Gas(Tac& tac) {
   this->functionStackSpaceMap =
       std::make_shared<function_stack_space_map_type>();
   this->variableStackOffsetMap =

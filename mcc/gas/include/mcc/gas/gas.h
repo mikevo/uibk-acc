@@ -30,7 +30,7 @@ typedef std::map<std::string, std::string> constant_floats_map_type;
 
 class Gas {
  public:
-  Gas(Tac tac);
+  Gas(Tac& tac);
   std::shared_ptr<function_stack_space_map_type> getFunctionStackSpaceMap();
   std::shared_ptr<variable_stack_offset_map_type> getVariableStackOffsetMap();
   std::string toString() const;

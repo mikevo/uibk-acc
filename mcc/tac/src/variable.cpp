@@ -12,7 +12,7 @@ Variable::Variable(Type t) : Variable(t, "", std::make_shared<Scope>(0, 0)) {
 }
 
 Variable::Variable(Type t, std::string name, Scope::ptr_t scope, unsigned index)
-    : Operand(t), name(name), scope(scope), index(index) {
+    : Operand(t), name(name), scope(scope), index(index), isArg(false) {
   this->id = ++Variable::nextId;
 }
 
@@ -65,5 +65,9 @@ Scope::ptr_t const Variable::getScope() const {
 bool Variable::isTemporary() const {
   return (getName().find("$t") != std::string::npos);
 }
+
+void Variable::setTypeArgument() { this->isArg = true; }
+
+bool Variable::isArgument() const { return this->isArg; }
 }
 }

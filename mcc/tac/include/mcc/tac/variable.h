@@ -46,6 +46,8 @@ class Variable : public Operand {
   Scope::ptr_t const getScope() const;
   //  void setIndex(unsigned);
   bool isTemporary() const;
+  void setTypeArgument();
+  bool isArgument() const;
 
  private:
   std::string name;
@@ -53,6 +55,7 @@ class Variable : public Operand {
   unsigned index;
   static unsigned nextId;
   unsigned id;
+  bool isArg;
 };
 }
 }

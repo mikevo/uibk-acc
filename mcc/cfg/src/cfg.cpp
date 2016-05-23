@@ -22,7 +22,7 @@ Cfg::Cfg(mcc::tac::Tac &tac)
       variableStore(tac.getVariableStore()),
       tac(tac) {
   for (auto const var : *tac.getVariableStore().get()) {
-    variableSet.insert(var);
+    if (!var->isArgument()) variableSet.insert(var);
   }
 
   for (auto const block : *basicBlockIndex.get()) {
