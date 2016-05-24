@@ -227,7 +227,7 @@ void Gas::convertTac(Tac& tac) {
         break;
 
       case OperatorName::PUSH:
-        convertUnary(triple, Instruction::PUSH);
+        convertPush(triple);
         break;
 
       case OperatorName::POP:
@@ -611,6 +611,34 @@ void Gas::convertFloatJumpFalse(Triple::ptr_t triple) {
     }
   }
 }
+
+ void Gas::convertPush(Triple::ptr_t triple) {
+      if (triple->getType() == Type::FLOAT) {
+        convertUnary(triple, Instruction::PUSH);
+      } else {
+           if (triple->containsArg1()) {
+            auto op = triple->getArg1();
+
+            if (helper::isType<IntLiteral>(op)) {
+              auto intOp = std::static_pointer_cast<IntLiteral>(op);
+              auto asmInt = std::make_shared<Operand>(std::to_string(intOp->value));
+
+              asmInstructions.push_back(
+                  std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
+
+            } else if (helper::isType<Variable>(op)) {
+              auto variableOp = std::static_pointer_cast<Variable>(op);
+              unsigned varOffset = lookupVariableStackOffset(variableOp);
+              auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+              asmInstructions.push_back(
+                  std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
+            }
+          }
+       
+
+      }
+ }
 
 void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
   if (i == Instruction::NEG && triple->getType() == Type::FLOAT) {

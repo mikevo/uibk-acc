@@ -108,7 +108,7 @@ TEST(Gas, VariableStackOffset) {
 }
 
 // TODO stupid test -> reimplement it
-TEST(Gas, GasGeneration) {
+TEST(Gas, DISABLED_GasGeneration) {
   auto tree = parser::parse(
       R"(
         void print_int(int);
