@@ -14,6 +14,9 @@
 #include "mcc/tac/tac.h"
 #include "mcc/tac/variable.h"
 
+namespace mcc {
+namespace gas {
+
 class RegisterManager {
   typedef mcc::tac::Variable::ptr_t Vertex;
   typedef boost::adjacency_list<boost::setS, boost::setS, boost::undirectedS,
@@ -31,5 +34,7 @@ class RegisterManager {
  private:
   function_graph_map_type functionGraphMap;
 };
+}
+}
 
 #endif /* INCLUDES_MCC_GAS_REGISTER_MANAGER_H_ */

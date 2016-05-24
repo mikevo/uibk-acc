@@ -8,6 +8,9 @@
 
 #include "mcc/cfg/cfg.h"
 
+namespace mcc {
+namespace gas {
+
 RegisterManager::RegisterManager(mcc::tac::Tac &tac) {
   auto cfg = mcc::cfg::Cfg(tac);
 
@@ -32,4 +35,6 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac) {
 
     this->functionGraphMap.insert(std::make_pair(range.first, interference));
   }
+}
+}
 }

@@ -22,7 +22,7 @@ Cfg::Cfg(mcc::tac::Tac &tac)
       variableStore(tac.getVariableStore()),
       tac(tac) {
   for (auto const var : *tac.getVariableStore().get()) {
-    if (!var->isArgument()) variableSet.insert(var);
+    variableSet.insert(var);
   }
 
   for (auto const block : *basicBlockIndex.get()) {
@@ -82,16 +82,12 @@ Cfg::Cfg(mcc::tac::Tac &tac)
 
     auto op = line->getOperator();
 
-    if (op.getName() == mcc::tac::OperatorName::JUMP ||
-        op.getName() == mcc::tac::OperatorName::CALL) {
+    if (op.getName() == mcc::tac::OperatorName::JUMP) {
       if (mcc::tac::helper::isType<mcc::tac::Label>(line->getArg1())) {
         auto label = std::static_pointer_cast<mcc::tac::Label>(line->getArg1());
 
         boost::add_edge(line->getBasicBlockId(), label->getBasicBlockId(),
                         graph);
-
-        // prepare to add return edges
-        returnBbIdSet = tac.lookupFunctionReturn(label);
 
         alreadyHandled = true;
       } else {

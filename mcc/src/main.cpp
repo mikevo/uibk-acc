@@ -107,4 +107,10 @@ int main(int argc, char **argv) {
   gccCall.append(" -m32");
 
   std::system(gccCall.c_str());
+
+  std::ofstream dot;
+
+  dot.open("/tmp/g.dot");
+  dot << graph->toDot() << std::endl;
+  dot.close();
 }

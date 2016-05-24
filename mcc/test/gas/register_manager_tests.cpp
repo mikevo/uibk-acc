@@ -5,7 +5,10 @@
 #include "parser.h"
 #include "mcc/tac/tac.h"
 
-TEST(RegisterManager, DISABLED_InterfernceGraph) {
+namespace mcc {
+namespace gas {
+
+TEST(RegisterManager, InterfernceGraph) {
   auto tree = parser::parse(
       R"(
            void bar(int arg1);
@@ -29,4 +32,6 @@ TEST(RegisterManager, DISABLED_InterfernceGraph) {
 
   mcc::tac::Tac tac = mcc::tac::Tac(tree);
   RegisterManager regMan = RegisterManager(tac);
+}
+}
 }
