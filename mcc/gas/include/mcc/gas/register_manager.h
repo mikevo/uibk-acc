@@ -42,14 +42,30 @@ class RegisterManager {
   // key: function label, value: number of colors
   typedef std::map<mcc::tac::Label::ptr_t, unsigned> num_colors_map_type;
 
+  typedef std::pair<mcc::tac::Tac::code_lines_iter, VertexDescriptor>
+      iter_descr_pair_type;
+
+  typedef std::map<Vertex, std::vector<iter_descr_pair_type>,
+                   mcc::tac::Variable::less>
+      vertex_range_map_type;
+
+  typedef std::map<mcc::tac::Label::ptr_t, vertex_range_map_type,
+                   mcc::tac::Label::less>
+      function_descr_map_type;
+
  public:
   typedef std::shared_ptr<RegisterManager> ptr_t;
 
   RegisterManager(mcc::tac::Tac &tac);
 
   function_graph_map_type getFunctionGraphMap();
+
   std::shared_ptr<num_colors_map_type> getNumColorsMap();
   std::shared_ptr<function_graph_color_map_type> getFunctionGraphColorsMap();
+
+  VertexDescriptor lookupVertexDescr(mcc::tac::Label::ptr_t functionLabel,
+                                     Vertex vertex,
+                                     mcc::tac::Tac::code_lines_iter it) const;
 
   std::string toDot(std::string fucntionName) const;
   std::string toDot(mcc::tac::Label::ptr_t functionLabel) const;
@@ -70,6 +86,7 @@ class RegisterManager {
   std::shared_ptr<function_graph_color_map_type> functionGraphColorsMap;
   // key: function label, value: number of colors
   std::shared_ptr<num_colors_map_type> numColorsMap;
+  function_descr_map_type functionDescriptorMap;
 };
 }
 }

@@ -24,26 +24,29 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac) : tac(tac) {
 
   for (auto range : tac.getFunctionRangeMap()) {
     Graph interference;
-    std::map<Vertex, VertexDescriptor, mcc::tac::Variable::less> vertexMap;
+    RegisterManager::vertex_range_map_type vertexMap;
 
-    for (auto loc : range.second) {
+    for (auto it = range.second.begin(); it < range.second.end(); ++it) {
+      auto loc = *it;
+
       if (loc->containsTargetVar()) {
         auto defVar = loc->getTargetVariable();
+        auto vt = boost::add_vertex(defVar, interference);
+        auto pair = std::make_pair(it, vt);
 
         auto result = vertexMap.find(defVar);
 
-        RegisterManager::VertexDescriptor vt;
-
         if (result != vertexMap.end()) {
-          vt = result->second;
+          result->second.push_back(pair);
         } else {
-          vt = boost::add_vertex(defVar, interference);
+          std::vector<RegisterManager::iter_descr_pair_type> vec;
+          vec.push_back(pair);
+          vertexMap.insert(std::make_pair(defVar, vec));
         }
-        vertexMap.insert(std::make_pair(defVar, vt));
 
         for (auto var : cfg.liveSetAt(loc, false)) {
           // targetVar interferes with var
-          boost::add_edge(vt, vertexMap.at(var), interference);
+          boost::add_edge(vt, vertexMap.at(var).back().second, interference);
         }
       }
     }
@@ -65,6 +68,20 @@ RegisterManager::getNumColorsMap() {
 std::shared_ptr<RegisterManager::function_graph_color_map_type>
 RegisterManager::getFunctionGraphColorsMap() {
   return this->functionGraphColorsMap;
+}
+
+RegisterManager::VertexDescriptor RegisterManager::lookupVertexDescr(
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
+    mcc::tac::Tac::code_lines_iter it) const {
+  auto vertexDescrMap = this->functionDescriptorMap.at(functionLabel);
+  auto vec = vertexDescrMap.at(vertex);
+
+  for (auto vIt = vec.begin(); vIt < vec.end(); ++vIt) {
+    if ((*vIt).first == it) return (*vIt).second;
+  }
+
+  assert(false && "Vertex descriptor not found");
+  return 0;
 }
 
 std::string RegisterManager::toDot(std::string fucntionName) const {

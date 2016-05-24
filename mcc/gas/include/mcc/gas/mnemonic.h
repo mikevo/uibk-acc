@@ -21,6 +21,7 @@ class Mnemonic {
   Mnemonic(Instruction instruction, Operand::ptr_t opOne);
   Mnemonic(Instruction instruction, Operand::ptr_t opOne, Operand::ptr_t opTwo);
   Mnemonic(std::string labelName);
+  Instruction getInstruction();
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Mnemonic& mnemonic);
