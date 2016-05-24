@@ -23,7 +23,16 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac) : tac(tac) {
     for (auto loc : range.second) {
       if (loc->containsTargetVar()) {
         auto defVar = loc->getTargetVariable();
-        auto vt = boost::add_vertex(defVar, interference);
+
+        auto result = vertexMap.find(defVar);
+
+        RegisterManager::VertexDescriptor vt;
+
+        if (result != vertexMap.end()) {
+          vt = result->second;
+        } else {
+          vt = boost::add_vertex(defVar, interference);
+        }
         vertexMap.insert(std::make_pair(defVar, vt));
 
         for (auto var : cfg.liveSetAt(loc, false)) {

@@ -17,29 +17,12 @@
 #include "boost/graph/adjacency_list.hpp"
 #include "boost/graph/graphviz.hpp"
 
-struct Name {
-  std::string operator()(mcc::tac::Variable::ptr_t const &sp) const {
-    return sp->toString();
-  }
-};
-
-// struct varSetS { }; // your selector
-//
-// namespace boost {
-//  template <class Comp, class ValueType>
-//  struct container_gen<varSetS<Comp>, ValueType>
-//  {
-//    typedef typename Comp::template rebind<ValueType>::other Comp;
-//    typedef std::list<ValueType, Comp> type;
-//  };
-//}
-
 namespace mcc {
 namespace gas {
 
 class RegisterManager {
   typedef mcc::tac::Variable::ptr_t Vertex;
-  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS,
+  typedef boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
                                 Vertex> Graph;
   typedef boost::graph_traits<Graph>::vertex_descriptor VertexDescriptor;
 
