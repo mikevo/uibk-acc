@@ -72,6 +72,7 @@ class Gas {
   void restoreRegisters(std::initializer_list<Register> list);
   void prepareCall(Label::ptr_t label);
   void cleanUpCall(Label::ptr_t label);
+  void createFunctionProlog(Label::ptr_t label);
 
   void convertLabel(Triple::ptr_t triple);
   void convertReturn(Triple::ptr_t triple);

@@ -252,29 +252,11 @@ void Gas::convertLabel(Triple::ptr_t triple) {
 
   // Add function entry
   if (labelTriple->isFunctionEntry()) {
-    currentFunction = labelTriple;
-
-    auto ebp = std::make_shared<Operand>(Register::EBP);
-    auto esp = std::make_shared<Operand>(Register::ESP);
-
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::PUSH, ebp));
-
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
-
-    unsigned stackSize = lookupFunctionStackSize(labelTriple);
-
-    // Do we need space for temporaries?
-    if (stackSize > 0) {
-      auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::SUB, esp, stackspaceOp));
-
-      // Make space on stack for variables
+        currentFunction = labelTriple;
+        createFunctionProlog(labelTriple);
     }
-  }
 }
+
 
 void Gas::convertCall(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
@@ -313,19 +295,23 @@ void Gas::convertReturn(Triple::ptr_t triple) {
   }
 
   unsigned stackSize = lookupFunctionStackSize(currentFunction);
+  auto esp = std::make_shared<Operand>(Register::ESP);
+  auto ebp = std::make_shared<Operand>(Register::EBP);
 
   // Cleanup stack
   if (stackSize > 0) {
     auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
-    auto esp = std::make_shared<Operand>(Register::ESP);
+   
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
   }
-
-  auto ebp = std::make_shared<Operand>(Register::EBP);
+  
+  restoreRegisters({Register::ESI, Register::EDI, Register::EBX});
+  
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::MOV, esp, ebp));
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::POP, ebp));
-
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::RET));
+  
 }
 
 void Gas::convertAssign(Triple::ptr_t triple) {
@@ -774,17 +760,10 @@ void Gas::restoreRegisters(std::initializer_list<Register> list) {
 }
 
 void Gas::prepareCall(Label::ptr_t label) {
-    std::vector<Mnemonic::ptr_t>::iterator it = asmInstructions.end();
     
-    while(it != asmInstructions.begin()) {
-        --it;
-        if((*it)->getInstruction() != Instruction::PUSH) {
-            ++it;
-            break;
-        }
-    }
-    
-    unsigned pos = std::distance(asmInstructions.begin(), it);
+    //TODO find better solution
+    unsigned argSize = lookupFunctionArgSize(label);
+    unsigned pos = asmInstructions.size() - argSize / 4;
     storeRegisters({Register::EAX, Register::ECX, Register::EDX}, pos);
 
 }
@@ -804,6 +783,30 @@ void Gas::cleanUpCall(Label::ptr_t label) {
       
       //Restore registers
       restoreRegisters({Register::EDX, Register::ECX, Register::EAX});
+}
+
+void Gas::createFunctionProlog(Label::ptr_t label) {
+    auto ebp = std::make_shared<Operand>(Register::EBP);
+    auto esp = std::make_shared<Operand>(Register::ESP);
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::PUSH, ebp));
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
+
+    unsigned stackSize = lookupFunctionStackSize(label);
+
+    // Do we need space for temporaries on the stack?
+    if (stackSize > 0) {
+      auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
+      asmInstructions.push_back(
+          std::make_shared<Mnemonic>(Instruction::SUB, esp, stackspaceOp));
+    }
+    
+    //Store callee saved registers
+    unsigned pos = asmInstructions.size();
+    storeRegisters({Register::EBX, Register::EDI, Register::ESI}, pos);
 }
 
 std::string Gas::toString() const {
