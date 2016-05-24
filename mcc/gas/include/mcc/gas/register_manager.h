@@ -29,12 +29,27 @@ class RegisterManager {
   typedef std::map<mcc::tac::Label::ptr_t, Graph, mcc::tac::Label::less>
       function_graph_map_type;
 
+  typedef boost::property_map<Graph, boost::vertex_index_t>::const_type
+      vertex_index_map;
+  typedef boost::graph_traits<Graph>::vertices_size_type vertices_size_type;
+  // key: vertex descriptor, value: color index
+  typedef std::map<RegisterManager::VertexDescriptor, unsigned>
+      graph_color_map_type;
+  // key: function label, value: color map (see above)
+  typedef std::map<mcc::tac::Label::ptr_t,
+                   std::shared_ptr<graph_color_map_type>>
+      function_graph_color_map_type;
+  // key: function label, value: number of colors
+  typedef std::map<mcc::tac::Label::ptr_t, unsigned> num_colors_map_type;
+
  public:
   typedef std::shared_ptr<RegisterManager> ptr_t;
 
   RegisterManager(mcc::tac::Tac &tac);
 
   function_graph_map_type getFunctionGraphMap();
+  std::shared_ptr<num_colors_map_type> getNumColorsMap();
+  std::shared_ptr<function_graph_color_map_type> getFunctionGraphColorsMap();
 
   std::string toDot(std::string fucntionName) const;
   std::string toDot(mcc::tac::Label::ptr_t functionLabel) const;
@@ -42,9 +57,19 @@ class RegisterManager {
   void storeDot(std::string fileName,
                 mcc::tac::Label::ptr_t functionLabel) const;
 
+  void graphColoring();
+  unsigned graphColoring(std::string fucntionName);
+  unsigned graphColoring(mcc::tac::Label::ptr_t functionLabel);
+  unsigned graphColoring(Graph graph,
+                         std::shared_ptr<graph_color_map_type> colors);
+
  private:
   mcc::tac::Tac &tac;
   function_graph_map_type functionGraphMap;
+  // key: function label, value: color map (see above)
+  std::shared_ptr<function_graph_color_map_type> functionGraphColorsMap;
+  // key: function label, value: number of colors
+  std::shared_ptr<num_colors_map_type> numColorsMap;
 };
 }
 }
