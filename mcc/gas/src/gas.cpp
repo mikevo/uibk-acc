@@ -621,7 +621,7 @@ void Gas::convertFloatJumpFalse(Triple::ptr_t triple) {
 
             if (helper::isType<IntLiteral>(op)) {
               auto intOp = std::static_pointer_cast<IntLiteral>(op);
-              auto asmInt = std::make_shared<Operand>(std::to_string(intOp->value));
+              auto asmInt = std::make_shared<Operand>(intOp->getValue());
 
               asmInstructions.push_back(
                   std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
@@ -633,11 +633,19 @@ void Gas::convertFloatJumpFalse(Triple::ptr_t triple) {
 
               asmInstructions.push_back(
                   std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
-            }
+            } else if (helper::isType<Triple>(op)) {
+              auto tripleOp = std::static_pointer_cast<Triple>(op);
+              unsigned varOffset = lookupVariableStackOffset(tripleOp->getTargetVariable());
+              auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+              
+               asmInstructions.push_back(
+                  std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
+            
           }
        
 
       }
+ }
  }
 
 void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
@@ -776,20 +784,6 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas) {
   return os;
 }
 
-  void Gas::storeRegisters(std::initializer_list<Register> list) {
-      for(auto reg : list) {
-        auto regOp = std::make_shared<Operand>(reg);
-        asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::PUSH, regOp));
-      }
-  }
-  
-  void Gas::restoreRegisters(std::initializer_list<Register> list) {
-      for(auto reg : list) {
-        auto regOp = std::make_shared<Operand>(reg);
-        asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::POP, regOp));
-      }
-  }
+
 }
 }
