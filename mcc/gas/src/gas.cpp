@@ -172,7 +172,7 @@ unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
 
 void Gas::convertTac(Tac& tac) {
   this->analyzeTac(tac);
-   for (auto triple : tac.codeLines) {
+  for (auto triple : tac.codeLines) {
     auto op = triple->getOperator();
 
     switch (op.getName()) {
@@ -264,27 +264,24 @@ void Gas::convertCall(Triple::ptr_t triple) {
     if (helper::isType<Label>(operand)) {
       auto label = std::static_pointer_cast<Label>(operand);
       auto asmLabel = std::make_shared<Operand>(label->getName());
-      
+
       prepareCall(label);
-      
+
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::CALL, asmLabel));
-      
+
       // Assign result to variable
       if (triple->containsTargetVar()) {
-         auto destVar = triple->getTargetVariable();
-         if (getSize(destVar) > 0) {
-             auto result = std::make_shared<Operand>(Register::EAX);
-            this->storeVariableFromRegister(destVar, result);
-         }
+        auto destVar = triple->getTargetVariable();
+        if (getSize(destVar) > 0) {
+          auto result = std::make_shared<Operand>(Register::EAX);
+          this->storeVariableFromRegister(destVar, result);
+        }
       }
-      
+
       cleanUpCall(label);
-      
     }
   }
-
-  
 }
 
 void Gas::convertReturn(Triple::ptr_t triple) {
@@ -735,54 +732,51 @@ Operand::ptr_t Gas::getAsmVar(Variable::ptr_t var) {
 }
 
 std::vector<Mnemonic::ptr_t>& Gas::getAsmInstructions() {
-    return asmInstructions;
+  return asmInstructions;
 }
 
 void Gas::storeRegisters(std::initializer_list<Register> list, unsigned pos) {
-    
-     std::vector<Mnemonic::ptr_t>::iterator it = asmInstructions.begin() + pos;
-     std::vector<Mnemonic::ptr_t> storeOperations;
-    
-      for(auto reg : list) {
-        auto regOp = std::make_shared<Operand>(reg);
-        storeOperations.push_back(std::make_shared<Mnemonic>(Instruction::PUSH, regOp));
-      }
-     
-     asmInstructions.insert(it, storeOperations.begin(), storeOperations.end());
+  std::vector<Mnemonic::ptr_t>::iterator it = asmInstructions.begin() + pos;
+  std::vector<Mnemonic::ptr_t> storeOperations;
+
+  for (auto reg : list) {
+    auto regOp = std::make_shared<Operand>(reg);
+    storeOperations.push_back(
+        std::make_shared<Mnemonic>(Instruction::PUSH, regOp));
   }
-  
+
+  asmInstructions.insert(it, storeOperations.begin(), storeOperations.end());
+}
+
 void Gas::restoreRegisters(std::initializer_list<Register> list) {
-      for(auto reg : list) {
-        auto regOp = std::make_shared<Operand>(reg);
-        asmInstructions.push_back(
+  for (auto reg : list) {
+    auto regOp = std::make_shared<Operand>(reg);
+    asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::POP, regOp));
-     }
+  }
 }
 
 void Gas::prepareCall(Label::ptr_t label) {
-    
     //TODO find better solution
     unsigned argSize = lookupFunctionArgSize(label);
     unsigned pos = asmInstructions.size() - argSize / 4;
     storeRegisters({Register::EAX, Register::ECX, Register::EDX}, pos);
-
 }
 
 void Gas::cleanUpCall(Label::ptr_t label) {
-    
-      // Cleanup stack
-      unsigned argSize = lookupFunctionArgSize(label);
+  // Cleanup stack
+  unsigned argSize = lookupFunctionArgSize(label);
 
-      if (argSize > 0) {
-        auto esp = std::make_shared<Operand>(Register::ESP);
-        auto stackspaceOp = std::make_shared<Operand>(std::to_string(argSize));
+  if (argSize > 0) {
+    auto esp = std::make_shared<Operand>(Register::ESP);
+    auto stackspaceOp = std::make_shared<Operand>(std::to_string(argSize));
 
-        asmInstructions.push_back(
-            std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
-      }
-      
-      //Restore registers
-      restoreRegisters({Register::EDX, Register::ECX, Register::EAX});
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
+  }
+
+  // Restore registers
+  restoreRegisters({Register::EDX, Register::ECX, Register::EAX});
 }
 
 void Gas::createFunctionProlog(Label::ptr_t label) {

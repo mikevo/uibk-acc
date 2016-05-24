@@ -37,7 +37,6 @@ class Gas {
   std::string toString() const;
 
   friend std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas);
-  
 
  private:
   //  std::shared_ptr<function_map_type> functionMap;
@@ -67,8 +66,8 @@ class Gas {
   void pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op);
   Operand::ptr_t getAsmVar(Variable::ptr_t var);
   std::pair<std::string, std::string> createFloatConstant(std::string value);
-  
-  void storeRegisters(std::initializer_list<Register> list,  unsigned pos);
+
+  void storeRegisters(std::initializer_list<Register> list, unsigned pos);
   void restoreRegisters(std::initializer_list<Register> list);
   void prepareCall(Label::ptr_t label);
   void cleanUpCall(Label::ptr_t label);
