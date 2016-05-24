@@ -33,9 +33,11 @@ class Gas {
   Gas(Tac& tac);
   std::shared_ptr<function_stack_space_map_type> getFunctionStackSpaceMap();
   std::shared_ptr<variable_stack_offset_map_type> getVariableStackOffsetMap();
+  std::vector<Mnemonic::ptr_t>& getAsmInstructions();
   std::string toString() const;
 
   friend std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas);
+  
 
  private:
   //  std::shared_ptr<function_map_type> functionMap;
@@ -65,6 +67,11 @@ class Gas {
   void pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op);
   Operand::ptr_t getAsmVar(Variable::ptr_t var);
   std::pair<std::string, std::string> createFloatConstant(std::string value);
+  
+  void storeRegisters(std::initializer_list<Register> list,  unsigned pos);
+  void restoreRegisters(std::initializer_list<Register> list);
+  void prepareCall(Label::ptr_t label);
+  void cleanUpCall(Label::ptr_t label);
 
   void convertLabel(Triple::ptr_t triple);
   void convertReturn(Triple::ptr_t triple);

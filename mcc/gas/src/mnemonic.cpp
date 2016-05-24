@@ -43,5 +43,9 @@ std::ostream& operator<<(std::ostream& os,
 
   return os;
 }
+
+ Instruction Mnemonic::getInstruction() {
+     return mInstruction;
+ }
 }
 }

@@ -73,5 +73,8 @@ void RegisterManager::storeDot(std::string fileName,
   outf << this->toDot(functionLabel);
   outf.close();
 }
+
+
+  
 }
 }
