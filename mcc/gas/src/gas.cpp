@@ -283,6 +283,8 @@ void Gas::convertCall(Triple::ptr_t triple) {
     if (helper::isType<Label>(operand)) {
       auto label = std::static_pointer_cast<Label>(operand);
       auto asmLabel = std::make_shared<Operand>(label->getName());
+      
+      
 
       asmInstructions.push_back(
           std::make_shared<Mnemonic>(Instruction::CALL, asmLabel));
@@ -297,6 +299,7 @@ void Gas::convertCall(Triple::ptr_t triple) {
         asmInstructions.push_back(
             std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
       }
+      
     }
   }
 
@@ -744,5 +747,21 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas) {
 
   return os;
 }
+
+  void Gas::storeRegisters(std::initializer_list<Register> list) {
+      for(auto reg : list) {
+        auto regOp = std::make_shared<Operand>(reg);
+        asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::PUSH, regOp));
+      }
+  }
+  
+  void Gas::restoreRegisters(std::initializer_list<Register> list) {
+      for(auto reg : list) {
+        auto regOp = std::make_shared<Operand>(reg);
+        asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::POP, regOp));
+      }
+  }
 }
 }
