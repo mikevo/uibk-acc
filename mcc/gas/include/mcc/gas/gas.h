@@ -90,9 +90,6 @@ class Gas {
   void convertNot(Triple::ptr_t triple);
   void convertUnary(Triple::ptr_t triple, Instruction i);
   void convertFloatMinus(Triple::ptr_t triple);
-  
-  void storeRegisters(std::initializer_list<Register> list);
-  void restoreRegisters(std::initializer_list<Register> list);
 };
 }
 }
