@@ -127,8 +127,8 @@ std::string Cfg::toDot() const {
 
 void Cfg::storeDot(std::string fileName) const {
   std::ofstream outf(fileName);
-
   outf << toDot();
+  outf.close();
 }
 
 void Cfg::calculateDOM() {
