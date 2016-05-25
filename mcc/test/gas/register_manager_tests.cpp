@@ -95,6 +95,7 @@ TEST(RegisterManager, InterfernceGraph) {
 }
 
 TEST(RegisterManager, GraphColoringNumColors) {
+  // TODO re-implement
   auto tree = parser::parse(
       R"(
            void bar(int arg1);
@@ -128,9 +129,9 @@ TEST(RegisterManager, GraphColoringNumColors) {
   auto mainLabel = tac.lookupFunction(main);
 
   // test for function using strings
-  auto fooNumCol = regMan.graphColoring(foo);
-  auto barNumCol = regMan.graphColoring(bar);
-  auto mainNumCol = regMan.graphColoring(main);
+  auto fooNumCol = regMan.graphColoring(foo, 2);
+  auto barNumCol = regMan.graphColoring(bar, 2);
+  auto mainNumCol = regMan.graphColoring(main, 2);
 
   auto numColorMap = regMan.getNumColorsMap();
 
@@ -146,9 +147,9 @@ TEST(RegisterManager, GraphColoringNumColors) {
   // test for function using labels
   numColorMap->clear();
 
-  fooNumCol = regMan.graphColoring(fooLabel);
-  barNumCol = regMan.graphColoring(barLabel);
-  mainNumCol = regMan.graphColoring(mainLabel);
+  fooNumCol = regMan.graphColoring(fooLabel, 2);
+  barNumCol = regMan.graphColoring(barLabel, 2);
+  mainNumCol = regMan.graphColoring(mainLabel, 2);
 
   EXPECT_EQ(2, fooNumCol);
   EXPECT_EQ(2, barNumCol);
@@ -162,7 +163,7 @@ TEST(RegisterManager, GraphColoringNumColors) {
   // test for function calling subsequent functions for each function label
   numColorMap->clear();
 
-  regMan.graphColoring();
+  regMan.graphColoring(2);
 
   EXPECT_EQ(3, numColorMap->size());
   EXPECT_EQ(2, numColorMap->at(fooLabel));
@@ -171,6 +172,7 @@ TEST(RegisterManager, GraphColoringNumColors) {
 }
 
 TEST(RegisterManager, GraphColoringColors) {
+  // TODO re-implement
   auto tree = parser::parse(
       R"(
            void bar(int arg1);
@@ -206,9 +208,9 @@ TEST(RegisterManager, GraphColoringColors) {
   // test for function using strings
   auto functionGraphColorsMap = regMan.getFunctionGraphColorsMap();
 
-  regMan.graphColoring(foo);
-  regMan.graphColoring(bar);
-  regMan.graphColoring(main);
+  regMan.graphColoring(foo, 2);
+  regMan.graphColoring(bar, 2);
+  regMan.graphColoring(main, 2);
 
   EXPECT_EQ(3, functionGraphColorsMap->size());
 
@@ -245,9 +247,9 @@ TEST(RegisterManager, GraphColoringColors) {
   // test for function using labels
   functionGraphColorsMap->clear();
 
-  regMan.graphColoring(fooLabel);
-  regMan.graphColoring(barLabel);
-  regMan.graphColoring(mainLabel);
+  regMan.graphColoring(fooLabel, 2);
+  regMan.graphColoring(barLabel, 2);
+  regMan.graphColoring(mainLabel, 2);
 
   EXPECT_EQ(3, functionGraphColorsMap->size());
 
@@ -281,7 +283,7 @@ TEST(RegisterManager, GraphColoringColors) {
   // test for function calling subsequent functions for each function label
   functionGraphColorsMap->clear();
 
-  regMan.graphColoring();
+  regMan.graphColoring(2);
 
   EXPECT_EQ(3, functionGraphColorsMap->size());
 

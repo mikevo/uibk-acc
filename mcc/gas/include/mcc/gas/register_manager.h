@@ -71,11 +71,12 @@ class RegisterManager {
   void storeDot(std::string fileName,
                 mcc::tac::Label::ptr_t functionLabel) const;
 
-  void graphColoring();
-  unsigned graphColoring(std::string fucntionName);
-  unsigned graphColoring(mcc::tac::Label::ptr_t functionLabel);
+  void graphColoring(unsigned n);
+  unsigned graphColoring(std::string fucntionName, unsigned n);
+  unsigned graphColoring(mcc::tac::Label::ptr_t functionLabel, unsigned n);
   unsigned graphColoring(Graph graph,
-                         std::shared_ptr<graph_color_map_type> colors);
+                         std::shared_ptr<graph_color_map_type> colors,
+                         unsigned n);
 
  private:
   mcc::tac::Tac &tac;
