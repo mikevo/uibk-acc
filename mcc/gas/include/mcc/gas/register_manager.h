@@ -46,12 +46,10 @@ class RegisterManager {
       iter_descr_pair_type;
 
   typedef std::map<Vertex, std::vector<iter_descr_pair_type>,
-                   mcc::tac::Variable::less>
-      vertex_range_map_type;
+                   mcc::tac::Variable::less> vertex_range_map_type;
 
   typedef std::map<mcc::tac::Label::ptr_t, vertex_range_map_type,
-                   mcc::tac::Label::less>
-      function_descr_map_type;
+                   mcc::tac::Label::less> function_descr_map_type;
 
  public:
   typedef std::shared_ptr<RegisterManager> ptr_t;
