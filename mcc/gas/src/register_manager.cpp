@@ -76,8 +76,8 @@ RegisterManager::VertexDescriptor RegisterManager::lookupVertexDescr(
   auto vertexDescrMap = this->functionDescriptorMap.at(functionLabel);
   auto vec = vertexDescrMap.at(vertex);
 
-  for (auto vIt = vec.begin(); vIt < vec.end(); ++vIt) {
-    if ((*vIt).first == it) return (*vIt).second;
+  for (auto vIt = vec.rbegin(); vIt < vec.rend(); ++vIt) {
+    if ((*(vIt.base())).first < it) return (*vIt).second;
   }
 
   assert(false && "Vertex descriptor not found");
