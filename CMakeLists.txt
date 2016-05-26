@@ -7,6 +7,9 @@ set(Boost_INCLUDE_DIR "boost/")
 
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
+SET(CMAKE_C_COMPILER "/usr/bin/clang")
+SET(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+
 add_subdirectory(libmc)
 add_subdirectory(mcc)
 

@@ -42,12 +42,14 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n);
 
 template <typename T>
 bool isType(const AstNode n) {
-  return (typeid(*n.get()) == typeid(T));
+  auto &node = *n.get();
+  return (typeid(node) == typeid(T));
 }
 
 template <typename T>
 bool isType(const Operand::ptr_t n) {
-  return (typeid(*n.get()) == typeid(T));
+  auto &node = *n.get();
+  return (typeid(node) == typeid(T));
 }
 
 template <typename T>

@@ -74,7 +74,8 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
 
   // Debugging output; this is only printed if something goes terribly
   // wrong
-  std::cout << typeid(*n.get()).name() << std::endl;
+  auto &node = *n.get();
+  std::cout << typeid(node).name() << std::endl;
   assert(false && "Unknown node type");
   return nullptr;
 }
@@ -363,8 +364,8 @@ Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
   }
 
   ast::expr_list::reverse_iterator revIt = functionCall->arguments.rbegin();
-  ast::param_list::reverse_iterator revItParam =
-      functionCall->function->parameters.rbegin();
+  // ast::param_list::reverse_iterator revItParam =
+  //     functionCall->function->parameters.rbegin();
   while (revIt != functionCall->arguments.rend()) {
     auto argValue = convertNode(t, *revIt);
 

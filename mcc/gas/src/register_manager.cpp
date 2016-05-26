@@ -18,7 +18,7 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac) : tac(tac) {
   this->functionGraphColorsMap =
       std::make_shared<function_graph_color_map_type>();
 
-  mcc::cfg::Cfg cfg = mcc::cfg::Cfg(tac);
+  auto cfg = mcc::cfg::Cfg(tac);
 
   cfg.computeWorkList();
 
