@@ -107,26 +107,27 @@ void RegisterManager::storeDot(std::string fileName,
   outf.close();
 }
 
-void RegisterManager::graphColoring() {
+void RegisterManager::graphColoring(unsigned n) {
   // clear maps
   this->numColorsMap->clear();
   this->functionGraphColorsMap->clear();
 
   for (auto function : this->functionGraphMap) {
-    this->graphColoring(function.first);
+    this->graphColoring(function.first, n);
   }
 }
 
-unsigned RegisterManager::graphColoring(std::string functionName) {
-  return this->graphColoring(this->tac.lookupFunction(functionName));
+unsigned RegisterManager::graphColoring(std::string functionName, unsigned n) {
+  return this->graphColoring(this->tac.lookupFunction(functionName), n);
 }
 
-unsigned RegisterManager::graphColoring(mcc::tac::Label::ptr_t functionLabel) {
+unsigned RegisterManager::graphColoring(mcc::tac::Label::ptr_t functionLabel,
+                                        unsigned n) {
   auto graph = this->functionGraphMap.at(functionLabel);
 
   // compute coloring
   auto colors = std::make_shared<RegisterManager::graph_color_map_type>();
-  unsigned numColors = graphColoring(graph, colors);
+  unsigned numColors = graphColoring(graph, colors, n);
 
   // store colors and numColors in maps
   (*numColorsMap)[functionLabel] = numColors;
@@ -136,7 +137,7 @@ unsigned RegisterManager::graphColoring(mcc::tac::Label::ptr_t functionLabel) {
 }
 
 unsigned RegisterManager::graphColoring(
-    Graph graph, std::shared_ptr<graph_color_map_type> colors) {
+    Graph graph, std::shared_ptr<graph_color_map_type> colors, unsigned n) {
   // compute smallest last ordering
   boost::vector_property_map<RegisterManager::VertexDescriptor> order;
   smallest_last_vertex_ordering(graph, order);
@@ -151,7 +152,8 @@ unsigned RegisterManager::graphColoring(
 
   colors->clear();
   for (unsigned i = 0; i < num_vertices(graph); ++i) {
-    (*colors)[i] = boostCol[i];
+    auto curCol = boostCol[i];
+    (*colors)[i] = curCol > n ? n : curCol;
   }
 
   return numColors;
