@@ -2,6 +2,7 @@
 *.cmake
 *.json
 *.a
+.clang_complete
 Makefile
 CMakeCache.txt
 CMakeFiles/

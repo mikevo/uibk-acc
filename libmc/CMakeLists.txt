@@ -17,6 +17,8 @@ file(GLOB_RECURSE mc_srcs src/*.cpp)
 set(all_incs ${all_incs} ${mc_incs} PARENT_SCOPE)
 set(all_srcs ${all_srcs} ${mc_srcs} PARENT_SCOPE)
 
+set(all_inc_dirs ${all_inc_dirs} "${CMAKE_CURRENT_SOURCE_DIR}/include/" PARENT_SCOPE)
+
 add_library(mc STATIC ${SOURCES})
 
 target_include_directories(mc PUBLIC

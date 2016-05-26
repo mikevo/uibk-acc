@@ -16,6 +16,8 @@ file(GLOB_RECURSE mcc_srcs src/*.cpp)
 set(all_incs ${all_incs} ${mcc_incs} PARENT_SCOPE)
 set(all_srcs ${all_srcs} ${mcc_srcs} PARENT_SCOPE)
 
+set(all_inc_dirs ${all_inc_dirs} "${CMAKE_CURRENT_SOURCE_DIR}/include/" PARENT_SCOPE)
+
 set(EXECUTABLE_OUTPUT_PATH bin)
 
 add_executable(${PROJECT_NAME} ${mcc_srcs} ${mcc_incs})
@@ -28,7 +30,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14 -g")
 ################################
 if (test)
     #enable_testing()
-    
+
     set(UNIT_TESTS ${PROJECT_NAME}_tests)
 
     ##############
