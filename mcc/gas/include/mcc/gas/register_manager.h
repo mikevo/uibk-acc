@@ -113,7 +113,7 @@ class RegisterManager {
   std::shared_ptr<function_graph_color_map_type> functionGraphColorsMap;
   // key: function label, value: number of colors
   std::shared_ptr<num_colors_map_type> numColorsMap;
-  function_descr_map_type functionDescriptorMap;
+  std::shared_ptr<function_descr_map_type> functionDescriptorMap;
   unsigned numOfRegForColoring;
 
   bool spillReg;

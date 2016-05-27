@@ -15,11 +15,14 @@ namespace gas {
 
 RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
     : tac(tac), gas(gas) {
+  this->spillReg = false;
   this->numOfRegForColoring = 2;
 
   this->numColorsMap = std::make_shared<num_colors_map_type>();
   this->functionGraphColorsMap =
       std::make_shared<function_graph_color_map_type>();
+
+  this->functionDescriptorMap = std::make_shared<function_descr_map_type>();
 
   auto cfg = mcc::cfg::Cfg(tac);
 
@@ -55,6 +58,7 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
     }
 
     this->functionGraphMap.insert(std::make_pair(range.first, interference));
+    this->functionDescriptorMap->insert(std::make_pair(range.first, vertexMap));
   }
 
   this->graphColoring(this->numOfRegForColoring);
@@ -82,15 +86,15 @@ unsigned RegisterManager::getNumOfRegForColoring() const {
 RegisterManager::VertexDescriptor RegisterManager::lookupVertexDescr(
     mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
     mcc::tac::Tac::code_lines_iter it) const {
-  auto vertexDescrMap = this->functionDescriptorMap.at(functionLabel);
+  auto vertexDescrMap = this->functionDescriptorMap->at(functionLabel);
   auto vec = vertexDescrMap.at(vertex);
 
   for (auto vIt = vec.rbegin(); vIt < vec.rend(); ++vIt) {
     if ((*(vIt.base() - 1)).first <= it) return (*vIt).second;
   }
 
-  assert(false && "Vertex descriptor not found");
-  return 0;
+  //  assert(false && "Vertex descriptor not found");
+  return vec.front().second;
 }
 
 std::string RegisterManager::toDot(std::string fucntionName) const {

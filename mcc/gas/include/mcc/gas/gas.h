@@ -32,6 +32,8 @@ typedef std::map<Label::ptr_t, unsigned, Label::less>
     function_stack_space_map_type;
 typedef std::map<std::pair<Label::ptr_t, Variable::ptr_t>, signed>
     variable_stack_offset_map_type;
+typedef std::map<Label::ptr_t, std::vector<Variable::ptr_t>, Label::less>
+    func_var_map_type;
 typedef std::map<std::string, unsigned> function_arg_size_type;
 // map: variableName -> value
 typedef std::map<std::string, std::string> constant_floats_map_type;
@@ -46,14 +48,17 @@ class Gas {
 
   friend std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas);
 
-  void loadSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg);
-  void storeSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg);
+  std::shared_ptr<Operand> loadSpilledVariable(Variable::ptr_t var,
+                                               Operand::ptr_t reg);
+  std::shared_ptr<Operand> storeSpilledVariable(Variable::ptr_t var,
+                                                Operand::ptr_t reg);
 
  private:
   //  std::shared_ptr<function_map_type> functionMap;
   std::shared_ptr<function_stack_space_map_type> functionStackSpaceMap;
   std::shared_ptr<variable_stack_offset_map_type> variableStackOffsetMap;
   std::shared_ptr<function_arg_size_type> functionArgSizeMap;
+  func_var_map_type functionVariableMap;
   OperatorName lastOperator;
   std::shared_ptr<constant_floats_map_type> constantFloatsMap;
   Label::ptr_t currentFunction;
@@ -61,6 +66,8 @@ class Gas {
   std::vector<Mnemonic::ptr_t> asmInstructions;
 
   std::shared_ptr<RegisterManager> registerManager;
+
+  mcc::tac::Tac& tac;
 
   void convertTac(Tac& tac);
   void analyzeTac(Tac& tac);
@@ -72,8 +79,7 @@ class Gas {
   unsigned lookupFunctionStackSize(Label::ptr_t functionLabel);
   unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
-  std::shared_ptr<Operand> loadOperandToRegister(mcc::tac::Operand::ptr_t op,
-                                                 Register r);
+  std::shared_ptr<Operand> loadOperandToRegister(mcc::tac::Operand::ptr_t op);
   void loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t);
   void storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
   void pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op);
@@ -81,7 +87,8 @@ class Gas {
   std::pair<std::string, std::string> createFloatConstant(std::string value);
 
   void storeRegisters(std::initializer_list<Register> list, unsigned pos);
-  void restoreRegisters(std::initializer_list<Register> list);
+  std::vector<Mnemonic::ptr_t> restoreRegisters(
+      std::initializer_list<Register> list);
   void prepareCall(Label::ptr_t label);
   void cleanUpCall(Label::ptr_t label);
   void createFunctionProlog(Label::ptr_t label);

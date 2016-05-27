@@ -142,6 +142,8 @@ TEST(Function, FunctionRangesTAC) {
 
   std::map<std::string, std::string> actual;
 
+  EXPECT_EQ(2, tac.getFunctionRangeMap().size());
+
   for (auto e : tac.getFunctionRangeMap()) {
     std::stringstream sStream;
 

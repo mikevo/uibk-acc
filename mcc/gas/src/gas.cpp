@@ -20,9 +20,8 @@
 namespace mcc {
 namespace gas {
 namespace {
-
-mcc::tac::Label::ptr_t currentFunctionName;
 mcc::tac::Tac::code_lines_iter currentLine;
+bool resultAvailable;
 
 unsigned getSize(mcc::tac::Type t) {
   switch (t) {
@@ -55,7 +54,9 @@ unsigned getSize(std::vector<mcc::tac::Type> argList) {
 }
 }
 
-Gas::Gas(Tac& tac) {
+Gas::Gas(Tac& tac) : tac(tac) {
+  this->registerManager = std::make_shared<RegisterManager>(tac, this);
+
   this->functionStackSpaceMap =
       std::make_shared<function_stack_space_map_type>();
   this->variableStackOffsetMap =
@@ -64,14 +65,15 @@ Gas::Gas(Tac& tac) {
   this->constantFloatsMap = std::make_shared<constant_floats_map_type>();
 
   this->convertTac(tac);
-
-  this->registerManager = std::make_shared<RegisterManager>(tac, this);
 }
 
 void Gas::analyzeTac(Tac& tac) {
   // get argSize of all declared functions
   for (auto e : *tac.getFunctionPrototypeMap().get()) {
     (*this->functionArgSizeMap)[e.first] = getSize(e.second);
+
+    std::vector<mcc::tac::Variable::ptr_t> vec;
+    this->functionVariableMap[tac.lookupFunction(e.first)] = vec;
   }
 
   Label::ptr_t currentFunctionLabel = nullptr;
@@ -105,6 +107,7 @@ void Gas::analyzeTac(Tac& tac) {
         (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
                                                  targetVar)] = curParamOffset;
         curParamOffset += getSize(targetVar);
+        this->functionVariableMap.at(currentFunctionLabel).push_back(targetVar);
       } else {
         // if variable not parameter of function
         (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
@@ -271,6 +274,7 @@ void Gas::convertCall(Triple::ptr_t triple) {
       auto label = std::static_pointer_cast<Label>(operand);
       auto asmLabel = std::make_shared<Operand>(label->getName());
 
+      resultAvailable = false;
       prepareCall(label);
 
       asmInstructions.push_back(
@@ -278,6 +282,7 @@ void Gas::convertCall(Triple::ptr_t triple) {
 
       // Assign result to variable
       if (triple->containsTargetVar()) {
+        resultAvailable = true;
         auto destVar = triple->getTargetVariable();
         if (getSize(destVar) > 0) {
           auto result = std::make_shared<Operand>(Register::EAX);
@@ -286,6 +291,8 @@ void Gas::convertCall(Triple::ptr_t triple) {
       }
 
       cleanUpCall(label);
+
+      resultAvailable = false;
     }
   }
 }
@@ -294,7 +301,7 @@ void Gas::convertReturn(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     // TODO godbolt produces different gas code for float, but it seems to work
     // with the int implementation
-    this->loadOperandToRegister(triple->getArg1(), Register::EAX);
+    this->loadOperandToRegister(triple->getArg1());
   }
 
   unsigned stackSize = lookupFunctionStackSize(currentFunction);
@@ -324,8 +331,7 @@ void Gas::convertAssign(Triple::ptr_t triple) {
       auto destVar = std::static_pointer_cast<Variable>(op);
 
       if (triple->containsArg2()) {
-        auto reg =
-            this->loadOperandToRegister(triple->getArg2(), Register::EAX);
+        auto reg = this->loadOperandToRegister(triple->getArg2());
         this->storeVariableFromRegister(destVar, reg);
       }
     }
@@ -351,13 +357,13 @@ void Gas::convertIntArithmetic(Triple::ptr_t triple) {
 
   auto operatorName = triple->getOperator().getName();
 
-  reg0 = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
+  reg0 = this->loadOperandToRegister(triple->getArg1());
 
   if (operatorName == OperatorName::DIV) {
     asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::CDQ));
   }
 
-  reg1 = this->loadOperandToRegister(triple->getArg2(), Register::ECX);
+  reg1 = this->loadOperandToRegister(triple->getArg2());
 
   switch (operatorName) {
     case OperatorName::ADD:
@@ -441,8 +447,8 @@ void Gas::convertIntLogicOperator(Triple::ptr_t triple) {
   Operand::ptr_t reg0;
   Operand::ptr_t reg1;
 
-  reg0 = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
-  reg1 = this->loadOperandToRegister(triple->getArg2(), Register::EDX);
+  reg0 = this->loadOperandToRegister(triple->getArg1());
+  reg1 = this->loadOperandToRegister(triple->getArg2());
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::CMP, reg0, reg1));
@@ -594,37 +600,37 @@ void Gas::convertFloatJumpFalse(Triple::ptr_t triple) {
 }
 
 void Gas::convertPush(Triple::ptr_t triple) {
-  if (triple->getType() == Type::FLOAT) {
+  //  if (triple->getType() == Type::FLOAT) {
     convertUnary(triple, Instruction::PUSH);
-  } else {
-    if (triple->containsArg1()) {
-      auto op = triple->getArg1();
-
-      if (helper::isType<IntLiteral>(op)) {
-        auto intOp = std::static_pointer_cast<IntLiteral>(op);
-        auto asmInt = std::make_shared<Operand>(intOp->getValue());
-
-        asmInstructions.push_back(
-            std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
-
-      } else if (helper::isType<Variable>(op)) {
-        auto variableOp = std::static_pointer_cast<Variable>(op);
-        unsigned varOffset = lookupVariableStackOffset(variableOp);
-        auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-        asmInstructions.push_back(
-            std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
-      } else if (helper::isType<Triple>(op)) {
-        auto tripleOp = std::static_pointer_cast<Triple>(op);
-        unsigned varOffset =
-            lookupVariableStackOffset(tripleOp->getTargetVariable());
-        auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
-
-        asmInstructions.push_back(
-            std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
-      }
-    }
-  }
+    //  } else {
+    //    if (triple->containsArg1()) {
+    //      auto op = triple->getArg1();
+    //
+    //      if (helper::isType<IntLiteral>(op)) {
+    //        auto intOp = std::static_pointer_cast<IntLiteral>(op);
+    //        auto asmInt = std::make_shared<Operand>(intOp->getValue());
+    //
+    //        asmInstructions.push_back(
+    //            std::make_shared<Mnemonic>(Instruction::PUSH, asmInt));
+    //
+    //      } else if (helper::isType<Variable>(op)) {
+    //        auto variableOp = std::static_pointer_cast<Variable>(op);
+    //        unsigned varOffset = lookupVariableStackOffset(variableOp);
+    //        auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+    //
+    //        asmInstructions.push_back(
+    //            std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
+    //      } else if (helper::isType<Triple>(op)) {
+    //        auto tripleOp = std::static_pointer_cast<Triple>(op);
+    //        unsigned varOffset =
+    //            lookupVariableStackOffset(tripleOp->getTargetVariable());
+    //        auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+    //
+    //        asmInstructions.push_back(
+    //            std::make_shared<Mnemonic>(Instruction::PUSH, asmVar));
+    //      }
+    //    }
+    //  }
 }
 
 void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
@@ -632,7 +638,7 @@ void Gas::convertUnary(Triple::ptr_t triple, Instruction i) {
     convertFloatMinus(triple);
   } else {
     // convert all other unary operands as follows
-    auto eax = this->loadOperandToRegister(triple->getArg1(), Register::EAX);
+    auto eax = this->loadOperandToRegister(triple->getArg1());
     asmInstructions.push_back(std::make_shared<Mnemonic>(i, eax));
 
     if (triple->containsTargetVar()) {
@@ -653,10 +659,8 @@ void Gas::convertFloatMinus(Triple::ptr_t triple) {
   }
 }
 
-std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
-                                                    Register r) {
-  auto reg = std::make_shared<Operand>(r);
-
+std::shared_ptr<Operand> Gas::loadOperandToRegister(
+    mcc::tac::Operand::ptr_t op) {
   if (helper::isType<Variable>(op)) {
     auto variableOp = std::static_pointer_cast<Variable>(op);
     return this->registerManager->getRegisterForVariable(
@@ -671,33 +675,35 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
     if (op->getType() == Type::FLOAT) {
       auto floatConstant = createFloatConstant(op->getValue());
 
-      auto operand = std::make_shared<Operand>(floatConstant);
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
+      return std::make_shared<Operand>(floatConstant);
     } else {
-      auto operand = std::make_shared<Operand>(op->getValue());
+      return std::make_shared<Operand>(op->getValue());
     }
   }
-
-  return reg;
 }
 
-void Gas::loadSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg) {
+std::shared_ptr<Operand> Gas::loadSpilledVariable(Variable::ptr_t var,
+                                                  Operand::ptr_t reg) {
   unsigned varOffset = lookupVariableStackOffset(var);
   // register of operand is ignored
   auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, reg, asmVar));
+
+  return asmVar;
 }
 
-void Gas::storeSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg) {
+std::shared_ptr<Operand> Gas::storeSpilledVariable(Variable::ptr_t var,
+                                                   Operand::ptr_t reg) {
   unsigned varOffset = lookupVariableStackOffset(var);
   // register of operand is ignored
   auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
+
+  return asmVar;
 }
 
 void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
@@ -709,11 +715,13 @@ void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
 }
 
 void Gas::storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg) {
-  unsigned varOffset = lookupVariableStackOffset(var);
-  auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+  auto asmVar = this->registerManager->getRegisterForVariable(currentFunction,
+                                                              var, currentLine);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
+  this->registerManager->storeRegisterInVariable(currentFunction, var,
+                                                 currentLine);
 }
 
 void Gas::pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op) {
@@ -770,35 +778,51 @@ void Gas::storeRegisters(std::initializer_list<Register> list, unsigned pos) {
   asmInstructions.insert(it, storeOperations.begin(), storeOperations.end());
 }
 
-void Gas::restoreRegisters(std::initializer_list<Register> list) {
+std::vector<Mnemonic::ptr_t> Gas::restoreRegisters(
+    std::initializer_list<Register> list) {
+  std::vector<Mnemonic::ptr_t> loadOperations;
+
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
-    asmInstructions.push_back(
+    loadOperations.push_back(
         std::make_shared<Mnemonic>(Instruction::POP, regOp));
   }
+
+  return loadOperations;
 }
 
 void Gas::prepareCall(Label::ptr_t label) {
   // TODO find better solution
   unsigned argSize = lookupFunctionArgSize(label);
   unsigned pos = asmInstructions.size() - argSize / 4;
-  storeRegisters({Register::EAX, Register::ECX, Register::EDX}, pos);
+  storeRegisters({Register::ECX, Register::EDX}, pos);
 }
 
 void Gas::cleanUpCall(Label::ptr_t label) {
   // Cleanup stack
   unsigned argSize = lookupFunctionArgSize(label);
 
+  std::vector<Mnemonic::ptr_t>::iterator it = asmInstructions.end();
+
+  if (resultAvailable) --it;
+  resultAvailable = false;
+
+  std::vector<Mnemonic::ptr_t> loadOperations;
+
   if (argSize > 0) {
     auto esp = std::make_shared<Operand>(Register::ESP);
     auto stackspaceOp = std::make_shared<Operand>(std::to_string(argSize));
 
-    asmInstructions.push_back(
+    loadOperations.push_back(
         std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
   }
 
   // Restore registers
-  restoreRegisters({Register::EDX, Register::ECX, Register::EAX});
+  auto regRestoreAsm = restoreRegisters({Register::EDX, Register::ECX});
+
+  loadOperations.insert(loadOperations.end(), regRestoreAsm.begin(),
+                        regRestoreAsm.end());
+  asmInstructions.insert(it, loadOperations.begin(), loadOperations.end());
 }
 
 void Gas::createFunctionProlog(Label::ptr_t label) {
@@ -822,6 +846,13 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
   // Store callee saved registers
   unsigned pos = asmInstructions.size();
   storeRegisters({Register::EBX, Register::EDI, Register::ESI}, pos);
+
+  for (auto var : this->functionVariableMap.at(currentFunction)) {
+    auto reg = this->registerManager->getRegisterForVariable(currentFunction,
+                                                             var, currentLine);
+
+    this->loadSpilledVariable(var, reg);
+  }
 }
 
 std::string Gas::toString() const {
