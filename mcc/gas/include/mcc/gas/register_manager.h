@@ -58,6 +58,7 @@ class RegisterManager {
   RegisterManager(mcc::tac::Tac &tac);
 
   function_graph_map_type getFunctionGraphMap();
+  unsigned getNumOfRegForColoring() const;
 
   std::shared_ptr<num_colors_map_type> getNumColorsMap();
   std::shared_ptr<function_graph_color_map_type> getFunctionGraphColorsMap();
@@ -68,14 +69,6 @@ class RegisterManager {
   void storeDot(std::string fileName,
                 mcc::tac::Label::ptr_t functionLabel) const;
 
-  // TODO: make graphColoring private
-  void graphColoring(unsigned n);
-  unsigned graphColoring(std::string fucntionName, unsigned n);
-  unsigned graphColoring(mcc::tac::Label::ptr_t functionLabel, unsigned n);
-  unsigned graphColoring(Graph graph,
-                         std::shared_ptr<graph_color_map_type> colors,
-                         unsigned n);
-
   Operand::ptr_t getRegisterForVariable(mcc::tac::Label::ptr_t functionLabel,
                                         Vertex vertex,
                                         mcc::tac::Tac::code_lines_iter it);
@@ -84,6 +77,13 @@ class RegisterManager {
                                mcc::tac::Tac::code_lines_iter it);
 
  private:
+  void graphColoring(unsigned n);
+  unsigned graphColoring(std::string fucntionName, unsigned n);
+  unsigned graphColoring(mcc::tac::Label::ptr_t functionLabel, unsigned n);
+  unsigned graphColoring(Graph graph,
+                         std::shared_ptr<graph_color_map_type> colors,
+                         unsigned n);
+
   VertexDescriptor lookupVertexDescr(mcc::tac::Label::ptr_t functionLabel,
                                      Vertex vertex,
                                      mcc::tac::Tac::code_lines_iter it) const;

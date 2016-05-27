@@ -55,6 +55,8 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac) : tac(tac) {
 
     this->functionGraphMap.insert(std::make_pair(range.first, interference));
   }
+
+  this->graphColoring(this->numOfRegForColoring);
 }
 
 RegisterManager::function_graph_map_type
@@ -69,11 +71,11 @@ RegisterManager::getNumColorsMap() {
 
 std::shared_ptr<RegisterManager::function_graph_color_map_type>
 RegisterManager::getFunctionGraphColorsMap() {
-  if (this->functionGraphColorsMap->empty()) {
-    this->graphColoring(this->numOfRegForColoring);
-  }
-
   return this->functionGraphColorsMap;
+}
+
+unsigned RegisterManager::getNumOfRegForColoring() const {
+  return this->numOfRegForColoring;
 }
 
 RegisterManager::VertexDescriptor RegisterManager::lookupVertexDescr(
