@@ -229,15 +229,8 @@ Operand::ptr_t RegisterManager::getRegister(unsigned color) {
 }
 
 Operand::ptr_t RegisterManager::getSpilledVariable(Vertex vertex) {
-  Register regName;
-  // toggle register to ensure that two possibly spilled operands are in
-  // different regs
-  if (this->spillReg)
-    regName = Register::EAX;
-  else
-    regName = Register::EBX;
-
-  auto reg = std::make_shared<Operand>(regName);
+  auto regName = this->getTmpRegisterName();
+  auto reg = std::make_shared<Operand>(true, regName);
   this->spilledVarMap[vertex] = regName;
   this->spillReg = !this->spillReg;
 
@@ -247,9 +240,25 @@ Operand::ptr_t RegisterManager::getSpilledVariable(Vertex vertex) {
 
 void RegisterManager::storeSpilledVariable(Vertex vertex) {
   Register regName = this->spilledVarMap[vertex];
-  auto reg = std::make_shared<Operand>(regName);
+  auto reg = std::make_shared<Operand>(true, regName);
 
   gas->storeSpilledVariable(vertex, reg);
+}
+
+Register RegisterManager::getTmpRegisterName() {
+  Register regName;
+  // toggle register to ensure that two possibly spilled operands are in
+  // different regs
+  if (this->spillReg)
+    regName = Register::EAX;
+  else
+    regName = Register::EBX;
+  return regName;
+}
+
+Operand::ptr_t RegisterManager::getTmpRegister() {
+  auto regName = this->getTmpRegisterName();
+  return std::make_shared<Operand>(true, regName);
 }
 }
 }

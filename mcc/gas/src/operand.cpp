@@ -4,14 +4,28 @@
 namespace mcc {
 namespace gas {
 
-Operand::Operand(Register reg) : mType(OperandType::REGISTER), mRegister(reg) {}
-Operand::Operand(Register reg, int offset)
-    : mType(OperandType::ADDRESS), mRegister(reg), mAddrOffset(offset) {}
+Operand::Operand(Register reg)
+    : mType(OperandType::REGISTER),
+      mRegister(reg),
+      mAddrOffset(0),
+      containsTempReg(false) {}
+Operand::Operand(bool tempRegister, Register reg)
+    : mType(OperandType::REGISTER),
+      mRegister(reg),
+      mAddrOffset(0),
+      containsTempReg(tempRegister) {}
+Operand::Operand(int offset)
+    : mType(OperandType::ADDRESS),
+      mRegister(Register::EBP),
+      mAddrOffset(offset),
+      containsTempReg(false) {}
 Operand::Operand(std::string label)
-    : mType(OperandType::LABEL), mLabelName(label) {}
+    : mType(OperandType::LABEL), mLabelName(label), containsTempReg(false) {}
 // float constant
 Operand::Operand(std::pair<std::string, std::string> floatConstant)
-    : mType(OperandType::FLOAT_CONSTANT), mLabelName(floatConstant.first) {}
+    : mType(OperandType::FLOAT_CONSTANT),
+      mLabelName(floatConstant.first),
+      containsTempReg(false) {}
 
 std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
   switch (op.mType) {
@@ -40,5 +54,7 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
       return os;
   }
 }
+
+bool Operand::isTempRegister() const { return this->containsTempReg; }
 }
 }

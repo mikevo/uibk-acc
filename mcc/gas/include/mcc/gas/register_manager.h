@@ -84,6 +84,9 @@ class RegisterManager {
                                Vertex vertex,
                                mcc::tac::Tac::code_lines_iter it);
 
+  Register getTmpRegisterName();
+  Operand::ptr_t getTmpRegister();
+
  private:
   void graphColoring(unsigned n);
   unsigned graphColoring(std::string fucntionName, unsigned n);

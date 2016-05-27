@@ -25,18 +25,22 @@ class Operand {
   typedef std::shared_ptr<Operand> ptr_t;
 
   Operand(Register reg);
-  Operand(Register reg, int offset);
+  Operand(bool tempRegister, Register reg);
+  Operand(int offset);
   Operand(std::string label);
   Operand(std::pair<std::string, std::string> floatConstant);
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Operand& op);
 
+  bool isTempRegister() const;
+
  private:
   OperandType mType;
   Register mRegister;
   int mAddrOffset;
   std::string mLabelName;
+  bool containsTempReg;
 };
 }
 }
