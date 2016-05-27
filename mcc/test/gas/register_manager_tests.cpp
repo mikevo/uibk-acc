@@ -128,47 +128,53 @@ TEST(RegisterManager, GraphColoringNumColors) {
   auto barLabel = tac.lookupFunction(bar);
   auto mainLabel = tac.lookupFunction(main);
 
+  unsigned maxNumOfColors = 2;
+
   // test for function using strings
-  auto fooNumCol = regMan.graphColoring(foo, 2);
-  auto barNumCol = regMan.graphColoring(bar, 2);
-  auto mainNumCol = regMan.graphColoring(main, 2);
+  auto fooNumCol = regMan.graphColoring(foo, maxNumOfColors);
+  auto barNumCol = regMan.graphColoring(bar, maxNumOfColors);
+  auto mainNumCol = regMan.graphColoring(main, maxNumOfColors);
 
   auto numColorMap = regMan.getNumColorsMap();
 
-  EXPECT_EQ(2, fooNumCol);
-  EXPECT_EQ(2, barNumCol);
-  EXPECT_EQ(1, mainNumCol);
+  // expect less or equal number of given colors needed to color graph
+  EXPECT_GE(maxNumOfColors, fooNumCol);
+  EXPECT_GE(maxNumOfColors, barNumCol);
+  EXPECT_GE(maxNumOfColors, mainNumCol);
 
   EXPECT_EQ(3, numColorMap->size());
-  EXPECT_EQ(2, numColorMap->at(fooLabel));
-  EXPECT_EQ(2, numColorMap->at(barLabel));
-  EXPECT_EQ(1, numColorMap->at(mainLabel));
+  // expect less or equal number of given colors needed to color graph
+  EXPECT_GE(maxNumOfColors, numColorMap->at(fooLabel));
+  EXPECT_GE(maxNumOfColors, numColorMap->at(barLabel));
+  EXPECT_GE(maxNumOfColors, numColorMap->at(mainLabel));
 
   // test for function using labels
   numColorMap->clear();
 
-  fooNumCol = regMan.graphColoring(fooLabel, 2);
-  barNumCol = regMan.graphColoring(barLabel, 2);
-  mainNumCol = regMan.graphColoring(mainLabel, 2);
+  fooNumCol = regMan.graphColoring(fooLabel, maxNumOfColors);
+  barNumCol = regMan.graphColoring(barLabel, maxNumOfColors);
+  mainNumCol = regMan.graphColoring(mainLabel, maxNumOfColors);
 
-  EXPECT_EQ(2, fooNumCol);
-  EXPECT_EQ(2, barNumCol);
-  EXPECT_EQ(1, mainNumCol);
+  EXPECT_GE(maxNumOfColors, fooNumCol);
+  EXPECT_GE(maxNumOfColors, barNumCol);
+  EXPECT_GE(maxNumOfColors, mainNumCol);
 
   EXPECT_EQ(3, numColorMap->size());
-  EXPECT_EQ(2, numColorMap->at(fooLabel));
-  EXPECT_EQ(2, numColorMap->at(barLabel));
-  EXPECT_EQ(1, numColorMap->at(mainLabel));
+  // expect less or equal number of given colors needed to color graph
+  EXPECT_GE(maxNumOfColors, numColorMap->at(fooLabel));
+  EXPECT_GE(maxNumOfColors, numColorMap->at(barLabel));
+  EXPECT_GE(maxNumOfColors, numColorMap->at(mainLabel));
 
   // test for function calling subsequent functions for each function label
   numColorMap->clear();
 
-  regMan.graphColoring(2);
+  regMan.graphColoring(maxNumOfColors);
 
   EXPECT_EQ(3, numColorMap->size());
-  EXPECT_EQ(2, numColorMap->at(fooLabel));
-  EXPECT_EQ(2, numColorMap->at(barLabel));
-  EXPECT_EQ(1, numColorMap->at(mainLabel));
+  // expect less or equal number of given colors needed to color graph
+  EXPECT_GE(maxNumOfColors, numColorMap->at(fooLabel));
+  EXPECT_GE(maxNumOfColors, numColorMap->at(barLabel));
+  EXPECT_GE(maxNumOfColors, numColorMap->at(mainLabel));
 }
 
 TEST(RegisterManager, GraphColoringColors) {
@@ -201,6 +207,8 @@ TEST(RegisterManager, GraphColoringColors) {
   std::string bar = "bar";
   std::string main = "main";
 
+  unsigned maxNumOfColors = 2;
+
   auto fooLabel = tac.lookupFunction(foo);
   auto barLabel = tac.lookupFunction(bar);
   auto mainLabel = tac.lookupFunction(main);
@@ -208,9 +216,9 @@ TEST(RegisterManager, GraphColoringColors) {
   // test for function using strings
   auto functionGraphColorsMap = regMan.getFunctionGraphColorsMap();
 
-  regMan.graphColoring(foo, 2);
-  regMan.graphColoring(bar, 2);
-  regMan.graphColoring(main, 2);
+  regMan.graphColoring(foo, maxNumOfColors);
+  regMan.graphColoring(bar, maxNumOfColors);
+  regMan.graphColoring(main, maxNumOfColors);
 
   EXPECT_EQ(3, functionGraphColorsMap->size());
 
@@ -247,9 +255,9 @@ TEST(RegisterManager, GraphColoringColors) {
   // test for function using labels
   functionGraphColorsMap->clear();
 
-  regMan.graphColoring(fooLabel, 2);
-  regMan.graphColoring(barLabel, 2);
-  regMan.graphColoring(mainLabel, 2);
+  regMan.graphColoring(fooLabel, maxNumOfColors);
+  regMan.graphColoring(barLabel, maxNumOfColors);
+  regMan.graphColoring(mainLabel, maxNumOfColors);
 
   EXPECT_EQ(3, functionGraphColorsMap->size());
 
@@ -283,7 +291,7 @@ TEST(RegisterManager, GraphColoringColors) {
   // test for function calling subsequent functions for each function label
   functionGraphColorsMap->clear();
 
-  regMan.graphColoring(2);
+  regMan.graphColoring(maxNumOfColors);
 
   EXPECT_EQ(3, functionGraphColorsMap->size());
 
