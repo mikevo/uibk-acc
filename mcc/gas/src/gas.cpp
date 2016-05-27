@@ -298,7 +298,10 @@ void Gas::convertReturn(Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     // TODO godbolt produces different gas code for float, but it seems to work
     // with the int implementation
-    this->loadOperandToRegister(triple->getArg1());
+    auto reg = this->loadOperandToRegister(triple->getArg1());
+    auto eax = std::make_shared<Operand>(Register::EAX);
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, eax, reg));
   }
 
   unsigned stackSize = lookupFunctionStackSize(currentFunction);
