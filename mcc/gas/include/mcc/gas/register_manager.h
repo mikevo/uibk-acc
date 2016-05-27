@@ -10,6 +10,14 @@
 #include <map>
 #include <memory>
 
+// resolve circular dependency
+namespace mcc {
+namespace gas {
+class Gas;
+}
+}
+
+#include "mcc/gas/gas.h"
 #include "mcc/gas/operand.h"
 #include "mcc/tac/label.h"
 #include "mcc/tac/tac.h"
@@ -55,7 +63,7 @@ class RegisterManager {
  public:
   typedef std::shared_ptr<RegisterManager> ptr_t;
 
-  RegisterManager(mcc::tac::Tac &tac);
+  RegisterManager(mcc::tac::Tac &tac, Gas *gas = nullptr);
 
   function_graph_map_type getFunctionGraphMap();
   unsigned getNumOfRegForColoring() const;
@@ -95,10 +103,11 @@ class RegisterManager {
                                        Vertex vertex,
                                        mcc::tac::Tac::code_lines_iter it);
   Operand::ptr_t getRegister(unsigned color);
-  Operand::ptr_t getSpilledVariable(VertexDescriptor vd);
-  void storeSpilledVariable(VertexDescriptor vd);
+  Operand::ptr_t getSpilledVariable(Vertex vertex);
+  void storeSpilledVariable(Vertex vertex);
 
   mcc::tac::Tac &tac;
+  Gas *gas;
   function_graph_map_type functionGraphMap;
   // key: function label, value: color map (see above)
   std::shared_ptr<function_graph_color_map_type> functionGraphColorsMap;
@@ -106,6 +115,10 @@ class RegisterManager {
   std::shared_ptr<num_colors_map_type> numColorsMap;
   function_descr_map_type functionDescriptorMap;
   unsigned numOfRegForColoring;
+
+  bool spillReg;
+  std::map<mcc::tac::Variable::ptr_t, Register, mcc::tac::Variable::less>
+      spilledVarMap;
 };
 }
 }

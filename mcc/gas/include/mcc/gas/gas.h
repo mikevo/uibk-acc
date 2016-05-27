@@ -11,6 +11,14 @@
 #include <string>
 #include <vector>
 
+// resolve circular dependency
+namespace mcc {
+namespace gas {
+class RegisterManager;
+}
+}
+
+#include "mcc/gas/register_manager.h"
 #include "mcc/tac/tac.h"
 #include "mnemonic.h"
 
@@ -38,6 +46,9 @@ class Gas {
 
   friend std::ostream& operator<<(std::ostream& os, const mcc::gas::Gas& gas);
 
+  void loadSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg);
+  void storeSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg);
+
  private:
   //  std::shared_ptr<function_map_type> functionMap;
   std::shared_ptr<function_stack_space_map_type> functionStackSpaceMap;
@@ -48,6 +59,8 @@ class Gas {
   Label::ptr_t currentFunction;
 
   std::vector<Mnemonic::ptr_t> asmInstructions;
+
+  std::shared_ptr<RegisterManager> registerManager;
 
   void convertTac(Tac& tac);
   void analyzeTac(Tac& tac);

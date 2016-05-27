@@ -169,8 +169,6 @@ TEST(RegisterManager, GraphColoringColors) {
   std::string bar = "bar";
   std::string main = "main";
 
-  unsigned maxNumOfColors = 2;
-
   auto fooLabel = tac.lookupFunction(foo);
   auto barLabel = tac.lookupFunction(bar);
   auto mainLabel = tac.lookupFunction(main);

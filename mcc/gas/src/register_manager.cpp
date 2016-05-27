@@ -13,7 +13,8 @@
 namespace mcc {
 namespace gas {
 
-RegisterManager::RegisterManager(mcc::tac::Tac &tac) : tac(tac) {
+RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
+    : tac(tac), gas(gas) {
   this->numOfRegForColoring = 2;
 
   this->numColorsMap = std::make_shared<num_colors_map_type>();
@@ -175,8 +176,7 @@ Operand::ptr_t RegisterManager::getRegisterForVariable(
   if (this->isColor(color)) {
     return this->getRegister(color);
   } else {
-    auto vd = this->getVertexDescriptor(functionLabel, vertex, it);
-    return this->getSpilledVariable(vd);
+    return this->getSpilledVariable(vertex);
   }
 }
 
@@ -186,8 +186,7 @@ void RegisterManager::storeRegisterInVariable(
   auto color = this->getColor(functionLabel, vertex, it);
 
   if (!this->isColor(color)) {
-    auto vd = this->getVertexDescriptor(functionLabel, vertex, it);
-    this->storeSpilledVariable(vd);
+    this->storeSpilledVariable(vertex);
   }
 }
 
@@ -225,16 +224,28 @@ Operand::ptr_t RegisterManager::getRegister(unsigned color) {
   }
 }
 
-Operand::ptr_t RegisterManager::getSpilledVariable(VertexDescriptor vd) {
-  // TODO: implement spilling
-  assert(false && "spilling not implemented");
+Operand::ptr_t RegisterManager::getSpilledVariable(Vertex vertex) {
+  Register regName;
+  // toggle register to ensure that two possibly spilled operands are in
+  // different regs
+  if (this->spillReg)
+    regName = Register::EAX;
+  else
+    regName = Register::EBX;
 
-  return nullptr;
+  auto reg = std::make_shared<Operand>(regName);
+  this->spilledVarMap[vertex] = regName;
+  this->spillReg = !this->spillReg;
+
+  gas->loadSpilledVariable(vertex, reg);
+  return reg;
 }
 
-void RegisterManager::storeSpilledVariable(VertexDescriptor vd) {
-  // TODO: implement spilling
-  assert(false && "spilling not implemented");
+void RegisterManager::storeSpilledVariable(Vertex vertex) {
+  Register regName = this->spilledVarMap[vertex];
+  auto reg = std::make_shared<Operand>(regName);
+
+  gas->storeSpilledVariable(vertex, reg);
 }
 }
 }

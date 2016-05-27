@@ -61,6 +61,8 @@ Gas::Gas(Tac& tac) {
   this->constantFloatsMap = std::make_shared<constant_floats_map_type>();
 
   this->convertTac(tac);
+
+  this->registerManager = std::make_shared<RegisterManager>(tac, this);
 }
 
 void Gas::analyzeTac(Tac& tac) {
@@ -673,6 +675,24 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
   }
 
   return reg;
+}
+
+void Gas::loadSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg) {
+  unsigned varOffset = lookupVariableStackOffset(var);
+  // register of operand is ignored
+  auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, reg, asmVar));
+}
+
+void Gas::storeSpilledVariable(Variable::ptr_t var, Operand::ptr_t reg) {
+  unsigned varOffset = lookupVariableStackOffset(var);
+  // register of operand is ignored
+  auto asmVar = std::make_shared<Operand>(Register::EBP, varOffset);
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
 }
 
 void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
