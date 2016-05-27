@@ -14,6 +14,8 @@ namespace mcc {
 namespace gas {
 
 RegisterManager::RegisterManager(mcc::tac::Tac &tac) : tac(tac) {
+  this->numOfRegForColoring = 2;
+
   this->numColorsMap = std::make_shared<num_colors_map_type>();
   this->functionGraphColorsMap =
       std::make_shared<function_graph_color_map_type>();
@@ -67,6 +69,10 @@ RegisterManager::getNumColorsMap() {
 
 std::shared_ptr<RegisterManager::function_graph_color_map_type>
 RegisterManager::getFunctionGraphColorsMap() {
+  if (this->functionGraphColorsMap->empty()) {
+    this->graphColoring(this->numOfRegForColoring);
+  }
+
   return this->functionGraphColorsMap;
 }
 
@@ -157,6 +163,76 @@ unsigned RegisterManager::graphColoring(
   }
 
   return numColors;
+}
+
+Operand::ptr_t RegisterManager::getRegisterForVariable(
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
+    mcc::tac::Tac::code_lines_iter it) {
+  auto color = this->getColor(functionLabel, vertex, it);
+
+  if (this->isColor(color)) {
+    return this->getRegister(color);
+  } else {
+    auto vd = this->getVertexDescriptor(functionLabel, vertex, it);
+    return this->getSpilledVariable(vd);
+  }
+}
+
+void RegisterManager::storeRegisterInVariable(
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
+    mcc::tac::Tac::code_lines_iter it) {
+  auto color = this->getColor(functionLabel, vertex, it);
+
+  if (!this->isColor(color)) {
+    auto vd = this->getVertexDescriptor(functionLabel, vertex, it);
+    this->storeSpilledVariable(vd);
+  }
+}
+
+bool RegisterManager::isColor(unsigned color) {
+  if (color < this->numOfRegForColoring)
+    return true;
+  else
+    return false;
+}
+
+unsigned RegisterManager::getColor(mcc::tac::Label::ptr_t functionLabel,
+                                   Vertex vertex,
+                                   mcc::tac::Tac::code_lines_iter it) {
+  auto vd = this->lookupVertexDescr(functionLabel, vertex, it);
+  auto colorMap = this->getFunctionGraphColorsMap()->at(functionLabel);
+
+  return colorMap->at(vd);
+}
+
+RegisterManager::VertexDescriptor RegisterManager::getVertexDescriptor(
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
+    mcc::tac::Tac::code_lines_iter it) {
+  return this->lookupVertexDescr(functionLabel, vertex, it);
+}
+
+Operand::ptr_t RegisterManager::getRegister(unsigned color) {
+  switch (color) {
+    case 0:
+      return std::make_shared<Operand>(Register::ECX);
+    case 1:
+      return std::make_shared<Operand>(Register::EDX);
+    default:
+      assert(false && "to view registeres defined for reg alloc");
+      return nullptr;
+  }
+}
+
+Operand::ptr_t RegisterManager::getSpilledVariable(VertexDescriptor vd) {
+  // TODO: implement spilling
+  assert(false && "spilling not implemented");
+
+  return nullptr;
+}
+
+void RegisterManager::storeSpilledVariable(VertexDescriptor vd) {
+  // TODO: implement spilling
+  assert(false && "spilling not implemented");
 }
 }
 }

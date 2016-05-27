@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 
+#include "mcc/gas/operand.h"
 #include "mcc/tac/label.h"
 #include "mcc/tac/tac.h"
 #include "mcc/tac/variable.h"
@@ -61,16 +62,13 @@ class RegisterManager {
   std::shared_ptr<num_colors_map_type> getNumColorsMap();
   std::shared_ptr<function_graph_color_map_type> getFunctionGraphColorsMap();
 
-  VertexDescriptor lookupVertexDescr(mcc::tac::Label::ptr_t functionLabel,
-                                     Vertex vertex,
-                                     mcc::tac::Tac::code_lines_iter it) const;
-
   std::string toDot(std::string fucntionName) const;
   std::string toDot(mcc::tac::Label::ptr_t functionLabel) const;
   void storeDot(std::string fileName, std::string fucntionName) const;
   void storeDot(std::string fileName,
                 mcc::tac::Label::ptr_t functionLabel) const;
 
+  // TODO: make graphColoring private
   void graphColoring(unsigned n);
   unsigned graphColoring(std::string fucntionName, unsigned n);
   unsigned graphColoring(mcc::tac::Label::ptr_t functionLabel, unsigned n);
@@ -78,7 +76,28 @@ class RegisterManager {
                          std::shared_ptr<graph_color_map_type> colors,
                          unsigned n);
 
+  Operand::ptr_t getRegisterForVariable(mcc::tac::Label::ptr_t functionLabel,
+                                        Vertex vertex,
+                                        mcc::tac::Tac::code_lines_iter it);
+  void storeRegisterInVariable(mcc::tac::Label::ptr_t functionLabel,
+                               Vertex vertex,
+                               mcc::tac::Tac::code_lines_iter it);
+
  private:
+  VertexDescriptor lookupVertexDescr(mcc::tac::Label::ptr_t functionLabel,
+                                     Vertex vertex,
+                                     mcc::tac::Tac::code_lines_iter it) const;
+
+  bool isColor(unsigned color);
+  unsigned getColor(mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
+                    mcc::tac::Tac::code_lines_iter it);
+  VertexDescriptor getVertexDescriptor(mcc::tac::Label::ptr_t functionLabel,
+                                       Vertex vertex,
+                                       mcc::tac::Tac::code_lines_iter it);
+  Operand::ptr_t getRegister(unsigned color);
+  Operand::ptr_t getSpilledVariable(VertexDescriptor vd);
+  void storeSpilledVariable(VertexDescriptor vd);
+
   mcc::tac::Tac &tac;
   function_graph_map_type functionGraphMap;
   // key: function label, value: color map (see above)
@@ -86,6 +105,7 @@ class RegisterManager {
   // key: function label, value: number of colors
   std::shared_ptr<num_colors_map_type> numColorsMap;
   function_descr_map_type functionDescriptorMap;
+  unsigned numOfRegForColoring;
 };
 }
 }
