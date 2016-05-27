@@ -274,7 +274,6 @@ void Gas::convertCall(Triple::ptr_t triple) {
       auto label = std::static_pointer_cast<Label>(operand);
       auto asmLabel = std::make_shared<Operand>(label->getName());
 
-      resultAvailable = false;
       prepareCall(label);
 
       asmInstructions.push_back(
@@ -282,17 +281,15 @@ void Gas::convertCall(Triple::ptr_t triple) {
 
       // Assign result to variable
       if (triple->containsTargetVar()) {
-        resultAvailable = true;
         auto destVar = triple->getTargetVariable();
         if (getSize(destVar) > 0) {
+          resultAvailable = true;
           auto result = std::make_shared<Operand>(Register::EAX);
           this->storeVariableFromRegister(destVar, result);
         }
       }
 
       cleanUpCall(label);
-
-      resultAvailable = false;
     }
   }
 }
@@ -796,6 +793,7 @@ void Gas::prepareCall(Label::ptr_t label) {
   unsigned argSize = lookupFunctionArgSize(label);
   unsigned pos = asmInstructions.size() - argSize / 4;
   storeRegisters({Register::ECX, Register::EDX}, pos);
+  resultAvailable = false;
 }
 
 void Gas::cleanUpCall(Label::ptr_t label) {
