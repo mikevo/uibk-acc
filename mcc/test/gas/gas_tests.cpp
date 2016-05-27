@@ -17,18 +17,18 @@ TEST(Gas, FunctionStackSpace) {
   auto tree = parser::parse(
       R"(
          void bar(int arg1);
-  
+
          void foo(int arg1) {
             if(arg1 < 0) return;
             bar(arg1 - 1);
          }
-         
+
          void bar(int arg1) {
             if(arg1 < 0) return;
             foo(arg1 - 1);
             bar(arg1 - 1);
-         }   
-            
+         }
+
           int main() {
              foo(10);
              return 0;
@@ -62,18 +62,18 @@ TEST(Gas, VariableStackOffset) {
   auto tree = parser::parse(
       R"(
          void bar(int arg1);
-  
+
          void foo(int arg1, int arg2) {
             if(arg1 < 0) return;
             bar(arg1 - 1);
          }
-         
+
          void bar(int arg1) {
             if(arg1 < 0) return;
             foo(arg1 - 1, arg1);
             bar(arg1 - 1);
-         }   
-            
+         }
+
           int main() {
              foo(10, 10);
              return 0;
@@ -108,7 +108,7 @@ TEST(Gas, VariableStackOffset) {
 }
 
 // TODO stupid test -> reimplement it
-TEST(Gas, DISABLED_GasGeneration) {
+TEST(Gas, GasGeneration) {
   auto tree = parser::parse(
       R"(
         void print_int(int);
@@ -122,6 +122,8 @@ TEST(Gas, DISABLED_GasGeneration) {
 
             if(arg1 > 5.0) {
                 arg1 = arg1 - 1.0;
+            } else {
+              return 3.0;
             }
 
             return foo(arg1, arg2);
@@ -178,121 +180,158 @@ TEST(Gas, DISABLED_GasGeneration) {
     }
   }
 
-  auto curLabel = labels.begin();
+  auto expected = R"(.intel_syntax noprefix
+.global main
 
-  auto expected = std::string(".intel_syntax noprefix\n");
-  expected.append(".global main\n\n");
+bar:
+	push ebp
+	mov ebp, esp
+	sub esp, 12
+	push ebx
+	push edi
+	push esi
+	mov ecx, DWORD PTR [ebp - 8]
+	mov ebx, DWORD PTR [ebp + 12]
+	mov ebx, DWORD PTR [ebp + 12]
+	push ecx
+	push edx
+	push 2
+	call print_int
+	add esp, 4
+	pop edx
+	pop ecx
+	fld DWORD PTR [ebp - 8]
+	fld DWORD PTR .FC0
+	fxch st(1)
+	fucomip st, st(1)
+	fstp st(0)
+	jbe $L609
+	fld DWORD PTR [ebp - 8]
+	fld DWORD PTR .FC1
+	fsubp st(1), st
+	fstp DWORD PTR [ebp - 4]
+	mov ecx, edx
+	jmp $L613
 
-  expected.append("bar:\n");
-  expected.append("\tpush ebp\n");
-  expected.append("\tmov ebp, esp\n");
-  expected.append("\tsub esp, 12\n");
-  expected.append("\tmov eax, 2\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tcall print_int\n");
-  expected.append("\tadd esp, 4\n");
-  expected.append("\tfld DWORD PTR [ebp - 8]\n");
-  expected.append("\tfld DWORD PTR .FC0\n");
-  expected.append("\tfxch st(1)\n");
-  expected.append("\tfucomip st, st(1)\n");
-  expected.append("\tfstp st(0)\n");
-  expected.append("\tjbe " + *curLabel++ + "\n");
-  expected.append("\tfld DWORD PTR [ebp - 8]\n");
-  expected.append("\tfld DWORD PTR .FC1\n");
-  expected.append("\tfsubp st(1), st\n");
-  expected.append("\tfstp DWORD PTR [ebp - 4]\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 4]\n");
-  expected.append("\tmov DWORD PTR [ebp - 8], eax\n\n");
+$L609:
+	mov eax, DWORD PTR .FC2
+	add esp, 12
+	mov esp, ebp
+	pop ebp
+	ret
 
-  expected.append(*curLabel++ + ":\n");
-  expected.append("\tmov eax, DWORD PTR [ebp + 12]\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 8]\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tcall foo\n");
-  expected.append("\tadd esp, 8\n");
-  expected.append("\tmov DWORD PTR [ebp - 12], eax\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 12]\n");
-  expected.append("\tadd esp, 12\n");
-  expected.append("\tpop ebp\n");
-  expected.append("\tret\n\n");
+$L613:
+	mov eax, DWORD PTR [ebp + 12]
+	push ecx
+	push edx
+	push eax
+	push ecx
+	call foo
+	add esp, 8
+	pop edx
+	pop ecx
+	mov ecx, eax
+	mov eax, ecx
+	add esp, 12
+	mov esp, ebp
+	pop ebp
+	ret
 
-  expected.append("foo:\n");
-  expected.append("\tpush ebp\n");
-  expected.append("\tmov ebp, esp\n");
-  expected.append("\tsub esp, 4\n");
-  expected.append("\tmov eax, 1\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tcall print_int\n");
-  expected.append("\tadd esp, 4\n");
-  expected.append("\tmov eax, DWORD PTR [ebp + 8]\n");
-  expected.append("\tmov edx, 5\n");
-  expected.append("\tcmp eax, edx\n");
-  expected.append("\tjg " + *curLabel++ + "\n");
-  expected.append("\tmov eax, DWORD PTR .FC2\n");
-  expected.append("\tadd esp, 4\n");
-  expected.append("\tpop ebp\n");
-  expected.append("\tret\n");
-  expected.append("\tjmp " + *curLabel++ + "\n\n");
+foo:
+	push ebp
+	mov ebp, esp
+	sub esp, 4
+	push ebx
+	push edi
+	push esi
+	mov ecx, DWORD PTR [ebp + 8]
+	mov ebx, DWORD PTR [ebp + 12]
+	mov ebx, DWORD PTR [ebp + 12]
+	push ecx
+	push edx
+	push 1
+	call print_int
+	add esp, 4
+	pop edx
+	pop ecx
+	cmp ecx, 5
+	jg $L625
+	mov eax, DWORD PTR .FC3
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
+	jmp $L628
 
-  expected.append(*curLabel++ + ":\n");
-  expected.append("\tmov eax, DWORD PTR [ebp + 8]\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tmov eax, DWORD PTR [ebp + 12]\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tcall bar\n");
-  expected.append("\tadd esp, 8\n");
-  expected.append("\tmov DWORD PTR [ebp - 4], eax\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 4]\n");
-  expected.append("\tadd esp, 4\n");
-  expected.append("\tpop ebp\n");
-  expected.append("\tret\n\n");
+$L625:
+	push ecx
+	push ecx
+	push edx
+	mov eax, DWORD PTR [ebp + 12]
+	push eax
+	call bar
+	add esp, 8
+	pop edx
+	pop ecx
+	mov ecx, eax
+	mov eax, ecx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
-  expected.append(*curLabel++ + ":\n\n");
+$L628:
 
-  expected.append("main:\n");
-  expected.append("\tpush ebp\n");
-  expected.append("\tmov ebp, esp\n");
-  expected.append("\tsub esp, 16\n");
-  expected.append("\tmov eax, 0\n");
-  expected.append("\tmov DWORD PTR [ebp - 16], eax\n\n");
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 16
+	push ebx
+	push edi
+	push esi
+	mov edx, 0
 
-  expected.append(*curLabel++ + ":\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 16]\n");
-  expected.append("\tmov edx, 10\n");
-  expected.append("\tcmp eax, edx\n");
-  expected.append("\tjge " + *curLabel++ + "\n");
-  expected.append("\tmov eax, DWORD PTR .FC3\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 16]\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tcall foo\n");
-  expected.append("\tadd esp, 8\n");
-  expected.append("\tmov DWORD PTR [ebp - 8], eax\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 8]\n");
-  expected.append("\tpush eax\n");
-  expected.append("\tcall print_float\n");
-  expected.append("\tadd esp, 4\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 16]\n");
-  expected.append("\tmov ecx, 1\n");
-  expected.append("\tadd eax, ecx\n");
-  expected.append("\tmov DWORD PTR [ebp - 12], eax\n");
-  expected.append("\tmov eax, DWORD PTR [ebp - 12]\n");
-  expected.append("\tmov DWORD PTR [ebp - 16], eax\n");
-  expected.append("\tjmp " + *curLabel++ + "\n\n");
+$L636:
+	cmp edx, 10
+	jge $L638
+	push ecx
+	push edx
+	push DWORD PTR .FC4
+	push edx
+	call foo
+	add esp, 8
+	pop edx
+	pop ecx
+	mov ecx, eax
+	push ecx
+	push edx
+	push ecx
+	call print_float
+	add esp, 4
+	pop edx
+	pop ecx
+	mov ebx, edx
+	add edx, 1
+	mov ecx, edx
+	mov edx, ebx
+	mov edx, ecx
+	jmp $L636
 
-  expected.append(*curLabel++ + ":\n");
-  expected.append("\tmov eax, 0\n");
-  expected.append("\tadd esp, 16\n");
-  expected.append("\tpop ebp\n");
-  expected.append("\tret\n\n");
+$L638:
+	mov eax, 0
+	add esp, 16
+	mov esp, ebp
+	pop ebp
+	ret
 
-  expected.append(".FC0: .float 5.000000\n");
-  expected.append(".FC1: .float 1.000000\n");
-  expected.append(".FC2: .float 42.000000\n");
-  expected.append(".FC3: .float 13.200000\n\n");
+.FC0: .float 5.000000
+.FC1: .float 1.000000
+.FC2: .float 3.000000
+.FC3: .float 42.000000
+.FC4: .float 13.200000
 
-  expected.append(".att_syntax noprefix\n");
+.att_syntax noprefix
+)";
 
   EXPECT_EQ(expected, gas.toString());
 }
