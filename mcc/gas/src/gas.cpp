@@ -21,6 +21,9 @@ namespace mcc {
 namespace gas {
 namespace {
 
+mcc::tac::Label::ptr_t currentFunctionName;
+mcc::tac::Tac::code_lines_iter currentLine;
+
 unsigned getSize(mcc::tac::Type t) {
   switch (t) {
     case Type::BOOL:
@@ -174,7 +177,9 @@ unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
 
 void Gas::convertTac(Tac& tac) {
   this->analyzeTac(tac);
-  for (auto triple : tac.codeLines) {
+  for (currentLine = tac.codeLines.begin(); currentLine < tac.codeLines.end();
+       ++currentLine) {
+    auto triple = *currentLine;
     auto op = triple->getOperator();
 
     switch (op.getName()) {
@@ -650,15 +655,17 @@ void Gas::convertFloatMinus(Triple::ptr_t triple) {
 
 std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
                                                     Register r) {
-  // TODO do not always create a new register
   auto reg = std::make_shared<Operand>(r);
 
   if (helper::isType<Variable>(op)) {
     auto variableOp = std::static_pointer_cast<Variable>(op);
-    this->loadVariableToRegister(variableOp, reg);
+    return this->registerManager->getRegisterForVariable(
+        currentFunction, variableOp, currentLine);
   } else if (helper::isType<Triple>(op)) {
     auto triple = std::static_pointer_cast<Triple>(op);
-    this->loadVariableToRegister(triple->getTargetVariable(), reg);
+    auto variableOp = triple->getTargetVariable();
+    return this->registerManager->getRegisterForVariable(
+        currentFunction, variableOp, currentLine);
   } else {
     // constant values
     if (op->getType() == Type::FLOAT) {
@@ -669,8 +676,6 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(mcc::tac::Operand::ptr_t op,
           std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
     } else {
       auto operand = std::make_shared<Operand>(op->getValue());
-      asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
     }
   }
 
