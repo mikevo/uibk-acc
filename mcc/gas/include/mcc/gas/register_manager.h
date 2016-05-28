@@ -50,6 +50,8 @@ class RegisterManager {
       function_graph_color_map_type;
   // key: function label, value: number of colors
   typedef std::map<mcc::tac::Label::ptr_t, unsigned> num_colors_map_type;
+  typedef boost::vector_property_map<RegisterManager::VertexDescriptor>
+      order_map_type;
 
   typedef std::pair<mcc::tac::Tac::code_lines_iter, VertexDescriptor>
       iter_descr_pair_type;
@@ -94,6 +96,7 @@ class RegisterManager {
   unsigned graphColoring(Graph graph,
                          std::shared_ptr<graph_color_map_type> colors,
                          unsigned n);
+  order_map_type smallestFirstOrdering(Graph g);
 
   VertexDescriptor lookupVertexDescr(mcc::tac::Label::ptr_t functionLabel,
                                      Vertex vertex,

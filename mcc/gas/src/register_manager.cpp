@@ -136,6 +136,7 @@ unsigned RegisterManager::graphColoring(std::string functionName, unsigned n) {
 
 unsigned RegisterManager::graphColoring(mcc::tac::Label::ptr_t functionLabel,
                                         unsigned n) {
+  this->storeDot("/tmp/ifg.dot", functionLabel);
   auto graph = this->functionGraphMap.at(functionLabel);
 
   // compute coloring
@@ -151,9 +152,7 @@ unsigned RegisterManager::graphColoring(mcc::tac::Label::ptr_t functionLabel,
 
 unsigned RegisterManager::graphColoring(
     Graph graph, std::shared_ptr<graph_color_map_type> colors, unsigned n) {
-  // compute smallest last ordering
-  boost::vector_property_map<RegisterManager::VertexDescriptor> order;
-  smallest_last_vertex_ordering(graph, order);
+  auto order = smallestFirstOrdering(graph);
 
   // compute coloring
   auto colorVec = std::vector<vertices_size_type>(boost::num_vertices(graph));
@@ -170,6 +169,30 @@ unsigned RegisterManager::graphColoring(
   }
 
   return numColors;
+}
+
+RegisterManager::order_map_type RegisterManager::smallestFirstOrdering(
+    Graph g) {
+  order_map_type order;
+
+  std::vector<std::pair<VertexDescriptor, unsigned>> degrees;
+  for (auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
+    degrees.push_back(
+        std::make_pair(*vp.first, boost::out_degree(*vp.first, g)));
+  }
+
+  // sort ascending
+  std::sort(degrees.begin(), degrees.end(),
+            [](const std::pair<VertexDescriptor, unsigned> &a,
+               const std::pair<VertexDescriptor, unsigned> &b) {
+              return a.second < b.second;
+            });
+
+  for (int i = 0; i < degrees.size(); ++i) {
+    order[i] = degrees[i].first;
+  }
+
+  return order;
 }
 
 Operand::ptr_t RegisterManager::getRegisterForVariable(
