@@ -752,11 +752,14 @@ void Gas::storeRegisters(std::initializer_list<Register> list, unsigned pos) {
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
     auto mnemonic = std::make_shared<Mnemonic>(Instruction::PUSH, regOp);
+
     if (posIt >= asmInstructions.end()) {
       asmInstructions.push_back(mnemonic);
     } else {
-      asmInstructions.insert(posIt++, mnemonic);
+      asmInstructions.insert(posIt, mnemonic);
     }
+
+    ++posIt;
   }
 }
 
@@ -769,11 +772,14 @@ void Gas::restoreRegisters(std::initializer_list<Register> list, unsigned pos) {
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
     auto mnemonic = std::make_shared<Mnemonic>(Instruction::POP, regOp);
+
     if (posIt >= asmInstructions.end()) {
       asmInstructions.push_back(mnemonic);
     } else {
       asmInstructions.insert(posIt++, mnemonic);
     }
+
+    ++posIt;
   }
 }
 
