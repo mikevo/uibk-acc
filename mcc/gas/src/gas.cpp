@@ -744,10 +744,19 @@ std::vector<Mnemonic::ptr_t>& Gas::getAsmInstructions() {
 }
 
 void Gas::storeRegisters(std::initializer_list<Register> list) {
+  this->storeRegisters(list, asmInstructions.size());
+}
+
+void Gas::storeRegisters(std::initializer_list<Register> list, unsigned pos) {
+  auto posIt = asmInstructions.begin() + pos;
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::PUSH, regOp));
+    auto mnemonic = std::make_shared<Mnemonic>(Instruction::PUSH, regOp);
+    if (posIt >= asmInstructions.end()) {
+      asmInstructions.push_back(mnemonic);
+    } else {
+      asmInstructions.insert(posIt++, mnemonic);
+    }
   }
 }
 
@@ -759,13 +768,20 @@ void Gas::restoreRegisters(std::initializer_list<Register> list, unsigned pos) {
   auto posIt = asmInstructions.begin() + pos;
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
-    asmInstructions.insert(posIt++,
-                           std::make_shared<Mnemonic>(Instruction::POP, regOp));
+    auto mnemonic = std::make_shared<Mnemonic>(Instruction::POP, regOp);
+    if (posIt >= asmInstructions.end()) {
+      asmInstructions.push_back(mnemonic);
+    } else {
+      asmInstructions.insert(posIt++, mnemonic);
+    }
   }
 }
 
 void Gas::prepareCall(Label::ptr_t label) {
-  storeRegisters({Register::ECX, Register::EDX});
+  // TODO find better solution
+  unsigned argSize = lookupFunctionArgSize(label);
+  unsigned pos = asmInstructions.size() - argSize / 4;
+  storeRegisters({Register::ECX, Register::EDX}, pos);
   resultAvailable = false;
 }
 
