@@ -86,12 +86,14 @@ class Gas {
   Operand::ptr_t getAsmVar(Variable::ptr_t var);
   std::pair<std::string, std::string> createFloatConstant(std::string value);
 
+  void storeRegisters(std::initializer_list<Register> list);
   void storeRegisters(std::initializer_list<Register> list, unsigned pos);
-  std::vector<Mnemonic::ptr_t> restoreRegisters(
-      std::initializer_list<Register> list);
+  void restoreRegisters(std::initializer_list<Register> list);
+  void restoreRegisters(std::initializer_list<Register> list, unsigned pos);
   void prepareCall(Label::ptr_t label);
   void cleanUpCall(Label::ptr_t label);
   void createFunctionProlog(Label::ptr_t label);
+  void createFunctionEpilog(Label::ptr_t label);
 
   void convertLabel(Triple::ptr_t triple);
   void convertReturn(Triple::ptr_t triple);

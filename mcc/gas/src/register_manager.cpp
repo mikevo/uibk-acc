@@ -246,7 +246,7 @@ Operand::ptr_t RegisterManager::getRegister(unsigned color) {
     case 1:
       return std::make_shared<Operand>(Register::EDX);
     default:
-      assert(false && "to view registeres defined for reg alloc");
+      assert(false && "to few registers defined for reg alloc");
       return nullptr;
   }
 }

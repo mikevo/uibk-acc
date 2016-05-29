@@ -257,13 +257,21 @@ void Gas::convertTac(Tac& tac) {
 void Gas::convertLabel(Triple::ptr_t triple) {
   auto labelTriple = std::static_pointer_cast<Label>(triple);
 
+  if (currentFunction && labelTriple->isFunctionEntry()) {
+    // TODO maybe there is a nicer way to check if prev instruction was RET
+    if (asmInstructions.back()->getInstruction() != Instruction::RET) {
+      // old function ends here
+      this->createFunctionEpilog(currentFunction);
+    }
+  }
+
   auto label = std::make_shared<Mnemonic>(labelTriple->getName());
   asmInstructions.push_back(label);
 
   // Add function entry
   if (labelTriple->isFunctionEntry()) {
     currentFunction = labelTriple;
-    createFunctionProlog(labelTriple);
+    this->createFunctionProlog(labelTriple);
   }
 }
 
@@ -304,23 +312,8 @@ void Gas::convertReturn(Triple::ptr_t triple) {
         std::make_shared<Mnemonic>(Instruction::MOV, eax, reg));
   }
 
-  unsigned stackSize = lookupFunctionStackSize(currentFunction);
-  auto esp = std::make_shared<Operand>(Register::ESP);
-  auto ebp = std::make_shared<Operand>(Register::EBP);
+  this->createFunctionEpilog(currentFunction);
 
-  // Cleanup stack
-  if (stackSize > 0) {
-    auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
-
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
-  }
-
-  restoreRegisters({Register::ESI, Register::EDI, Register::EBX});
-
-  asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, esp, ebp));
-  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::POP, ebp));
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::RET));
 }
 
@@ -750,37 +743,29 @@ std::vector<Mnemonic::ptr_t>& Gas::getAsmInstructions() {
   return asmInstructions;
 }
 
-void Gas::storeRegisters(std::initializer_list<Register> list, unsigned pos) {
-  std::vector<Mnemonic::ptr_t>::iterator it = asmInstructions.begin() + pos;
-  std::vector<Mnemonic::ptr_t> storeOperations;
-
+void Gas::storeRegisters(std::initializer_list<Register> list) {
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
-    storeOperations.push_back(
+    asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::PUSH, regOp));
   }
-
-  asmInstructions.insert(it, storeOperations.begin(), storeOperations.end());
 }
 
-std::vector<Mnemonic::ptr_t> Gas::restoreRegisters(
-    std::initializer_list<Register> list) {
-  std::vector<Mnemonic::ptr_t> loadOperations;
+void Gas::restoreRegisters(std::initializer_list<Register> list) {
+  this->restoreRegisters(list, asmInstructions.size());
+}
 
+void Gas::restoreRegisters(std::initializer_list<Register> list, unsigned pos) {
+  auto posIt = asmInstructions.begin() + pos;
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
-    loadOperations.push_back(
-        std::make_shared<Mnemonic>(Instruction::POP, regOp));
+    asmInstructions.insert(posIt++,
+                           std::make_shared<Mnemonic>(Instruction::POP, regOp));
   }
-
-  return loadOperations;
 }
 
 void Gas::prepareCall(Label::ptr_t label) {
-  // TODO find better solution
-  unsigned argSize = lookupFunctionArgSize(label);
-  unsigned pos = asmInstructions.size() - argSize / 4;
-  storeRegisters({Register::ECX, Register::EDX}, pos);
+  storeRegisters({Register::ECX, Register::EDX});
   resultAvailable = false;
 }
 
@@ -790,25 +775,22 @@ void Gas::cleanUpCall(Label::ptr_t label) {
 
   std::vector<Mnemonic::ptr_t>::iterator it = asmInstructions.end();
 
-  if (resultAvailable) --it;
+  int lineOffset = 0;
+  if (resultAvailable) --lineOffset;
   resultAvailable = false;
-
-  std::vector<Mnemonic::ptr_t> loadOperations;
 
   if (argSize > 0) {
     auto esp = std::make_shared<Operand>(Register::ESP);
     auto stackspaceOp = std::make_shared<Operand>(std::to_string(argSize));
 
-    loadOperations.push_back(
+    asmInstructions.insert(
+        it + lineOffset,
         std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
   }
 
   // Restore registers
-  auto regRestoreAsm = restoreRegisters({Register::EDX, Register::ECX});
-
-  loadOperations.insert(loadOperations.end(), regRestoreAsm.begin(),
-                        regRestoreAsm.end());
-  asmInstructions.insert(it, loadOperations.begin(), loadOperations.end());
+  restoreRegisters({Register::EDX, Register::ECX},
+                   asmInstructions.size() + lineOffset);
 }
 
 void Gas::createFunctionProlog(Label::ptr_t label) {
@@ -830,8 +812,7 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
   }
 
   // Store callee saved registers
-  unsigned pos = asmInstructions.size();
-  storeRegisters({Register::EBX, Register::EDI, Register::ESI}, pos);
+  storeRegisters({Register::EBX, Register::EDI, Register::ESI});
 
   for (auto var : this->functionVariableMap.at(currentFunction)) {
     auto reg = this->registerManager->getRegisterForVariable(currentFunction,
@@ -839,6 +820,26 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
 
     this->loadSpilledVariable(var, reg);
   }
+}
+
+void Gas::createFunctionEpilog(Label::ptr_t label) {
+  unsigned stackSize = lookupFunctionStackSize(label);
+  auto esp = std::make_shared<Operand>(Register::ESP);
+  auto ebp = std::make_shared<Operand>(Register::EBP);
+
+  restoreRegisters({Register::ESI, Register::EDI, Register::EBX});
+
+  // Cleanup stack
+  if (stackSize > 0) {
+    auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
+  }
+
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, esp, ebp));
+  asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::POP, ebp));
 }
 
 std::string Gas::toString() const {
