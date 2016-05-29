@@ -748,19 +748,15 @@ void Gas::storeRegisters(std::initializer_list<Register> list) {
 }
 
 void Gas::storeRegisters(std::initializer_list<Register> list, unsigned pos) {
-  auto posIt = asmInstructions.begin() + pos;
+  auto it = asmInstructions.begin() + pos;
+  std::vector<Mnemonic::ptr_t> ops;
+
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
-    auto mnemonic = std::make_shared<Mnemonic>(Instruction::PUSH, regOp);
-
-    if (posIt >= asmInstructions.end()) {
-      asmInstructions.push_back(mnemonic);
-    } else {
-      asmInstructions.insert(posIt, mnemonic);
-    }
-
-    ++posIt;
+    ops.push_back(std::make_shared<Mnemonic>(Instruction::PUSH, regOp));
   }
+
+  asmInstructions.insert(it, ops.begin(), ops.end());
 }
 
 void Gas::restoreRegisters(std::initializer_list<Register> list) {
@@ -768,19 +764,15 @@ void Gas::restoreRegisters(std::initializer_list<Register> list) {
 }
 
 void Gas::restoreRegisters(std::initializer_list<Register> list, unsigned pos) {
-  auto posIt = asmInstructions.begin() + pos;
+  auto it = asmInstructions.begin() + pos;
+  std::vector<Mnemonic::ptr_t> ops;
+
   for (auto reg : list) {
     auto regOp = std::make_shared<Operand>(reg);
-    auto mnemonic = std::make_shared<Mnemonic>(Instruction::POP, regOp);
-
-    if (posIt >= asmInstructions.end()) {
-      asmInstructions.push_back(mnemonic);
-    } else {
-      asmInstructions.insert(posIt++, mnemonic);
-    }
-
-    ++posIt;
+    ops.push_back(std::make_shared<Mnemonic>(Instruction::POP, regOp));
   }
+
+  asmInstructions.insert(it, ops.begin(), ops.end());
 }
 
 void Gas::prepareCall(Label::ptr_t label) {

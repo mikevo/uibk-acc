@@ -136,7 +136,6 @@ unsigned RegisterManager::graphColoring(std::string functionName, unsigned n) {
 
 unsigned RegisterManager::graphColoring(mcc::tac::Label::ptr_t functionLabel,
                                         unsigned n) {
-  this->storeDot("/tmp/ifg.dot", functionLabel);
   auto graph = this->functionGraphMap.at(functionLabel);
 
   // compute coloring
