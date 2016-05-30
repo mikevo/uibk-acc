@@ -354,8 +354,8 @@ void Gas::convertIntArithmetic(Triple::ptr_t triple) {
   reg0 = this->loadOperandToRegister(triple->getArg1());
 
   tmp = this->registerManager->getTmpRegister();
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, tmp, reg0));
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, tmp, reg0));
 
   if (operatorName == OperatorName::DIV) {
     asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::CDQ));
@@ -444,12 +444,21 @@ void Gas::convertLogicOperator(Triple::ptr_t triple) {
 void Gas::convertIntLogicOperator(Triple::ptr_t triple) {
   Operand::ptr_t reg0;
   Operand::ptr_t reg1;
+  Operand::ptr_t tmp;
 
   reg0 = this->loadOperandToRegister(triple->getArg1());
   reg1 = this->loadOperandToRegister(triple->getArg2());
 
+  if (reg0->isAddress()) {
+    tmp = this->registerManager->getTmpRegister();
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, tmp, reg0));
+  } else {
+    tmp = reg0;
+  }
+
   asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::CMP, reg0, reg1));
+      std::make_shared<Mnemonic>(Instruction::CMP, tmp, reg1));
 }
 
 void Gas::convertFloatLogicOperator(Triple::ptr_t triple) {

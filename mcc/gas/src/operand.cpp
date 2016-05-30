@@ -56,5 +56,9 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
 }
 
 bool Operand::isTempRegister() const { return this->containsTempReg; }
+bool Operand::isRegister() const {
+  return this->mType == OperandType::REGISTER;
+}
+bool Operand::isAddress() const { return this->mType == OperandType::ADDRESS; }
 }
 }

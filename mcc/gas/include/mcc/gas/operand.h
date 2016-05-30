@@ -34,6 +34,8 @@ class Operand {
                                   const mcc::gas::Operand& op);
 
   bool isTempRegister() const;
+  bool isRegister() const;
+  bool isAddress() const;
 
  private:
   OperandType mType;
