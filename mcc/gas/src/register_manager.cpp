@@ -280,6 +280,7 @@ Register RegisterManager::getTmpRegisterName() {
 
 Operand::ptr_t RegisterManager::getTmpRegister() {
   auto regName = this->getTmpRegisterName();
+  this->spillReg = !this->spillReg;
   return std::make_shared<Operand>(true, regName);
 }
 }
