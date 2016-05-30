@@ -397,5 +397,120 @@ main:
 
   EXPECT_EQ(expected, gas.toString());
 }
+
+TEST(Gas, GasPushIntConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  IntLiteral::ptr_t operandInt = std::make_shared<IntLiteral>(10);
+  Operator op = Operator(OperatorName::PUSH);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, operandInt);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	push ebx
+	push edi
+	push esi
+	push 10
+
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasPushFloatConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  FloatLiteral::ptr_t operandFloat = std::make_shared<FloatLiteral>(10.0);
+  Operator op = Operator(OperatorName::PUSH);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, operandFloat);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	push ebx
+	push edi
+	push esi
+	push DWORD PTR .FC0
+
+.FC0: .float 10.000000
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasPushVariableConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+            int a = 10;
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  Variable::ptr_t var;
+
+  for (auto triple : tac.codeLines) {
+    if (triple->containsTargetVar()) {
+      var = triple->getTargetVariable();
+    }
+  }
+
+  Operator op = Operator(OperatorName::PUSH);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, var);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 4
+	push ebx
+	push edi
+	push esi
+	mov ebx, 10
+	push ebx
+
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
 }
 }
