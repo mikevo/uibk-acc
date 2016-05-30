@@ -36,6 +36,7 @@ class Operand {
   bool isTempRegister() const;
   bool isRegister() const;
   bool isAddress() const;
+  bool isFloatConstant() const;
 
  private:
   OperandType mType;
@@ -43,6 +44,7 @@ class Operand {
   int mAddrOffset;
   std::string mLabelName;
   bool containsTempReg;
+  bool mIsFloatConstant;
 };
 }
 }

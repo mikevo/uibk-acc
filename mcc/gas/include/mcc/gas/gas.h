@@ -82,6 +82,8 @@ class Gas {
   std::shared_ptr<Operand> loadOperandToRegister(mcc::tac::Operand::ptr_t op);
   void loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t);
   void storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
+  void storeStackVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg);
+  void storeVariableFromFloatRegister(Variable::ptr_t var);
   void pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op);
   Operand::ptr_t getAsmVar(Variable::ptr_t var);
   std::pair<std::string, std::string> createFloatConstant(std::string value);

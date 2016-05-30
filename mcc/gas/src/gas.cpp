@@ -325,7 +325,11 @@ void Gas::convertAssign(Triple::ptr_t triple) {
 
       if (triple->containsArg2()) {
         auto reg = this->loadOperandToRegister(triple->getArg2());
-        this->storeVariableFromRegister(destVar, reg);
+        if (reg->isFloatConstant()) {
+          this->storeStackVariableFromRegister(destVar, reg);
+        } else {
+          this->storeVariableFromRegister(destVar, reg);
+        }
       }
     }
   }
@@ -417,9 +421,9 @@ void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
       assert(false && "unknown operation");
   }
 
-  auto targetVar = getAsmVar(triple->getTargetVariable());
-  asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::FSTP, targetVar));
+  if (triple->containsTargetVar()) {
+    storeVariableFromFloatRegister(triple->getTargetVariable());
+  }
 }
 
 void Gas::convertLogicOperator(Triple::ptr_t triple) {
@@ -630,9 +634,7 @@ void Gas::convertFloatMinus(Triple::ptr_t triple) {
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::FCHS));
 
   if (triple->containsTargetVar()) {
-    auto targetVar = getAsmVar(triple->getTargetVariable());
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::FSTP, targetVar));
+    storeVariableFromFloatRegister(triple->getTargetVariable());
   }
 }
 
@@ -697,6 +699,40 @@ void Gas::storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg) {
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
+}
+
+void Gas::storeStackVariableFromRegister(Variable::ptr_t var,
+                                         Operand::ptr_t reg) {
+  auto stackVar = getAsmVar(var);
+
+  auto tmp = this->registerManager->getTmpRegister();
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, tmp, reg));
+  asmInstructions.push_back(
+      std::make_shared<Mnemonic>(Instruction::MOV, stackVar, tmp));
+}
+
+void Gas::storeVariableFromFloatRegister(Variable::ptr_t var) {
+  auto stackVar = getAsmVar(var);
+  auto asmVar = this->registerManager->getLocationForVariable(currentFunction,
+                                                              var, currentLine);
+
+  if (asmVar->isAddress()) {
+    auto tmp = this->registerManager->getTmpRegister();
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::FSTP, stackVar));
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, tmp, stackVar));
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, asmVar, tmp));
+
+  } else {
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::FSTP, stackVar));
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, asmVar, stackVar));
+  }
 }
 
 void Gas::pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op) {

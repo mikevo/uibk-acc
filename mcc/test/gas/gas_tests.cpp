@@ -2,7 +2,9 @@
 
 #include "mcc/gas/gas.h"
 
+#include "mcc/tac/float_literal.h"
 #include "mcc/tac/helper/ast_converters.h"
+#include "mcc/tac/int_literal.h"
 #include "parser.h"
 #include "test_utils.h"
 
@@ -107,228 +109,288 @@ TEST(Gas, VariableStackOffset) {
   }
 }
 
-// TODO stupid test -> reimplement it
-TEST(Gas, GasGeneration) {
+TEST(Gas, GasAddIntegerConversion) {
   auto tree = parser::parse(
       R"(
-        void print_int(int);
-        void print_float(float);
-
-        float foo(int arg1, float arg2);
-        float bar(float arg1, int arg2);
-
-        float bar(float arg1, int arg2) {
-            print_int(2);
-
-            if(arg1 > 5.0) {
-                arg1 = arg1 - 1.0;
-            } else {
-              return 3.0;
-            }
-
-            return foo(arg1, arg2);
-        }
-
-        float foo(int arg1, float arg2) {
-            print_int(1);
-
-            if(arg1 <= 5) {
-                return 42.0;
-            } else {
-                return bar(arg2, arg1);
-            }
-        }
-
-        int main() {
-          int i = 0;
-          while(i < 10) {
-            print_float(foo(i, 13.2));
-            i = i + 1;
-          }
-
-          return 0;
+        void main() {
+        
         }
         )");
 
   Tac tac = Tac(tree);
+  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10);
+  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15);
+  Operator op = Operator(OperatorName::ADD);
+
+  Triple::ptr_t addTriple =
+      std::make_shared<Triple>(op, operandOne, operandTwo);
+  tac.addLine(addTriple);
+
   Gas gas = Gas(tac);
-
-  auto labels = std::vector<std::string>();
-  for (auto triple : tac.codeLines) {
-    switch (triple->getOperator().getName()) {
-      case OperatorName::LABEL: {
-        auto label = std::static_pointer_cast<Label>(triple);
-        if (!label->isFunctionEntry()) {
-          labels.push_back(label->getValue());
-        }
-      } break;
-      case OperatorName::JUMP: {
-        auto label = std::static_pointer_cast<Label>(triple->getArg1());
-        if (!label->isFunctionEntry()) {
-          labels.push_back(label->getValue());
-        }
-      } break;
-      case OperatorName::JUMPFALSE: {
-        auto label = std::static_pointer_cast<Label>(triple->getArg2());
-        if (!label->isFunctionEntry()) {
-          labels.push_back(label->getValue());
-        }
-      } break;
-      default:
-        // ignore
-        break;
-    }
-  }
-
   auto expected = R"(.intel_syntax noprefix
 .global main
 
-bar:
-	push ebp
-	mov ebp, esp
-	sub esp, 12
-	push ebx
-	push edi
-	push esi
-	mov ecx, DWORD PTR [ebp - 8]
-	mov ebx, DWORD PTR [ebp + 12]
-	mov ebx, DWORD PTR [ebp + 12]
-	push ecx
-	push edx
-	push 2
-	call print_int
-	add esp, 4
-	pop edx
-	pop ecx
-	fld DWORD PTR [ebp - 8]
-	fld DWORD PTR .FC0
-	fxch st(1)
-	fucomip st, st(1)
-	fstp st(0)
-	jbe $L609
-	fld DWORD PTR [ebp - 8]
-	fld DWORD PTR .FC1
-	fsubp st(1), st
-	fstp DWORD PTR [ebp - 4]
-	mov ecx, edx
-	jmp $L613
-
-$L609:
-	mov eax, DWORD PTR .FC2
-	add esp, 12
-	mov esp, ebp
-	pop ebp
-	ret
-
-$L613:
-	mov eax, DWORD PTR [ebp + 12]
-	push ecx
-	push edx
-	push eax
-	push ecx
-	call foo
-	add esp, 8
-	pop edx
-	pop ecx
-	mov ecx, eax
-	mov eax, ecx
-	add esp, 12
-	mov esp, ebp
-	pop ebp
-	ret
-
-foo:
+main:
 	push ebp
 	mov ebp, esp
 	sub esp, 4
 	push ebx
 	push edi
 	push esi
-	mov ecx, DWORD PTR [ebp + 8]
-	mov ebx, DWORD PTR [ebp + 12]
-	mov ebx, DWORD PTR [ebp + 12]
-	push ecx
-	push edx
-	push 1
-	call print_int
-	add esp, 4
-	pop edx
-	pop ecx
-	cmp ecx, 5
-	jg $L625
-	mov eax, DWORD PTR .FC3
-	add esp, 4
-	mov esp, ebp
-	pop ebp
-	ret
-	jmp $L628
+	mov eax, 10
+	add eax, 15
+	mov ebx, eax
 
-$L625:
-	push ecx
-	push ecx
-	push edx
-	mov eax, DWORD PTR [ebp + 12]
-	push eax
-	call bar
-	add esp, 8
-	pop edx
-	pop ecx
-	mov ecx, eax
-	mov eax, ecx
-	add esp, 4
-	mov esp, ebp
-	pop ebp
-	ret
 
-$L628:
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasSubIntegerConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10);
+  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15);
+  Operator op = Operator(OperatorName::SUB);
+
+  Triple::ptr_t subTriple =
+      std::make_shared<Triple>(op, operandOne, operandTwo);
+  tac.addLine(subTriple);
+
+  Gas gas = Gas(tac);
+  auto expected = R"(.intel_syntax noprefix
+.global main
 
 main:
 	push ebp
 	mov ebp, esp
-	sub esp, 16
+	sub esp, 4
 	push ebx
 	push edi
 	push esi
-	mov edx, 0
+	mov eax, 10
+	sub eax, 15
+	mov ebx, eax
 
-$L636:
-	cmp edx, 10
-	jge $L638
-	push ecx
-	push edx
-	push DWORD PTR .FC4
-	push edx
-	call foo
-	add esp, 8
-	pop edx
-	pop ecx
-	mov ecx, eax
-	push ecx
-	push edx
-	push ecx
-	call print_float
-	add esp, 4
-	pop edx
-	pop ecx
-	mov ebx, edx
-	add edx, 1
-	mov ecx, edx
-	mov edx, ebx
-	mov edx, ecx
-	jmp $L636
 
-$L638:
-	mov eax, 0
-	add esp, 16
-	mov esp, ebp
-	pop ebp
-	ret
+.att_syntax noprefix
+)";
 
-.FC0: .float 5.000000
-.FC1: .float 1.000000
-.FC2: .float 3.000000
-.FC3: .float 42.000000
-.FC4: .float 13.200000
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasMulIntegerConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10);
+  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15);
+  Operator op = Operator(OperatorName::MUL);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 4
+	push ebx
+	push edi
+	push esi
+	mov eax, 10
+	imul eax, 15
+	mov ebx, eax
+
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasAddFloatConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  Operator op = Operator(OperatorName::ADD);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 4
+	push ebx
+	push edi
+	push esi
+	fld DWORD PTR .FC0
+	fld DWORD PTR .FC1
+	faddp st(1), st
+	fstp DWORD PTR [ebp - 4]
+	mov ebx, DWORD PTR [ebp - 4]
+
+.FC0: .float 10.000000
+.FC1: .float 15.000000
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasSubFloatConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  Operator op = Operator(OperatorName::SUB);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 4
+	push ebx
+	push edi
+	push esi
+	fld DWORD PTR .FC0
+	fld DWORD PTR .FC1
+	fsubp st(1), st
+	fstp DWORD PTR [ebp - 4]
+	mov ebx, DWORD PTR [ebp - 4]
+
+.FC0: .float 10.000000
+.FC1: .float 15.000000
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasMulFloatConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  Operator op = Operator(OperatorName::MUL);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 4
+	push ebx
+	push edi
+	push esi
+	fld DWORD PTR .FC0
+	fld DWORD PTR .FC1
+	fmulp st(1), st
+	fstp DWORD PTR [ebp - 4]
+	mov ebx, DWORD PTR [ebp - 4]
+
+.FC0: .float 10.000000
+.FC1: .float 15.000000
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
+TEST(Gas, GasDivFloatConversion) {
+  auto tree = parser::parse(
+      R"(
+        void main() {
+        
+        }
+        )");
+
+  Tac tac = Tac(tree);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  Operator op = Operator(OperatorName::DIV);
+
+  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  tac.addLine(triple);
+
+  Gas gas = Gas(tac);
+
+  auto expected = R"(.intel_syntax noprefix
+.global main
+
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 4
+	push ebx
+	push edi
+	push esi
+	fld DWORD PTR .FC0
+	fld DWORD PTR .FC1
+	fdivp st(1), st
+	fstp DWORD PTR [ebp - 4]
+	mov ebx, DWORD PTR [ebp - 4]
+
+.FC0: .float 10.000000
+.FC1: .float 15.000000
 
 .att_syntax noprefix
 )";

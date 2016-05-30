@@ -17,6 +17,14 @@
 namespace mcc {
 namespace tac {
 
+Tac::Tac() : currentBasicBlock(0), currentBasicBlockUsed(false) {
+  this->variableStore = std::make_shared<VariableStore>();
+  this->basicBlockIndex = std::make_shared<bbVector>();
+  this->functionMap = std::make_shared<function_map_type>();
+  this->functionPrototypeMap = std::make_shared<function_prototype_map_type>();
+  this->functionReturnMap = std::make_shared<function_return_map_type>();
+}
+
 Tac::Tac(std::shared_ptr<ast::node> n)
     : currentBasicBlock(0), currentBasicBlockUsed(false) {
   this->variableStore = std::make_shared<VariableStore>();

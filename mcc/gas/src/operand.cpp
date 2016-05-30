@@ -8,24 +8,31 @@ Operand::Operand(Register reg)
     : mType(OperandType::REGISTER),
       mRegister(reg),
       mAddrOffset(0),
-      containsTempReg(false) {}
+      containsTempReg(false),
+      mIsFloatConstant(false) {}
 Operand::Operand(bool tempRegister, Register reg)
     : mType(OperandType::REGISTER),
       mRegister(reg),
       mAddrOffset(0),
-      containsTempReg(tempRegister) {}
+      containsTempReg(tempRegister),
+      mIsFloatConstant(false) {}
 Operand::Operand(int offset)
     : mType(OperandType::ADDRESS),
       mRegister(Register::EBP),
       mAddrOffset(offset),
-      containsTempReg(false) {}
+      containsTempReg(false),
+      mIsFloatConstant(false) {}
 Operand::Operand(std::string label)
-    : mType(OperandType::LABEL), mLabelName(label), containsTempReg(false) {}
+    : mType(OperandType::LABEL),
+      mLabelName(label),
+      containsTempReg(false),
+      mIsFloatConstant(false) {}
 // float constant
 Operand::Operand(std::pair<std::string, std::string> floatConstant)
     : mType(OperandType::FLOAT_CONSTANT),
       mLabelName(floatConstant.first),
-      containsTempReg(false) {}
+      containsTempReg(false),
+      mIsFloatConstant(true) {}
 
 std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
   switch (op.mType) {
@@ -60,5 +67,6 @@ bool Operand::isRegister() const {
   return this->mType == OperandType::REGISTER;
 }
 bool Operand::isAddress() const { return this->mType == OperandType::ADDRESS; }
+bool Operand::isFloatConstant() const { return this->mIsFloatConstant; }
 }
 }

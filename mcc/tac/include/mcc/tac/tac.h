@@ -37,6 +37,7 @@ class Tac {
   typedef boost::iterator_range<code_lines_iter> code_lines_range;
   typedef std::map<Label::ptr_t, code_lines_range> function_range_map_type;
 
+  Tac();
   Tac(std::shared_ptr<ast::node> n);
 
   void addLine(Triple::ptr_t line);
