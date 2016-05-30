@@ -52,6 +52,7 @@ class Gas {
                                                Operand::ptr_t reg);
   std::shared_ptr<Operand> storeSpilledVariable(Variable::ptr_t var,
                                                 Operand::ptr_t reg);
+  unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
  private:
   //  std::shared_ptr<function_map_type> functionMap;
@@ -77,7 +78,6 @@ class Gas {
 
   unsigned lookupFunctionArgSize(Label::ptr_t functionLabel);
   unsigned lookupFunctionStackSize(Label::ptr_t functionLabel);
-  unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
   std::shared_ptr<Operand> loadOperandToRegister(mcc::tac::Operand::ptr_t op);
   void loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t);

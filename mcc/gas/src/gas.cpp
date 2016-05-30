@@ -693,13 +693,11 @@ void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
 }
 
 void Gas::storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg) {
-  auto asmVar = this->registerManager->getRegisterForVariable(currentFunction,
+  auto asmVar = this->registerManager->getLocationForVariable(currentFunction,
                                                               var, currentLine);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
-  this->registerManager->storeRegisterInVariable(currentFunction, var,
-                                                 currentLine);
 }
 
 void Gas::pushOperandToFloatRegister(mcc::tac::Operand::ptr_t op) {

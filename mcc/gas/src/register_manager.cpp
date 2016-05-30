@@ -39,17 +39,7 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
         auto defVar = loc->getTargetVariable();
         auto result = vertexMap.find(defVar);
 
-        if (result != vertexMap.end()) {
-          auto liveSet = cfg.liveSetAt(loc, false);
-
-          // add new liverange if not live at current possition
-          if (liveSet.find(defVar) == liveSet.end()) {
-            auto vt = boost::add_vertex(defVar, interference);
-            auto pair = std::make_pair(it, vt);
-
-            result->second.push_back(pair);
-          }
-        } else {
+        if (result == vertexMap.end()) {
           auto vt = boost::add_vertex(defVar, interference);
           auto pair = std::make_pair(it, vt);
 
@@ -201,6 +191,19 @@ RegisterManager::order_map_type RegisterManager::smallestFirstOrdering(
   }
 
   return order;
+}
+
+Operand::ptr_t RegisterManager::getLocationForVariable(
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
+    mcc::tac::Tac::code_lines_iter it) {
+  auto color = this->getColor(functionLabel, vertex, it);
+
+  if (this->isColor(color)) {
+    return this->getRegister(color);
+  } else {
+    unsigned varOffset = gas->lookupVariableStackOffset(vertex);
+    return std::make_shared<Operand>(varOffset);
+  }
 }
 
 Operand::ptr_t RegisterManager::getRegisterForVariable(

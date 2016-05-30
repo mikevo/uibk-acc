@@ -82,6 +82,9 @@ class RegisterManager {
   Operand::ptr_t getRegisterForVariable(mcc::tac::Label::ptr_t functionLabel,
                                         Vertex vertex,
                                         mcc::tac::Tac::code_lines_iter it);
+  Operand::ptr_t getLocationForVariable(mcc::tac::Label::ptr_t functionLabel,
+                                        Vertex vertex,
+                                        mcc::tac::Tac::code_lines_iter it);
   void storeRegisterInVariable(mcc::tac::Label::ptr_t functionLabel,
                                Vertex vertex,
                                mcc::tac::Tac::code_lines_iter it);
