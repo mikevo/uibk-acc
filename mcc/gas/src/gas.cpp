@@ -353,13 +353,9 @@ void Gas::convertIntArithmetic(Triple::ptr_t triple) {
 
   reg0 = this->loadOperandToRegister(triple->getArg1());
 
-  bool backupReg0 = !reg0->isTempRegister();
-  // save original value
-  if (backupReg0) {
-    tmp = this->registerManager->getTmpRegister();
+  tmp = this->registerManager->getTmpRegister();
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::MOV, tmp, reg0));
-  }
 
   if (operatorName == OperatorName::DIV) {
     asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::CDQ));
@@ -370,15 +366,15 @@ void Gas::convertIntArithmetic(Triple::ptr_t triple) {
   switch (operatorName) {
     case OperatorName::ADD:
       asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::ADD, reg0, reg1));
+          std::make_shared<Mnemonic>(Instruction::ADD, tmp, reg1));
       break;
     case OperatorName::SUB:
       asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::SUB, reg0, reg1));
+          std::make_shared<Mnemonic>(Instruction::SUB, tmp, reg1));
       break;
     case OperatorName::MUL:
       asmInstructions.push_back(
-          std::make_shared<Mnemonic>(Instruction::IMUL, reg0, reg1));
+          std::make_shared<Mnemonic>(Instruction::IMUL, tmp, reg1));
       break;
     case OperatorName::DIV:
       asmInstructions.push_back(
@@ -388,13 +384,7 @@ void Gas::convertIntArithmetic(Triple::ptr_t triple) {
       assert(false && "unknown operation");
   }
 
-  this->storeVariableFromRegister(triple->getTargetVariable(), reg0);
-
-  // save original value
-  if (backupReg0) {
-    asmInstructions.push_back(
-        std::make_shared<Mnemonic>(Instruction::MOV, reg0, tmp));
-  }
+  this->storeVariableFromRegister(triple->getTargetVariable(), tmp);
 }
 
 void Gas::convertFloatArithmetic(Triple::ptr_t triple) {
@@ -641,12 +631,12 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(
     mcc::tac::Operand::ptr_t op) {
   if (helper::isType<Variable>(op)) {
     auto variableOp = std::static_pointer_cast<Variable>(op);
-    return this->registerManager->getRegisterForVariable(
+    return this->registerManager->getLocationForVariable(
         currentFunction, variableOp, currentLine);
   } else if (helper::isType<Triple>(op)) {
     auto triple = std::static_pointer_cast<Triple>(op);
     auto variableOp = triple->getTargetVariable();
-    return this->registerManager->getRegisterForVariable(
+    return this->registerManager->getLocationForVariable(
         currentFunction, variableOp, currentLine);
   } else {
     // constant values
@@ -827,7 +817,7 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
   storeRegisters({Register::EBX, Register::EDI, Register::ESI});
 
   for (auto var : this->functionVariableMap.at(currentFunction)) {
-    auto reg = this->registerManager->getRegisterForVariable(currentFunction,
+    auto reg = this->registerManager->getLocationForVariable(currentFunction,
                                                              var, currentLine);
 
     this->loadSpilledVariable(var, reg);

@@ -15,8 +15,7 @@ namespace gas {
 
 RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
     : tac(tac), gas(gas) {
-  this->spillReg = false;
-  this->numOfRegForColoring = 2;
+  this->numOfRegForColoring = 3;
 
   this->numColorsMap = std::make_shared<num_colors_map_type>();
   this->functionGraphColorsMap =
@@ -206,28 +205,6 @@ Operand::ptr_t RegisterManager::getLocationForVariable(
   }
 }
 
-Operand::ptr_t RegisterManager::getRegisterForVariable(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
-    mcc::tac::Tac::code_lines_iter it) {
-  auto color = this->getColor(functionLabel, vertex, it);
-
-  if (this->isColor(color)) {
-    return this->getRegister(color);
-  } else {
-    return this->getSpilledVariable(vertex);
-  }
-}
-
-void RegisterManager::storeRegisterInVariable(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
-    mcc::tac::Tac::code_lines_iter it) {
-  auto color = this->getColor(functionLabel, vertex, it);
-
-  if (!this->isColor(color)) {
-    this->storeSpilledVariable(vertex);
-  }
-}
-
 bool RegisterManager::isColor(unsigned color) {
   if (color < this->numOfRegForColoring)
     return true;
@@ -253,47 +230,28 @@ RegisterManager::VertexDescriptor RegisterManager::getVertexDescriptor(
 Operand::ptr_t RegisterManager::getRegister(unsigned color) {
   switch (color) {
     case 0:
-      return std::make_shared<Operand>(Register::ECX);
+      return std::make_shared<Operand>(Register::EBX);
     case 1:
+      return std::make_shared<Operand>(Register::ECX);
+    case 2:
       return std::make_shared<Operand>(Register::EDX);
     default:
       assert(false && "to few registers defined for reg alloc");
       return nullptr;
   }
 }
+//
+// void RegisterManager::storeSpilledVariable(Vertex vertex) {
+//  Register regName = this->spilledVarMap[vertex];
+//  auto reg = std::make_shared<Operand>(true, regName);
+//
+//  gas->storeSpilledVariable(vertex, reg);
+//}
 
-Operand::ptr_t RegisterManager::getSpilledVariable(Vertex vertex) {
-  auto regName = this->getTmpRegisterName();
-  auto reg = std::make_shared<Operand>(true, regName);
-  this->spilledVarMap[vertex] = regName;
-  this->spillReg = !this->spillReg;
-
-  gas->loadSpilledVariable(vertex, reg);
-  return reg;
-}
-
-void RegisterManager::storeSpilledVariable(Vertex vertex) {
-  Register regName = this->spilledVarMap[vertex];
-  auto reg = std::make_shared<Operand>(true, regName);
-
-  gas->storeSpilledVariable(vertex, reg);
-}
-
-Register RegisterManager::getTmpRegisterName() {
-  Register regName;
-  // toggle register to ensure that two possibly spilled operands are in
-  // different regs
-  if (this->spillReg)
-    regName = Register::EAX;
-  else
-    regName = Register::EBX;
-  return regName;
-}
+Register RegisterManager::getTmpRegisterName() { return Register::EAX; }
 
 Operand::ptr_t RegisterManager::getTmpRegister() {
-  auto regName = this->getTmpRegisterName();
-  this->spillReg = !this->spillReg;
-  return std::make_shared<Operand>(true, regName);
+  return std::make_shared<Operand>(true, this->getTmpRegisterName());
 }
 }
 }

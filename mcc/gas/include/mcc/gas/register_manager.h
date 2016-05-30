@@ -79,15 +79,9 @@ class RegisterManager {
   void storeDot(std::string fileName,
                 mcc::tac::Label::ptr_t functionLabel) const;
 
-  Operand::ptr_t getRegisterForVariable(mcc::tac::Label::ptr_t functionLabel,
-                                        Vertex vertex,
-                                        mcc::tac::Tac::code_lines_iter it);
   Operand::ptr_t getLocationForVariable(mcc::tac::Label::ptr_t functionLabel,
                                         Vertex vertex,
                                         mcc::tac::Tac::code_lines_iter it);
-  void storeRegisterInVariable(mcc::tac::Label::ptr_t functionLabel,
-                               Vertex vertex,
-                               mcc::tac::Tac::code_lines_iter it);
 
   Register getTmpRegisterName();
   Operand::ptr_t getTmpRegister();
@@ -112,8 +106,7 @@ class RegisterManager {
                                        Vertex vertex,
                                        mcc::tac::Tac::code_lines_iter it);
   Operand::ptr_t getRegister(unsigned color);
-  Operand::ptr_t getSpilledVariable(Vertex vertex);
-  void storeSpilledVariable(Vertex vertex);
+  //  void storeSpilledVariable(Vertex vertex);
 
   mcc::tac::Tac &tac;
   Gas *gas;
@@ -124,10 +117,6 @@ class RegisterManager {
   std::shared_ptr<num_colors_map_type> numColorsMap;
   std::shared_ptr<function_descr_map_type> functionDescriptorMap;
   unsigned numOfRegForColoring;
-
-  bool spillReg;
-  std::map<mcc::tac::Variable::ptr_t, Register, mcc::tac::Variable::less>
-      spilledVarMap;
 };
 }
 }
