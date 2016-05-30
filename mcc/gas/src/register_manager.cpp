@@ -37,14 +37,22 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
 
       if (loc->containsTargetVar()) {
         auto defVar = loc->getTargetVariable();
-        auto vt = boost::add_vertex(defVar, interference);
-        auto pair = std::make_pair(it, vt);
-
         auto result = vertexMap.find(defVar);
 
         if (result != vertexMap.end()) {
-          result->second.push_back(pair);
+          auto liveSet = cfg.liveSetAt(loc, false);
+
+          // add new liverange if not live at current possition
+          if (liveSet.find(defVar) == liveSet.end()) {
+            auto vt = boost::add_vertex(defVar, interference);
+            auto pair = std::make_pair(it, vt);
+
+            result->second.push_back(pair);
+          }
         } else {
+          auto vt = boost::add_vertex(defVar, interference);
+          auto pair = std::make_pair(it, vt);
+
           std::vector<RegisterManager::iter_descr_pair_type> vec;
           vec.push_back(pair);
           vertexMap.insert(std::make_pair(defVar, vec));
@@ -52,7 +60,8 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
 
         for (auto var : cfg.liveSetAt(loc, false)) {
           // targetVar interferes with var
-          boost::add_edge(vt, vertexMap.at(var).back().second, interference);
+          boost::add_edge(vertexMap.at(defVar).back().second,
+                          vertexMap.at(var).back().second, interference);
         }
       }
     }
