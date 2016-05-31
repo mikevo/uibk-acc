@@ -24,13 +24,16 @@ Scg::Scg(mcc::tac::Tac &tac) {
   }
 
   for (auto triple : tac.codeLines) {
-    if (typeid(*triple) == typeid(Label)) {
+    auto line = *triple;
+    if (typeid(line) == typeid(Label)) {
       auto label = std::static_pointer_cast<Label>(triple);
       if (label->isFunctionEntry()) {
         currentFunctionName = label->getName();
       }
     } else if (triple->getOperator().getType() == OperatorType::CALL) {
-      if (typeid(*(triple->getArg1())) == typeid(Label)) {
+      auto &arg1 = *(triple->getArg1());
+
+      if (typeid(arg1) == typeid(Label)) {
         auto callTarget = std::static_pointer_cast<Label>(triple->getArg1());
         auto targetName = callTarget->getName();
         boost::add_edge(graphIndex[currentFunctionName], graphIndex[targetName],
