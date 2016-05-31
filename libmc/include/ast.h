@@ -95,10 +95,10 @@ struct array : public expression {
 };
 
 struct array_access : public expression {
+  sptr<array> m_array;
   sptr<expression> access_expr;
-  string name;
-  array_access(sptr<int_literal> access_expr, string name) : 
-    access_expr(access_expr), name(name) {}
+  array_access(sptr<array> array, sptr<expression> access_expr)
+      : m_array(array), access_expr(access_expr) {}
   virtual bool operator==(const node& other) const;
   virtual std::ostream& print_to(std::ostream& stream) const;
 };

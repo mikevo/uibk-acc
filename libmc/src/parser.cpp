@@ -108,12 +108,38 @@ void scope::declare(const parser_state& p, string name,
   if (storage.find(name) != storage.end())
     throw parser_error(
         p, "Declaring variable with name which already exists in this scope");
+
+  if (arrayStorage.find(name) != arrayStorage.end())
+    throw parser_error(p,
+                       "Declaring variable which conflicts with array name "
+                       "existing in this scope");
+
   storage[name] = var;
+}
+
+void scope::declareArray(const parser_state& p, string name,
+                         sptr<ast::array> array) {
+  if (arrayStorage.find(name) != arrayStorage.end())
+    throw parser_error(
+        p, "Declaring array with name which already exists in this scope");
+
+  if (storage.find(name) != storage.end())
+    throw parser_error(p,
+                       "Declaring array which conflicts with variable name "
+                       "existing in this scope");
+
+  arrayStorage[name] = array;
 }
 
 sptr<ast::variable> scope::lookup(string name) const {
   auto it = storage.find(name);
   if (it == storage.end()) return {};
+  return it->second;
+}
+
+sptr<ast::array> scope::lookupArray(string name) const {
+  auto it = arrayStorage.find(name);
+  if (it == arrayStorage.end()) return {};
   return it->second;
 }
 
@@ -134,6 +160,14 @@ sptr<ast::variable> lookup_variable(const parser_state& state, string name) {
   for (auto it = state.scopes.crbegin(); it != state.scopes.crend(); ++it) {
     auto var = it->lookup(name);
     if (var) return var;
+  }
+  return {};
+}
+
+sptr<ast::array> lookup_array(const parser_state& state, string name) {
+  for (auto it = state.scopes.crbegin(); it != state.scopes.crend(); ++it) {
+    auto array = it->lookupArray(name);
+    if (array) return array;
   }
   return {};
 }
@@ -212,6 +246,24 @@ sptr<ast::variable> variable(parser_state& p) {
   if (!var) return {};
   p = try_p;
   return var;
+}
+
+sptr<ast::array_access> array_access(parser_state& p) {
+  auto try_p = p;
+  auto identifier = consume_identifier(try_p);
+  if (identifier.empty()) return {};
+  auto array = lookup_array(try_p, identifier);
+  if (!array) return {};
+
+  if (try_token(try_p, "[").empty()) return {};
+  p = try_p;
+
+  auto expr = expression(p);
+
+  if (try_token(p, "]").empty())
+    throw parser_error(p, "Expected ']' at the end of array access");
+
+  return std::make_shared<ast::array_access>(array, expr);
 }
 
 sptr<ast::literal> literal(parser_state& p) {
@@ -309,8 +361,9 @@ sptr<ast::function_call_expr> function_call_expr(parser_state& p) {
 }
 
 sptr<ast::expression> single_expression(parser_state& p) {
-  return try_match<sptr<ast::expression>>(
-      p, function_call_expr, literal, variable, unary_operation, paren_expr);
+  return try_match<sptr<ast::expression>>(p, function_call_expr, literal,
+                                          array_access, variable,
+                                          unary_operation, paren_expr);
 }
 
 sptr<ast::expression> expression(parser_state& p) {
@@ -387,10 +440,13 @@ sptr<ast::decl_stmt> decl_stmt(parser_state& p) {
 }
 
 sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p) {
-  auto array_type = type(p);
+  auto try_p = p;
+
+  auto array_type = type(try_p);
   if (!array_type) return {};
 
-  if (try_token(p, "[").empty()) return {};
+  if (try_token(try_p, "[").empty()) return {};
+  p = try_p;
 
   auto array_size = int_literal(p);
   if (!array_size) throw parser_error(p, "Expected integer as array size");
@@ -406,12 +462,9 @@ sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p) {
     throw parser_error(p,
                        "Expected ';' at end of array declaration  statement");
 
-  // Create array variable to avoid var/array redeclaration
-  // TODO Not sure if this can cause problems elsewhere
-  auto array_var = std::make_shared<ast::variable>(array_type, identifier);
-  p.scopes.back().declare(p, identifier, array_var);
 
   auto array = std::make_shared<ast::array>(array_type, array_size, identifier);
+  p.scopes.back().declareArray(p, identifier, array);
   return std::make_shared<ast::array_decl_stmt>(array);
 }
 

@@ -7,7 +7,6 @@ int main(void) {
 
   int i = 0;
 
-  /* init a and b */
   while (i <= 5) {
     a[i] = i + 1;
     b[i] = i + 2;
@@ -27,6 +26,5 @@ int main(void) {
     i = i + 1;
   }
 
-  /* sum should be 70 */
   print_int(sum);
 }

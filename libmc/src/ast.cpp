@@ -105,11 +105,11 @@ std::ostream& array::print_to(std::ostream& stream) const {
 bool array_access::operator==(const node& other) const {
   if (typeid(other) != typeid(array_access)) return false;
   auto o = dynamic_cast<const array_access&>(other);
-  return *o.access_expr == *access_expr && o.name == name;
+  return *o.access_expr == *access_expr && *o.m_array == *m_array;
 }
 
 std::ostream& array_access::print_to(std::ostream& stream) const {
-  stream << name << "[";
+  stream << m_array->name << "[";
   access_expr->print_to(stream);
   return stream << "]";
 }

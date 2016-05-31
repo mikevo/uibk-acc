@@ -15,10 +15,13 @@ struct parser_state;
 
 class scope {
   std::map<string, sptr<ast::variable>> storage;
+  std::map<string, sptr<ast::array>> arrayStorage;
 
  public:
   void declare(const parser_state& p, string name, sptr<ast::variable> var);
+  void declareArray(const parser_state& p, string name, sptr<ast::array> array);
   sptr<ast::variable> lookup(string name) const;
+  sptr<ast::array> lookupArray(string name) const;
 };
 
 class functionDefinitions {

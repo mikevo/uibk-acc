@@ -71,6 +71,8 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
   if (isType<ast::function_prototype>(n)) return convertFunctionPrototype(t, n);
   if (isType<ast::function_call_expr>(n)) return convertfunctionCallExpr(t, n);
   if (isType<ast::return_stmt>(n)) return convertReturnStmt(t, n);
+  if (isType<ast::array_decl_stmt>(n)) return convertArrayDeclStmt(t, n);
+  if (isType<ast::array_access>(n)) return convertArrayAccess(t, n);
 
   // Debugging output; this is only printed if something goes terribly
   // wrong
@@ -423,6 +425,18 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
     t->nextBasicBlock();
     return retTriple;
   }
+}
+
+Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n) {
+  // TODO
+  assert(false && "Array conversion not implemented");
+  return nullptr;
+}
+
+Operand::ptr_t convertArrayAccess(Tac *t, AstNode n) {
+  // TODO
+  assert(false && "Array conversion not implemented");
+  return nullptr;
 }
 }
 }

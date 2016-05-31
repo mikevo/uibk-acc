@@ -24,6 +24,7 @@ Operand::ptr_t convertNode(Tac *t, AstNode n);
 Operand::ptr_t convertIntLiteral(Tac *t, AstNode n);
 Operand::ptr_t convertFloatLiteral(Tac *t, AstNode n);
 Operand::ptr_t convertVariable(Tac *t, AstNode n);
+Operand::ptr_t convertArrayAccess(Tac *t, AstNode n);
 
 // step cases
 Operand::ptr_t convertBinaryOp(Tac *t, AstNode n);
@@ -32,6 +33,7 @@ Operand::ptr_t convertExprStmt(Tac *t, AstNode n);
 Operand::ptr_t convertParenStmt(Tac *t, AstNode n);
 Operand::ptr_t convertCompoundStmt(Tac *t, AstNode n);
 Operand::ptr_t convertDeclStmt(Tac *t, AstNode n);
+Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n);
 Operand::ptr_t convertIfStmt(Tac *t, AstNode n);
 Operand::ptr_t convertWhileStmt(Tac *t, AstNode n);
 Operand::ptr_t convertFunctionList(Tac *t, AstNode n);
