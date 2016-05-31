@@ -87,6 +87,32 @@ std::ostream& variable::print_to(std::ostream& stream) const {
   return stream << name;
 }
 
+bool array::operator==(const node& other) const {
+  if (typeid(other) != typeid(array)) return false;
+  auto o = dynamic_cast<const array&>(other);
+  return *o.array_type == *array_type && *o.array_size == *array_size &&
+         o.name == name;
+}
+
+std::ostream& array::print_to(std::ostream& stream) const {
+  array_type->print_to(stream);
+  stream << " " << name << "[";
+  array_size->print_to(stream);
+  return stream << "]";
+}
+
+bool array_access::operator==(const node& other) const {
+  if (typeid(other) != typeid(array_access)) return false;
+  auto o = dynamic_cast<const array_access&>(other);
+  return *o.access_expr == *access_expr && o.name == name;
+}
+
+std::ostream& array_access::print_to(std::ostream& stream) const {
+  stream << name << "[";
+  access_expr->print_to(stream);
+  return stream << "]";
+}
+
 std::ostream& operator<<(std::ostream& stream, const binary_operand& op) {
   for (const auto& pair : binary_operand_map) {
     if (pair.second == op) return stream << pair.first;
@@ -203,6 +229,17 @@ std::ostream& decl_stmt::print_to(std::ostream& stream) const {
     stream << " = ";
     init_expr->print_to(stream);
   }
+  return stream << ";\n";
+}
+
+bool array_decl_stmt::operator==(const node& other) const {
+  if (typeid(other) != typeid(array_decl_stmt)) return false;
+  auto o = dynamic_cast<const array_decl_stmt&>(other);
+  return *o.decl_array == *decl_array;
+}
+
+std::ostream& array_decl_stmt::print_to(std::ostream& stream) const {
+  decl_array->print_to(stream);
   return stream << ";\n";
 }
 
