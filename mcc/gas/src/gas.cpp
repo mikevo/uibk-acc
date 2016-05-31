@@ -20,7 +20,6 @@
 namespace mcc {
 namespace gas {
 namespace {
-mcc::tac::Tac::code_lines_iter currentLine;
 bool resultAvailable;
 
 unsigned getSize(mcc::tac::Type t) {
@@ -180,9 +179,7 @@ unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
 
 void Gas::convertTac(Tac& tac) {
   this->analyzeTac(tac);
-  for (currentLine = tac.codeLines.begin(); currentLine < tac.codeLines.end();
-       ++currentLine) {
-    auto triple = *currentLine;
+  for (auto triple : tac.codeLines) {
     auto op = triple->getOperator();
 
     switch (op.getName()) {
@@ -642,13 +639,13 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(
     mcc::tac::Operand::ptr_t op) {
   if (helper::isType<Variable>(op)) {
     auto variableOp = std::static_pointer_cast<Variable>(op);
-    return this->registerManager->getLocationForVariable(
-        currentFunction, variableOp, currentLine);
+    return this->registerManager->getLocationForVariable(currentFunction,
+                                                         variableOp);
   } else if (helper::isType<Triple>(op)) {
     auto triple = std::static_pointer_cast<Triple>(op);
     auto variableOp = triple->getTargetVariable();
-    return this->registerManager->getLocationForVariable(
-        currentFunction, variableOp, currentLine);
+    return this->registerManager->getLocationForVariable(currentFunction,
+                                                         variableOp);
   } else {
     // constant values
     if (op->getType() == Type::FLOAT) {
@@ -694,8 +691,8 @@ void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
 }
 
 void Gas::storeVariableFromRegister(Variable::ptr_t var, Operand::ptr_t reg) {
-  auto asmVar = this->registerManager->getLocationForVariable(currentFunction,
-                                                              var, currentLine);
+  auto asmVar =
+      this->registerManager->getLocationForVariable(currentFunction, var);
 
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
@@ -714,8 +711,8 @@ void Gas::storeStackVariableFromRegister(Variable::ptr_t var,
 
 void Gas::storeVariableFromFloatRegister(Variable::ptr_t var) {
   auto stackVar = getAsmVar(var);
-  auto asmVar = this->registerManager->getLocationForVariable(currentFunction,
-                                                              var, currentLine);
+  auto asmVar =
+      this->registerManager->getLocationForVariable(currentFunction, var);
 
   if (asmVar->isAddress()) {
     auto tmp = this->registerManager->getTmpRegister();
@@ -862,8 +859,8 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
   storeRegisters({Register::EBX, Register::EDI, Register::ESI});
 
   for (auto var : this->functionVariableMap.at(currentFunction)) {
-    auto reg = this->registerManager->getLocationForVariable(currentFunction,
-                                                             var, currentLine);
+    auto reg =
+        this->registerManager->getLocationForVariable(currentFunction, var);
 
     this->loadSpilledVariable(var, reg);
   }

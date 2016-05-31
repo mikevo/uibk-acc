@@ -56,8 +56,8 @@ class RegisterManager {
   typedef std::pair<mcc::tac::Tac::code_lines_iter, VertexDescriptor>
       iter_descr_pair_type;
 
-  typedef std::map<Vertex, std::vector<iter_descr_pair_type>,
-                   mcc::tac::Variable::less> vertex_range_map_type;
+  typedef std::map<Vertex, VertexDescriptor, mcc::tac::Variable::less>
+      vertex_range_map_type;
 
   typedef std::map<mcc::tac::Label::ptr_t, vertex_range_map_type,
                    mcc::tac::Label::less> function_descr_map_type;
@@ -80,8 +80,7 @@ class RegisterManager {
                 mcc::tac::Label::ptr_t functionLabel) const;
 
   Operand::ptr_t getLocationForVariable(mcc::tac::Label::ptr_t functionLabel,
-                                        Vertex vertex,
-                                        mcc::tac::Tac::code_lines_iter it);
+                                        Vertex vertex);
 
   Register getTmpRegisterName();
   Operand::ptr_t getTmpRegister();
@@ -96,15 +95,12 @@ class RegisterManager {
   order_map_type smallestFirstOrdering(Graph g);
 
   VertexDescriptor lookupVertexDescr(mcc::tac::Label::ptr_t functionLabel,
-                                     Vertex vertex,
-                                     mcc::tac::Tac::code_lines_iter it) const;
+                                     Vertex vertex) const;
 
   bool isColor(unsigned color);
-  unsigned getColor(mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
-                    mcc::tac::Tac::code_lines_iter it);
+  unsigned getColor(mcc::tac::Label::ptr_t functionLabel, Vertex vertex);
   VertexDescriptor getVertexDescriptor(mcc::tac::Label::ptr_t functionLabel,
-                                       Vertex vertex,
-                                       mcc::tac::Tac::code_lines_iter it);
+                                       Vertex vertex);
   Operand::ptr_t getRegister(unsigned color);
   //  void storeSpilledVariable(Vertex vertex);
 

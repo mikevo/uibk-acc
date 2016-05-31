@@ -40,17 +40,15 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
 
         if (result == vertexMap.end()) {
           auto vt = boost::add_vertex(defVar, interference);
-          auto pair = std::make_pair(it, vt);
+          auto pair = std::make_pair(defVar, vt);
 
-          std::vector<RegisterManager::iter_descr_pair_type> vec;
-          vec.push_back(pair);
-          vertexMap.insert(std::make_pair(defVar, vec));
+          vertexMap.insert(pair);
         }
 
         for (auto var : cfg.liveSetAt(loc, false)) {
           // targetVar interferes with var
-          boost::add_edge(vertexMap.at(defVar).back().second,
-                          vertexMap.at(var).back().second, interference);
+          boost::add_edge(vertexMap.at(defVar), vertexMap.at(var),
+                          interference);
         }
       }
     }
@@ -82,17 +80,9 @@ unsigned RegisterManager::getNumOfRegForColoring() const {
 }
 
 RegisterManager::VertexDescriptor RegisterManager::lookupVertexDescr(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
-    mcc::tac::Tac::code_lines_iter it) const {
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex) const {
   auto vertexDescrMap = this->functionDescriptorMap->at(functionLabel);
-  auto vec = vertexDescrMap.at(vertex);
-
-  for (auto vIt = vec.rbegin(); vIt < vec.rend(); ++vIt) {
-    if ((*(vIt.base() - 1)).first <= it) return (*vIt).second;
-  }
-
-  //  assert(false && "Vertex descriptor not found");
-  return vec.front().second;
+  return vertexDescrMap.at(vertex);
 }
 
 std::string RegisterManager::toDot(std::string fucntionName) const {
@@ -193,9 +183,8 @@ RegisterManager::order_map_type RegisterManager::smallestFirstOrdering(
 }
 
 Operand::ptr_t RegisterManager::getLocationForVariable(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
-    mcc::tac::Tac::code_lines_iter it) {
-  auto color = this->getColor(functionLabel, vertex, it);
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex) {
+  auto color = this->getColor(functionLabel, vertex);
 
   if (this->isColor(color)) {
     return this->getRegister(color);
@@ -213,18 +202,16 @@ bool RegisterManager::isColor(unsigned color) {
 }
 
 unsigned RegisterManager::getColor(mcc::tac::Label::ptr_t functionLabel,
-                                   Vertex vertex,
-                                   mcc::tac::Tac::code_lines_iter it) {
-  auto vd = this->lookupVertexDescr(functionLabel, vertex, it);
+                                   Vertex vertex) {
+  auto vd = this->lookupVertexDescr(functionLabel, vertex);
   auto colorMap = this->getFunctionGraphColorsMap()->at(functionLabel);
 
   return colorMap->at(vd);
 }
 
 RegisterManager::VertexDescriptor RegisterManager::getVertexDescriptor(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex,
-    mcc::tac::Tac::code_lines_iter it) {
-  return this->lookupVertexDescr(functionLabel, vertex, it);
+    mcc::tac::Label::ptr_t functionLabel, Vertex vertex) {
+  return this->lookupVertexDescr(functionLabel, vertex);
 }
 
 Operand::ptr_t RegisterManager::getRegister(unsigned color) {
