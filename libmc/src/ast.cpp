@@ -96,9 +96,10 @@ bool array::operator==(const node& other) const {
 
 std::ostream& array::print_to(std::ostream& stream) const {
   array_type->print_to(stream);
-  stream << " " << name << "[";
+  stream << "[";
   array_size->print_to(stream);
-  return stream << "]";
+  return stream << "]"
+                << " " << name;
 }
 
 bool array_access::operator==(const node& other) const {

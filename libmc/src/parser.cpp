@@ -386,6 +386,35 @@ sptr<ast::decl_stmt> decl_stmt(parser_state& p) {
   return std::make_shared<ast::decl_stmt>(var, init_expr);
 }
 
+sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p) {
+  auto array_type = type(p);
+  if (!array_type) return {};
+
+  if (try_token(p, "[").empty()) return {};
+
+  auto array_size = int_literal(p);
+  if (!array_size) throw parser_error(p, "Expected integer as array size");
+
+  if (try_token(p, "]").empty())
+    throw parser_error(p, "Expected ']' after array size");
+
+  auto identifier = consume_identifier(p);
+  if (identifier.empty())
+    throw parser_error(p, "Expected 'identifier' after ']'");
+
+  if (try_token(p, ";").empty())
+    throw parser_error(p,
+                       "Expected ';' at end of array declaration  statement");
+
+  // Create array variable to avoid var/array redeclaration
+  // TODO Not sure if this can cause problems elsewhere
+  auto array_var = std::make_shared<ast::variable>(array_type, identifier);
+  p.scopes.back().declare(p, identifier, array_var);
+
+  auto array = std::make_shared<ast::array>(array_type, array_size, identifier);
+  return std::make_shared<ast::array_decl_stmt>(array);
+}
+
 sptr<ast::while_stmt> while_stmt(parser_state& p) {
   if (try_token(p, "while").empty()) return {};
   auto condition = expect(paren_expr, p)->sub;
@@ -403,8 +432,9 @@ sptr<ast::return_stmt> return_stmt(parser_state& p) {
 }
 
 sptr<ast::statement> statement(parser_state& p) {
-  return try_match<sptr<ast::statement>>(p, if_stmt, decl_stmt, compound_stmt,
-                                         while_stmt, return_stmt, expr_stmt);
+  return try_match<sptr<ast::statement>>(p, if_stmt, array_decl_stmt, decl_stmt,
+                                         compound_stmt, while_stmt, return_stmt,
+                                         expr_stmt);
 }
 
 sptr<ast::parameter> parameter(parser_state& p) {

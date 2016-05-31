@@ -60,6 +60,7 @@ sptr<ast::type> type(parser_state& p);
 sptr<ast::int_literal> int_literal(parser_state& p);
 sptr<ast::float_literal> float_literal(parser_state& p);
 sptr<ast::variable> variable(parser_state& p);
+sptr<ast::array_access> array_access(parser_state& p);
 sptr<ast::binary_operand> binary_operand(parser_state& p);
 sptr<ast::unary_operand> unary_operand(parser_state& p);
 
@@ -85,6 +86,7 @@ sptr<ast::compound_stmt> fun_compound_stmt(parser_state& p,
                                            const ast::param_list& parameters);
 sptr<ast::if_stmt> if_stmt(parser_state& p);
 sptr<ast::decl_stmt> decl_stmt(parser_state& p);
+sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p);
 sptr<ast::while_stmt> while_stmt(parser_state& p);
 sptr<ast::return_stmt> return_stmt(parser_state& p);
 sptr<ast::statement> statement(parser_state& p);
