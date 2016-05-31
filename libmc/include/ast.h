@@ -84,6 +84,25 @@ struct variable : public expression {
   virtual std::ostream& print_to(std::ostream& stream) const;
 };
 
+struct array : public expression {
+  sptr<type> array_type;
+  sptr<int_literal> array_size;
+  string name;
+  array(sptr<type> array_type,  sptr<int_literal> array_size, string name) : 
+    array_type(array_type), array_size(array_size), name(name) {}
+  virtual bool operator==(const node& other) const;
+  virtual std::ostream& print_to(std::ostream& stream) const;
+};
+
+struct array_access : public expression {
+  sptr<expression> access_expr;
+  string name;
+  array_access(sptr<int_literal> access_expr, string name) : 
+    access_expr(access_expr), name(name) {}
+  virtual bool operator==(const node& other) const;
+  virtual std::ostream& print_to(std::ostream& stream) const;
+};
+
 enum class binary_operand {
   ASSIGN,
   ADD,
@@ -186,6 +205,14 @@ struct decl_stmt : public statement {
   virtual std::ostream& print_to(std::ostream& stream) const;
 };
 
+struct array_decl_stmt : public statement {
+  sptr<array> decl_array;
+  array_decl_stmt(sptr<array> array)
+      : decl_array(array) {}
+  virtual bool operator==(const node& other) const;
+  virtual std::ostream& print_to(std::ostream& stream) const;
+};
+
 struct while_stmt : public statement {
   sptr<expression> condition;
   sptr<statement> stmt;
@@ -202,8 +229,6 @@ struct return_stmt : public statement {
   virtual std::ostream& print_to(std::ostream& stream) const;
 };
 
-// FUNCTION DEFINITION
-// /////////////////////////////////////////////////////////////////////////////
 struct parameter : public node {
   sptr<variable> paramVar;
   parameter(sptr<variable> paramVar) : paramVar(paramVar) {}
