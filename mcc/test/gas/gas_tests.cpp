@@ -110,7 +110,7 @@ TEST(Gas, VariableStackOffset) {
 }
 
 /* Gas Conversion */
-TEST(Gas, GasConversionTest) {
+TEST(Gas, GasConversion) {
   auto tree = parser::parse(
       R"(
             void print_int(int out);
@@ -137,7 +137,37 @@ TEST(Gas, GasConversionTest) {
   auto tac = Tac(tree);
   Gas gas = Gas(tac);
 
-auto expected = R"(.intel_syntax noprefix
+  // get labels from tac
+  auto labels = std::vector<std::string>();
+  for (auto triple : tac.codeLines) {
+    switch (triple->getOperator().getName()) {
+      case OperatorName::LABEL: {
+        auto label = std::static_pointer_cast<Label>(triple);
+        if (!label->isFunctionEntry()) {
+          labels.push_back(label->getValue());
+        }
+      } break;
+      case OperatorName::JUMP: {
+        auto label = std::static_pointer_cast<Label>(triple->getArg1());
+        if (!label->isFunctionEntry()) {
+          labels.push_back(label->getValue());
+        }
+      } break;
+      case OperatorName::JUMPFALSE: {
+        auto label = std::static_pointer_cast<Label>(triple->getArg2());
+        if (!label->isFunctionEntry()) {
+          labels.push_back(label->getValue());
+        }
+      } break;
+      default:
+        // ignore
+        break;
+    }
+  }
+
+  auto curLabel = labels.begin();
+
+  auto expected = R"(.intel_syntax noprefix
 .global main
 
 fibonacci:
@@ -149,7 +179,8 @@ fibonacci:
 	push esi
 	mov ecx, DWORD PTR [ebp + 8]
 	cmp ecx, 0
-	jne $L796
+	jne )" + *curLabel++ +
+                  R"(
 	mov eax, 0
 	pop esi
 	pop edi
@@ -158,11 +189,13 @@ fibonacci:
 	mov esp, ebp
 	pop ebp
 	ret
-	jmp $L799
+	jmp )" + *curLabel++ +
+                  R"(
 
-$L796:
+)" + *curLabel++ + R"(:
 	cmp ecx, 1
-	jne $L802
+	jne )" + *curLabel++ +
+                  R"(
 	mov eax, 1
 	pop esi
 	pop edi
@@ -171,9 +204,10 @@ $L796:
 	mov esp, ebp
 	pop ebp
 	ret
-	jmp $L805
+	jmp )" + *curLabel++ +
+                  R"(
 
-$L802:
+)" + *curLabel++ + R"(:
 	mov eax, ecx
 	sub eax, 1
 	mov ebx, eax
@@ -208,9 +242,9 @@ $L802:
 	pop ebp
 	ret
 
-$L805:
+)" + *curLabel++ + R"(:
 
-$L799:
+)" + *curLabel++ + R"(:
 	pop esi
 	pop edi
 	pop ebx
