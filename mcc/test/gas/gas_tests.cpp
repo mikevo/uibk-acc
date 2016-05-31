@@ -109,6 +109,159 @@ TEST(Gas, VariableStackOffset) {
   }
 }
 
+/* Gas Conversion */
+TEST(Gas, GasConversionTest) {
+  auto tree = parser::parse(
+      R"(
+            void print_int(int out);
+            int read_int();
+
+            int fibonacci(int n) {
+                if ( n == 0 )
+                    return 0;
+                else if ( n == 1 )
+                    return 1;
+                else
+                    return (fibonacci(n-1) + fibonacci(n-2));
+            } 
+
+            int main(void) {
+                int i = read_int();
+                int fib = fibonacci(i); 
+                print_int(fib);
+
+                return 0;
+            }
+        )");
+  
+  auto tac = Tac(tree);
+  Gas gas = Gas(tac);
+
+auto expected = R"(.intel_syntax noprefix
+.global main
+
+fibonacci:
+	push ebp
+	mov ebp, esp
+	sub esp, 20
+	push ebx
+	push edi
+	push esi
+	mov ecx, DWORD PTR [ebp + 8]
+	cmp ecx, 0
+	jne $L796
+	mov eax, 0
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 20
+	mov esp, ebp
+	pop ebp
+	ret
+	jmp $L799
+
+$L796:
+	cmp ecx, 1
+	jne $L802
+	mov eax, 1
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 20
+	mov esp, ebp
+	pop ebp
+	ret
+	jmp $L805
+
+$L802:
+	mov eax, ecx
+	sub eax, 1
+	mov ebx, eax
+	push ecx
+	push edx
+	push ebx
+	call fibonacci
+	add esp, 4
+	pop edx
+	pop ecx
+	mov edx, eax
+	mov eax, ecx
+	sub eax, 2
+	mov ebx, eax
+	push ecx
+	push edx
+	push ebx
+	call fibonacci
+	add esp, 4
+	pop edx
+	pop ecx
+	mov ebx, eax
+	mov eax, edx
+	add eax, ebx
+	mov ecx, eax
+	mov eax, ecx
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 20
+	mov esp, ebp
+	pop ebp
+	ret
+
+$L805:
+
+$L799:
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 20
+	mov esp, ebp
+	pop ebp
+
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 8
+	push ebx
+	push edi
+	push esi
+	push ecx
+	push edx
+	call read_int
+	pop edx
+	pop ecx
+	mov ebx, eax
+	push ecx
+	push edx
+	push ebx
+	call fibonacci
+	add esp, 4
+	pop edx
+	pop ecx
+	mov ebx, eax
+	push ecx
+	push edx
+	push ebx
+	call print_int
+	add esp, 4
+	pop edx
+	pop ecx
+	mov eax, 0
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 8
+	mov esp, ebp
+	pop ebp
+	ret
+
+
+.att_syntax noprefix
+)";
+
+  EXPECT_EQ(expected, gas.toString());
+}
+
 TEST(Gas, GasAddIntegerConversion) {
   auto tree = parser::parse(
       R"(
@@ -391,121 +544,6 @@ main:
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
-
-.att_syntax noprefix
-)";
-
-  EXPECT_EQ(expected, gas.toString());
-}
-
-TEST(Gas, GasPushIntConversion) {
-  auto tree = parser::parse(
-      R"(
-        void main() {
-        
-        }
-        )");
-
-  Tac tac = Tac(tree);
-  IntLiteral::ptr_t operandInt = std::make_shared<IntLiteral>(10);
-  Operator op = Operator(OperatorName::PUSH);
-
-  Triple::ptr_t triple = std::make_shared<Triple>(op, operandInt);
-  tac.addLine(triple);
-
-  Gas gas = Gas(tac);
-
-  auto expected = R"(.intel_syntax noprefix
-.global main
-
-main:
-	push ebp
-	mov ebp, esp
-	push ebx
-	push edi
-	push esi
-	push 10
-
-
-.att_syntax noprefix
-)";
-
-  EXPECT_EQ(expected, gas.toString());
-}
-
-TEST(Gas, GasPushFloatConversion) {
-  auto tree = parser::parse(
-      R"(
-        void main() {
-        
-        }
-        )");
-
-  Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandFloat = std::make_shared<FloatLiteral>(10.0);
-  Operator op = Operator(OperatorName::PUSH);
-
-  Triple::ptr_t triple = std::make_shared<Triple>(op, operandFloat);
-  tac.addLine(triple);
-
-  Gas gas = Gas(tac);
-
-  auto expected = R"(.intel_syntax noprefix
-.global main
-
-main:
-	push ebp
-	mov ebp, esp
-	push ebx
-	push edi
-	push esi
-	push DWORD PTR .FC0
-
-.FC0: .float 10.000000
-
-.att_syntax noprefix
-)";
-
-  EXPECT_EQ(expected, gas.toString());
-}
-
-TEST(Gas, GasPushVariableConversion) {
-  auto tree = parser::parse(
-      R"(
-        void main() {
-            int a = 10;
-        }
-        )");
-
-  Tac tac = Tac(tree);
-  Variable::ptr_t var;
-
-  for (auto triple : tac.codeLines) {
-    if (triple->containsTargetVar()) {
-      var = triple->getTargetVariable();
-    }
-  }
-
-  Operator op = Operator(OperatorName::PUSH);
-
-  Triple::ptr_t triple = std::make_shared<Triple>(op, var);
-  tac.addLine(triple);
-
-  Gas gas = Gas(tac);
-
-  auto expected = R"(.intel_syntax noprefix
-.global main
-
-main:
-	push ebp
-	mov ebp, esp
-	sub esp, 4
-	push ebx
-	push edi
-	push esi
-	mov ebx, 10
-	push ebx
-
 
 .att_syntax noprefix
 )";
