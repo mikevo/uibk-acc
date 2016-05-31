@@ -9,6 +9,7 @@
 
 #include "mcc/cfg/set_helper.h"
 #include "mcc/tac/operator.h"
+#include "mcc/tac/helper/ast_converters.h"
 
 namespace mcc {
 namespace cfg {
@@ -24,16 +25,13 @@ Scg::Scg(mcc::tac::Tac &tac) {
   }
 
   for (auto triple : tac.codeLines) {
-    auto line = *triple;
-    if (typeid(line) == typeid(Label)) {
+    if (mcc::tac::helper::isType<Label>(triple)) {
       auto label = std::static_pointer_cast<Label>(triple);
       if (label->isFunctionEntry()) {
         currentFunctionName = label->getName();
       }
     } else if (triple->getOperator().getType() == OperatorType::CALL) {
-      auto &arg1 = *(triple->getArg1());
-
-      if (typeid(arg1) == typeid(Label)) {
+      if (mcc::tac::helper::isType<Label>(triple->getArg1())) {
         auto callTarget = std::static_pointer_cast<Label>(triple->getArg1());
         auto targetName = callTarget->getName();
         boost::add_edge(graphIndex[currentFunctionName], graphIndex[targetName],
