@@ -15,7 +15,7 @@ namespace gas {
 
 RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
     : tac(tac), gas(gas) {
-  this->numOfRegForColoring = 3;
+  this->numOfRegForColoring = 5;
 
   this->numColorsMap = std::make_shared<num_colors_map_type>();
   this->functionGraphColorsMap =
@@ -222,6 +222,10 @@ Operand::ptr_t RegisterManager::getRegister(unsigned color) {
       return std::make_shared<Operand>(Register::ECX);
     case 2:
       return std::make_shared<Operand>(Register::EDX);
+    case 3:
+      return std::make_shared<Operand>(Register::ESI);
+    case 4:
+      return std::make_shared<Operand>(Register::EDI);
     default:
       assert(false && "to few registers defined for reg alloc");
       return nullptr;
