@@ -50,13 +50,10 @@ TEST(Gas, FunctionStackSpace) {
   expected[l2] = 8;
   expected[l3] = 0;
 
-  EXPECT_EQ(expected.size(), gas.getFunctionStackSpaceMap()->size());
-
   for (auto const e : expected) {
-    auto result = gas.getFunctionStackSpaceMap()->find(e.first);
+    auto result = gas.getRegisterManager()->lookupFunctionStackSpace(e.first);
 
-    EXPECT_NE(gas.getFunctionStackSpaceMap()->end(), result);
-    EXPECT_EQ(e.second, result->second);
+    EXPECT_EQ(e.second, result);
   }
 }
 
@@ -85,7 +82,8 @@ TEST(Gas, VariableStackOffset) {
   Tac tac = Tac(tree);
   Gas gas = Gas(tac);
 
-  auto stackOffsetMap = gas.getVariableStackOffsetMap();
+  auto regMan = gas.getRegisterManager();
+
   Label::ptr_t currentFunction;
   int varCounter = 0;
   signed expectedOffsets[] = {8, 12, -4, -4, -8, 8, -4, -4, -8, -8, -12, -4};
@@ -100,11 +98,9 @@ TEST(Gas, VariableStackOffset) {
     if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       auto targetVarOffset =
-          stackOffsetMap->find(std::make_pair(currentFunction, targetVar));
-      // target variable has to be in stackOffsetMap
-      EXPECT_NE(targetVarOffset, stackOffsetMap->end());
+          regMan->lookupVariableStackOffset(currentFunction, targetVar);
 
-      EXPECT_EQ(expectedOffsets[varCounter++], targetVarOffset->second);
+      EXPECT_EQ(expectedOffsets[varCounter++], targetVarOffset);
     }
   }
 }

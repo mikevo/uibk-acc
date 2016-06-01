@@ -13,9 +13,14 @@
 namespace mcc {
 namespace gas {
 
-RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
-    : tac(tac), gas(gas) {
+RegisterManager::RegisterManager(Tac &tac) : tac(tac) {
   this->numOfRegForColoring = 5;
+
+  this->functionArgSizeMap = std::make_shared<function_arg_size_type>();
+  this->functionStackSpaceMap =
+      std::make_shared<function_stack_space_map_type>();
+  this->variableStackOffsetMap =
+      std::make_shared<variable_stack_offset_map_type>();
 
   this->numColorsMap = std::make_shared<num_colors_map_type>();
   this->functionGraphColorsMap =
@@ -23,8 +28,43 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
 
   this->functionDescriptorMap = std::make_shared<function_descr_map_type>();
 
-  auto cfg = mcc::cfg::Cfg(tac);
+  this->generateInterferenceGraphs();
+  this->analyzeStackUsages();
+  this->graphColoring(this->numOfRegForColoring);
+}
 
+unsigned RegisterManager::getSize(Type t) {
+  switch (t) {
+    case Type::BOOL:
+      return 0;  // Is not stored in assembly
+      break;
+    case Type::INT:
+      return sizeof(int);
+      break;
+    case Type::FLOAT:
+      return sizeof(float);
+      break;
+    default:
+      return 0;
+  }
+}
+
+unsigned RegisterManager::getSize(std::shared_ptr<mcc::tac::Operand> operand) {
+  return getSize(operand->getType()) * operand->length();
+}
+
+unsigned RegisterManager::getSize(std::vector<Tac::type_size_type> argList) {
+  unsigned size = 0;
+
+  for (auto arg : argList) {
+    size += (getSize(arg.first) * arg.second);
+  }
+
+  return size;
+}
+
+void RegisterManager::generateInterferenceGraphs() {
+  auto cfg = mcc::cfg::Cfg(tac);
   cfg.computeWorkList();
 
   for (auto range : tac.getFunctionRangeMap()) {
@@ -56,8 +96,121 @@ RegisterManager::RegisterManager(mcc::tac::Tac &tac, Gas *gas)
     this->functionGraphMap.insert(std::make_pair(range.first, interference));
     this->functionDescriptorMap->insert(std::make_pair(range.first, vertexMap));
   }
+}
 
-  this->graphColoring(this->numOfRegForColoring);
+void RegisterManager::analyzeStackUsages() {
+  // TODO move functionVariableMap to helper
+  // get argSize of all declared functions
+  for (auto e : *tac.getFunctionPrototypeMap().get()) {
+    (*this->functionArgSizeMap)[e.first] = getSize(e.second);
+
+    std::vector<Variable::ptr_t> vec;
+    this->functionVariableMap[tac.lookupFunction(e.first)] = vec;
+  }
+
+  Label::ptr_t currentFunctionLabel = nullptr;
+
+  // Begin offset space for ebp and return address
+  unsigned initStackSpace = 0;
+  unsigned initLocalOffset = -4;
+  signed initParamOffset = 8;
+
+  unsigned stackSpace = initStackSpace;
+  unsigned curLocalOffset = initLocalOffset;
+  signed curParamOffset = initParamOffset;
+
+  for (auto codeLine : tac.codeLines) {
+    auto opName = codeLine->getOperator().getName();
+    if (opName == OperatorName::LABEL) {
+      auto label = std::static_pointer_cast<Label>(codeLine);
+      if (label->isFunctionEntry()) {
+        // if new function is entered
+        if (currentFunctionLabel != nullptr) {
+          this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+
+          // reset variables
+          stackSpace = initStackSpace;
+          curLocalOffset = initLocalOffset;
+          curParamOffset = initParamOffset;
+        }
+
+        currentFunctionLabel = label;
+      }
+    } else if (codeLine->containsTargetVar()) {
+      auto targetVar = codeLine->getTargetVariable();
+      if (codeLine->getOperator().getName() == OperatorName::POP) {
+        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
+                                                 targetVar)] = curParamOffset;
+        curParamOffset += getSize(targetVar);
+        this->functionVariableMap.at(currentFunctionLabel).push_back(targetVar);
+      } else {
+        // if variable not parameter of function
+        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
+                                                 targetVar)] = curLocalOffset;
+        curLocalOffset -= getSize(targetVar);
+
+        stackSpace += getSize(targetVar);
+      }
+    }
+  }
+
+  // add last function
+  if (currentFunctionLabel) {
+    this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
+  }
+}
+
+void RegisterManager::setFunctionStackSpace(Label::ptr_t functionLabel,
+                                            unsigned stackSpace) {
+  assert(functionLabel->isFunctionEntry() && "Not a function label!");
+
+  auto result = functionStackSpaceMap->find(functionLabel);
+  if (result != functionStackSpaceMap->end()) {
+    // TODO this line alone should do the same functionality, or am I wrong?
+    (*functionStackSpaceMap)[functionLabel] = stackSpace;
+  } else {
+    functionStackSpaceMap->insert(std::make_pair(functionLabel, stackSpace));
+  }
+}
+
+unsigned RegisterManager::lookupFunctionStackSpace(Label::ptr_t functionLabel) {
+  auto found = functionStackSpaceMap->find(functionLabel);
+
+  if (found != functionStackSpaceMap->end()) {
+    return found->second;
+  } else {
+    return 0;
+  }
+}
+
+unsigned RegisterManager::lookupVariableStackOffset(Label::ptr_t functionLabel,
+                                                    Variable::ptr_t var) {
+  auto found = variableStackOffsetMap->find(std::make_pair(functionLabel, var));
+
+  if (found != variableStackOffsetMap->end()) {
+    return found->second;
+  } else {
+    return 0;
+  }
+}
+
+unsigned RegisterManager::lookupFunctionArgSize(Label::ptr_t functionLabel) {
+  auto found = functionArgSizeMap->find(functionLabel->getName());
+
+  if (found != functionArgSizeMap->end()) {
+    return found->second;
+  } else {
+    return 0;
+  }
+}
+
+std::vector<Variable::ptr_t> RegisterManager::lookupFunctionVariables(
+    Label::ptr_t functionLabel) {
+  auto found = functionVariableMap.find(functionLabel);
+  assert(found != functionVariableMap.end() &&
+         "Function not found in variables map!");
+
+  return found->second;
 }
 
 RegisterManager::function_graph_map_type
@@ -80,7 +233,7 @@ unsigned RegisterManager::getNumOfRegForColoring() const {
 }
 
 RegisterManager::VertexDescriptor RegisterManager::lookupVertexDescr(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex) const {
+    Label::ptr_t functionLabel, Vertex vertex) const {
   auto vertexDescrMap = this->functionDescriptorMap->at(functionLabel);
   return vertexDescrMap.at(vertex);
 }
@@ -89,7 +242,7 @@ std::string RegisterManager::toDot(std::string fucntionName) const {
   return this->toDot(this->tac.lookupFunction(fucntionName));
 }
 
-std::string RegisterManager::toDot(mcc::tac::Label::ptr_t functionLabel) const {
+std::string RegisterManager::toDot(Label::ptr_t functionLabel) const {
   std::ostringstream out;
   auto graph = this->functionGraphMap.at(functionLabel);
   boost::write_graphviz(out, graph);
@@ -102,7 +255,7 @@ void RegisterManager::storeDot(std::string fileName,
 }
 
 void RegisterManager::storeDot(std::string fileName,
-                               mcc::tac::Label::ptr_t functionLabel) const {
+                               Label::ptr_t functionLabel) const {
   std::ofstream outf(fileName);
   outf << this->toDot(functionLabel);
   outf.close();
@@ -122,7 +275,7 @@ unsigned RegisterManager::graphColoring(std::string functionName, unsigned n) {
   return this->graphColoring(this->tac.lookupFunction(functionName), n);
 }
 
-unsigned RegisterManager::graphColoring(mcc::tac::Label::ptr_t functionLabel,
+unsigned RegisterManager::graphColoring(Label::ptr_t functionLabel,
                                         unsigned n) {
   auto graph = this->functionGraphMap.at(functionLabel);
 
@@ -183,13 +336,13 @@ RegisterManager::order_map_type RegisterManager::smallestFirstOrdering(
 }
 
 Operand::ptr_t RegisterManager::getLocationForVariable(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex) {
+    Label::ptr_t functionLabel, Vertex vertex) {
   auto color = this->getColor(functionLabel, vertex);
 
   if (this->isColor(color)) {
     return this->getRegister(color);
   } else {
-    unsigned varOffset = gas->lookupVariableStackOffset(vertex);
+    unsigned varOffset = this->lookupVariableStackOffset(functionLabel, vertex);
     return std::make_shared<Operand>(varOffset);
   }
 }
@@ -201,8 +354,7 @@ bool RegisterManager::isColor(unsigned color) {
     return false;
 }
 
-unsigned RegisterManager::getColor(mcc::tac::Label::ptr_t functionLabel,
-                                   Vertex vertex) {
+unsigned RegisterManager::getColor(Label::ptr_t functionLabel, Vertex vertex) {
   auto vd = this->lookupVertexDescr(functionLabel, vertex);
   auto colorMap = this->getFunctionGraphColorsMap()->at(functionLabel);
 
@@ -210,7 +362,7 @@ unsigned RegisterManager::getColor(mcc::tac::Label::ptr_t functionLabel,
 }
 
 RegisterManager::VertexDescriptor RegisterManager::getVertexDescriptor(
-    mcc::tac::Label::ptr_t functionLabel, Vertex vertex) {
+    Label::ptr_t functionLabel, Vertex vertex) {
   return this->lookupVertexDescr(functionLabel, vertex);
 }
 

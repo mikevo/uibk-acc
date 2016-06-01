@@ -20,164 +20,17 @@ namespace mcc {
 namespace gas {
 namespace {
 bool resultAvailable;
-
-unsigned getSize(mcc::tac::Type t) {
-  switch (t) {
-    case Type::BOOL:
-      return 0;  // Is not stored in assembly
-      break;
-    case Type::INT:
-      return sizeof(int);
-      break;
-    case Type::FLOAT:
-      return sizeof(float);
-      break;
-    default:
-      return 0;
-  }
-}
-
-unsigned getSize(std::shared_ptr<mcc::tac::Operand> operand) {
-  return getSize(operand->getType()) * operand->length();
-}
-
-unsigned getSize(std::vector<mcc::tac::Tac::type_size_type> argList) {
-  unsigned size = 0;
-
-  for (auto arg : argList) {
-    size += (getSize(arg.first) * arg.second);
-  }
-
-  return size;
-}
 }
 
 Gas::Gas(Tac& tac) : tac(tac) {
-  this->registerManager = std::make_shared<RegisterManager>(tac, this);
+  this->registerManager = std::make_shared<RegisterManager>(tac);
 
-  this->functionStackSpaceMap =
-      std::make_shared<function_stack_space_map_type>();
-  this->variableStackOffsetMap =
-      std::make_shared<variable_stack_offset_map_type>();
-  this->functionArgSizeMap = std::make_shared<function_arg_size_type>();
   this->constantFloatsMap = std::make_shared<constant_floats_map_type>();
 
   this->convertTac(tac);
 }
 
-void Gas::analyzeTac(Tac& tac) {
-  // get argSize of all declared functions
-  for (auto e : *tac.getFunctionPrototypeMap().get()) {
-    (*this->functionArgSizeMap)[e.first] = getSize(e.second);
-
-    std::vector<mcc::tac::Variable::ptr_t> vec;
-    this->functionVariableMap[tac.lookupFunction(e.first)] = vec;
-  }
-
-  Label::ptr_t currentFunctionLabel = nullptr;
-  unsigned stackSpace = 0;
-
-  // Begin offset space for ebp and return address
-  unsigned curLocalOffset = -4;
-  signed curParamOffset = 8;
-
-  for (auto codeLine : tac.codeLines) {
-    auto opName = codeLine->getOperator().getName();
-    if (opName == OperatorName::LABEL) {
-      auto label = std::static_pointer_cast<Label>(codeLine);
-      if (label->isFunctionEntry()) {
-        // if new function is entered
-        if (currentFunctionLabel != nullptr) {
-          this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
-
-          stackSpace = 0;
-
-          // Begin with space for ebp and return address
-          curLocalOffset = -4;
-          curParamOffset = 8;
-        }
-
-        currentFunctionLabel = label;
-      }
-    } else if (codeLine->containsTargetVar()) {
-      auto targetVar = codeLine->getTargetVariable();
-      if (codeLine->getOperator().getName() == OperatorName::POP) {
-        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
-                                                 targetVar)] = curParamOffset;
-        curParamOffset += getSize(targetVar);
-        this->functionVariableMap.at(currentFunctionLabel).push_back(targetVar);
-      } else {
-        // if variable not parameter of function
-        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
-                                                 targetVar)] = curLocalOffset;
-        curLocalOffset -= getSize(targetVar);
-
-        stackSpace += getSize(targetVar);
-      }
-    }
-  }
-
-  // add last function
-  if (currentFunctionLabel) {
-    this->setFunctionStackSpace(currentFunctionLabel, stackSpace);
-  }
-}
-
-void Gas::setFunctionStackSpace(Label::ptr_t functionLabel,
-                                unsigned stackSpace) {
-  assert(functionLabel->isFunctionEntry() && "Not a function label!");
-
-  auto result = functionStackSpaceMap->find(functionLabel);
-  if (result != functionStackSpaceMap->end()) {
-    // TODO this line alone should do the same functionality, or am I wrong?
-    (*functionStackSpaceMap)[functionLabel] = stackSpace;
-  } else {
-    functionStackSpaceMap->insert(std::make_pair(functionLabel, stackSpace));
-  }
-}
-
-std::shared_ptr<function_stack_space_map_type> Gas::getFunctionStackSpaceMap() {
-  return this->functionStackSpaceMap;
-}
-
-std::shared_ptr<variable_stack_offset_map_type>
-Gas::getVariableStackOffsetMap() {
-  return this->variableStackOffsetMap;
-}
-
-unsigned Gas::lookupFunctionArgSize(Label::ptr_t functionLabel) {
-  auto found = functionArgSizeMap->find(functionLabel->getName());
-
-  if (found != functionArgSizeMap->end()) {
-    return found->second;
-  } else {
-    return 0;
-  }
-}
-
-unsigned Gas::lookupFunctionStackSize(Label::ptr_t functionLabel) {
-  auto found = functionStackSpaceMap->find(functionLabel);
-
-  if (found != functionStackSpaceMap->end()) {
-    return found->second;
-  } else {
-    return 0;
-  }
-}
-
-unsigned Gas::lookupVariableStackOffset(Variable::ptr_t var) {
-  auto found =
-      variableStackOffsetMap->find(std::make_pair(currentFunction, var));
-
-  if (found != variableStackOffsetMap->end()) {
-    return found->second;
-  } else {
-    return 0;
-  }
-}
-
 void Gas::convertTac(Tac& tac) {
-  this->analyzeTac(tac);
   for (auto triple : tac.codeLines) {
     auto op = triple->getOperator();
 
@@ -286,7 +139,7 @@ void Gas::convertCall(Triple::ptr_t triple) {
       // Assign result to variable
       if (triple->containsTargetVar()) {
         auto destVar = triple->getTargetVariable();
-        if (getSize(destVar) > 0) {
+        if (this->registerManager->getSize(destVar) > 0) {
           resultAvailable = true;
           auto result = std::make_shared<Operand>(Register::EAX);
           this->storeVariableFromRegister(destVar, result);
@@ -659,7 +512,8 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(
 
 std::shared_ptr<Operand> Gas::loadSpilledVariable(Variable::ptr_t var,
                                                   Operand::ptr_t reg) {
-  unsigned varOffset = lookupVariableStackOffset(var);
+  unsigned varOffset =
+      this->registerManager->lookupVariableStackOffset(currentFunction, var);
   // register of operand is ignored
   auto asmVar = std::make_shared<Operand>(varOffset);
 
@@ -670,7 +524,8 @@ std::shared_ptr<Operand> Gas::loadSpilledVariable(Variable::ptr_t var,
 }
 
 void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
-  unsigned varOffset = lookupVariableStackOffset(var);
+  unsigned varOffset =
+      this->registerManager->lookupVariableStackOffset(currentFunction, var);
   auto asmVar = std::make_shared<Operand>(varOffset);
 
   asmInstructions.push_back(
@@ -750,7 +605,8 @@ std::pair<std::string, std::string> Gas::createFloatConstant(
 }
 
 Operand::ptr_t Gas::getAsmVar(Variable::ptr_t var) {
-  unsigned varOffset = lookupVariableStackOffset(var);
+  unsigned varOffset =
+      this->registerManager->lookupVariableStackOffset(currentFunction, var);
   auto asmVar = std::make_shared<Operand>(varOffset);
 
   return asmVar;
@@ -794,7 +650,7 @@ void Gas::restoreRegisters(std::initializer_list<Register> list, unsigned pos) {
 
 void Gas::prepareCall(Label::ptr_t label) {
   // TODO find better solution
-  unsigned argSize = lookupFunctionArgSize(label);
+  unsigned argSize = this->registerManager->lookupFunctionArgSize(label);
   unsigned pos = asmInstructions.size() - argSize / 4;
   storeRegisters({Register::ECX, Register::EDX}, pos);
   resultAvailable = false;
@@ -802,7 +658,7 @@ void Gas::prepareCall(Label::ptr_t label) {
 
 void Gas::cleanUpCall(Label::ptr_t label) {
   // Cleanup stack
-  unsigned argSize = lookupFunctionArgSize(label);
+  unsigned argSize = this->registerManager->lookupFunctionArgSize(label);
 
   std::vector<Mnemonic::ptr_t>::iterator it = asmInstructions.end();
 
@@ -833,11 +689,11 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, ebp, esp));
 
-  unsigned stackSize = lookupFunctionStackSize(label);
+  unsigned stackSpace = this->registerManager->lookupFunctionStackSpace(label);
 
   // Do we need space for temporaries on the stack?
-  if (stackSize > 0) {
-    auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
+  if (stackSpace > 0) {
+    auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSpace));
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::SUB, esp, stackspaceOp));
   }
@@ -845,7 +701,8 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
   // Store callee saved registers
   storeRegisters({Register::EBX, Register::EDI, Register::ESI});
 
-  for (auto var : this->functionVariableMap.at(currentFunction)) {
+  for (auto var :
+       this->registerManager->lookupFunctionVariables(currentFunction)) {
     auto reg =
         this->registerManager->getLocationForVariable(currentFunction, var);
 
@@ -854,15 +711,15 @@ void Gas::createFunctionProlog(Label::ptr_t label) {
 }
 
 void Gas::createFunctionEpilog(Label::ptr_t label) {
-  unsigned stackSize = lookupFunctionStackSize(label);
+  unsigned stackSpace = this->registerManager->lookupFunctionStackSpace(label);
   auto esp = std::make_shared<Operand>(Register::ESP);
   auto ebp = std::make_shared<Operand>(Register::EBP);
 
   restoreRegisters({Register::ESI, Register::EDI, Register::EBX});
 
   // Cleanup stack
-  if (stackSize > 0) {
-    auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSize));
+  if (stackSpace > 0) {
+    auto stackspaceOp = std::make_shared<Operand>(std::to_string(stackSpace));
 
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::ADD, esp, stackspaceOp));
@@ -871,6 +728,10 @@ void Gas::createFunctionEpilog(Label::ptr_t label) {
   asmInstructions.push_back(
       std::make_shared<Mnemonic>(Instruction::MOV, esp, ebp));
   asmInstructions.push_back(std::make_shared<Mnemonic>(Instruction::POP, ebp));
+}
+
+std::shared_ptr<RegisterManager> Gas::getRegisterManager() {
+  return registerManager;
 }
 
 std::string Gas::toString() const {

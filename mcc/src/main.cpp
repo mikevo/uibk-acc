@@ -68,18 +68,6 @@ int main(int argc, char **argv) {
   std::cout << "GAS:" << std::endl;
   Gas gas = Gas(tac);
 
-  auto map1 = gas.getFunctionStackSpaceMap();
-  for (auto it = map1->begin(); it != map1->end(); ++it) {
-    std::cout << it->first.get() << ": Stack Space = " << it->second
-              << std::endl;
-  }
-
-  auto map2 = gas.getVariableStackOffsetMap();
-  for (auto it = map2->begin(); it != map2->end(); ++it) {
-    std::cout << it->first.second->getValue()
-              << ": Stack Offset = " << it->second << std::endl;
-  }
-
   auto outFileName = std::string(argv[1]) + ".s";
   std::ofstream output;
 
