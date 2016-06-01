@@ -102,7 +102,6 @@ class RegisterManager {
   VertexDescriptor getVertexDescriptor(mcc::tac::Label::ptr_t functionLabel,
                                        Vertex vertex);
   Operand::ptr_t getRegister(unsigned color);
-  //  void storeSpilledVariable(Vertex vertex);
 
   mcc::tac::Tac &tac;
   Gas *gas;

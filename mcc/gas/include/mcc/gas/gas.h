@@ -50,8 +50,6 @@ class Gas {
 
   std::shared_ptr<Operand> loadSpilledVariable(Variable::ptr_t var,
                                                Operand::ptr_t reg);
-  std::shared_ptr<Operand> storeSpilledVariable(Variable::ptr_t var,
-                                                Operand::ptr_t reg);
   unsigned lookupVariableStackOffset(Variable::ptr_t var);
 
  private:

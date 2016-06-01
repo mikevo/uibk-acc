@@ -669,18 +669,6 @@ std::shared_ptr<Operand> Gas::loadSpilledVariable(Variable::ptr_t var,
   return asmVar;
 }
 
-std::shared_ptr<Operand> Gas::storeSpilledVariable(Variable::ptr_t var,
-                                                   Operand::ptr_t reg) {
-  unsigned varOffset = lookupVariableStackOffset(var);
-  // register of operand is ignored
-  auto asmVar = std::make_shared<Operand>(varOffset);
-
-  asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
-
-  return asmVar;
-}
-
 void Gas::loadVariableToRegister(Variable::ptr_t var, Operand::ptr_t reg) {
   unsigned varOffset = lookupVariableStackOffset(var);
   auto asmVar = std::make_shared<Operand>(varOffset);

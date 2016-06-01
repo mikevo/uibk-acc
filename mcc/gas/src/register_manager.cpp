@@ -227,13 +227,6 @@ Operand::ptr_t RegisterManager::getRegister(unsigned color) {
       return nullptr;
   }
 }
-//
-// void RegisterManager::storeSpilledVariable(Vertex vertex) {
-//  Register regName = this->spilledVarMap[vertex];
-//  auto reg = std::make_shared<Operand>(true, regName);
-//
-//  gas->storeSpilledVariable(vertex, reg);
-//}
 
 Register RegisterManager::getTmpRegisterName() { return Register::EAX; }
 
