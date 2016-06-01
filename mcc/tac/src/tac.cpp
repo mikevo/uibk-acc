@@ -135,6 +135,8 @@ void Tac::addToVarTable(Variable::ptr_t value) {
   this->variableStore->addVariable(value);
 }
 
+void Tac::addToArraySet(Array::ptr_t array) { this->arraySet.insert(array); }
+
 void Tac::removeFromVarTable(Variable::ptr_t const value) {
   this->variableStore->removeVariable(value);
 }

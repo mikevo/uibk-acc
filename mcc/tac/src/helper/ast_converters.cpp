@@ -430,15 +430,28 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
 }
 
 Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n) {
-  // TODO
-  assert(false && "Array conversion not implemented");
-  return nullptr;
+  auto array = convertArray(t, n);
+  t->addToArraySet(array);
+
+  return array;
 }
 
 Operand::ptr_t convertArrayAccess(Tac *t, AstNode n) {
   // TODO
   assert(false && "Array conversion not implemented");
   return nullptr;
+}
+
+Array::ptr_t convertArray(Tac *t, AstNode n) {
+  auto a = std::static_pointer_cast<ast::array_decl_stmt>(n);
+
+  auto type = getType(*a->decl_array->array_type);
+  auto name = a->decl_array->name;
+  auto size = a->decl_array->array_size->value;
+
+  auto array = std::make_shared<Array>(type, name, size);
+
+  return array;
 }
 }
 }

@@ -14,6 +14,7 @@
 #include "boost/range/irange.hpp"
 
 #include "ast.h"
+#include "mcc/tac/array.h"
 #include "mcc/tac/basic_block.h"
 #include "mcc/tac/label.h"
 #include "mcc/tac/operand.h"
@@ -54,6 +55,7 @@ class Tac {
   const bb_type getBasicBlockIndex();
   void createBasicBlockIndex();
   void addToVarTable(Variable::ptr_t value);
+  void addToArraySet(Array::ptr_t array);
   Variable::ptr_t addVarRenaming(Variable::ptr_t const key);
   void removeFromVarTable(Variable::ptr_t const value);
   void addFunction(std::string key, Label::ptr_t);
@@ -82,6 +84,7 @@ class Tac {
   unsigned currentBasicBlock;
   bool currentBasicBlockUsed;
   bb_type basicBlockIndex;
+  Array::set_t arraySet;
 };
 }
 }
