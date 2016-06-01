@@ -11,13 +11,6 @@
 #include <string>
 #include <vector>
 
-// resolve circular dependency
-namespace mcc {
-namespace gas {
-class RegisterManager;
-}
-}
-
 #include "mcc/gas/register_manager.h"
 #include "mcc/tac/tac.h"
 #include "mnemonic.h"

@@ -10,14 +10,6 @@
 #include <map>
 #include <memory>
 
-// resolve circular dependency
-namespace mcc {
-namespace gas {
-class Gas;
-}
-}
-
-#include "mcc/gas/gas.h"
 #include "mcc/gas/operand.h"
 #include "mcc/tac/label.h"
 #include "mcc/tac/tac.h"
