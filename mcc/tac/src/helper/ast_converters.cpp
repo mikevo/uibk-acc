@@ -10,6 +10,8 @@
 #include <map>
 
 #include "ast.h"
+#include "mcc/tac/array.h"
+#include "mcc/tac/array_access.h"
 #include "mcc/tac/float_literal.h"
 #include "mcc/tac/int_literal.h"
 #include "mcc/tac/label.h"
@@ -36,10 +38,10 @@ static const std::map<ast::unary_operand, OperatorName> unaryOperatorMap{
     {ast::unary_operand::MINUS, OperatorName::MINUS},
     {ast::unary_operand::NOT, OperatorName::NOT}};
 
-Type getType(ast::type &type) {
-  if (typeid(type) == typeid(ast::int_type &)) return Type::INT;
-  if (typeid(type) == typeid(ast::float_type &)) return Type::FLOAT;
-  if (typeid(type) == typeid(ast::void_type &)) return Type::NONE;
+Type getType(std::shared_ptr<ast::type> type) {
+  if (typeid(*type.get()) == typeid(ast::int_type)) return Type::INT;
+  if (typeid(*type.get()) == typeid(ast::float_type)) return Type::FLOAT;
+  if (typeid(*type.get()) == typeid(ast::void_type)) return Type::NONE;
   assert(false && "Unknown data type");
   return Type::NONE;
 }
@@ -49,7 +51,7 @@ std::vector<Tac::type_size_type> convertArgList(ast::param_list argList) {
 
   for (auto arg : argList) {
     std::size_t size = arg->length;
-    auto pair = std::make_pair(getType(*arg->paramVar->var_type.get()), size);
+    auto pair = std::make_pair(getType(arg->paramVar->var_type), size);
     argv.push_back(pair);
   }
 
@@ -171,7 +173,7 @@ Operand::ptr_t convertDeclStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::decl_stmt>(n);
   auto tempVar = v->var;
 
-  auto type = getType(*tempVar->var_type.get());
+  auto type = getType(tempVar->var_type);
   auto variable = std::make_shared<Variable>(
       type, tempVar->name, t->getVariableStore()->getCurrentScope());
 
@@ -339,7 +341,7 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
 
   Type retType;
   if (function->returnType != nullptr) {
-    retType = getType(*function->returnType);
+    retType = getType(function->returnType);
   } else {
     retType = Type::NONE;
   }
@@ -395,7 +397,7 @@ Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
   }
 
   Type type;
-  type = getType(*functionCall->function->returnType.get());
+  type = getType(functionCall->function->returnType);
 
   auto op = Operator(OperatorName::CALL, type);
   auto callTriple = std::make_shared<Triple>(op, functionEntry);
@@ -437,17 +439,22 @@ Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n) {
 }
 
 Operand::ptr_t convertArrayAccess(Tac *t, AstNode n) {
-  // TODO
-  assert(false && "Array conversion not implemented");
-  return nullptr;
+  auto a = std::static_pointer_cast<ast::array_access>(n);
+
+  auto array = convertArray(t, a->m_array);
+  auto pos = convertNode(t, a->access_expr);
+
+  return std::make_shared<ArrayAccess>(array, pos);
 }
 
 Array::ptr_t convertArray(Tac *t, AstNode n) {
   auto a = std::static_pointer_cast<ast::array_decl_stmt>(n);
+  auto decl = a->decl_array;
+  auto type = getType(decl->array_type);
+  auto name = decl->name;
 
-  auto type = getType(*a->decl_array->array_type);
-  auto name = a->decl_array->name;
-  auto size = a->decl_array->array_size->value;
+  auto aSize = decl->array_size;
+  auto size = aSize->value;
 
   auto array = std::make_shared<Array>(type, name, size);
 

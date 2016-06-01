@@ -402,5 +402,20 @@ TEST(Tac, While) {
   EXPECT_EQ(expectedValue, tac.toString());
   EXPECT_EQ(16, tac.codeLines.size());
 }
+
+TEST(Tac, Array) {
+  auto tree = parser::parse(R"({int[5] a; int b; a[2] = 1; b = a[2] + 1;})");
+
+  Tac tac = Tac(tree);
+
+  auto tempVarName = tac.codeLines.front().get()->getValue();
+
+  std::string expectedValue = "a0:1:0 = 1 + 2\n";
+  expectedValue.append("b0:1:0 = 3");
+
+  EXPECT_EQ(expectedValue, tac.toString());
+  EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
+  EXPECT_EQ(2, tac.codeLines.size());
+}
 }
 }
