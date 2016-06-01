@@ -408,14 +408,15 @@ TEST(Tac, Array) {
 
   Tac tac = Tac(tree);
 
-  auto tempVarName = tac.codeLines.front().get()->getValue();
+  auto tempVarName = (*(tac.codeLines.begin() + 1))->getValue();
 
-  std::string expectedValue = "a0:1:0 = 1 + 2\n";
-  expectedValue.append("b0:1:0 = 3");
+  std::string expectedValue = "a[2] = 1\n";
+  expectedValue.append(tempVarName + " = a[2] + 1\n");
+  expectedValue.append("b0:1:0 = " + tempVarName);
 
   EXPECT_EQ(expectedValue, tac.toString());
-  EXPECT_EQ(Type::INT, tac.codeLines.back().get()->getType());
-  EXPECT_EQ(2, tac.codeLines.size());
+  EXPECT_EQ(Type::INT, tac.codeLines.back()->getType());
+  EXPECT_EQ(3, tac.codeLines.size());
 }
 }
 }

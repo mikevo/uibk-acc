@@ -58,7 +58,9 @@ template <typename T>
 bool isAvailable(const T v) {
   return (v != nullptr);
 }
-Array::ptr_t convertArray(Tac *t, AstNode n);
+
+Operand::ptr_t convertArray(Tac *t, AstNode n);
+Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a);
 }
 }
 }

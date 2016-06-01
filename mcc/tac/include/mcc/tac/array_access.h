@@ -8,11 +8,11 @@
 #define INCLUDES_MCC_TAC_ARRAY_ACCESS_H_
 
 #include "mcc/tac/array.h"
-#include "mcc/tac/operand.h"
+#include "mcc/tac/variable.h"
 
 namespace mcc {
 namespace tac {
-class ArrayAccess : public Operand {
+class ArrayAccess : public Variable {
  public:
   typedef std::shared_ptr<ArrayAccess> ptr_t;
 
@@ -30,7 +30,7 @@ class ArrayAccess : public Operand {
   bool operator==(ArrayAccess const other) const;
   bool operator!=(ArrayAccess const other) const;
 
-  virtual std::string getName() const;
+  virtual std::string getName() const override;
   virtual bool isLeaf() const override;
   virtual std::string getValue() const override;
 

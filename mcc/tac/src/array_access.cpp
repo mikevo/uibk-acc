@@ -9,10 +9,14 @@
 #include <cassert>
 #include <string>
 
+#include "mcc/tac/scope.h"
+
 namespace mcc {
 namespace tac {
 ArrayAccess::ArrayAccess(Array::ptr_t array, Operand::ptr_t pos)
-    : Operand(array->getType()), array(array) {
+    : Variable(array->getType(), array->getName(),
+               std::make_shared<Scope>(0, 0)),
+      array(array) {
   assert(pos->getType() == Type::INT && "array position not an INT type");
   this->pos = pos;
 }

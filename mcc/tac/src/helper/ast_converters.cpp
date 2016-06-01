@@ -38,10 +38,12 @@ static const std::map<ast::unary_operand, OperatorName> unaryOperatorMap{
     {ast::unary_operand::MINUS, OperatorName::MINUS},
     {ast::unary_operand::NOT, OperatorName::NOT}};
 
-Type getType(std::shared_ptr<ast::type> type) {
-  if (typeid(*type.get()) == typeid(ast::int_type)) return Type::INT;
-  if (typeid(*type.get()) == typeid(ast::float_type)) return Type::FLOAT;
-  if (typeid(*type.get()) == typeid(ast::void_type)) return Type::NONE;
+Type getType(ast::type &type) {
+  if (typeid(type) == typeid(ast::int_type &)) return Type::INT;
+  if (typeid(type) == typeid(ast::float_type &)) return Type::FLOAT;
+  if (typeid(type) == typeid(ast::void_type &)) return Type::NONE;
+
+  std::cout << type << std::endl;
   assert(false && "Unknown data type");
   return Type::NONE;
 }
@@ -51,7 +53,7 @@ std::vector<Tac::type_size_type> convertArgList(ast::param_list argList) {
 
   for (auto arg : argList) {
     std::size_t size = arg->length;
-    auto pair = std::make_pair(getType(arg->paramVar->var_type), size);
+    auto pair = std::make_pair(getType(*arg->paramVar->var_type), size);
     argv.push_back(pair);
   }
 
@@ -111,7 +113,7 @@ Operand::ptr_t convertBinaryOp(Tac *t, AstNode n) {
   Variable::ptr_t variable;
 
   if (*v->op.get() == ast::binary_operand::ASSIGN) {
-    auto check = isType<Variable>(lhs);
+    auto check = isType<Variable>(lhs) || isType<ArrayAccess>(lhs);
     assert(check && "arg1 needs to be a variable for ASSIGN triples");
 
     variable = std::static_pointer_cast<Variable>(lhs);
@@ -173,7 +175,7 @@ Operand::ptr_t convertDeclStmt(Tac *t, AstNode n) {
   auto v = std::static_pointer_cast<ast::decl_stmt>(n);
   auto tempVar = v->var;
 
-  auto type = getType(tempVar->var_type);
+  auto type = getType(*tempVar->var_type);
   auto variable = std::make_shared<Variable>(
       type, tempVar->name, t->getVariableStore()->getCurrentScope());
 
@@ -341,7 +343,7 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
 
   Type retType;
   if (function->returnType != nullptr) {
-    retType = getType(function->returnType);
+    retType = getType(*function->returnType);
   } else {
     retType = Type::NONE;
   }
@@ -397,7 +399,7 @@ Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
   }
 
   Type type;
-  type = getType(functionCall->function->returnType);
+  type = getType(*functionCall->function->returnType);
 
   auto op = Operator(OperatorName::CALL, type);
   auto callTriple = std::make_shared<Triple>(op, functionEntry);
@@ -432,7 +434,8 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
 }
 
 Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n) {
-  auto array = convertArray(t, n);
+  auto a = std::static_pointer_cast<ast::array_decl_stmt>(n);
+  auto array = convertArray(t, a->decl_array);
   t->addToArraySet(array);
 
   return array;
@@ -447,13 +450,16 @@ Operand::ptr_t convertArrayAccess(Tac *t, AstNode n) {
   return std::make_shared<ArrayAccess>(array, pos);
 }
 
-Array::ptr_t convertArray(Tac *t, AstNode n) {
-  auto a = std::static_pointer_cast<ast::array_decl_stmt>(n);
-  auto decl = a->decl_array;
-  auto type = getType(decl->array_type);
-  auto name = decl->name;
+Operand::ptr_t convertArray(Tac *t, AstNode n) {
+  auto a = std::static_pointer_cast<ast::array>(n);
+  return convertArray(t, a);
+}
 
-  auto aSize = decl->array_size;
+Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a) {
+  auto type = getType(*a->array_type);
+  auto name = a->name;
+
+  auto aSize = a->array_size;
   auto size = aSize->value;
 
   auto array = std::make_shared<Array>(type, name, size);
