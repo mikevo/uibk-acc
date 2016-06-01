@@ -33,6 +33,8 @@ class ArrayAccess : public Variable {
   virtual std::string getName() const override;
   virtual bool isLeaf() const override;
   virtual std::string getValue() const override;
+  virtual bool isTemporary() const override;
+  virtual bool isArray() const override;
 
   Operand::ptr_t getPos() const;
 

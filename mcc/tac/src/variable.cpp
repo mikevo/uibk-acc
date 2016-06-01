@@ -69,5 +69,7 @@ bool Variable::isTemporary() const {
 void Variable::setTypeArgument() { this->isArg = true; }
 
 bool Variable::isArgument() const { return this->isArg; }
+
+bool Variable::isArray() const { return false; }
 }
 }

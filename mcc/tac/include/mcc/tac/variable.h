@@ -45,9 +45,10 @@ class Variable : public Operand {
   virtual bool isLeaf() const override;
   Scope::ptr_t const getScope() const;
   //  void setIndex(unsigned);
-  bool isTemporary() const;
+  virtual bool isTemporary() const;
   void setTypeArgument();
   bool isArgument() const;
+  virtual bool isArray() const;
 
  private:
   std::string name;

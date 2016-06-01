@@ -48,5 +48,9 @@ std::string ArrayAccess::getValue() const {
   value.append("]");
   return value;
 }
+
+bool ArrayAccess::isTemporary() const { return false; }
+
+bool ArrayAccess::isArray() const { return true; }
 }
 }

@@ -36,5 +36,21 @@ TEST(Variable, Name) {
 
   EXPECT_EQ("$t" + std::to_string(v1.getId()), v1.getName());
 }
+
+TEST(Variable, IsTemporary) {
+  Variable v1 = Variable(Type::FLOAT);
+
+  EXPECT_EQ(true, v1.isTemporary());
+
+  Variable v2 = Variable(Type::FLOAT, "testVar", std::make_shared<Scope>(0, 0));
+
+  EXPECT_EQ(false, v2.isTemporary());
+}
+
+TEST(Variable, IsArray) {
+  Variable v1 = Variable(Type::FLOAT);
+
+  EXPECT_EQ(false, v1.isArray());
+}
 }
 }
