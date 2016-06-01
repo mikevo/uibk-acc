@@ -9,7 +9,6 @@
 
 #include "mcc/gas/x86_instruction_set.h"
 #include "mcc/tac/float_literal.h"
-#include "mcc/tac/float_literal.h"
 #include "mcc/tac/helper/ast_converters.h"
 #include "mcc/tac/int_literal.h"
 #include "mcc/tac/operator.h"
