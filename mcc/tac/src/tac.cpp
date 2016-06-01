@@ -183,7 +183,8 @@ std::set<unsigned> Tac::lookupFunctionReturn(Label::ptr_t key) {
   }
 }
 
-void Tac::addFunctionPrototype(std::string label, std::vector<Type> argList) {
+void Tac::addFunctionPrototype(std::string label,
+                               std::vector<type_size_type> argList) {
   auto pair = std::make_pair(label, argList);
 
   this->functionPrototypeMap->insert(pair);

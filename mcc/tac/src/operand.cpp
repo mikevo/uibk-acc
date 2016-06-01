@@ -17,5 +17,7 @@ void Operand::updateResultType(Operator op) {
 Type Operand::getType() const { return t; }
 
 void Operand::setType(Type type) { this->t = type; }
+
+std::size_t Operand::length() const { return 1; }
 }
 }

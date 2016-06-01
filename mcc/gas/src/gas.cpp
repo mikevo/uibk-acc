@@ -38,14 +38,14 @@ unsigned getSize(mcc::tac::Type t) {
 }
 
 unsigned getSize(std::shared_ptr<mcc::tac::Operand> operand) {
-  return getSize(operand->getType());
+  return getSize(operand->getType()) * operand->length();
 }
 
-unsigned getSize(std::vector<mcc::tac::Type> argList) {
+unsigned getSize(std::vector<mcc::tac::Tac::type_size_type> argList) {
   unsigned size = 0;
 
   for (auto arg : argList) {
-    size += getSize(arg);
+    size += (getSize(arg.first) * arg.second);
   }
 
   return size;

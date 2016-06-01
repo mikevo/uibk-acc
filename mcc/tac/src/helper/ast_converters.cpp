@@ -44,11 +44,13 @@ Type getType(ast::type &type) {
   return Type::NONE;
 }
 
-std::vector<Type> convertArgList(ast::param_list argList) {
-  std::vector<Type> argv;
+std::vector<Tac::type_size_type> convertArgList(ast::param_list argList) {
+  std::vector<Tac::type_size_type> argv;
 
   for (auto arg : argList) {
-    argv.push_back(getType(*arg->paramVar->var_type.get()));
+    std::size_t size = arg->length;
+    auto pair = std::make_pair(getType(*arg->paramVar->var_type.get()), size);
+    argv.push_back(pair);
   }
 
   return argv;

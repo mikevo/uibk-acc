@@ -28,6 +28,7 @@ class Operand {
   virtual void setType(Type t);
   virtual std::string getValue() const = 0;
   virtual bool isLeaf() const = 0;
+  virtual std::size_t length() const;
 
  private:
   Type t;

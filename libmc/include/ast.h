@@ -230,6 +230,8 @@ struct return_stmt : public statement {
 
 struct parameter : public node {
   sptr<variable> paramVar;
+  // TODO change for array type
+  std::size_t length = 1;
   parameter(sptr<variable> paramVar) : paramVar(paramVar) {}
   virtual bool operator==(const node& other) const;
   virtual std::ostream& print_to(std::ostream& stream) const;
