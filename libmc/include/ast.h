@@ -88,8 +88,8 @@ struct array : public expression {
   sptr<type> array_type;
   sptr<int_literal> array_size;
   string name;
-  array(sptr<type> array_type,  sptr<int_literal> array_size, string name) : 
-    array_type(array_type), array_size(array_size), name(name) {}
+  array(sptr<type> array_type, sptr<int_literal> array_size, string name)
+      : array_type(array_type), array_size(array_size), name(name) {}
   virtual bool operator==(const node& other) const;
   virtual std::ostream& print_to(std::ostream& stream) const;
 };
@@ -207,8 +207,7 @@ struct decl_stmt : public statement {
 
 struct array_decl_stmt : public statement {
   sptr<array> decl_array;
-  array_decl_stmt(sptr<array> array)
-      : decl_array(array) {}
+  array_decl_stmt(sptr<array> array) : decl_array(array) {}
   virtual bool operator==(const node& other) const;
   virtual std::ostream& print_to(std::ostream& stream) const;
 };

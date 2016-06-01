@@ -133,7 +133,7 @@ TEST(Gas, GasConversion) {
                 return 0;
             }
         )");
-  
+
   auto tac = Tac(tree);
   Gas gas = Gas(tac);
 
@@ -192,7 +192,8 @@ fibonacci:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	cmp ecx, 1
 	jne )" + *curLabel++ +
                   R"(
@@ -207,7 +208,8 @@ fibonacci:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	mov eax, ecx
 	sub eax, 1
 	mov ebx, eax
@@ -242,9 +244,11 @@ fibonacci:
 	pop ebp
 	ret
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	pop esi
 	pop edi
 	pop ebx

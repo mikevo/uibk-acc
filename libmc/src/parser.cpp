@@ -462,7 +462,6 @@ sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p) {
     throw parser_error(p,
                        "Expected ';' at end of array declaration  statement");
 
-
   auto array = std::make_shared<ast::array>(array_type, array_size, identifier);
   p.scopes.back().declareArray(p, identifier, array);
   return std::make_shared<ast::array_decl_stmt>(array);
