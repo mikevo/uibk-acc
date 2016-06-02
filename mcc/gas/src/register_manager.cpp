@@ -112,12 +112,12 @@ void RegisterManager::analyzeStackUsages() {
 
   // Begin offset space for ebp and return address
   unsigned initStackSpace = 0;
-  unsigned initLocalOffset = -4;
-  signed initParamOffset = 8;
+  signed initLocalOffset = -4;
+  unsigned initParamOffset = 8;
 
   unsigned stackSpace = initStackSpace;
-  unsigned curLocalOffset = initLocalOffset;
-  signed curParamOffset = initParamOffset;
+  signed curLocalOffset = initLocalOffset;
+  unsigned curParamOffset = initParamOffset;
 
   for (auto codeLine : tac.codeLines) {
     auto opName = codeLine->getOperator().getName();
@@ -139,21 +139,21 @@ void RegisterManager::analyzeStackUsages() {
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       auto funcVarPair = std::make_pair(currentFunctionLabel, targetVar);
-      if (variableStackOffsetMap->find(funcVarPair) ==
-          variableStackOffsetMap->end()) {
         if (codeLine->getOperator().getName() == OperatorName::POP) {
-          (*variableStackOffsetMap)[funcVarPair] = curParamOffset;
+          variableStackOffsetMap->insert(
+              std::make_pair(funcVarPair, curParamOffset));
           curParamOffset += getSize(targetVar);
+
           this->functionVariableMap.at(currentFunctionLabel)
               .push_back(targetVar);
         } else {
           // if variable not parameter of function
-          (*variableStackOffsetMap)[funcVarPair] = curLocalOffset;
+          variableStackOffsetMap->insert(
+              std::make_pair(funcVarPair, curLocalOffset));
           curLocalOffset -= getSize(targetVar);
 
           stackSpace += getSize(targetVar);
         }
-      }
     }
   }
 
@@ -166,14 +166,7 @@ void RegisterManager::analyzeStackUsages() {
 void RegisterManager::setFunctionStackSpace(Label::ptr_t functionLabel,
                                             unsigned stackSpace) {
   assert(functionLabel->isFunctionEntry() && "Not a function label!");
-
-  auto result = functionStackSpaceMap->find(functionLabel);
-  if (result != functionStackSpaceMap->end()) {
-    // TODO this line alone should do the same functionality, or am I wrong?
-    (*functionStackSpaceMap)[functionLabel] = stackSpace;
-  } else {
-    functionStackSpaceMap->insert(std::make_pair(functionLabel, stackSpace));
-  }
+  (*functionStackSpaceMap)[functionLabel] = stackSpace;
 }
 
 unsigned RegisterManager::lookupFunctionStackSpace(Label::ptr_t functionLabel) {
@@ -186,8 +179,8 @@ unsigned RegisterManager::lookupFunctionStackSpace(Label::ptr_t functionLabel) {
   }
 }
 
-unsigned RegisterManager::lookupVariableStackOffset(Label::ptr_t functionLabel,
-                                                    Variable::ptr_t var) {
+signed RegisterManager::lookupVariableStackOffset(Label::ptr_t functionLabel,
+                                                  Variable::ptr_t var) {
   auto found = variableStackOffsetMap->find(std::make_pair(functionLabel, var));
 
   if (found != variableStackOffsetMap->end()) {
@@ -331,7 +324,7 @@ RegisterManager::order_map_type RegisterManager::smallestFirstOrdering(
               return a.second < b.second;
             });
 
-  for (int i = 0; i < degrees.size(); ++i) {
+  for (unsigned i = 0; i < degrees.size(); ++i) {
     order[i] = degrees[i].first;
   }
 
@@ -345,7 +338,7 @@ Operand::ptr_t RegisterManager::getLocationForVariable(
   if (this->isColor(color)) {
     return this->getRegister(color);
   } else {
-    unsigned varOffset = this->lookupVariableStackOffset(functionLabel, vertex);
+    signed varOffset = this->lookupVariableStackOffset(functionLabel, vertex);
     return std::make_shared<Operand>(varOffset);
   }
 }
@@ -382,7 +375,7 @@ Operand::ptr_t RegisterManager::getRegister(unsigned color) {
     case 4:
       return std::make_shared<Operand>(Register::EDI);
     default:
-      assert(false && "to few registers defined for reg alloc");
+      assert(false && "too few registers defined for reg alloc");
       return nullptr;
   }
 }

@@ -54,7 +54,7 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(
 std::shared_ptr<Operand> Gas::loadSpilledVariable(Label::ptr_t functionLabel,
                                                   Variable::ptr_t var,
                                                   Operand::ptr_t reg) {
-  unsigned varOffset =
+  signed varOffset =
       this->registerManager->lookupVariableStackOffset(functionLabel, var);
   // register of operand is ignored
   auto asmVar = std::make_shared<Operand>(varOffset);
@@ -67,7 +67,7 @@ std::shared_ptr<Operand> Gas::loadSpilledVariable(Label::ptr_t functionLabel,
 
 void Gas::loadVariableToRegister(Label::ptr_t functionLabel,
                                  Variable::ptr_t var, Operand::ptr_t reg) {
-  unsigned varOffset =
+  signed varOffset =
       this->registerManager->lookupVariableStackOffset(functionLabel, var);
   auto asmVar = std::make_shared<Operand>(varOffset);
 
@@ -184,7 +184,7 @@ std::pair<std::string, std::string> Gas::createFloatConstant(
 }
 
 Operand::ptr_t Gas::getAsmVar(Label::ptr_t functionLabel, Variable::ptr_t var) {
-  unsigned varOffset =
+  signed varOffset =
       this->registerManager->lookupVariableStackOffset(functionLabel, var);
   auto asmVar = std::make_shared<Operand>(varOffset);
 

@@ -95,8 +95,8 @@ class RegisterManager {
   unsigned getSize(std::vector<Tac::type_size_type> argList);
 
   unsigned lookupFunctionStackSpace(Label::ptr_t functionLabel);
-  unsigned lookupVariableStackOffset(Label::ptr_t functionLabel,
-                                     Variable::ptr_t var);
+  signed lookupVariableStackOffset(Label::ptr_t functionLabel,
+                                   Variable::ptr_t var);
   unsigned lookupFunctionArgSize(Label::ptr_t functionLabel);
   std::vector<Variable::ptr_t> lookupFunctionVariables(
       Label::ptr_t functionLabel);

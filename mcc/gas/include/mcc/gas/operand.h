@@ -26,7 +26,7 @@ class Operand {
 
   Operand(Register reg);
   Operand(bool tempRegister, Register reg);
-  Operand(int offset);
+  Operand(signed offset);
   Operand(std::string label);
   Operand(std::pair<std::string, std::string> floatConstant);
 
