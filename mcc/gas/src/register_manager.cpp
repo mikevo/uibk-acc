@@ -138,18 +138,21 @@ void RegisterManager::analyzeStackUsages() {
       }
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
-      if (codeLine->getOperator().getName() == OperatorName::POP) {
-        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
-                                                 targetVar)] = curParamOffset;
-        curParamOffset += getSize(targetVar);
-        this->functionVariableMap.at(currentFunctionLabel).push_back(targetVar);
-      } else {
-        // if variable not parameter of function
-        (*variableStackOffsetMap)[std::make_pair(currentFunctionLabel,
-                                                 targetVar)] = curLocalOffset;
-        curLocalOffset -= getSize(targetVar);
+      auto funcVarPair = std::make_pair(currentFunctionLabel, targetVar);
+      if (variableStackOffsetMap->find(funcVarPair) ==
+          variableStackOffsetMap->end()) {
+        if (codeLine->getOperator().getName() == OperatorName::POP) {
+          (*variableStackOffsetMap)[funcVarPair] = curParamOffset;
+          curParamOffset += getSize(targetVar);
+          this->functionVariableMap.at(currentFunctionLabel)
+              .push_back(targetVar);
+        } else {
+          // if variable not parameter of function
+          (*variableStackOffsetMap)[funcVarPair] = curLocalOffset;
+          curLocalOffset -= getSize(targetVar);
 
-        stackSpace += getSize(targetVar);
+          stackSpace += getSize(targetVar);
+        }
       }
     }
   }

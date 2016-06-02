@@ -20,9 +20,6 @@ Variable::Variable(Type t, std::string name, Scope::ptr_t scope, unsigned index)
 // this needs to be changed then all maps need a key_comp function that does
 // exactly this
 bool Variable::operator<(Variable const other) const {
-  auto pairLhs = std::make_pair(this->getNameWithIndex(), this->getScope());
-  auto pairRhs = std::make_pair(other.getNameWithIndex(), other.getScope());
-
   return (this->getValue() < other.getValue());
 }
 
