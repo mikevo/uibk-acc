@@ -29,8 +29,8 @@ RegisterManager::RegisterManager(Tac &tac) : tac(tac) {
   this->functionDescriptorMap = std::make_shared<function_descr_map_type>();
 
   this->generateInterferenceGraphs();
-  this->analyzeStackUsages();
   this->graphColoring(this->numOfRegForColoring);
+  this->analyzeStackUsages();
 }
 
 unsigned RegisterManager::getSize(Type t) {
