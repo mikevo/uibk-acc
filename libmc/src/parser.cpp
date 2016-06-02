@@ -441,9 +441,15 @@ sptr<ast::decl_stmt> decl_stmt(parser_state& p) {
 
 sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p) {
   auto try_p = p;
+  bool c_syntax = false;
 
   auto array_type = type(try_p);
   if (!array_type) return {};
+
+  auto identifier = consume_identifier(try_p);
+  if (identifier.empty() == false) {
+    c_syntax = true;
+  }
 
   if (try_token(try_p, "[").empty()) return {};
   p = try_p;
@@ -454,9 +460,11 @@ sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p) {
   if (try_token(p, "]").empty())
     throw parser_error(p, "Expected ']' after array size");
 
-  auto identifier = consume_identifier(p);
-  if (identifier.empty())
-    throw parser_error(p, "Expected 'identifier' after ']'");
+  if (c_syntax == false) {
+    identifier = consume_identifier(p);
+    if (identifier.empty())
+      throw parser_error(p, "Expected 'identifier' after ']'");
+  }
 
   if (try_token(p, ";").empty())
     throw parser_error(p,
