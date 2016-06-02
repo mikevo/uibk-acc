@@ -25,12 +25,10 @@ namespace gas {
 typedef std::pair<Label::ptr_t, Variable::ptr_t>
     variable_stack_offset_map_key_type;
 struct labelVariablePairLess {
-  bool operator()(const variable_stack_offset_map_key_type &lhs,
-                  const variable_stack_offset_map_key_type &rhs) const {
-    if (Label::less()(lhs.first, rhs.first)) return true;
-    if (Variable::less()(lhs.second, rhs.second)) return true;
-
-    return false;
+  bool operator()(const variable_stack_offset_map_key_type& lhs,
+                  const variable_stack_offset_map_key_type& rhs) const {
+    return Label::less()(lhs.first, rhs.first) ||
+           Variable::less()(lhs.second, rhs.second);
   }
 };
 

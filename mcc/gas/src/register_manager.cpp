@@ -140,16 +140,14 @@ void RegisterManager::analyzeStackUsages() {
       auto targetVar = codeLine->getTargetVariable();
       auto funcVarPair = std::make_pair(currentFunctionLabel, targetVar);
         if (codeLine->getOperator().getName() == OperatorName::POP) {
-          variableStackOffsetMap->insert(
-              std::make_pair(funcVarPair, curParamOffset));
+          variableStackOffsetMap->emplace(funcVarPair, curParamOffset);
           curParamOffset += getSize(targetVar);
 
           this->functionVariableMap.at(currentFunctionLabel)
               .push_back(targetVar);
         } else {
           // if variable not parameter of function
-          variableStackOffsetMap->insert(
-              std::make_pair(funcVarPair, curLocalOffset));
+          variableStackOffsetMap->emplace(funcVarPair, curLocalOffset);
           curLocalOffset -= getSize(targetVar);
 
           stackSpace += getSize(targetVar);
@@ -186,7 +184,7 @@ signed RegisterManager::lookupVariableStackOffset(Label::ptr_t functionLabel,
   if (found != variableStackOffsetMap->end()) {
     return found->second;
   } else {
-    return 0;
+    return -1;
   }
 }
 
