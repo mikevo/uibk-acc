@@ -84,11 +84,20 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
       if (tac::helper::isType<ArrayAccess>(arg2)) {
         auto arrAcc = std::static_pointer_cast<ArrayAccess>(arg2);
 
-        auto arg2Op = loadArrayAccess(gas, arrAcc, true);
+        bool loadToTemp = arg1Op->isAddress();
+        auto arg2Op = loadArrayAccess(gas, arrAcc, loadToTemp);
         gas->addMnemonic(
             std::make_shared<Mnemonic>(Instruction::MOV, arg1Op, arg2Op));
       } else {
         auto arg2Op = gas->loadOperandToRegister(currentFunction, arg2);
+
+        if (arg2Op->isAddress() && arg1Op->isAddress()) {
+          auto tmp = gas->getRegisterManager()->getTmpRegister();
+          gas->addMnemonic(
+              std::make_shared<Mnemonic>(Instruction::MOV, tmp, arg2Op));
+          arg2Op = tmp;
+        }
+
         gas->addMnemonic(
             std::make_shared<Mnemonic>(Instruction::MOV, arg1Op, arg2Op));
       }
