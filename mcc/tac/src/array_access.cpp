@@ -22,8 +22,6 @@ ArrayAccess::ArrayAccess(Array::ptr_t array, Operand::ptr_t pos)
 }
 
 bool ArrayAccess::operator<(ArrayAccess const other) const {
-  auto pairLhs = std::make_pair(this->getName(), this->getPos());
-
   return (this->getName() < other.getName());
 }
 

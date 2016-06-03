@@ -22,20 +22,11 @@ using namespace mcc::tac;
 
 namespace mcc {
 namespace gas {
-typedef std::pair<Label::ptr_t, Variable::ptr_t>
-    variable_stack_offset_map_key_type;
-struct labelVariablePairLess {
-  bool operator()(const variable_stack_offset_map_key_type& lhs,
-                  const variable_stack_offset_map_key_type& rhs) const {
-    return Label::less()(lhs.first, rhs.first) ||
-           Variable::less()(lhs.second, rhs.second);
-  }
-};
-
 typedef std::map<Label::ptr_t, unsigned, Label::less>
     function_stack_space_map_type;
-typedef std::map<variable_stack_offset_map_key_type, signed,
-                 labelVariablePairLess>
+typedef std::pair<Label::ptr_t, Variable::ptr_t>
+    variable_stack_offset_map_key_type;
+typedef std::map<variable_stack_offset_map_key_type, signed>
     variable_stack_offset_map_type;
 typedef std::map<std::string, unsigned> function_arg_size_type;
 typedef std::map<Label::ptr_t, std::vector<Variable::ptr_t>, Label::less>

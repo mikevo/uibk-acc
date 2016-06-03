@@ -5,6 +5,7 @@
  */
 
 #include "mcc/gas/register_manager.h"
+#include "mcc/tac/array_access.h"
 
 #include "mcc/cfg/cfg.h"
 #include <boost/graph/sequential_vertex_coloring.hpp>
@@ -99,16 +100,13 @@ void RegisterManager::generateInterferenceGraphs() {
 }
 
 void RegisterManager::analyzeStackUsages() {
-  // TODO move functionVariableMap to helper
   // get argSize of all declared functions
   for (auto e : *tac.getFunctionPrototypeMap().get()) {
     (*this->functionArgSizeMap)[e.first] = getSize(e.second);
-
-    std::vector<Variable::ptr_t> vec;
-    this->functionVariableMap[tac.lookupFunction(e.first)] = vec;
   }
 
   Label::ptr_t currentFunctionLabel = nullptr;
+  bool funcArg = false;
 
   // Begin offset space for ebp and return address
   unsigned initStackSpace = 0;
@@ -135,23 +133,35 @@ void RegisterManager::analyzeStackUsages() {
         }
 
         currentFunctionLabel = label;
+        funcArg = true;
+
+        // initialize function variable map
+        std::vector<Variable::ptr_t> vec;
+        this->functionVariableMap[currentFunctionLabel] = vec;
       }
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       auto funcVarPair = std::make_pair(currentFunctionLabel, targetVar);
-        if (codeLine->getOperator().getName() == OperatorName::POP) {
+      if (variableStackOffsetMap->find(funcVarPair) ==
+          variableStackOffsetMap->end()) {
+        if (funcArg && codeLine->getOperator().getName() == OperatorName::POP) {
+          // variable is function parameter
           variableStackOffsetMap->emplace(funcVarPair, curParamOffset);
           curParamOffset += getSize(targetVar);
 
           this->functionVariableMap.at(currentFunctionLabel)
               .push_back(targetVar);
         } else {
+          funcArg = false;
+
           // if variable not parameter of function
           variableStackOffsetMap->emplace(funcVarPair, curLocalOffset);
-          curLocalOffset -= getSize(targetVar);
+          auto targetVarSize = getSize(targetVar);
+          curLocalOffset -= targetVarSize;
 
-          stackSpace += getSize(targetVar);
+          stackSpace += targetVarSize;
         }
+      }
     }
   }
 
