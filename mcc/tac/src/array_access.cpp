@@ -37,6 +37,8 @@ std::string ArrayAccess::getName() const { return this->array->getName(); }
 
 Operand::ptr_t ArrayAccess::getPos() const { return this->pos; }
 
+Array::ptr_t ArrayAccess::getArray() const { return this->array; }
+
 bool ArrayAccess::isLeaf() const { return true; }
 
 std::string ArrayAccess::getValue() const {

@@ -38,6 +38,8 @@ class ArrayAccess : public Variable {
 
   Operand::ptr_t getPos() const;
 
+  Array::ptr_t getArray() const;
+
  private:
   Array::ptr_t array;
   Operand::ptr_t pos;

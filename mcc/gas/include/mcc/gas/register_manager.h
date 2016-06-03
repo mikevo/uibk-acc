@@ -28,6 +28,19 @@ typedef std::pair<Label::ptr_t, Variable::ptr_t>
     variable_stack_offset_map_key_type;
 typedef std::map<variable_stack_offset_map_key_type, signed>
     variable_stack_offset_map_type;
+
+typedef std::pair<Label::ptr_t, Array::ptr_t> array_stack_offset_map_key_type;
+struct labelArrayPairLess {
+  bool operator()(const array_stack_offset_map_key_type &lhs,
+                  const array_stack_offset_map_key_type &rhs) const {
+    return Label::less()(lhs.first, rhs.first) ||
+           Array::less()(lhs.second, rhs.second);
+  }
+};
+
+typedef std::map<array_stack_offset_map_key_type, signed, labelArrayPairLess>
+    array_stack_offset_map_type;
+
 typedef std::map<std::string, unsigned> function_arg_size_type;
 typedef std::map<Label::ptr_t, std::vector<Variable::ptr_t>, Label::less>
     func_var_map_type;
@@ -86,12 +99,15 @@ class RegisterManager {
   unsigned lookupFunctionStackSpace(Label::ptr_t functionLabel);
   signed lookupVariableStackOffset(Label::ptr_t functionLabel,
                                    Variable::ptr_t var);
+  signed lookupArrayStackOffset(Label::ptr_t functionLabel, Array::ptr_t arr);
   unsigned lookupFunctionArgSize(Label::ptr_t functionLabel);
   std::vector<Variable::ptr_t> lookupFunctionVariables(
       Label::ptr_t functionLabel);
 
   Operand::ptr_t getLocationForVariable(Label::ptr_t functionLabel,
                                         Vertex vertex);
+  Operand::ptr_t getLocationForArray(Label::ptr_t functionLabel,
+                                     Array::ptr_t arr);
 
   Register getTmpRegisterName();
   Operand::ptr_t getTmpRegister();
@@ -99,6 +115,7 @@ class RegisterManager {
  private:
   std::shared_ptr<function_stack_space_map_type> functionStackSpaceMap;
   std::shared_ptr<variable_stack_offset_map_type> variableStackOffsetMap;
+  std::shared_ptr<array_stack_offset_map_type> arrayStackOffsetMap;
   std::shared_ptr<function_arg_size_type> functionArgSizeMap;
   func_var_map_type functionVariableMap;
 

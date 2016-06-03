@@ -9,6 +9,7 @@
 #include "mcc/gas/helper/tac_converters.h"
 #include "mcc/gas/helper/tac_float_converters.h"
 #include "mcc/gas/helper/tac_int_converters.h"
+#include "mcc/tac/array.h"
 #include "mcc/tac/helper/ast_converters.h"
 
 using namespace mcc::tac;
@@ -17,6 +18,8 @@ using namespace mcc::gas;
 bool resultAvailable;
 Label::ptr_t currentFunction;
 OperatorName lastOperator;
+
+std::vector<std::pair<Array::ptr_t, unsigned>> definedArrays;
 
 namespace mcc {
 namespace gas {
@@ -348,6 +351,21 @@ void createFunctionEpilog(Gas *gas, Label::ptr_t functionLabel) {
 
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::MOV, esp, ebp));
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::POP, ebp));
+}
+
+std::vector<std::pair<Array::ptr_t, unsigned>>::iterator lookupDefinedArray(
+    Array::ptr_t array) {
+  for (auto pairIt = definedArrays.begin(); pairIt != definedArrays.end();
+       ++pairIt) {
+    if (!Array::less()(pairIt->first, array) &&
+        !Array::less()(array, pairIt->first)) {
+      return pairIt;
+    } else if (pairIt->first == array) {
+      return pairIt;
+    }
+  }
+
+  return definedArrays.end();
 }
 }
 }

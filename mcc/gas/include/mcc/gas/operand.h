@@ -26,6 +26,7 @@ class Operand {
 
   Operand(Register reg);
   Operand(bool tempRegister, Register reg);
+  Operand(Operand::ptr_t reg, signed offset);
   Operand(signed offset);
   Operand(std::string label);
   Operand(std::pair<std::string, std::string> floatConstant);
@@ -41,7 +42,7 @@ class Operand {
  private:
   OperandType mType;
   Register mRegister;
-  int mAddrOffset;
+  signed mAddrOffset;
   std::string mLabelName;
   bool containsTempReg;
   bool mIsFloatConstant;

@@ -22,6 +22,7 @@ RegisterManager::RegisterManager(Tac &tac) : tac(tac) {
       std::make_shared<function_stack_space_map_type>();
   this->variableStackOffsetMap =
       std::make_shared<variable_stack_offset_map_type>();
+  this->arrayStackOffsetMap = std::make_shared<array_stack_offset_map_type>();
 
   this->numColorsMap = std::make_shared<num_colors_map_type>();
   this->functionGraphColorsMap =
@@ -142,9 +143,25 @@ void RegisterManager::analyzeStackUsages() {
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       auto funcVarPair = std::make_pair(currentFunctionLabel, targetVar);
-      if (!targetVar->isArray() &&
-          variableStackOffsetMap->find(funcVarPair) ==
-              variableStackOffsetMap->end()) {
+      if (targetVar->isArray()) {
+        funcArg = false;
+
+        // if target is array
+        // reserve fixed place to store start address of array
+        auto arrAcc = std::static_pointer_cast<ArrayAccess>(targetVar);
+        auto arr = arrAcc->getArray();
+        auto funcArrPair = std::make_pair(currentFunctionLabel, arr);
+        if (arrayStackOffsetMap->find(funcArrPair) ==
+            arrayStackOffsetMap->end()) {
+          arrayStackOffsetMap->emplace(funcArrPair, curLocalOffset);
+
+          auto targetVarSize = 4;  // to store start address of array
+          curLocalOffset -= targetVarSize;
+
+          stackSpace += targetVarSize;
+        }
+      } else if (variableStackOffsetMap->find(funcVarPair) ==
+                 variableStackOffsetMap->end()) {
         if (funcArg && codeLine->getOperator().getName() == OperatorName::POP) {
           // variable is function parameter
           variableStackOffsetMap->emplace(funcVarPair, curParamOffset);
@@ -195,7 +212,18 @@ signed RegisterManager::lookupVariableStackOffset(Label::ptr_t functionLabel,
   if (found != variableStackOffsetMap->end()) {
     return found->second;
   } else {
-    return -1;
+    return 0;
+  }
+}
+
+signed RegisterManager::lookupArrayStackOffset(Label::ptr_t functionLabel,
+                                               Array::ptr_t arr) {
+  auto found = arrayStackOffsetMap->find(std::make_pair(functionLabel, arr));
+
+  if (found != arrayStackOffsetMap->end()) {
+    return found->second;
+  } else {
+    return 0;
   }
 }
 
@@ -350,6 +378,12 @@ Operand::ptr_t RegisterManager::getLocationForVariable(
     signed varOffset = this->lookupVariableStackOffset(functionLabel, vertex);
     return std::make_shared<Operand>(varOffset);
   }
+}
+
+Operand::ptr_t RegisterManager::getLocationForArray(Label::ptr_t functionLabel,
+                                                    Array::ptr_t arr) {
+  signed varOffset = this->lookupArrayStackOffset(functionLabel, arr);
+  return std::make_shared<Operand>(varOffset);
 }
 
 bool RegisterManager::isColor(unsigned color) {

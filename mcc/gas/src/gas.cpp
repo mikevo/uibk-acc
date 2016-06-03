@@ -8,6 +8,7 @@
 #include <typeinfo>
 
 #include "mcc/gas/x86_instruction_set.h"
+#include "mcc/tac/array.h"
 #include "mcc/tac/float_literal.h"
 #include "mcc/tac/helper/ast_converters.h"
 #include "mcc/tac/int_literal.h"
@@ -39,6 +40,9 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(
     auto variableOp = triple->getTargetVariable();
     return this->registerManager->getLocationForVariable(functionLabel,
                                                          variableOp);
+  } else if (tac::helper::isType<Array>(op)) {
+    auto arrOp = std::static_pointer_cast<Array>(op);
+    return this->registerManager->getLocationForArray(functionLabel, arrOp);
   } else {
     // constant values
     if (op->getType() == Type::FLOAT) {

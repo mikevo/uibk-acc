@@ -16,7 +16,13 @@ Operand::Operand(bool tempRegister, Register reg)
       mAddrOffset(0),
       containsTempReg(tempRegister),
       mIsFloatConstant(false) {}
-Operand::Operand(int offset)
+Operand::Operand(Operand::ptr_t reg, signed offset)
+    : mType(OperandType::ADDRESS),
+      mRegister(reg->mRegister),
+      mAddrOffset(offset),
+      containsTempReg(false),
+      mIsFloatConstant(false) {}
+Operand::Operand(signed offset)
     : mType(OperandType::ADDRESS),
       mRegister(Register::EBP),
       mAddrOffset(offset),

@@ -13,6 +13,8 @@ extern bool resultAvailable;
 extern Label::ptr_t currentFunction;
 extern OperatorName lastOperator;
 
+extern std::vector<std::pair<Array::ptr_t, unsigned>> definedArrays;
+
 namespace mcc {
 namespace gas {
 namespace helper {
