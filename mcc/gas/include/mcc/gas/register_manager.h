@@ -149,6 +149,7 @@ class RegisterManager {
   std::shared_ptr<num_colors_map_type> numColorsMap;
   std::shared_ptr<function_descr_map_type> functionDescriptorMap;
   unsigned numOfRegForColoring;
+  bool tmpToggle;
 };
 }
 }

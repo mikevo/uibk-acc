@@ -15,7 +15,7 @@ namespace mcc {
 namespace gas {
 
 RegisterManager::RegisterManager(Tac &tac) : tac(tac) {
-  this->numOfRegForColoring = 5;
+  this->numOfRegForColoring = 4;
 
   this->functionArgSizeMap = std::make_shared<function_arg_size_type>();
   this->functionStackSpaceMap =
@@ -408,14 +408,12 @@ RegisterManager::VertexDescriptor RegisterManager::getVertexDescriptor(
 Operand::ptr_t RegisterManager::getRegister(unsigned color) {
   switch (color) {
     case 0:
-      return std::make_shared<Operand>(Register::EBX);
-    case 1:
       return std::make_shared<Operand>(Register::ECX);
-    case 2:
+    case 1:
       return std::make_shared<Operand>(Register::EDX);
-    case 3:
+    case 2:
       return std::make_shared<Operand>(Register::ESI);
-    case 4:
+    case 3:
       return std::make_shared<Operand>(Register::EDI);
     default:
       assert(false && "too few registers defined for reg alloc");
@@ -423,7 +421,10 @@ Operand::ptr_t RegisterManager::getRegister(unsigned color) {
   }
 }
 
-Register RegisterManager::getTmpRegisterName() { return Register::EAX; }
+Register RegisterManager::getTmpRegisterName() {
+  tmpToggle = !tmpToggle;
+  return tmpToggle ? Register::EAX : Register::EBX;
+}
 
 Operand::ptr_t RegisterManager::getTmpRegister() {
   return std::make_shared<Operand>(true, this->getTmpRegisterName());

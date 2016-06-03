@@ -84,7 +84,7 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
       if (tac::helper::isType<ArrayAccess>(arg2)) {
         auto arrAcc = std::static_pointer_cast<ArrayAccess>(arg2);
 
-        auto arg2Op = loadArrayAccess(gas, arrAcc);
+        auto arg2Op = loadArrayAccess(gas, arrAcc, true);
         gas->addMnemonic(
             std::make_shared<Mnemonic>(Instruction::MOV, arg1Op, arg2Op));
       } else {
@@ -231,7 +231,8 @@ void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arrAcc) {
   }
 }
 
-Operand::ptr_t loadArrayAccess(Gas *gas, ArrayAccess::ptr_t arrAcc) {
+Operand::ptr_t loadArrayAccess(Gas *gas, ArrayAccess::ptr_t arrAcc,
+                               bool loadIntoTempReg) {
   auto tmp = gas->getRegisterManager()->getTmpRegister();
 
   auto arrOffsetOp =
@@ -250,7 +251,15 @@ Operand::ptr_t loadArrayAccess(Gas *gas, ArrayAccess::ptr_t arrAcc) {
       std::make_shared<Mnemonic>(Instruction::SUB, tmp, arrStartOp));
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::NEG, tmp));
 
-  return std::make_shared<Operand>(tmp, 0);
+  auto arrAccOp = std::make_shared<Operand>(tmp, 0);
+
+  if (loadIntoTempReg) {
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::MOV, tmp, arrAccOp));
+    return tmp;
+  }
+
+  return arrAccOp;
 }
 }
 }
