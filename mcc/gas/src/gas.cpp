@@ -70,7 +70,8 @@ Operand::ptr_t Gas::storeOperandFromRegister(Label::ptr_t functionLabel,
                                              Operand::ptr_t reg) {
   auto operand = loadOperand(functionLabel, op);
   auto tmpReg = reg;
-  if (operand->isAddress() && reg->isAddress()) {
+  if ((operand->isAddress() && reg->isAddress()) ||
+      (operand->isAddress() && reg->isFloatConstant())) {
     tmpReg = this->registerManager->getTmpRegister();
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::MOV, tmpReg, reg));
@@ -84,7 +85,7 @@ Operand::ptr_t Gas::storeOperandFromRegister(Label::ptr_t functionLabel,
 
 void Gas::storeVariableFromFloatRegister(Label::ptr_t functionLabel,
                                          Variable::ptr_t var) {
-  auto stackVar = getAsmVar(functionLabel, var);
+  auto stackVar = loadOperand(functionLabel, var);
   auto asmVar =
       this->registerManager->getLocationForVariable(functionLabel, var);
 
@@ -144,11 +145,11 @@ void Gas::pushOperandToFloatRegister(Label::ptr_t functionLabel,
   Operand::ptr_t asmVar;
   if (tac::helper::isType<Variable>(op)) {
     auto var = std::static_pointer_cast<Variable>(op);
-    asmVar = getAsmVar(functionLabel, var);
+    asmVar = loadOperand(functionLabel, var);
   } else if (tac::helper::isType<Triple>(op)) {
     auto triple = std::static_pointer_cast<Triple>(op);
     auto var = triple->getTargetVariable();
-    asmVar = getAsmVar(functionLabel, var);
+    asmVar = loadOperand(functionLabel, var);
   } else {
     // constant values
     auto floatConstant = createFloatConstant(op->getValue());
@@ -166,14 +167,6 @@ std::pair<std::string, std::string> Gas::createFloatConstant(
   constantFloatsMap->insert(floatConstant);
 
   return floatConstant;
-}
-
-Operand::ptr_t Gas::getAsmVar(Label::ptr_t functionLabel, Variable::ptr_t var) {
-  signed varOffset =
-      this->registerManager->lookupVariableStackOffset(functionLabel, var);
-  auto asmVar = std::make_shared<Operand>(varOffset);
-
-  return asmVar;
 }
 
 void Gas::addMnemonic(Mnemonic::ptr_t mnemonic) {

@@ -49,7 +49,6 @@ class Gas {
                                       Variable::ptr_t var);
   void pushOperandToFloatRegister(Label::ptr_t functionLabel,
                                   mcc::tac::Operand::ptr_t op);
-  Operand::ptr_t getAsmVar(Label::ptr_t functionLabel, Variable::ptr_t var);
   std::pair<std::string, std::string> createFloatConstant(std::string value);
 
   void storeRegisters(std::initializer_list<Register> list);

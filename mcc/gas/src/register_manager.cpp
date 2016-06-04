@@ -78,19 +78,25 @@ void RegisterManager::generateInterferenceGraphs() {
 
       if (loc->containsTargetVar()) {
         auto defVar = loc->getTargetVariable();
-        auto result = vertexMap.find(defVar);
 
-        if (result == vertexMap.end()) {
-          auto vt = boost::add_vertex(defVar, interference);
-          auto pair = std::make_pair(defVar, vt);
+        // do not support FLOAT register allocation
+        if (defVar->getType() != Type::FLOAT) {
+          auto result = vertexMap.find(defVar);
+          if (result == vertexMap.end()) {
+            auto vt = boost::add_vertex(defVar, interference);
+            auto pair = std::make_pair(defVar, vt);
 
-          vertexMap.insert(pair);
-        }
+            vertexMap.insert(pair);
+          }
 
-        for (auto var : cfg.liveSetAt(loc, false)) {
-          // targetVar interferes with var
-          boost::add_edge(vertexMap.at(defVar), vertexMap.at(var),
-                          interference);
+          for (auto var : cfg.liveSetAt(loc, false)) {
+            // do not support FLOAT register allocation
+            if (var->getType() != Type::FLOAT) {
+              // targetVar interferes with var
+              boost::add_edge(vertexMap.at(defVar), vertexMap.at(var),
+                              interference);
+            }
+          }
         }
       }
     }
@@ -394,6 +400,11 @@ bool RegisterManager::isColor(unsigned color) {
 }
 
 unsigned RegisterManager::getColor(Label::ptr_t functionLabel, Vertex vertex) {
+  // do not support FLOAT register allocation
+  if (vertex->getType() == Type::FLOAT) {
+    return this->numOfRegForColoring;
+  }
+
   auto vd = this->lookupVertexDescr(functionLabel, vertex);
   auto colorMap = this->getFunctionGraphColorsMap()->at(functionLabel);
 
