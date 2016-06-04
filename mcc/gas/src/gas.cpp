@@ -29,8 +29,8 @@ Gas::Gas(Tac& tac) {
   helper::convertTac(this, tac);
 }
 
-std::shared_ptr<Operand> Gas::loadOperandToRegister(
-    Label::ptr_t functionLabel, mcc::tac::Operand::ptr_t op) {
+Operand::ptr_t Gas::loadOperand(Label::ptr_t functionLabel,
+                                mcc::tac::Operand::ptr_t op) {
   if (tac::helper::isType<Variable>(op)) {
     auto variableOp = std::static_pointer_cast<Variable>(op);
     return this->registerManager->getLocationForVariable(functionLabel,
@@ -55,49 +55,31 @@ std::shared_ptr<Operand> Gas::loadOperandToRegister(
   }
 }
 
-std::shared_ptr<Operand> Gas::loadSpilledVariable(Label::ptr_t functionLabel,
-                                                  Variable::ptr_t var,
-                                                  Operand::ptr_t reg) {
-  signed varOffset =
-      this->registerManager->lookupVariableStackOffset(functionLabel, var);
-  // register of operand is ignored
-  auto asmVar = std::make_shared<Operand>(varOffset);
-
+Operand::ptr_t Gas::loadOperandToRegister(Label::ptr_t functionLabel,
+                                          mcc::tac::Operand::ptr_t op,
+                                          Operand::ptr_t reg) {
+  auto operand = loadOperand(functionLabel, op);
   asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, reg, asmVar));
+      std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
 
-  return asmVar;
+  return reg;
 }
 
-void Gas::loadVariableToRegister(Label::ptr_t functionLabel,
-                                 Variable::ptr_t var, Operand::ptr_t reg) {
-  signed varOffset =
-      this->registerManager->lookupVariableStackOffset(functionLabel, var);
-  auto asmVar = std::make_shared<Operand>(varOffset);
+Operand::ptr_t Gas::storeOperandFromRegister(Label::ptr_t functionLabel,
+                                             mcc::tac::Operand::ptr_t op,
+                                             Operand::ptr_t reg) {
+  auto operand = loadOperand(functionLabel, op);
+  auto tmpReg = reg;
+  if (operand->isAddress() && reg->isAddress()) {
+    tmpReg = this->registerManager->getTmpRegister();
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, tmpReg, reg));
+  }
 
   asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, reg, asmVar));
-}
+      std::make_shared<Mnemonic>(Instruction::MOV, operand, tmpReg));
 
-void Gas::storeVariableFromRegister(Label::ptr_t functionLabel,
-                                    Variable::ptr_t var, Operand::ptr_t reg) {
-  auto asmVar =
-      this->registerManager->getLocationForVariable(functionLabel, var);
-
-  asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, asmVar, reg));
-}
-
-void Gas::storeStackVariableFromRegister(Label::ptr_t functionLabel,
-                                         Variable::ptr_t var,
-                                         Operand::ptr_t reg) {
-  auto stackVar = getAsmVar(functionLabel, var);
-
-  auto tmp = this->registerManager->getTmpRegister();
-  asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, tmp, reg));
-  asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, stackVar, tmp));
+  return operand;
 }
 
 void Gas::storeVariableFromFloatRegister(Label::ptr_t functionLabel,
@@ -114,7 +96,6 @@ void Gas::storeVariableFromFloatRegister(Label::ptr_t functionLabel,
         std::make_shared<Mnemonic>(Instruction::MOV, tmp, stackVar));
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::MOV, asmVar, tmp));
-
   } else {
     asmInstructions.push_back(
         std::make_shared<Mnemonic>(Instruction::FSTP, stackVar));

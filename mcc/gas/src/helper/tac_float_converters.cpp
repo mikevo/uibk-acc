@@ -61,9 +61,8 @@ void convertFloatAssign(Gas *gas, Triple::ptr_t triple) {
       auto destVar = std::static_pointer_cast<Variable>(op);
 
       if (triple->containsArg2()) {
-        auto reg =
-            gas->loadOperandToRegister(currentFunction, triple->getArg2());
-        gas->storeStackVariableFromRegister(currentFunction, destVar, reg);
+        auto reg = gas->loadOperand(currentFunction, triple->getArg2());
+        gas->storeOperandFromRegister(currentFunction, destVar, reg);
       }
     }
   }

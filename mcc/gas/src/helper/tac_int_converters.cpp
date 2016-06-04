@@ -27,7 +27,7 @@ void convertIntArithmetic(Gas *gas, Triple::ptr_t triple) {
 
   auto operatorName = triple->getOperator().getName();
 
-  reg0 = gas->loadOperandToRegister(currentFunction, triple->getArg1());
+  reg0 = gas->loadOperand(currentFunction, triple->getArg1());
 
   tmp = gas->getRegisterManager()->getTmpRegister();
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::MOV, tmp, reg0));
@@ -36,7 +36,7 @@ void convertIntArithmetic(Gas *gas, Triple::ptr_t triple) {
     gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::CDQ));
   }
 
-  reg1 = gas->loadOperandToRegister(currentFunction, triple->getArg2());
+  reg1 = gas->loadOperand(currentFunction, triple->getArg2());
 
   switch (operatorName) {
     case OperatorName::ADD:
@@ -56,8 +56,8 @@ void convertIntArithmetic(Gas *gas, Triple::ptr_t triple) {
       assert(false && "unknown operation");
   }
 
-  gas->storeVariableFromRegister(currentFunction, triple->getTargetVariable(),
-                                 tmp);
+  gas->storeOperandFromRegister(currentFunction, triple->getTargetVariable(),
+                                tmp);
 }
 
 void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
@@ -89,7 +89,7 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
         gas->addMnemonic(
             std::make_shared<Mnemonic>(Instruction::MOV, arg1Op, arg2Op));
       } else {
-        auto arg2Op = gas->loadOperandToRegister(currentFunction, arg2);
+        auto arg2Op = gas->loadOperand(currentFunction, arg2);
 
         if (arg2Op->isAddress() && arg1Op->isAddress()) {
           auto tmp = gas->getRegisterManager()->getTmpRegister();
@@ -148,8 +148,8 @@ void convertIntLogicOperator(Gas *gas, Triple::ptr_t triple) {
   Operand::ptr_t reg1;
   Operand::ptr_t tmp;
 
-  reg0 = gas->loadOperandToRegister(currentFunction, triple->getArg1());
-  reg1 = gas->loadOperandToRegister(currentFunction, triple->getArg2());
+  reg0 = gas->loadOperand(currentFunction, triple->getArg1());
+  reg1 = gas->loadOperand(currentFunction, triple->getArg2());
 
   if (reg0->isAddress()) {
     tmp = gas->getRegisterManager()->getTmpRegister();
@@ -173,7 +173,7 @@ void defineArray(Gas *gas, ArrayAccess::ptr_t arrAcc) {
   auto arrLength = arr->length();
   auto arrLengthOp = std::make_shared<Operand>(std::to_string(arrLength));
   // for VLA
-  //          auto arrLengthOp = gas->loadOperandToRegister(currentFunction,
+  //          auto arrLengthOp = gas->loadOperand(currentFunction,
   //          arr->length());
 
   auto arrTypeSize = gas->getRegisterManager()->getSize(arr->getType());
@@ -192,7 +192,7 @@ void defineArray(Gas *gas, ArrayAccess::ptr_t arrAcc) {
 void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arrAcc) {
   // store start address on defined stack position
   auto arr = arrAcc->getArray();
-  auto newArrOp = gas->loadOperandToRegister(currentFunction, arr);
+  auto newArrOp = gas->loadOperand(currentFunction, arr);
   if (!definedArrays.empty()) {
     auto tmp = gas->getRegisterManager()->getTmpRegister();
     // last defined array
@@ -200,7 +200,7 @@ void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arrAcc) {
     auto lastArr = lastArrLengthPair.first;
     auto lastArrLength = lastArrLengthPair.second;
 
-    auto lastArrOp = gas->loadOperandToRegister(currentFunction, lastArr);
+    auto lastArrOp = gas->loadOperand(currentFunction, lastArr);
     auto lastArrLengthOp =
         std::make_shared<Operand>(std::to_string(lastArrLength));
 
@@ -244,8 +244,7 @@ Operand::ptr_t loadArrayAccess(Gas *gas, ArrayAccess::ptr_t arrAcc,
                                bool loadIntoTempReg) {
   auto tmp = gas->getRegisterManager()->getTmpRegister();
 
-  auto arrOffsetOp =
-      gas->loadOperandToRegister(currentFunction, arrAcc->getPos());
+  auto arrOffsetOp = gas->loadOperand(currentFunction, arrAcc->getPos());
   auto arrTypeSize = gas->getRegisterManager()->getSize(arrAcc->getType());
   auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
 
@@ -254,8 +253,7 @@ Operand::ptr_t loadArrayAccess(Gas *gas, ArrayAccess::ptr_t arrAcc,
   gas->addMnemonic(
       std::make_shared<Mnemonic>(Instruction::IMUL, tmp, arrTypeSizeOp));
 
-  auto arrStartOp =
-      gas->loadOperandToRegister(currentFunction, arrAcc->getArray());
+  auto arrStartOp = gas->loadOperand(currentFunction, arrAcc->getArray());
   gas->addMnemonic(
       std::make_shared<Mnemonic>(Instruction::SUB, tmp, arrStartOp));
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::NEG, tmp));

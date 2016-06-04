@@ -36,17 +36,15 @@ class Gas {
 
   void addMnemonic(Mnemonic::ptr_t mnemonic);
 
-  std::shared_ptr<Operand> loadOperandToRegister(Label::ptr_t functionLabel,
-                                                 mcc::tac::Operand::ptr_t op);
-  void loadVariableToRegister(Label::ptr_t functionLabel, Variable::ptr_t var,
-                              Operand::ptr_t);
-  std::shared_ptr<Operand> loadSpilledVariable(Label::ptr_t functionLabel,
-                                               Variable::ptr_t var,
-                                               Operand::ptr_t reg);
-  void storeVariableFromRegister(Label::ptr_t functionLabel,
-                                 Variable::ptr_t var, Operand::ptr_t reg);
-  void storeStackVariableFromRegister(Label::ptr_t functionLabel,
-                                      Variable::ptr_t var, Operand::ptr_t reg);
+  Operand::ptr_t loadOperand(Label::ptr_t functionLabel,
+                             mcc::tac::Operand::ptr_t op);
+  Operand::ptr_t loadOperandToRegister(Label::ptr_t functionLabel,
+                                       mcc::tac::Operand::ptr_t op,
+                                       Operand::ptr_t reg);
+  Operand::ptr_t storeOperandFromRegister(Label::ptr_t functionLabel,
+                                          mcc::tac::Operand::ptr_t op,
+                                          Operand::ptr_t reg);
+
   void storeVariableFromFloatRegister(Label::ptr_t functionLabel,
                                       Variable::ptr_t var);
   void pushOperandToFloatRegister(Label::ptr_t functionLabel,

@@ -115,8 +115,8 @@ void convertAssign(Gas *gas, Triple::ptr_t triple) {
       case Type::INT:
         convertIntAssign(gas, triple);
         break;
-        convertFloatAssign(gas, triple);
       case Type::FLOAT:
+        convertFloatAssign(gas, triple);
         break;
       default:
         assert("Unhandled type of arg2 in assign op!");
@@ -219,12 +219,12 @@ void convertPush(Gas *gas, Triple::ptr_t triple) {
 
 void convertUnary(Gas *gas, Triple::ptr_t triple, Instruction i) {
   // convert all other unary operands as follows
-  auto eax = gas->loadOperandToRegister(currentFunction, triple->getArg1());
+  auto eax = gas->loadOperand(currentFunction, triple->getArg1());
   gas->addMnemonic(std::make_shared<Mnemonic>(i, eax));
 
   if (triple->containsTargetVar()) {
     auto var = triple->getTargetVariable();
-    gas->storeVariableFromRegister(currentFunction, var, eax);
+    gas->storeOperandFromRegister(currentFunction, var, eax);
   }
 }
 
@@ -246,7 +246,7 @@ void convertCall(Gas *gas, Triple::ptr_t triple) {
         if (destVar->getType() != Type::NONE) {
           resultAvailable = true;
           auto result = std::make_shared<Operand>(Register::EAX);
-          gas->storeVariableFromRegister(currentFunction, destVar, result);
+          gas->storeOperandFromRegister(currentFunction, destVar, result);
         }
       }
 
@@ -259,7 +259,7 @@ void convertReturn(Gas *gas, Triple::ptr_t triple) {
   if (triple->containsArg1()) {
     // TODO godbolt produces different gas code for float, but it seems to work
     // with the int implementation
-    auto reg = gas->loadOperandToRegister(currentFunction, triple->getArg1());
+    auto reg = gas->loadOperand(currentFunction, triple->getArg1());
     auto eax = std::make_shared<Operand>(Register::EAX);
     gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::MOV, eax, reg));
   }
@@ -324,12 +324,18 @@ void createFunctionProlog(Gas *gas, Label::ptr_t functionLabel) {
   // Store callee saved registers
   gas->storeRegisters({Register::EBX, Register::EDI, Register::ESI});
 
+  // load function arguments
   for (auto var :
        gas->getRegisterManager()->lookupFunctionVariables(functionLabel)) {
-    auto reg =
+    auto targetReg =
         gas->getRegisterManager()->getLocationForVariable(functionLabel, var);
 
-    gas->loadSpilledVariable(functionLabel, var, reg);
+    auto varOffset = gas->getRegisterManager()->lookupVariableStackOffset(
+        functionLabel, var);
+    auto argAddrOp = std::make_shared<Operand>(varOffset);
+
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::MOV, targetReg, argAddrOp));
   }
 }
 
