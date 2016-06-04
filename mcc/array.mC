@@ -27,4 +27,6 @@ int main(void) {
   }
 
   print_int(sum);
+
+  return 0;
 }

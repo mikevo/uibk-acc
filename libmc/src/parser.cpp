@@ -454,7 +454,7 @@ sptr<ast::array_decl_stmt> array_decl_stmt(parser_state& p) {
   if (try_token(try_p, "[").empty()) return {};
   p = try_p;
 
-  auto array_size = int_literal(p);
+  auto array_size = expression(p);
   if (!array_size) throw parser_error(p, "Expected integer as array size");
 
   if (try_token(p, "]").empty())

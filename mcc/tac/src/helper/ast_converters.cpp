@@ -459,12 +459,13 @@ Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a) {
   auto type = getType(*a->array_type);
   auto name = a->name;
 
-  auto aSize = a->array_size;
-  auto size = aSize->value;
+  auto size = convertNode(t, a->array_size);
+  if (size != nullptr) {
+    return std::make_shared<Array>(type, name, size);
+  }
 
-  auto array = std::make_shared<Array>(type, name, size);
-
-  return array;
+  assert(false && "Could not evaluate array size expression");
+  return nullptr;
 }
 }
 }

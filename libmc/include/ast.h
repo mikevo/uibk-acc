@@ -86,9 +86,9 @@ struct variable : public expression {
 
 struct array : public expression {
   sptr<type> array_type;
-  sptr<int_literal> array_size;
+  sptr<expression> array_size;
   string name;
-  array(sptr<type> array_type, sptr<int_literal> array_size, string name)
+  array(sptr<type> array_type, sptr<expression> array_size, string name)
       : array_type(array_type), array_size(array_size), name(name) {}
   virtual bool operator==(const node& other) const;
   virtual std::ostream& print_to(std::ostream& stream) const;
