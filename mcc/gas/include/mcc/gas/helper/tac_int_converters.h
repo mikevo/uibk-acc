@@ -19,9 +19,6 @@ void convertIntLogicOperator(Gas *gas, Triple::ptr_t triple);
 
 void defineArray(Gas *gas, Label::ptr_t functionLabel, ArrayAccess::ptr_t arr);
 void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arr);
-Operand::ptr_t loadArrayAccess(Gas *gas, Label::ptr_t functionLabel,
-                               ArrayAccess::ptr_t arrAcc,
-                               bool loadIntoTempReg = false);
 }
 }
 }

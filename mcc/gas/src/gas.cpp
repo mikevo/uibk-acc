@@ -9,6 +9,7 @@
 
 #include "mcc/gas/x86_instruction_set.h"
 #include "mcc/tac/array.h"
+#include "mcc/tac/array_access.h"
 #include "mcc/tac/float_literal.h"
 #include "mcc/tac/helper/ast_converters.h"
 #include "mcc/tac/int_literal.h"
@@ -30,39 +31,71 @@ Gas::Gas(Tac& tac) {
 }
 
 Operand::ptr_t Gas::loadOperand(Label::ptr_t functionLabel,
-                                mcc::tac::Operand::ptr_t op) {
+                                mcc::tac::Operand::ptr_t op,
+                                Operand::ptr_t reg) {
+  Operand::ptr_t returnOp;
+  bool regSet = reg ? true : false;
   if (tac::helper::isType<Variable>(op)) {
     auto variableOp = std::static_pointer_cast<Variable>(op);
-    return this->registerManager->getLocationForVariable(functionLabel,
-                                                         variableOp);
+    returnOp = this->registerManager->getLocationForVariable(functionLabel,
+                                                             variableOp);
   } else if (tac::helper::isType<Triple>(op)) {
     auto triple = std::static_pointer_cast<Triple>(op);
     auto variableOp = triple->getTargetVariable();
-    return this->registerManager->getLocationForVariable(functionLabel,
-                                                         variableOp);
+    returnOp = this->registerManager->getLocationForVariable(functionLabel,
+                                                             variableOp);
   } else if (tac::helper::isType<Array>(op)) {
     auto arrOp = std::static_pointer_cast<Array>(op);
-    return this->registerManager->getLocationForArray(functionLabel, arrOp);
+    returnOp = this->registerManager->getLocationForArray(functionLabel, arrOp);
+  } else if (tac::helper::isType<ArrayAccess>(op)) {
+    auto arrAcc = std::static_pointer_cast<ArrayAccess>(op);
+    if (!regSet) {
+      reg = this->registerManager->getTmpRegister();
+    }
+
+    auto arrOffsetOp = this->loadOperand(functionLabel, arrAcc->getPos());
+
+    auto arrTypeSize = this->registerManager->getSize(arrAcc->getType());
+    auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
+
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, reg, arrOffsetOp));
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::IMUL, reg, arrTypeSizeOp));
+
+    auto arrStartOp = this->loadOperand(functionLabel, arrAcc->getArray());
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::SUB, reg, arrStartOp));
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::NEG, reg));
+
+    auto arrAccOp = std::make_shared<Operand>(reg, 0);
+
+    returnOp = arrAccOp;
   } else {
     // constant values
     if (op->getType() == Type::FLOAT) {
       auto floatConstant = createFloatConstant(op->getValue());
 
-      return std::make_shared<Operand>(floatConstant);
+      returnOp = std::make_shared<Operand>(floatConstant);
     } else {
-      return std::make_shared<Operand>(op->getValue());
+      returnOp = std::make_shared<Operand>(op->getValue());
     }
   }
+
+  if (regSet) {
+    asmInstructions.push_back(
+        std::make_shared<Mnemonic>(Instruction::MOV, reg, returnOp));
+    return reg;
+  }
+
+  return returnOp;
 }
 
 Operand::ptr_t Gas::loadOperandToRegister(Label::ptr_t functionLabel,
                                           mcc::tac::Operand::ptr_t op,
                                           Operand::ptr_t reg) {
-  auto operand = loadOperand(functionLabel, op);
-  asmInstructions.push_back(
-      std::make_shared<Mnemonic>(Instruction::MOV, reg, operand));
-
-  return reg;
+  return loadOperand(functionLabel, op, reg);
 }
 
 Operand::ptr_t Gas::storeOperandFromRegister(Label::ptr_t functionLabel,

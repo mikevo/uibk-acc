@@ -33,7 +33,7 @@ const std::map<OperatorName, OperatorType> operatorMap{
 
 const std::map<OperatorName, Type> operatorResultType{
     {OperatorName::NOP, Type::AUTO},    {OperatorName::ADD, Type::AUTO},
-    {OperatorName::ASSIGN, Type::AUTO}, {OperatorName::DIV, Type::FLOAT},
+    {OperatorName::ASSIGN, Type::AUTO}, {OperatorName::DIV, Type::AUTO},
     {OperatorName::EQ, Type::BOOL},     {OperatorName::NE, Type::BOOL},
     {OperatorName::LE, Type::BOOL},     {OperatorName::GE, Type::BOOL},
     {OperatorName::LT, Type::BOOL},     {OperatorName::GT, Type::BOOL},

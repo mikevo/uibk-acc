@@ -79,7 +79,7 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
         defineArray(gas, currentFunction, arrAcc);
       }
 
-      arg1Op = loadArrayAccess(gas, currentFunction, arrAcc);
+      arg1Op = gas->loadOperand(currentFunction, arrAcc);
     }
 
     if (triple->containsArg2()) {
@@ -88,7 +88,11 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
         auto arrAcc = std::static_pointer_cast<ArrayAccess>(arg2);
 
         bool loadToTemp = arg1Op->isAddress();
-        auto arg2Op = loadArrayAccess(gas, currentFunction, arrAcc, loadToTemp);
+        Operand::ptr_t tmp;
+        if (loadToTemp) {
+          tmp = gas->getRegisterManager()->getTmpRegister();
+        }
+        auto arg2Op = gas->loadOperand(currentFunction, arrAcc, tmp);
         gas->addMnemonic(
             std::make_shared<Mnemonic>(Instruction::MOV, arg1Op, arg2Op));
       } else {
@@ -239,36 +243,6 @@ void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arrAcc) {
     gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::SUB, newArrOp,
                                                 functionStackSpaceOp));
   }
-}
-
-Operand::ptr_t loadArrayAccess(Gas *gas, Label::ptr_t functionLabel,
-                               ArrayAccess::ptr_t arrAcc,
-                               bool loadIntoTempReg) {
-  auto tmp = gas->getRegisterManager()->getTmpRegister();
-
-  auto arrOffsetOp = gas->loadOperand(currentFunction, arrAcc->getPos());
-  auto arrTypeSize = gas->getRegisterManager()->getSize(arrAcc->getType());
-  auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
-
-  gas->addMnemonic(
-      std::make_shared<Mnemonic>(Instruction::MOV, tmp, arrOffsetOp));
-  gas->addMnemonic(
-      std::make_shared<Mnemonic>(Instruction::IMUL, tmp, arrTypeSizeOp));
-
-  auto arrStartOp = gas->loadOperand(currentFunction, arrAcc->getArray());
-  gas->addMnemonic(
-      std::make_shared<Mnemonic>(Instruction::SUB, tmp, arrStartOp));
-  gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::NEG, tmp));
-
-  auto arrAccOp = std::make_shared<Operand>(tmp, 0);
-
-  if (loadIntoTempReg) {
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::MOV, tmp, arrAccOp));
-    return tmp;
-  }
-
-  return arrAccOp;
 }
 }
 }

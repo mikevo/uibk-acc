@@ -37,7 +37,8 @@ class Gas {
   void addMnemonic(Mnemonic::ptr_t mnemonic);
 
   Operand::ptr_t loadOperand(Label::ptr_t functionLabel,
-                             mcc::tac::Operand::ptr_t op);
+                             mcc::tac::Operand::ptr_t op,
+                             Operand::ptr_t reg = nullptr);
   Operand::ptr_t loadOperandToRegister(Label::ptr_t functionLabel,
                                        mcc::tac::Operand::ptr_t op,
                                        Operand::ptr_t reg);
