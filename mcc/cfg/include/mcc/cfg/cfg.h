@@ -27,6 +27,9 @@ class Cfg {
 
   typedef std::map<mcc::tac::Variable::ptr_t, mcc::tac::Tac::code_lines_range,
                    mcc::tac::Variable::less> variable_live_range_map_type;
+  typedef std::map<mcc::tac::Array::ptr_t, mcc::tac::Tac::code_lines_range,
+                   mcc::tac::Array::less>
+      array_live_range_map_type;
 
   Cfg(mcc::tac::Tac &tac);
   std::string toDot() const;
@@ -65,6 +68,7 @@ class Cfg {
   mcc::tac::Variable::set_t getLive(VertexDescriptor v);
 
   variable_live_range_map_type getVariableLiveRangeMap();
+  array_live_range_map_type getArrayLiveRangeMap();
 
  private:
   mcc::tac::Variable::set_t variableSet;

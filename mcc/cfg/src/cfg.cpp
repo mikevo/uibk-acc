@@ -8,11 +8,15 @@
 #include <vector>
 
 #include "mcc/cfg/set_helper.h"
+#include "mcc/tac/array_access.h"
 #include "mcc/tac/helper/ast_converters.h"
 #include "mcc/tac/operator.h"
 
 typedef std::map<mcc::tac::Variable::ptr_t, mcc::tac::Tac::code_lines_iter,
                  mcc::tac::Variable::less> var_iter_map;
+typedef std::map<mcc::tac::Array::ptr_t, mcc::tac::Tac::code_lines_iter,
+                 mcc::tac::Array::less>
+    arr_iter_map;
 
 namespace mcc {
 namespace cfg {
@@ -439,6 +443,75 @@ Cfg::variable_live_range_map_type Cfg::getVariableLiveRangeMap() {
     if (startMap.at(var) != this->tac.codeLines.end()) {
       auto range = boost::make_iterator_range(startMap.at(var), endMap.at(var));
       auto pair = std::make_pair(var, range);
+
+      map.insert(pair);
+    }
+  }
+
+  return map;
+}
+
+Cfg::array_live_range_map_type Cfg::getArrayLiveRangeMap() {
+  arr_iter_map startMap;
+  arr_iter_map endMap;
+
+  for (auto arr : tac.getArraySet()) {
+    auto start = std::make_pair(arr, this->tac.codeLines.end());
+    startMap.insert(start);
+
+    auto end = std::make_pair(arr, this->tac.codeLines.begin());
+    endMap.insert(end);
+  }
+
+  for (auto it = this->tac.codeLines.begin(); it < this->tac.codeLines.end();
+       ++it) {
+    tac::Array::set_t arrs;
+
+    auto triple = it->get();
+    if (triple->containsTargetVar()) {
+      auto targetVar = triple->getTargetVariable();
+      if (tac::helper::isType<tac::ArrayAccess>(targetVar)) {
+        auto arrAcc = std::static_pointer_cast<tac::ArrayAccess>(targetVar);
+        arrs.insert(arrAcc->getArray());
+      }
+    }
+
+    if (triple->containsArg1()) {
+      auto arg1Var = triple->getArg1();
+      if (tac::helper::isType<tac::ArrayAccess>(arg1Var)) {
+        auto arrAcc = std::static_pointer_cast<tac::ArrayAccess>(arg1Var);
+        arrs.insert(arrAcc->getArray());
+      }
+    }
+
+    if (triple->containsArg2()) {
+      auto arg2Var = triple->getArg2();
+      if (tac::helper::isType<tac::ArrayAccess>(arg2Var)) {
+        auto arrAcc = std::static_pointer_cast<tac::ArrayAccess>(arg2Var);
+        arrs.insert(arrAcc->getArray());
+      }
+    }
+
+    // if array is used
+    if (!arrs.empty()) {
+      for (auto arr : arrs) {
+        if (startMap.at(arr) > it) {
+          startMap[arr] = it;
+        }
+
+        if (endMap.at(arr) < it + 1) {
+          endMap[arr] = it + 1;
+        }
+      }
+    }
+  }
+
+  Cfg::array_live_range_map_type map;
+
+  for (auto arr : tac.getArraySet()) {
+    if (startMap.at(arr) != this->tac.codeLines.end()) {
+      auto range = boost::make_iterator_range(startMap.at(arr), endMap.at(arr));
+      auto pair = std::make_pair(arr, range);
 
       map.insert(pair);
     }

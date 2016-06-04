@@ -5,15 +5,18 @@
  */
 
 #include "mcc/tac/tac.h"
+#include "mcc/cfg/cfg.h"
 #include "mcc/gas/gas.h"
 #include "mcc/gas/helper/tac_converters.h"
 #include "mcc/gas/helper/tac_float_converters.h"
 #include "mcc/gas/helper/tac_int_converters.h"
 #include "mcc/tac/array.h"
+#include "mcc/tac/array_access.h"
 #include "mcc/tac/helper/ast_converters.h"
 
 using namespace mcc::tac;
 using namespace mcc::gas;
+using namespace mcc::cfg;
 
 bool resultAvailable;
 Label::ptr_t currentFunction;
@@ -26,6 +29,9 @@ namespace mcc {
 namespace gas {
 namespace helper {
 void convertTac(Gas *gas, Tac &tac) {
+  auto cfg = Cfg(tac);
+  auto arrayLiveRanges = cfg.getArrayLiveRangeMap();
+
   for (auto triple : tac.codeLines) {
     auto op = triple->getOperator();
 
@@ -93,7 +99,36 @@ void convertTac(Gas *gas, Tac &tac) {
         convertReturn(gas, triple);
         break;
     }
+
+    // clean up arrays
+    auto liveSetAfter = cfg.liveSetAfter(triple, false);
+    for (auto definedArrIt = definedArrays.rbegin();
+         definedArrIt != definedArrays.rend(); ++definedArrIt) {
+      auto definedArrFunc = std::get<0>(*definedArrIt);
+      auto definedArr = std::get<1>(*definedArrIt);
+      auto definedArrLength = std::get<2>(*definedArrIt);
+
+      auto result = arrayLiveRanges.find(definedArr);
+      if (result != arrayLiveRanges.end()) {
+        // if array found in liverange map
+        if (triple >= result->second.back()) {
+          // if current tac line is after the last use of array
+
+          // clean
+          cleanUpArray(gas, currentFunction, definedArr, definedArrLength);
+          // delete current array from definedArraysVector
+          definedArrays.erase(std::next(definedArrIt).base());
+        } else {
+          // break if one array is still alive
+          break;
+        }
+      } else {
+        assert(false && "Array not in live range map!");
+      }
+    }
   }
+
+  assert(definedArrays.empty() && "Arrays are not fully cleaned up!");
 }
 
 void convertArithmetic(Gas *gas, Triple::ptr_t triple) {
@@ -379,6 +414,99 @@ lookupDefinedArray(Label::ptr_t functionLabel, Array::ptr_t array) {
   }
 
   return definedArrays.end();
+}
+
+void defineArray(Gas *gas, Label::ptr_t functionLabel,
+                 ArrayAccess::ptr_t arrAcc) {
+  // TODO refactor for variable length array
+  auto arr = arrAcc->getArray();
+  auto esp = std::make_shared<Operand>(Register::ESP);
+  auto tmp = gas->getRegisterManager()->getTmpRegister();
+
+  computeAndStoreArrayStartAddress(gas, functionLabel, arr);
+
+  // make space on stack for new array
+  auto arrLength = arr->length();
+  auto arrLengthOp = std::make_shared<Operand>(std::to_string(arrLength));
+  // for VLA
+  // auto arrLengthOp = gas->loadOperand(currentFunction, arr->length());
+
+  auto arrTypeSize = gas->getRegisterManager()->getSize(arr->getType());
+  auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
+  gas->addMnemonic(
+      std::make_shared<Mnemonic>(Instruction::MOV, tmp, arrLengthOp));
+  gas->addMnemonic(
+      std::make_shared<Mnemonic>(Instruction::IMUL, tmp, arrTypeSizeOp));
+
+  gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::SUB, esp, tmp));
+
+  // store as defined
+  // TODO check if arrLengthOp storing here works!
+  definedArrays.push_back(std::make_tuple(functionLabel, arr, arrLengthOp));
+}
+
+void computeAndStoreArrayStartAddress(Gas *gas, Label::ptr_t functionLabel,
+                                      Array::ptr_t arr) {
+  // store start address on defined stack position
+  auto newArrOp = gas->loadOperand(functionLabel, arr);
+  if (!definedArrays.empty()) {
+    auto tmp = gas->getRegisterManager()->getTmpRegister();
+    // last defined array
+    auto lastArrTuple = definedArrays.back();
+    auto lastArr = std::get<1>(lastArrTuple);
+    auto lastArrLengthOp = std::get<2>(lastArrTuple);
+
+    auto lastArrOp = gas->loadOperand(functionLabel, lastArr);
+
+    // load last arr start point to new arr start point
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::MOV, tmp, lastArrOp));
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::MOV, newArrOp, tmp));
+
+    auto lastArrTypeSize =
+        gas->getRegisterManager()->getSize(lastArr->getType());
+    auto lastArrTypeSizeOp =
+        std::make_shared<Operand>(std::to_string(lastArrTypeSize));
+
+    // calc stack usage of last array
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::MOV, tmp, lastArrLengthOp));
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::IMUL, tmp, lastArrTypeSizeOp));
+
+    // store new arr start pointer
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::SUB, newArrOp, tmp));
+  } else {
+    auto ebp = std::make_shared<Operand>(Register::EBP);
+    gas->addMnemonic(
+        std::make_shared<Mnemonic>(Instruction::MOV, newArrOp, ebp));
+
+    auto functionStackSpace =
+        gas->getRegisterManager()->lookupFunctionStackSpace(functionLabel);
+    // TODO replace +4 with some lookup - which is the initial offset of local
+    // stack offsets
+    auto functionStackSpaceOp =
+        std::make_shared<Operand>(std::to_string(functionStackSpace + 4));
+    gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::SUB, newArrOp,
+                                                functionStackSpaceOp));
+  }
+}
+
+void cleanUpArray(Gas *gas, Label::ptr_t functionLabel, Array::ptr_t arr,
+                  Operand::ptr_t length) {
+  auto esp = std::make_shared<Operand>(Register::ESP);
+  auto tmp = gas->getRegisterManager()->getTmpRegister();
+
+  auto arrTypeSize = gas->getRegisterManager()->getSize(arr->getType());
+  auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
+
+  gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::MOV, tmp, length));
+  gas->addMnemonic(
+      std::make_shared<Mnemonic>(Instruction::IMUL, tmp, arrTypeSizeOp));
+
+  gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::ADD, esp, tmp));
 }
 }
 }

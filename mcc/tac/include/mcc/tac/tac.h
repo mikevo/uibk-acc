@@ -56,6 +56,7 @@ class Tac {
   void createBasicBlockIndex();
   void addToVarTable(Variable::ptr_t value);
   void addToArraySet(Array::ptr_t array);
+  Array::set_t const getArraySet();
   Variable::ptr_t addVarRenaming(Variable::ptr_t const key);
   void removeFromVarTable(Variable::ptr_t const value);
   void addFunction(std::string key, Label::ptr_t);
