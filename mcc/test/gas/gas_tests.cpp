@@ -445,7 +445,8 @@ main:
 	fld DWORD PTR .FC1
 	faddp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ecx, DWORD PTR [ebp - 4]
+	mov ebx, DWORD PTR [ebp - 4]
+	mov DWORD PTR [ebp - 4], ebx
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -488,7 +489,8 @@ main:
 	fld DWORD PTR .FC1
 	fsubp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ecx, DWORD PTR [ebp - 4]
+	mov eax, DWORD PTR [ebp - 4]
+	mov DWORD PTR [ebp - 4], eax
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -531,7 +533,8 @@ main:
 	fld DWORD PTR .FC1
 	fmulp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ecx, DWORD PTR [ebp - 4]
+	mov eax, DWORD PTR [ebp - 4]
+	mov DWORD PTR [ebp - 4], eax
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -574,7 +577,8 @@ main:
 	fld DWORD PTR .FC1
 	fdivp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ecx, DWORD PTR [ebp - 4]
+	mov ebx, DWORD PTR [ebp - 4]
+	mov DWORD PTR [ebp - 4], ebx
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
