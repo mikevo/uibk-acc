@@ -173,8 +173,8 @@ fibonacci:
 	push ebx
 	push edi
 	push esi
-	mov ecx, DWORD PTR [ebp + 8]
-	cmp ecx, 0
+	mov edx, DWORD PTR [ebp + 8]
+	cmp edx, 0
 	jne )" + *curLabel++ +
                   R"(
 	mov eax, 0
@@ -190,7 +190,7 @@ fibonacci:
 
 )" + *curLabel++ +
                   R"(:
-	cmp ecx, 1
+	cmp edx, 1
 	jne )" + *curLabel++ +
                   R"(
 	mov eax, 1
@@ -206,32 +206,32 @@ fibonacci:
 
 )" + *curLabel++ +
                   R"(:
-	mov eax, ecx
-	sub eax, 1
-	mov ebx, eax
-	push ecx
-	push edx
-	push ebx
-	call fibonacci
-	add esp, 4
-	pop edx
-	pop ecx
-	mov edx, eax
-	mov eax, ecx
-	sub eax, 2
-	mov ebx, eax
-	push ecx
-	push edx
-	push ebx
-	call fibonacci
-	add esp, 4
-	pop edx
-	pop ecx
-	mov ebx, eax
 	mov eax, edx
-	add eax, ebx
+	sub eax, 1
 	mov ecx, eax
-	mov eax, ecx
+	push ecx
+	push edx
+	push ecx
+	call fibonacci
+	add esp, 4
+	pop edx
+	pop ecx
+	mov esi, eax
+	mov ebx, edx
+	sub ebx, 2
+	mov ecx, ebx
+	push ecx
+	push edx
+	push ecx
+	call fibonacci
+	add esp, 4
+	pop edx
+	pop ecx
+	mov ecx, eax
+	mov eax, esi
+	add eax, ecx
+	mov edx, eax
+	mov eax, edx
 	pop esi
 	pop edi
 	pop ebx
@@ -264,18 +264,18 @@ main:
 	call read_int
 	pop edx
 	pop ecx
-	mov ebx, eax
+	mov ecx, eax
 	push ecx
 	push edx
-	push ebx
+	push ecx
 	call fibonacci
 	add esp, 4
 	pop edx
 	pop ecx
-	mov ebx, eax
+	mov ecx, eax
 	push ecx
 	push edx
-	push ebx
+	push ecx
 	call print_int
 	add esp, 4
 	pop edx
@@ -326,7 +326,7 @@ main:
 	push esi
 	mov eax, 10
 	add eax, 15
-	mov ebx, eax
+	mov ecx, eax
 
 
 .att_syntax noprefix
@@ -365,7 +365,7 @@ main:
 	push esi
 	mov eax, 10
 	sub eax, 15
-	mov ebx, eax
+	mov ecx, eax
 
 
 .att_syntax noprefix
@@ -402,9 +402,9 @@ main:
 	push ebx
 	push edi
 	push esi
-	mov eax, 10
-	imul eax, 15
-	mov ebx, eax
+	mov ebx, 10
+	imul ebx, 15
+	mov ecx, ebx
 
 
 .att_syntax noprefix
@@ -445,7 +445,7 @@ main:
 	fld DWORD PTR .FC1
 	faddp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ebx, DWORD PTR [ebp - 4]
+	mov ecx, DWORD PTR [ebp - 4]
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -488,7 +488,7 @@ main:
 	fld DWORD PTR .FC1
 	fsubp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ebx, DWORD PTR [ebp - 4]
+	mov ecx, DWORD PTR [ebp - 4]
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -531,7 +531,7 @@ main:
 	fld DWORD PTR .FC1
 	fmulp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ebx, DWORD PTR [ebp - 4]
+	mov ecx, DWORD PTR [ebp - 4]
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -574,7 +574,7 @@ main:
 	fld DWORD PTR .FC1
 	fdivp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ebx, DWORD PTR [ebp - 4]
+	mov ecx, DWORD PTR [ebp - 4]
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
