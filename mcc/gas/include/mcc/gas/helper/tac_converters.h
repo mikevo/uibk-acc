@@ -32,8 +32,9 @@ void cleanUpCall(Gas *gas, Label::ptr_t label);
 void createFunctionProlog(Gas *gas, Label::ptr_t label);
 void createFunctionEpilog(Gas *gas, Label::ptr_t label);
 
-std::vector<std::pair<Array::ptr_t, unsigned>>::iterator lookupDefinedArray(
-    Array::ptr_t array);
+std::vector<
+    std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>::iterator
+lookupDefinedArray(Label::ptr_t functionLabel, Array::ptr_t array);
 }
 }
 }

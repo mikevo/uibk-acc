@@ -15,7 +15,9 @@ extern bool resultAvailable;
 extern Label::ptr_t currentFunction;
 extern OperatorName lastOperator;
 
-extern std::vector<std::pair<Array::ptr_t, unsigned>> definedArrays;
+extern std::vector<
+    std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>
+    definedArrays;
 
 namespace mcc {
 namespace gas {
@@ -72,11 +74,12 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
       auto arrAcc = std::static_pointer_cast<ArrayAccess>(arg1);
 
       // if array not already defined
-      if (lookupDefinedArray(arrAcc->getArray()) == definedArrays.end()) {
-        defineArray(gas, arrAcc);
+      if (lookupDefinedArray(currentFunction, arrAcc->getArray()) ==
+          definedArrays.end()) {
+        defineArray(gas, currentFunction, arrAcc);
       }
 
-      arg1Op = loadArrayAccess(gas, arrAcc);
+      arg1Op = loadArrayAccess(gas, currentFunction, arrAcc);
     }
 
     if (triple->containsArg2()) {
@@ -85,7 +88,7 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
         auto arrAcc = std::static_pointer_cast<ArrayAccess>(arg2);
 
         bool loadToTemp = arg1Op->isAddress();
-        auto arg2Op = loadArrayAccess(gas, arrAcc, loadToTemp);
+        auto arg2Op = loadArrayAccess(gas, currentFunction, arrAcc, loadToTemp);
         gas->addMnemonic(
             std::make_shared<Mnemonic>(Instruction::MOV, arg1Op, arg2Op));
       } else {
@@ -161,7 +164,8 @@ void convertIntLogicOperator(Gas *gas, Triple::ptr_t triple) {
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::CMP, tmp, reg1));
 }
 
-void defineArray(Gas *gas, ArrayAccess::ptr_t arrAcc) {
+void defineArray(Gas *gas, Label::ptr_t functionLabel,
+                 ArrayAccess::ptr_t arrAcc) {
   // TODO refactor for variable length array
   auto arr = arrAcc->getArray();
   auto esp = std::make_shared<Operand>(Register::ESP);
@@ -173,8 +177,7 @@ void defineArray(Gas *gas, ArrayAccess::ptr_t arrAcc) {
   auto arrLength = arr->length();
   auto arrLengthOp = std::make_shared<Operand>(std::to_string(arrLength));
   // for VLA
-  //          auto arrLengthOp = gas->loadOperand(currentFunction,
-  //          arr->length());
+  // auto arrLengthOp = gas->loadOperand(currentFunction, arr->length());
 
   auto arrTypeSize = gas->getRegisterManager()->getSize(arr->getType());
   auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
@@ -186,7 +189,7 @@ void defineArray(Gas *gas, ArrayAccess::ptr_t arrAcc) {
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::SUB, esp, tmp));
 
   // store as defined
-  definedArrays.push_back(std::make_pair(arr, arrLength));
+  definedArrays.push_back(std::make_tuple(functionLabel, arr, arrLengthOp));
 }
 
 void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arrAcc) {
@@ -196,13 +199,11 @@ void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arrAcc) {
   if (!definedArrays.empty()) {
     auto tmp = gas->getRegisterManager()->getTmpRegister();
     // last defined array
-    auto lastArrLengthPair = definedArrays.back();
-    auto lastArr = lastArrLengthPair.first;
-    auto lastArrLength = lastArrLengthPair.second;
+    auto lastArrTuple = definedArrays.back();
+    auto lastArr = std::get<1>(lastArrTuple);
+    auto lastArrLengthOp = std::get<2>(lastArrTuple);
 
     auto lastArrOp = gas->loadOperand(currentFunction, lastArr);
-    auto lastArrLengthOp =
-        std::make_shared<Operand>(std::to_string(lastArrLength));
 
     // load last arr start point to new arr start point
     gas->addMnemonic(
@@ -240,7 +241,8 @@ void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arrAcc) {
   }
 }
 
-Operand::ptr_t loadArrayAccess(Gas *gas, ArrayAccess::ptr_t arrAcc,
+Operand::ptr_t loadArrayAccess(Gas *gas, Label::ptr_t functionLabel,
+                               ArrayAccess::ptr_t arrAcc,
                                bool loadIntoTempReg) {
   auto tmp = gas->getRegisterManager()->getTmpRegister();
 

@@ -17,9 +17,10 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple);
 void convertIntJumpFalse(Gas *gas, Triple::ptr_t triple);
 void convertIntLogicOperator(Gas *gas, Triple::ptr_t triple);
 
-void defineArray(Gas *gas, ArrayAccess::ptr_t arr);
+void defineArray(Gas *gas, Label::ptr_t functionLabel, ArrayAccess::ptr_t arr);
 void computeAndStoreArrayStartAddress(Gas *gas, ArrayAccess::ptr_t arr);
-Operand::ptr_t loadArrayAccess(Gas *gas, ArrayAccess::ptr_t arrAcc,
+Operand::ptr_t loadArrayAccess(Gas *gas, Label::ptr_t functionLabel,
+                               ArrayAccess::ptr_t arrAcc,
                                bool loadIntoTempReg = false);
 }
 }

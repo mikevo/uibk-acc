@@ -19,7 +19,8 @@ bool resultAvailable;
 Label::ptr_t currentFunction;
 OperatorName lastOperator;
 
-std::vector<std::pair<Array::ptr_t, unsigned>> definedArrays;
+std::vector<std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>
+    definedArrays;
 
 namespace mcc {
 namespace gas {
@@ -359,14 +360,15 @@ void createFunctionEpilog(Gas *gas, Label::ptr_t functionLabel) {
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::POP, ebp));
 }
 
-std::vector<std::pair<Array::ptr_t, unsigned>>::iterator lookupDefinedArray(
-    Array::ptr_t array) {
+std::vector<
+    std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>::iterator
+lookupDefinedArray(Label::ptr_t functionLabel, Array::ptr_t array) {
+  auto searchPair = std::make_pair(functionLabel, array);
   for (auto pairIt = definedArrays.begin(); pairIt != definedArrays.end();
        ++pairIt) {
-    if (!Array::less()(pairIt->first, array) &&
-        !Array::less()(array, pairIt->first)) {
-      return pairIt;
-    } else if (pairIt->first == array) {
+    auto curPair = std::make_pair(std::get<0>(*pairIt), std::get<1>(*pairIt));
+    if (!mcc::gas::labelArrayPairLess()(searchPair, curPair) &&
+        !mcc::gas::labelArrayPairLess()(curPair, searchPair)) {
       return pairIt;
     }
   }
