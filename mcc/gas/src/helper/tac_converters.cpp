@@ -111,7 +111,7 @@ void convertTac(Gas *gas, Tac &tac) {
       auto result = arrayLiveRanges.find(definedArr);
       if (result != arrayLiveRanges.end()) {
         // if array found in liverange map
-        if (triple >= result->second.back()) {
+        if (triple > result->second.back()) {
           // if current tac line is after the last use of array
 
           // clean
