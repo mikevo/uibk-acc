@@ -219,13 +219,18 @@ void convertPush(Gas *gas, Triple::ptr_t triple) {
 }
 
 void convertUnary(Gas *gas, Triple::ptr_t triple, Instruction i) {
-  // convert all other unary operands as follows
-  auto eax = gas->loadOperand(currentFunction, triple->getArg1());
-  gas->addMnemonic(std::make_shared<Mnemonic>(i, eax));
+  bool containsTargetVar = triple->containsTargetVar();
+  Operand::ptr_t tmp;
+  if (containsTargetVar) {
+    tmp = gas->getRegisterManager()->getTmpRegister();
+  }
 
-  if (triple->containsTargetVar()) {
+  auto operand = gas->loadOperand(currentFunction, triple->getArg1(), tmp);
+  gas->addMnemonic(std::make_shared<Mnemonic>(i, operand));
+
+  if (containsTargetVar) {
     auto var = triple->getTargetVariable();
-    gas->storeOperandFromRegister(currentFunction, var, eax);
+    gas->storeOperandFromRegister(currentFunction, var, operand);
   }
 }
 

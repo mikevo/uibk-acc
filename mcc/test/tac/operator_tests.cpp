@@ -39,7 +39,7 @@ TEST(Operator, DIV) {
   Operator op = Operator(name);
 
   EXPECT_EQ(OperatorType::BINARY, op.getType());
-  EXPECT_EQ(Type::FLOAT, op.getResultType());
+  EXPECT_EQ(Type::AUTO, op.getResultType());
   EXPECT_EQ(name, op.getName());
 }
 
