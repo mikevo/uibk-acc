@@ -15,7 +15,7 @@ namespace mcc {
 namespace gas {
 
 RegisterManager::RegisterManager(Tac &tac) : tac(tac) {
-  this->numOfRegForColoring = 0;
+  this->numOfRegForColoring = 4;
 
   this->functionArgSizeMap = std::make_shared<function_arg_size_type>();
   this->functionStackSpaceMap =
