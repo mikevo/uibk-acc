@@ -8,6 +8,7 @@
 #include "mcc/tac/array_access.h"
 
 #include "mcc/cfg/cfg.h"
+#include "mcc/tac/helper/ast_converters.h"
 #include <boost/graph/sequential_vertex_coloring.hpp>
 #include <boost/graph/smallest_last_ordering.hpp>
 
@@ -52,7 +53,11 @@ unsigned RegisterManager::getSize(Type t) {
 }
 
 unsigned RegisterManager::getSize(std::shared_ptr<mcc::tac::Operand> operand) {
-  return getSize(operand->getType()) * operand->length();
+  if (mcc::tac::helper::isType<mcc::tac::Array>(operand)) {
+    assert(false && "Static size analysis on VLAs not possible");
+  }
+
+  return getSize(operand->getType());
 }
 
 unsigned RegisterManager::getSize(std::vector<Tac::type_size_type> argList) {

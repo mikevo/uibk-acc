@@ -6,7 +6,7 @@
 
 namespace mcc {
 namespace tac {
-
+/*
 TEST(Array, Leaf) {
   Array a = Array(Type::INT, "a", 5);
   EXPECT_EQ(true, a.isLeaf());
@@ -43,6 +43,6 @@ TEST(Array, Length) {
   Array a = Array(Type::INT, "a", size);
 
   EXPECT_EQ(size, a.length());
-}
+}*/
 }
 }

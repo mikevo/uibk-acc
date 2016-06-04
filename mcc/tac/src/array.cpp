@@ -10,7 +10,7 @@
 
 namespace mcc {
 namespace tac {
-Array::Array(Type t, std::string name, std::size_t size)
+Array::Array(Type t, std::string name, Operand::ptr_t size)
     : Operand(t), name(name), size(size) {}
 
 bool Array::operator<(Array const other) const {
@@ -27,14 +27,14 @@ bool Array::operator!=(Array const other) const {
 
 std::string Array::getName() const { return this->name; }
 
-std::size_t Array::length() const { return this->size; }
+Operand::ptr_t Array::length() const { return this->size; }
 
 bool Array::isLeaf() const { return true; }
 
 std::string Array::getValue() const {
   auto value = this->getName();
   value.append("[");
-  value.append(std::to_string(this->length()));
+  value.append(this->length()->getValue());
   value.append("]");
   return value;
 }

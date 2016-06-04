@@ -179,9 +179,7 @@ void defineArray(Gas *gas, Label::ptr_t functionLabel,
 
   // make space on stack for new array
   auto arrLength = arr->length();
-  auto arrLengthOp = std::make_shared<Operand>(std::to_string(arrLength));
-  // for VLA
-  // auto arrLengthOp = gas->loadOperand(currentFunction, arr->length());
+  auto arrLengthOp = gas->loadOperand(currentFunction, arr->length());
 
   auto arrTypeSize = gas->getRegisterManager()->getSize(arr->getType());
   auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
