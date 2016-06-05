@@ -102,7 +102,7 @@ TEST(Function, FunctionRecursionTAC) {
   auto tempCallTriple = tac.codeLines.begin() + 8;
   auto tempCallID = (*tempCallTriple)->getValue();
 
-  auto tempCallMainTriple = tac.codeLines.begin() + 11;
+  auto tempCallMainTriple = tac.codeLines.begin() + 12;
   auto tempCallMainID = (*tempCallMainTriple)->getValue();
 
   std::string expectedValue = "LABEL foobar\n";
@@ -114,12 +114,13 @@ TEST(Function, FunctionRecursionTAC) {
   expectedValue.append(argTemp + " = arg10:1:0 - 1\n");
   expectedValue.append("PUSH " + argTemp + "\n");
   expectedValue.append(tempCallID + " = CALL foobar\n");
+  expectedValue.append("RET \n");
   expectedValue.append("LABEL main\n");
   expectedValue.append("PUSH 5\n");
   expectedValue.append(tempCallMainID + " = CALL foobar\n");
   expectedValue.append("RET 0");
 
-  EXPECT_EQ(13, tac.codeLines.size());
+  EXPECT_EQ(14, tac.codeLines.size());
   EXPECT_EQ(expectedValue, tac.toString());
 }
 

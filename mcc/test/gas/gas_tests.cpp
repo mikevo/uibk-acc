@@ -309,18 +309,11 @@ TEST(Gas, GasAddIntegerConversion) {
   auto tree = parser::parse(
       R"(
         void main() {
-        
+          10 + 15;
         }
         )");
 
   Tac tac = Tac(tree);
-  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10, scope);
-  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15, scope);
-  Operator op = Operator(OperatorName::ADD);
-
-  Triple::ptr_t addTriple =
-      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
-  tac.addLine(addTriple);
 
   Gas gas = Gas(tac);
   auto expected = R"(.intel_syntax noprefix
@@ -336,6 +329,13 @@ main:
 	mov ebx, 10
 	add ebx, 15
 	mov ecx, ebx
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
 
 .att_syntax noprefix
@@ -350,18 +350,11 @@ TEST(Gas, GasSubIntegerConversion) {
   auto tree = parser::parse(
       R"(
         void main() {
-        
+          10 - 15;
         }
         )");
 
   Tac tac = Tac(tree);
-  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10, scope);
-  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15, scope);
-  Operator op = Operator(OperatorName::SUB);
-
-  Triple::ptr_t subTriple =
-      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
-  tac.addLine(subTriple);
 
   Gas gas = Gas(tac);
   auto expected = R"(.intel_syntax noprefix
@@ -377,6 +370,13 @@ main:
 	mov eax, 10
 	sub eax, 15
 	mov ecx, eax
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
 
 .att_syntax noprefix
@@ -391,21 +391,13 @@ TEST(Gas, GasMulIntegerConversion) {
   auto tree = parser::parse(
       R"(
         void main() {
-        
+          10 * 15;
         }
         )");
 
   Tac tac = Tac(tree);
-  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10, scope);
-  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15, scope);
-  Operator op = Operator(OperatorName::MUL);
-
-  Triple::ptr_t triple =
-      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
-  tac.addLine(triple);
 
   Gas gas = Gas(tac);
-
   auto expected = R"(.intel_syntax noprefix
 .global main
 
@@ -419,6 +411,13 @@ main:
 	mov ebx, 10
 	imul ebx, 15
 	mov ecx, ebx
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
 
 .att_syntax noprefix
@@ -433,21 +432,13 @@ TEST(Gas, GasAddFloatConversion) {
   auto tree = parser::parse(
       R"(
         void main() {
-        
+          10.0 + 15.0;
         }
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
-  Operator op = Operator(OperatorName::ADD);
-
-  Triple::ptr_t triple =
-      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
-  tac.addLine(triple);
 
   Gas gas = Gas(tac);
-
   auto expected = R"(.intel_syntax noprefix
 .global main
 
@@ -464,6 +455,13 @@ main:
 	fstp DWORD PTR [ebp - 4]
 	mov eax, DWORD PTR [ebp - 4]
 	mov DWORD PTR [ebp - 4], eax
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -480,21 +478,13 @@ TEST(Gas, GasSubFloatConversion) {
   auto tree = parser::parse(
       R"(
         void main() {
-        
+          10.0 - 15.0;
         }
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
-  Operator op = Operator(OperatorName::SUB);
-
-  Triple::ptr_t triple =
-      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
-  tac.addLine(triple);
 
   Gas gas = Gas(tac);
-
   auto expected = R"(.intel_syntax noprefix
 .global main
 
@@ -511,6 +501,13 @@ main:
 	fstp DWORD PTR [ebp - 4]
 	mov ebx, DWORD PTR [ebp - 4]
 	mov DWORD PTR [ebp - 4], ebx
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -527,21 +524,13 @@ TEST(Gas, GasMulFloatConversion) {
   auto tree = parser::parse(
       R"(
         void main() {
-        
+          10.0 * 15.0;
         }
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
-  Operator op = Operator(OperatorName::MUL);
-
-  Triple::ptr_t triple =
-      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
-  tac.addLine(triple);
 
   Gas gas = Gas(tac);
-
   auto expected = R"(.intel_syntax noprefix
 .global main
 
@@ -558,6 +547,13 @@ main:
 	fstp DWORD PTR [ebp - 4]
 	mov eax, DWORD PTR [ebp - 4]
 	mov DWORD PTR [ebp - 4], eax
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
@@ -574,21 +570,13 @@ TEST(Gas, GasDivFloatConversion) {
   auto tree = parser::parse(
       R"(
         void main() {
-        
+          10.0 / 15.0;
         }
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
-  Operator op = Operator(OperatorName::DIV);
-
-  Triple::ptr_t triple =
-      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
-  tac.addLine(triple);
 
   Gas gas = Gas(tac);
-
   auto expected = R"(.intel_syntax noprefix
 .global main
 
@@ -605,6 +593,13 @@ main:
 	fstp DWORD PTR [ebp - 4]
 	mov ebx, DWORD PTR [ebp - 4]
 	mov DWORD PTR [ebp - 4], ebx
+	pop esi
+	pop edi
+	pop ebx
+	add esp, 4
+	mov esp, ebp
+	pop ebp
+	ret
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000
