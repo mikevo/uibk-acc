@@ -28,6 +28,8 @@ string str_if_error{"if 7;"};
 string str_int{"int"};
 string str_float{"  float "};
 string str_decl{"int test;"};
+string str_array_decl{"int [10] testarray;"};
+string str_array_access{"testarray[5]"};
 }
 
 TEST(Libmc, Types) {
@@ -69,6 +71,37 @@ TEST(Libmc, Variables) {
     EXPECT(match2);
     EXPECT(*match2->lhs == *var);
     EXPECT(p.e == str_var_expr.cend())
+  }
+}
+
+TEST(Libmc, ArrayAccess) {
+  EXPECT_NO_MATCH(parser::array_access, str_1);
+  EXPECT_NO_MATCH(parser::array_access, str_4dot5);
+  {
+    parser::parser_state p(str_array_access.cbegin(), str_array_access.cend());
+    sptr<ast::array> testarray = std::make_shared<ast::array>(
+            std::make_shared<ast::int_type>(), std::make_shared<ast::int_literal>(5), "testarray");
+    
+    p.scopes.back().declareArray(p, "testarray", testarray);
+    sptr<ast::expression> position = std::make_shared<ast::int_literal>(5);
+    sptr<ast::array_access> access = std::make_shared<ast::array_access>(
+            testarray, position);
+    
+    //freestanding
+    auto match = parser::array_access(p);
+    EXPECT(match);
+    EXPECT(*match->m_array == *testarray);
+    EXPECT(*match->access_expr == *position)
+    EXPECT(p.e == str_array_access.cend())
+    
+    //in expression
+    string str_array_access_expr{"testarray[5]+5"};
+    p.set_string(str_array_access_expr);
+    auto match2 = parser::binary_operation(p);
+    EXPECT(match2);
+    EXPECT(*match2->lhs == *access);
+    EXPECT(p.e == str_array_access_expr.cend())
+    
   }
 }
 
@@ -129,6 +162,12 @@ TEST(Libmc, statements) {
   EXPECT_MATCH(parser::decl_stmt, str_decl, [](auto res) {
     return res->var->name == "test" &&
            typeid(*res->var->var_type) == typeid(ast::int_type);
+  });
+  
+   EXPECT_MATCH(parser::array_decl_stmt, str_array_decl, [](auto res) {
+    return res->decl_array->name == "testarray" &&
+           typeid(*res->decl_array->array_type) == typeid(ast::int_type) &&
+            *res->decl_array->array_size == ast::int_literal{10};
   });
 
   EXPECT(parser::parse(R"(
