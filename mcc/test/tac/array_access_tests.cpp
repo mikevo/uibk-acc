@@ -10,9 +10,9 @@
 namespace mcc {
 namespace tac {
 
-/*
 TEST(ArrayAccess, Leaf) {
-  auto array = std::make_shared<Array>(Type::INT, "a", 5);
+  auto size = std::make_shared<IntLiteral>(5);  
+  auto array = std::make_shared<Array>(Type::INT, "a", size);
   auto i = std::make_shared<IntLiteral>(2);
 
   ArrayAccess a = ArrayAccess(array, i);
@@ -21,7 +21,7 @@ TEST(ArrayAccess, Leaf) {
 
 TEST(ArrayAccess, Type) {
   std::string name = "a";
-  std::size_t size = 5;
+   auto size = std::make_shared<IntLiteral>(5);  
 
   auto array = std::make_shared<Array>(Type::INT, name, size);
   auto i = std::make_shared<IntLiteral>(2);
@@ -32,7 +32,7 @@ TEST(ArrayAccess, Type) {
 
 TEST(ArrayAccess, Value) {
   std::string name = "a";
-  std::size_t size = 5;
+   auto size = std::make_shared<IntLiteral>(5);  
 
   auto array = std::make_shared<Array>(Type::INT, name, size);
   auto i = std::make_shared<IntLiteral>(2);
@@ -49,7 +49,7 @@ TEST(ArrayAccess, Value) {
 
 TEST(ArrayAccess, Name) {
   std::string name = "a";
-  std::size_t size = 5;
+   auto size = std::make_shared<IntLiteral>(5);  
 
   auto array = std::make_shared<Array>(Type::INT, name, size);
   auto i = std::make_shared<IntLiteral>(2);
@@ -59,21 +59,9 @@ TEST(ArrayAccess, Name) {
   EXPECT_EQ("a", a.getName());
 }
 
-TEST(ArrayAccess, DISABLED_Length) {
-  std::string name = "a";
-  std::size_t size = 5;
-
-  auto array = std::make_shared<Array>(Type::INT, name, size);
-  auto i = std::make_shared<IntLiteral>(2);
-
-  ArrayAccess a = ArrayAccess(array, i);
-
-  EXPECT_EQ(1, a.length());
-}
-
 TEST(ArrayAccess, IsTemporary) {
   std::string name = "a";
-  std::size_t size = 5;
+   auto size = std::make_shared<IntLiteral>(5);  
 
   auto array = std::make_shared<Array>(Type::INT, name, size);
   auto i = std::make_shared<IntLiteral>(2);
@@ -85,7 +73,7 @@ TEST(ArrayAccess, IsTemporary) {
 
 TEST(ArrayAccess, IsArray) {
   std::string name = "a";
-  std::size_t size = 5;
+   auto size = std::make_shared<IntLiteral>(5);  
 
   auto array = std::make_shared<Array>(Type::INT, name, size);
   auto i = std::make_shared<IntLiteral>(2);
@@ -94,6 +82,5 @@ TEST(ArrayAccess, IsArray) {
 
   EXPECT_EQ(true, a.isArray());
 }
- */
 }
 }
