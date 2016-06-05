@@ -333,9 +333,9 @@ main:
 	push ebx
 	push edi
 	push esi
-	mov eax, 10
-	add eax, 15
-	mov ecx, eax
+	mov ebx, 10
+	add ebx, 15
+	mov ecx, ebx
 
 
 .att_syntax noprefix
@@ -416,9 +416,9 @@ main:
 	push ebx
 	push edi
 	push esi
-	mov eax, 10
-	imul eax, 15
-	mov ecx, eax
+	mov ebx, 10
+	imul ebx, 15
+	mov ecx, ebx
 
 
 .att_syntax noprefix
@@ -556,8 +556,8 @@ main:
 	fld DWORD PTR .FC1
 	fmulp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ebx, DWORD PTR [ebp - 4]
-	mov DWORD PTR [ebp - 4], ebx
+	mov eax, DWORD PTR [ebp - 4]
+	mov DWORD PTR [ebp - 4], eax
 
 .FC0: .float 10.000000
 .FC1: .float 15.000000

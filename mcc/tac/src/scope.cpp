@@ -21,6 +21,8 @@ bool Scope::operator<(Scope const other) const {
   return (pairLhs < pairRhs);
 }
 
+bool Scope::operator<=(Scope const other) const { return !(other < *this); }
+
 bool Scope::operator==(Scope const other) const {
   return (!(*this < other) && !(other < *this));
 }

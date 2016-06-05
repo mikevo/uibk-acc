@@ -29,12 +29,29 @@ namespace mcc {
 namespace gas {
 namespace helper {
 void convertTac(Gas *gas, Tac &tac) {
-  auto cfg = Cfg(tac);
-  auto arrayLiveRanges = cfg.getArrayLiveRangeMap();
+  auto codeLines = tac.codeLines;
+  for (auto tripleIt = codeLines.begin(); tripleIt != codeLines.end();
+       ++tripleIt) {
+    auto triple = *tripleIt;
 
-  for (auto triple : tac.codeLines) {
+    // check if array schould be cleaned
+    auto nextTripleIt = std::next(tripleIt);
+    bool isScopeEnd = (nextTripleIt == codeLines.end());
+    if (!isScopeEnd) {
+      auto curScope = triple->getScope();
+      auto nextScope = (*nextTripleIt)->getScope();
+
+      if (*nextScope < *curScope) {
+        isScopeEnd = true;
+      }
+    }
+
+    if (isScopeEnd) {
+      // clean up arrays
+      cleanUpArrays(gas, triple);
+    }
+
     auto op = triple->getOperator();
-
     switch (op.getName()) {
       case OperatorName::NOP:
         /*Do nothing*/
@@ -99,35 +116,11 @@ void convertTac(Gas *gas, Tac &tac) {
         convertReturn(gas, triple);
         break;
     }
-
-    // clean up arrays
-    auto liveSetAfter = cfg.liveSetAfter(triple, false);
-    for (auto definedArrIt = definedArrays.rbegin();
-         definedArrIt != definedArrays.rend(); ++definedArrIt) {
-      auto definedArrFunc = std::get<0>(*definedArrIt);
-      auto definedArr = std::get<1>(*definedArrIt);
-      auto definedArrLength = std::get<2>(*definedArrIt);
-
-      auto result = arrayLiveRanges.find(definedArr);
-      if (result != arrayLiveRanges.end()) {
-        // if array found in liverange map
-        if (triple > result->second.back()) {
-          // if current tac line is after the last use of array
-
-          // clean
-          cleanUpArray(gas, currentFunction, definedArr, definedArrLength);
-          // delete current array from definedArraysVector
-          definedArrays.erase(std::next(definedArrIt).base());
-        } else {
-          // break if one array is still alive
-          break;
-        }
-      } else {
-        assert(false && "Array not in live range map!");
-      }
-    }
   }
 
+  for (auto arr : definedArrays) {
+    std::cout << std::get<1>(arr)->getValue() << std::endl;
+  }
   assert(definedArrays.empty() && "Arrays are not fully cleaned up!");
 }
 
@@ -491,19 +484,43 @@ void computeAndStoreArrayStartAddress(Gas *gas, Label::ptr_t functionLabel,
   }
 }
 
-void cleanUpArray(Gas *gas, Label::ptr_t functionLabel, Array::ptr_t arr,
-                  Operand::ptr_t length) {
-  auto esp = std::make_shared<Operand>(Register::ESP);
-  auto tmp = gas->getRegisterManager()->getTmpRegister();
+void cleanUpArrays(Gas *gas, Triple::ptr_t triple) {
+  // clean up arrays
+  auto tripleScope = triple->getScope();
+  for (auto definedArrIt = definedArrays.rbegin();
+       definedArrIt != definedArrays.rend(); ++definedArrIt) {
+    auto definedArrFunc = std::get<0>(*definedArrIt);
+    auto definedArr = std::get<1>(*definedArrIt);
+    auto definedArrLength = std::get<2>(*definedArrIt);
 
-  auto arrTypeSize = gas->getRegisterManager()->getSize(arr->getType());
-  auto arrTypeSizeOp = std::make_shared<Operand>(std::to_string(arrTypeSize));
+    auto arrScope = definedArr->getScope();
+    std::cout << triple->toString() << ": ";
+    std::cout << tripleScope->getDepth() << ", " << tripleScope->getIndex()
+              << std::endl;
+    std::cout << definedArr->getValue() << ": ";
+    std::cout << arrScope->getDepth() << ", " << arrScope->getIndex()
+              << std::endl;
+    if (*tripleScope <= *arrScope) {
+      // clean
+      auto esp = std::make_shared<Operand>(Register::ESP);
+      auto tmp = gas->getRegisterManager()->getTmpRegister();
 
-  gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::MOV, tmp, length));
-  gas->addMnemonic(
-      std::make_shared<Mnemonic>(Instruction::IMUL, tmp, arrTypeSizeOp));
+      auto arrTypeSize =
+          gas->getRegisterManager()->getSize(definedArr->getType());
+      auto arrTypeSizeOp =
+          std::make_shared<Operand>(std::to_string(arrTypeSize));
 
-  gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::ADD, esp, tmp));
+      gas->addMnemonic(
+          std::make_shared<Mnemonic>(Instruction::MOV, tmp, definedArrLength));
+      gas->addMnemonic(
+          std::make_shared<Mnemonic>(Instruction::IMUL, tmp, arrTypeSizeOp));
+
+      gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::ADD, esp, tmp));
+
+      // delete current array from definedArrays vector
+      definedArrays.erase(std::next(definedArrIt).base());
+    }
+  }
 }
 }
 }

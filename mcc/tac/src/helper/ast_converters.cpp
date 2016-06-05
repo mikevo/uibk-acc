@@ -483,8 +483,17 @@ Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a) {
 
   auto size = convertNode(t, a->array_size);
   if (size != nullptr) {
-    return std::make_shared<Array>(type, name, size,
-                                   t->getVariableStore()->getCurrentScope());
+    auto array = std::make_shared<Array>(
+        type, name, size, t->getVariableStore()->getCurrentScope());
+
+    // use same array again
+    auto arraySet = t->getArraySet();
+    auto result = arraySet.find(array);
+    if (result != arraySet.end()) {
+      return *result;
+    }
+
+    return array;
   }
 
   assert(false && "Could not evaluate array size expression");

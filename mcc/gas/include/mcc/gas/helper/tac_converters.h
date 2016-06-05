@@ -40,8 +40,7 @@ lookupDefinedArray(Label::ptr_t functionLabel, Array::ptr_t array);
 void defineArray(Gas *gas, Label::ptr_t functionLabel, ArrayAccess::ptr_t arr);
 void computeAndStoreArrayStartAddress(Gas *gas, Label::ptr_t functionLabel,
                                       Array::ptr_t arr);
-void cleanUpArray(Gas *gas, Label::ptr_t functionLabel, Array::ptr_t arr,
-                  Operand::ptr_t length);
+void cleanUpArrays(Gas *gas, Triple::ptr_t triple);
 }
 }
 }
