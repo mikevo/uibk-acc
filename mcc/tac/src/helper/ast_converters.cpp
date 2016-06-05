@@ -369,6 +369,15 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
     assert(false && "Non void function without return value");
   }
 
+  auto lastLine = t->codeLines.back();
+  auto lastOpType = lastLine->getOperator().getType();
+  if (retType == Type::NONE && lastOpType != OperatorType::RETURN) {
+    auto op = Operator(OperatorName::RET);
+    auto retTriple = std::make_shared<Triple>(
+        op, nullptr, t->getVariableStore()->getCurrentScope());
+    t->addLine(retTriple);
+  }
+
   for (auto retStmt : retStatements) {
     if (retStmt->getType() != retType) {
       assert(false && "Return value type mismatch");
