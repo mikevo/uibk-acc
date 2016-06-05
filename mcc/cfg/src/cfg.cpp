@@ -455,7 +455,8 @@ Cfg::array_live_range_map_type Cfg::getArrayLiveRangeMap() {
   arr_iter_map startMap;
   arr_iter_map endMap;
 
-  for (auto arr : tac.getArraySet()) {
+  for (auto arrElem : tac.getArrayDeclMap()) {
+    auto arr = arrElem.first;
     auto start = std::make_pair(arr, this->tac.codeLines.end());
     startMap.insert(start);
 
@@ -508,7 +509,8 @@ Cfg::array_live_range_map_type Cfg::getArrayLiveRangeMap() {
 
   Cfg::array_live_range_map_type map;
 
-  for (auto arr : tac.getArraySet()) {
+  for (auto arrElem : tac.getArrayDeclMap()) {
+    auto arr = arrElem.first;
     if (startMap.at(arr) != this->tac.codeLines.end()) {
       auto range = boost::make_iterator_range(startMap.at(arr), endMap.at(arr));
       auto pair = std::make_pair(arr, range);

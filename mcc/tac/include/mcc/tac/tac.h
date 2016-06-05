@@ -39,6 +39,7 @@ class Tac {
   typedef std::vector<Triple::ptr_t>::iterator code_lines_iter;
   typedef boost::iterator_range<code_lines_iter> code_lines_range;
   typedef std::map<Label::ptr_t, code_lines_range> function_range_map_type;
+  typedef std::map<Array::ptr_t, Triple::ptr_t> array_decl_map_type;
 
   Tac();
   Tac(std::shared_ptr<ast::node> n);
@@ -55,8 +56,8 @@ class Tac {
   const bb_type getBasicBlockIndex();
   void createBasicBlockIndex();
   void addToVarTable(Variable::ptr_t value);
-  void addToArraySet(Array::ptr_t array);
-  Array::set_t const getArraySet();
+  void addToArrayDeclMap(Array::ptr_t array, Triple::ptr_t triple);
+  array_decl_map_type const getArrayDeclMap();
   Variable::ptr_t addVarRenaming(Variable::ptr_t const key);
   void removeFromVarTable(Variable::ptr_t const value);
   void addFunction(std::string key, Label::ptr_t);
@@ -85,7 +86,7 @@ class Tac {
   unsigned currentBasicBlock;
   bool currentBasicBlockUsed;
   bb_type basicBlockIndex;
-  Array::set_t arraySet;
+  array_decl_map_type arrayDeclMap;
 };
 }
 }

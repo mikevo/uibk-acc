@@ -457,7 +457,8 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
 Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n) {
   auto a = std::static_pointer_cast<ast::array_decl_stmt>(n);
   auto array = convertArray(t, a->decl_array);
-  t->addToArraySet(array);
+  auto codeLines = t->codeLines;
+  t->addToArrayDeclMap(array, codeLines.empty() ? nullptr : codeLines.back());
 
   return array;
 }
@@ -487,10 +488,10 @@ Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a) {
         type, name, size, t->getVariableStore()->getCurrentScope());
 
     // use same array again
-    auto arraySet = t->getArraySet();
-    auto result = arraySet.find(array);
-    if (result != arraySet.end()) {
-      return *result;
+    auto arrayDeclMap = t->getArrayDeclMap();
+    auto result = arrayDeclMap.find(array);
+    if (result != arrayDeclMap.end()) {
+      return result->first;
     }
 
     return array;

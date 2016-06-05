@@ -135,9 +135,13 @@ void Tac::addToVarTable(Variable::ptr_t value) {
   this->variableStore->addVariable(value);
 }
 
-void Tac::addToArraySet(Array::ptr_t array) { this->arraySet.insert(array); }
+void Tac::addToArrayDeclMap(Array::ptr_t array, Triple::ptr_t triple) {
+  this->arrayDeclMap.insert(std::make_pair(array, triple));
+}
 
-Array::set_t const Tac::getArraySet() { return this->arraySet; }
+Tac::array_decl_map_type const Tac::getArrayDeclMap() {
+  return this->arrayDeclMap;
+}
 
 void Tac::removeFromVarTable(Variable::ptr_t const value) {
   this->variableStore->removeVariable(value);
