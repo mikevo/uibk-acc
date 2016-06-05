@@ -22,6 +22,8 @@ void expectColorMapsEQ(std::map<long unsigned, unsigned> expected,
 }
 
 TEST(RegisterManager, InterfernceGraph) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
            void bar(int arg1);
@@ -48,9 +50,9 @@ TEST(RegisterManager, InterfernceGraph) {
 
   std::map<mcc::tac::Label::ptr_t, std::string, mcc::tac::Label::less> expected;
 
-  auto l1 = std::make_shared<mcc::tac::Label>("foo");
-  auto l2 = std::make_shared<mcc::tac::Label>("bar");
-  auto l3 = std::make_shared<mcc::tac::Label>("main");
+  auto l1 = std::make_shared<mcc::tac::Label>("foo", scope);
+  auto l2 = std::make_shared<mcc::tac::Label>("bar", scope);
+  auto l3 = std::make_shared<mcc::tac::Label>("main", scope);
 
   expected[l1] = R"(graph G {
 0;
@@ -95,6 +97,8 @@ TEST(RegisterManager, InterfernceGraph) {
 }
 
 TEST(RegisterManager, GraphColoringNumColors) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   // TODO re-implement
   auto tree = parser::parse(
       R"(
@@ -140,6 +144,8 @@ TEST(RegisterManager, GraphColoringNumColors) {
 }
 
 TEST(RegisterManager, GraphColoringColors) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   // TODO re-implement
   auto tree = parser::parse(
       R"(

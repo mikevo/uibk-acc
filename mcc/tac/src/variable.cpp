@@ -6,13 +6,13 @@ namespace mcc {
 namespace tac {
 unsigned Variable::nextId = 1;
 
-Variable::Variable(Type t) : Variable(t, "", std::make_shared<Scope>(0, 0)) {
+Variable::Variable(Type t, Scope::ptr_t scope) : Variable(t, "", scope) {
   // necessary to do it after the called constructor has finished
   this->name = "$t" + std::to_string(this->id);
 }
 
 Variable::Variable(Type t, std::string name, Scope::ptr_t scope, unsigned index)
-    : Operand(t), name(name), scope(scope), index(index), isArg(false) {
+    : Operand(t, scope), name(name), index(index), isArg(false) {
   this->id = ++Variable::nextId;
 }
 
@@ -42,19 +42,20 @@ std::string Variable::getNameWithIndex() const {
 std::string Variable::getValue() const {
   std::string value(this->getNameWithIndex());
   value.append(":");
-  value.append(std::to_string(this->scope->getDepth()));
+  value.append(std::to_string(Operand::getScope()->getDepth()));
   value.append(":");
-  value.append(std::to_string(this->scope->getIndex()));
+  value.append(std::to_string(Operand::getScope()->getIndex()));
 
   return value;
 }
 
 Scope::ptr_t const Variable::getScope() const {
+  Scope::ptr_t scope = Operand::getScope();
   if (this->isTemporary()) {
-    assert((this->scope != std::make_shared<Scope>(0, 0)) &&
+    assert((scope != std::make_shared<Scope>(0, 0)) &&
            "temp variable has wrong scope");
   }
-  return this->scope;
+  return scope;
 }
 
 // void Variable::setIndex(unsigned index) { this->index = index; }

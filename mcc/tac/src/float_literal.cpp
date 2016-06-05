@@ -3,7 +3,8 @@
 namespace mcc {
 namespace tac {
 
-FloatLiteral::FloatLiteral(float value) : Operand(Type::FLOAT), value(value) {}
+FloatLiteral::FloatLiteral(float value, Scope::ptr_t scope)
+    : Operand(Type::FLOAT, scope), value(value) {}
 
 bool FloatLiteral::isLeaf() const { return true; }
 

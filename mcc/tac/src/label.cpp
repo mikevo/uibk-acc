@@ -5,12 +5,13 @@
 namespace mcc {
 namespace tac {
 
-Label::Label() : Triple(OperatorName::LABEL), functionEntryLabel(false) {
+Label::Label(Scope::ptr_t scope)
+    : Triple(OperatorName::LABEL, scope), functionEntryLabel(false) {
   this->setName("$L" + std::to_string(this->getId()));
 }
 
-Label::Label(std::string functionName)
-    : Triple(OperatorName::LABEL), functionEntryLabel(true) {
+Label::Label(std::string functionName, Scope::ptr_t scope)
+    : Triple(OperatorName::LABEL, scope), functionEntryLabel(true) {
   this->setName(functionName);
 }
 

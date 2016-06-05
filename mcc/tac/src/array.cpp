@@ -10,8 +10,8 @@
 
 namespace mcc {
 namespace tac {
-Array::Array(Type t, std::string name, Operand::ptr_t size)
-    : Operand(t), name(name), size(size) {}
+Array::Array(Type t, std::string name, Operand::ptr_t size, Scope::ptr_t scope)
+    : Operand(t, scope), name(name), size(size) {}
 
 bool Array::operator<(Array const other) const {
   return (this->getName() < other.getName());

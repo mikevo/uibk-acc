@@ -9,7 +9,6 @@
 #define MCC_TAC_VARIABLE_LITERAL_H
 
 #include "mcc/tac/operand.h"
-#include "mcc/tac/scope.h"
 
 #include <memory>
 #include <set>
@@ -30,7 +29,7 @@ class Variable : public Operand {
   typedef std::set<ptr_t, less> set_t;
 
   // creates a temporary variable with scope (0,0)
-  Variable(Type t);
+  Variable(Type t, Scope::ptr_t scope);
 
   // creates a non-temporary variable with default index = 0
   Variable(Type t, std::string name, Scope::ptr_t scope, unsigned index = 0);
@@ -43,7 +42,7 @@ class Variable : public Operand {
   std::string getNameWithIndex() const;
   virtual std::string getValue() const override;
   virtual bool isLeaf() const override;
-  Scope::ptr_t const getScope() const;
+  virtual Scope::ptr_t const getScope() const;
   //  void setIndex(unsigned);
   virtual bool isTemporary() const;
   void setTypeArgument();
@@ -52,7 +51,6 @@ class Variable : public Operand {
 
  private:
   std::string name;
-  Scope::ptr_t scope;
   unsigned index;
   static unsigned nextId;
   unsigned id;

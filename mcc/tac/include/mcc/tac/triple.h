@@ -21,10 +21,11 @@ class Triple : public Operand {
  public:
   typedef std::shared_ptr<Triple> ptr_t;
 
-  Triple(Operand::ptr_t arg);
-  Triple(OperatorName op);
-  Triple(Operator op, Operand::ptr_t arg);
-  Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2);
+  Triple(Operand::ptr_t arg, Scope::ptr_t scope);
+  Triple(OperatorName op, Scope::ptr_t scope);
+  Triple(Operator op, Operand::ptr_t arg, Scope::ptr_t scope);
+  Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2,
+         Scope::ptr_t scope);
   std::string getName() const;
   unsigned getId() const;
   unsigned getBasicBlockId() const;

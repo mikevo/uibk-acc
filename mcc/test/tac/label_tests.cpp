@@ -6,49 +6,65 @@
 #include "mcc/tac/label.h"
 #include "mcc/tac/operator.h"
 
+using namespace mcc::tac;
+
 namespace mcc {
 namespace tac {
 
 TEST(Label, ID_Test) {
-  Label t1 = Label();
-  Label t2 = Label();
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Label t1 = Label(scope);
+  Label t2 = Label(scope);
 
   EXPECT_LT(0, t1.getId());
   EXPECT_EQ(t1.getId() + 1, t2.getId());
 }
 
 TEST(Label, Leaf) {
-  Label t1 = Label();
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Label t1 = Label(scope);
 
   EXPECT_EQ(true, t1.isLeaf());
 }
 
 TEST(Label, BBDefaultId) {
-  Label t = Label();
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Label t = Label(scope);
 
   EXPECT_EQ(0, t.getBasicBlockId());
 }
 
 TEST(Label, Value) {
-  Label t = Label();
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Label t = Label(scope);
 
   EXPECT_EQ("$L" + std::to_string(t.getId()), t.getValue());
 }
 
 TEST(Label, Type) {
-  Label t = Label();
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Label t = Label(scope);
 
   EXPECT_EQ(Type::NONE, t.getType());
 }
 
 TEST(Label, OpType) {
-  Label t = Label();
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Label t = Label(scope);
 
   EXPECT_EQ(OperatorName::LABEL, t.getOperator().getName());
 }
 
 TEST(Label, ToString) {
-  Label t = Label();
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Label t = Label(scope);
 
   EXPECT_EQ("LABEL " + t.getValue(), t.toString());
 }

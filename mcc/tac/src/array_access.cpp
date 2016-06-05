@@ -13,10 +13,9 @@
 
 namespace mcc {
 namespace tac {
-ArrayAccess::ArrayAccess(Array::ptr_t array, Operand::ptr_t pos)
-    : Variable(array->getType(), array->getName(),
-               std::make_shared<Scope>(0, 0)),
-      array(array) {
+ArrayAccess::ArrayAccess(Array::ptr_t array, Operand::ptr_t pos,
+                         Scope::ptr_t scope)
+    : Variable(array->getType(), array->getName(), scope), array(array) {
   assert(pos->getType() == Type::INT && "array position not an INT type");
   this->pos = pos;
 }

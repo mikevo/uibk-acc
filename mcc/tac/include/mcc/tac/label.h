@@ -27,8 +27,8 @@ class Label : public Triple {
     }
   };
 
-  Label();
-  Label(std::string functionName);
+  Label(Scope::ptr_t scope);
+  Label(std::string functionName, Scope::ptr_t scope);
   virtual bool isLeaf() const override final;
   bool isFunctionEntry() const;
 

@@ -24,7 +24,7 @@ class ArrayAccess : public Variable {
 
   typedef std::set<ptr_t, less> set_t;
 
-  ArrayAccess(Array::ptr_t array, Operand::ptr_t pos);
+  ArrayAccess(Array::ptr_t array, Operand::ptr_t pos, Scope::ptr_t scope);
 
   bool operator<(ArrayAccess const other) const;
   bool operator==(ArrayAccess const other) const;

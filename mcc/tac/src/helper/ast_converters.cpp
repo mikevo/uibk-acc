@@ -90,12 +90,14 @@ Operand::ptr_t convertNode(Tac *t, AstNode n) {
 
 Operand::ptr_t convertIntLiteral(Tac *t, AstNode n) {
   int v = std::static_pointer_cast<ast::int_literal>(n)->value;
-  return std::make_shared<IntLiteral>(v);
+  return std::make_shared<IntLiteral>(v,
+                                      t->getVariableStore()->getCurrentScope());
 }
 
 Operand::ptr_t convertFloatLiteral(Tac *t, AstNode n) {
   float v = std::static_pointer_cast<ast::float_literal>(n)->value;
-  return std::make_shared<FloatLiteral>(v);
+  return std::make_shared<FloatLiteral>(
+      v, t->getVariableStore()->getCurrentScope());
 }
 
 Operand::ptr_t convertVariable(Tac *t, AstNode n) {
@@ -123,7 +125,8 @@ Operand::ptr_t convertBinaryOp(Tac *t, AstNode n) {
   }
 
   auto op = Operator(binaryOperatorMap.at(*v->op.get()));
-  auto triple = std::make_shared<Triple>(op, lhs, rhs);
+  auto triple = std::make_shared<Triple>(
+      op, lhs, rhs, t->getVariableStore()->getCurrentScope());
 
   // ensure that an assign has the same variable in arg1 and targetVar
   if (setTarVar) triple->setTargetVariable(variable);
@@ -138,7 +141,8 @@ Operand::ptr_t convertUnaryOp(Tac *t, AstNode n) {
   auto lhs = convertNode(t, v->sub);
 
   auto op = Operator(unaryOperatorMap.at(*v->op.get()));
-  auto var = std::make_shared<Triple>(op, lhs);
+  auto var = std::make_shared<Triple>(op, lhs,
+                                      t->getVariableStore()->getCurrentScope());
 
   t->addToVarTable(var->getTargetVariable());
   t->addLine(var);
@@ -185,7 +189,9 @@ Operand::ptr_t convertDeclStmt(Tac *t, AstNode n) {
 
     if (initExpression->isLeaf()) {
       auto op = Operator(OperatorName::ASSIGN);
-      auto var = std::make_shared<Triple>(op, variable, initExpression);
+      auto var =
+          std::make_shared<Triple>(op, variable, initExpression,
+                                   t->getVariableStore()->getCurrentScope());
       var->setTargetVariable(variable);
 
       t->addLine(var);
@@ -216,9 +222,11 @@ Operand::ptr_t convertIfStmt(Tac *t, AstNode n) {
 
   auto condition = convertNode(t, stmt->condition);
 
-  auto falseLabel = std::make_shared<Label>();
+  auto falseLabel =
+      std::make_shared<Label>(t->getVariableStore()->getCurrentScope());
   auto jfOp = Operator(OperatorName::JUMPFALSE);
-  auto var = std::make_shared<Triple>(jfOp, condition, falseLabel);
+  auto var = std::make_shared<Triple>(jfOp, condition, falseLabel,
+                                      t->getVariableStore()->getCurrentScope());
 
   t->addLine(var);
   t->nextBasicBlock();
@@ -228,9 +236,11 @@ Operand::ptr_t convertIfStmt(Tac *t, AstNode n) {
   std::shared_ptr<Label> trueLabel;
 
   if (isAvailable(stmt->else_stmt)) {
-    trueLabel = std::make_shared<Label>();
+    trueLabel =
+        std::make_shared<Label>(t->getVariableStore()->getCurrentScope());
     auto jOp = Operator(OperatorName::JUMP);
-    auto trueJump = std::make_shared<Triple>(jOp, trueLabel);
+    auto trueJump = std::make_shared<Triple>(
+        jOp, trueLabel, t->getVariableStore()->getCurrentScope());
     t->addLine(trueJump);
   }
 
@@ -249,22 +259,26 @@ Operand::ptr_t convertIfStmt(Tac *t, AstNode n) {
 Operand::ptr_t convertWhileStmt(Tac *t, AstNode n) {
   auto whileStmt = std::static_pointer_cast<ast::while_stmt>(n);
 
-  auto againLabel = std::make_shared<Label>();
+  auto againLabel =
+      std::make_shared<Label>(t->getVariableStore()->getCurrentScope());
   t->nextBasicBlock();
   t->addLine(againLabel);
 
   auto condition = convertNode(t, whileStmt->condition);
 
-  auto exitLabel = std::make_shared<Label>();
+  auto exitLabel =
+      std::make_shared<Label>(t->getVariableStore()->getCurrentScope());
   auto jfOp = Operator(OperatorName::JUMPFALSE);
-  auto whileJump = std::make_shared<Triple>(jfOp, condition, exitLabel);
+  auto whileJump = std::make_shared<Triple>(
+      jfOp, condition, exitLabel, t->getVariableStore()->getCurrentScope());
   t->addLine(whileJump);
   t->nextBasicBlock();
 
   convertNode(t, whileStmt->stmt);
 
   auto jOp = Operator(OperatorName::JUMP);
-  auto againJump = std::make_shared<Triple>(jOp, againLabel);
+  auto againJump = std::make_shared<Triple>(
+      jOp, againLabel, t->getVariableStore()->getCurrentScope());
   t->addLine(againJump);
   t->nextBasicBlock();
   t->addLine(exitLabel);
@@ -284,7 +298,8 @@ Operand::ptr_t convertFunctionList(Tac *t, AstNode n) {
 
 Operand::ptr_t convertFunctionPrototype(Tac *t, AstNode n) {
   auto proto = std::static_pointer_cast<ast::function_prototype>(n);
-  auto dummyLabel = std::make_shared<Label>(proto->name);
+  auto dummyLabel = std::make_shared<Label>(
+      proto->name, t->getVariableStore()->getCurrentScope());
   t->addFunction(proto->name, dummyLabel);
   t->addFunctionPrototype(proto->name, convertArgList(proto->parameters));
   return nullptr;
@@ -301,7 +316,8 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
   if (functionDef) {
     t->addLine(functionDef);
   } else {
-    auto entryLabel = std::make_shared<Label>(function->name);
+    auto entryLabel = std::make_shared<Label>(
+        function->name, t->getVariableStore()->getCurrentScope());
     t->addFunction(function->name, entryLabel);
     auto argList = convertArgList(function->parameters);
     t->addFunctionPrototype(function->name, argList);
@@ -320,7 +336,8 @@ Operand::ptr_t convertFunctionDef(Tac *t, AstNode n) {
     t->addToVarTable(var);
 
     auto op = Operator(OperatorName::POP);
-    auto varAssignment = std::make_shared<Triple>(op, var);
+    auto varAssignment = std::make_shared<Triple>(
+        op, var, t->getVariableStore()->getCurrentScope());
     varAssignment->setTargetVariable(var);
     t->addLine(varAssignment);
   }
@@ -385,7 +402,8 @@ Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
     //    }
 
     auto op = Operator(OperatorName::PUSH);
-    auto argPush = std::make_shared<Triple>(op, argValue);
+    auto argPush = std::make_shared<Triple>(
+        op, argValue, t->getVariableStore()->getCurrentScope());
     t->addLine(argPush);
 
     ++revIt;
@@ -402,7 +420,8 @@ Operand::ptr_t convertfunctionCallExpr(Tac *t, AstNode n) {
   type = getType(*functionCall->function->returnType);
 
   auto op = Operator(OperatorName::CALL, type);
-  auto callTriple = std::make_shared<Triple>(op, functionEntry);
+  auto callTriple = std::make_shared<Triple>(
+      op, functionEntry, t->getVariableStore()->getCurrentScope());
   callTriple->setType(type);
 
   t->addLine(callTriple);
@@ -416,7 +435,8 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
   if (ret->returnValue != nullptr) {
     auto returnValue = convertNode(t, ret->returnValue);
     auto op = Operator(OperatorName::RET);
-    auto retTriple = std::make_shared<Triple>(op, returnValue);
+    auto retTriple = std::make_shared<Triple>(
+        op, returnValue, t->getVariableStore()->getCurrentScope());
     t->addLine(retTriple);
     t->addReturn();
     t->nextBasicBlock();
@@ -424,7 +444,8 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
 
   } else {
     auto op = Operator(OperatorName::RET);
-    auto retTriple = std::make_shared<Triple>(op, nullptr);
+    auto retTriple = std::make_shared<Triple>(
+        op, nullptr, t->getVariableStore()->getCurrentScope());
     retTriple->setType(Type::NONE);
     t->addLine(retTriple);
     t->addReturn();
@@ -447,7 +468,8 @@ Operand::ptr_t convertArrayAccess(Tac *t, AstNode n) {
   auto array = convertArray(t, a->m_array);
   auto pos = convertNode(t, a->access_expr);
 
-  return std::make_shared<ArrayAccess>(array, pos);
+  return std::make_shared<ArrayAccess>(
+      array, pos, t->getVariableStore()->getCurrentScope());
 }
 
 Operand::ptr_t convertArray(Tac *t, AstNode n) {
@@ -461,7 +483,8 @@ Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a) {
 
   auto size = convertNode(t, a->array_size);
   if (size != nullptr) {
-    return std::make_shared<Array>(type, name, size);
+    return std::make_shared<Array>(type, name, size,
+                                   t->getVariableStore()->getCurrentScope());
   }
 
   assert(false && "Could not evaluate array size expression");

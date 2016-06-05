@@ -3,7 +3,8 @@
 namespace mcc {
 namespace tac {
 
-IntLiteral::IntLiteral(int value) : Operand(Type::INT), value(value) {}
+IntLiteral::IntLiteral(int value, Scope::ptr_t scope)
+    : Operand(Type::INT, scope), value(value) {}
 
 bool IntLiteral::isLeaf() const { return true; }
 

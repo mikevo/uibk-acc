@@ -15,7 +15,10 @@ using namespace mcc::gas;
 
 namespace mcc {
 namespace gas {
+
 TEST(Gas, FunctionStackSpace) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
          void bar(int arg1);
@@ -42,9 +45,9 @@ TEST(Gas, FunctionStackSpace) {
 
   function_stack_space_map_type expected;
 
-  auto l1 = std::make_shared<Label>("foo");
-  auto l2 = std::make_shared<Label>("bar");
-  auto l3 = std::make_shared<Label>("main");
+  auto l1 = std::make_shared<Label>("foo", scope);
+  auto l2 = std::make_shared<Label>("bar", scope);
+  auto l3 = std::make_shared<Label>("main", scope);
 
   expected[l1] = 4;
   expected[l2] = 8;
@@ -58,6 +61,8 @@ TEST(Gas, FunctionStackSpace) {
 }
 
 TEST(Gas, VariableStackOffset) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
          void bar(int arg1);
@@ -107,6 +112,8 @@ TEST(Gas, VariableStackOffset) {
 
 /* Gas Conversion */
 TEST(Gas, GasConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
             void print_int(int out);
@@ -297,6 +304,8 @@ main:
 }
 
 TEST(Gas, GasAddIntegerConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
         void main() {
@@ -305,12 +314,12 @@ TEST(Gas, GasAddIntegerConversion) {
         )");
 
   Tac tac = Tac(tree);
-  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10);
-  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15);
+  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10, scope);
+  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15, scope);
   Operator op = Operator(OperatorName::ADD);
 
   Triple::ptr_t addTriple =
-      std::make_shared<Triple>(op, operandOne, operandTwo);
+      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
   tac.addLine(addTriple);
 
   Gas gas = Gas(tac);
@@ -336,6 +345,8 @@ main:
 }
 
 TEST(Gas, GasSubIntegerConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
         void main() {
@@ -344,12 +355,12 @@ TEST(Gas, GasSubIntegerConversion) {
         )");
 
   Tac tac = Tac(tree);
-  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10);
-  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15);
+  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10, scope);
+  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15, scope);
   Operator op = Operator(OperatorName::SUB);
 
   Triple::ptr_t subTriple =
-      std::make_shared<Triple>(op, operandOne, operandTwo);
+      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
   tac.addLine(subTriple);
 
   Gas gas = Gas(tac);
@@ -375,6 +386,8 @@ main:
 }
 
 TEST(Gas, GasMulIntegerConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
         void main() {
@@ -383,11 +396,12 @@ TEST(Gas, GasMulIntegerConversion) {
         )");
 
   Tac tac = Tac(tree);
-  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10);
-  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15);
+  IntLiteral::ptr_t operandOne = std::make_shared<IntLiteral>(10, scope);
+  IntLiteral::ptr_t operandTwo = std::make_shared<IntLiteral>(15, scope);
   Operator op = Operator(OperatorName::MUL);
 
-  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  Triple::ptr_t triple =
+      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
   tac.addLine(triple);
 
   Gas gas = Gas(tac);
@@ -414,6 +428,8 @@ main:
 }
 
 TEST(Gas, GasAddFloatConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
         void main() {
@@ -422,11 +438,12 @@ TEST(Gas, GasAddFloatConversion) {
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
   Operator op = Operator(OperatorName::ADD);
 
-  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  Triple::ptr_t triple =
+      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
   tac.addLine(triple);
 
   Gas gas = Gas(tac);
@@ -458,6 +475,8 @@ main:
 }
 
 TEST(Gas, GasSubFloatConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
         void main() {
@@ -466,11 +485,12 @@ TEST(Gas, GasSubFloatConversion) {
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
   Operator op = Operator(OperatorName::SUB);
 
-  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  Triple::ptr_t triple =
+      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
   tac.addLine(triple);
 
   Gas gas = Gas(tac);
@@ -502,6 +522,8 @@ main:
 }
 
 TEST(Gas, GasMulFloatConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
         void main() {
@@ -510,11 +532,12 @@ TEST(Gas, GasMulFloatConversion) {
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
   Operator op = Operator(OperatorName::MUL);
 
-  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  Triple::ptr_t triple =
+      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
   tac.addLine(triple);
 
   Gas gas = Gas(tac);
@@ -546,6 +569,8 @@ main:
 }
 
 TEST(Gas, GasDivFloatConversion) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   auto tree = parser::parse(
       R"(
         void main() {
@@ -554,11 +579,12 @@ TEST(Gas, GasDivFloatConversion) {
         )");
 
   Tac tac = Tac(tree);
-  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0);
-  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0);
+  FloatLiteral::ptr_t operandOne = std::make_shared<FloatLiteral>(10.0, scope);
+  FloatLiteral::ptr_t operandTwo = std::make_shared<FloatLiteral>(15.0, scope);
   Operator op = Operator(OperatorName::DIV);
 
-  Triple::ptr_t triple = std::make_shared<Triple>(op, operandOne, operandTwo);
+  Triple::ptr_t triple =
+      std::make_shared<Triple>(op, operandOne, operandTwo, scope);
   tac.addLine(triple);
 
   Gas gas = Gas(tac);

@@ -4,26 +4,37 @@
 
 #include "mcc/tac/variable.h"
 
+using namespace mcc::tac;
+
 namespace mcc {
 namespace tac {
+
 TEST(Variable, Id) {
-  Variable v1 = Variable(Type::FLOAT);
-  Variable v2 = Variable(Type::FLOAT);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Variable v1 = Variable(Type::FLOAT, scope);
+  Variable v2 = Variable(Type::FLOAT, scope);
 
   EXPECT_EQ(v1.getId() + 1, v2.getId());
 }
 
 TEST(Variable, Leaf) {
-  Variable v = Variable(Type::INT);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Variable v = Variable(Type::INT, scope);
   EXPECT_EQ(true, v.isLeaf());
 }
 
 TEST(Variable, Type) {
-  Variable v = Variable(Type::INT);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Variable v = Variable(Type::INT, scope);
   EXPECT_EQ(Type::INT, v.getType());
 }
 
 TEST(Variable, Value) {
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
   std::string testValue = "testVar0:0:0";
 
   Variable v = Variable(Type::FLOAT, "testVar", std::make_shared<Scope>(0, 0));
@@ -32,13 +43,17 @@ TEST(Variable, Value) {
 }
 
 TEST(Variable, Name) {
-  Variable v1 = Variable(Type::FLOAT);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Variable v1 = Variable(Type::FLOAT, scope);
 
   EXPECT_EQ("$t" + std::to_string(v1.getId()), v1.getName());
 }
 
 TEST(Variable, IsTemporary) {
-  Variable v1 = Variable(Type::FLOAT);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Variable v1 = Variable(Type::FLOAT, scope);
 
   EXPECT_EQ(true, v1.isTemporary());
 
@@ -48,7 +63,9 @@ TEST(Variable, IsTemporary) {
 }
 
 TEST(Variable, IsArray) {
-  Variable v1 = Variable(Type::FLOAT);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  Variable v1 = Variable(Type::FLOAT, scope);
 
   EXPECT_EQ(false, v1.isArray());
 }

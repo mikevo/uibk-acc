@@ -24,7 +24,7 @@ class Array : public Operand {
 
   typedef std::set<ptr_t, less> set_t;
 
-  Array(Type t, std::string name, Operand::ptr_t size);
+  Array(Type t, std::string name, Operand::ptr_t size, Scope::ptr_t scope);
 
   bool operator<(Array const other) const;
   bool operator==(Array const other) const;

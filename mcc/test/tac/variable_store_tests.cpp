@@ -23,8 +23,8 @@ TEST(VariableStore, VariableTableEmpty) {
 TEST(VariableStore, addVariable) {
   VariableStore store;
 
-  auto var0 = std::make_shared<Variable>(Type::FLOAT);
-  auto var1 = std::make_shared<Variable>(Type::INT);
+  auto var0 = std::make_shared<Variable>(Type::FLOAT, store.getCurrentScope());
+  auto var1 = std::make_shared<Variable>(Type::INT, store.getCurrentScope());
 
   store.addVariable(var0);
 

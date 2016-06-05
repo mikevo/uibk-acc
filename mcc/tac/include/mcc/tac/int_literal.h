@@ -18,7 +18,7 @@ class IntLiteral : public Operand {
  public:
   typedef std::shared_ptr<IntLiteral> ptr_t;
 
-  IntLiteral(int value);
+  IntLiteral(int value, Scope::ptr_t scope);
   virtual std::string getValue() const override final;
   virtual bool isLeaf() const override final;
   int value;

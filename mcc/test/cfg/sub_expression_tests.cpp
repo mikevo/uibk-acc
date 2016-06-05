@@ -14,13 +14,15 @@
 #include "mcc/tac/operator.h"
 #include "mcc/tac/triple.h"
 
+using namespace mcc::tac;
+
 namespace mcc {
 namespace cfg {
 
-using namespace mcc::tac;
-
 TEST(SubExpression, Unary) {
-  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42, scope);
   Operator op = Operator(OperatorName::NOT);
 
   SubExpression se = SubExpression(op, i);
@@ -30,8 +32,10 @@ TEST(SubExpression, Unary) {
 }
 
 TEST(SubExpression, Binary) {
-  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
-  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42, scope);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43, scope);
   Operator op = Operator(OperatorName::ADD);
 
   SubExpression se = SubExpression(op, i, j);
@@ -42,7 +46,9 @@ TEST(SubExpression, Binary) {
 }
 
 TEST(SubExpression, UnaryToString) {
-  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42, scope);
   Operator op = Operator(OperatorName::NOT);
 
   SubExpression se = SubExpression(op, i);
@@ -51,8 +57,10 @@ TEST(SubExpression, UnaryToString) {
 }
 
 TEST(SubExpression, BinaryToString) {
-  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
-  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42, scope);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43, scope);
   Operator op = Operator(OperatorName::ADD);
 
   SubExpression se = SubExpression(op, i, j);
@@ -61,10 +69,12 @@ TEST(SubExpression, BinaryToString) {
 }
 
 TEST(SubExpression, UnaryTriple) {
-  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42, scope);
   Operator op = Operator(OperatorName::NOT);
 
-  auto const t1 = std::make_shared<Triple>(op, i);
+  auto const t1 = std::make_shared<Triple>(op, i, scope);
 
   SubExpression se = SubExpression(t1);
 
@@ -73,11 +83,13 @@ TEST(SubExpression, UnaryTriple) {
 }
 
 TEST(SubExpression, BinaryTriple) {
-  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
-  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42, scope);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43, scope);
   Operator op = Operator(OperatorName::ADD);
 
-  auto const t1 = std::make_shared<Triple>(op, i, j);
+  auto const t1 = std::make_shared<Triple>(op, i, j, scope);
 
   SubExpression se = SubExpression(t1);
 
@@ -87,8 +99,10 @@ TEST(SubExpression, BinaryTriple) {
 }
 
 TEST(SubExpression, GetVariables) {
-  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42);
-  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  IntLiteral::ptr_t i = std::make_shared<IntLiteral>(42, scope);
+  IntLiteral::ptr_t j = std::make_shared<IntLiteral>(43, scope);
   Operator addOp = Operator(OperatorName::ADD);
 
   SubExpression se1 = SubExpression(addOp, i, j);
@@ -98,14 +112,14 @@ TEST(SubExpression, GetVariables) {
   Operator notOp = Operator(OperatorName::NOT);
   Variable::set_t expectedVarSet;
 
-  auto const t1 = std::make_shared<Triple>(notOp, i);
+  auto const t1 = std::make_shared<Triple>(notOp, i, scope);
   expectedVarSet.insert(t1->getTargetVariable());
 
   SubExpression se2 = SubExpression(addOp, t1, j);
 
   EXPECT_EQ(expectedVarSet, se2.getVariables());
 
-  auto const t2 = std::make_shared<Triple>(notOp, j);
+  auto const t2 = std::make_shared<Triple>(notOp, j, scope);
   expectedVarSet.insert(t2->getTargetVariable());
 
   SubExpression se3 = SubExpression(addOp, t1, t2);
@@ -114,8 +128,10 @@ TEST(SubExpression, GetVariables) {
 }
 
 TEST(SubExpression, SetNoDuplicates) {
-  auto i = std::make_shared<IntLiteral>(42);
-  auto j = std::make_shared<IntLiteral>(43);
+  Scope::ptr_t scope = std::make_shared<Scope>(0, 0);
+
+  auto i = std::make_shared<IntLiteral>(42, scope);
+  auto j = std::make_shared<IntLiteral>(43, scope);
 
   auto op1 = Operator(OperatorName::ADD);
   auto op2 = Operator(OperatorName::ADD);

@@ -18,7 +18,7 @@ class FloatLiteral : public Operand {
  public:
   typedef std::shared_ptr<FloatLiteral> ptr_t;
 
-  FloatLiteral(float value);
+  FloatLiteral(float value, Scope::ptr_t scope);
   virtual std::string getValue() const override final;
   virtual bool isLeaf() const override final;
   float value;

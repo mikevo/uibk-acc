@@ -124,7 +124,7 @@ IntLiteral::ptr_t LVN::evaluateInt(Triple &triple) {
   int val2 = arg2->value;
   int result = evaluateExpression(val1, val2, triple.getOperator().getName());
 
-  return std::make_shared<IntLiteral>(result);
+  return std::make_shared<IntLiteral>(result, triple.getScope());
 }
 
 FloatLiteral::ptr_t LVN::evaluateFloat(Triple &triple) {
@@ -135,20 +135,20 @@ FloatLiteral::ptr_t LVN::evaluateFloat(Triple &triple) {
   float val2 = arg2->value;
   float result = evaluateExpression(val1, val2, triple.getOperator().getName());
 
-  return std::make_shared<FloatLiteral>(result);
+  return std::make_shared<FloatLiteral>(result, triple.getScope());
 }
 
 void LVN::addTempVarAssignment(Variable::ptr_t keyVar, tempAssignValue keyValue,
                                Tac &tac, unsigned offset) {
   auto triple = std::make_shared<Triple>(Operator(OperatorName::ASSIGN), keyVar,
-                                         keyValue.first);
+                                         keyValue.first, keyVar->getScope());
   triple->setTargetVariable(keyVar);
   tac.addLine(triple, keyValue.second + offset);
   tac.getVariableStore()->addVariable(keyVar);
 }
 
 Variable::ptr_t LVN::addTempVar(unsigned position, Variable::ptr_t var) {
-  auto tempVar = std::make_shared<Variable>(var->getType());
+  auto tempVar = std::make_shared<Variable>(var->getType(), var->getScope());
 
   LVN::tempVarAssign.insert(
       std::make_pair(tempVar, std::make_pair(var, position)));

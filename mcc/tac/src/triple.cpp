@@ -11,17 +11,20 @@ namespace mcc {
 namespace tac {
 unsigned Triple::nextId = 0;
 
-Triple::Triple(Operand::ptr_t arg) : Triple(Operator(OperatorName::NOP), arg) {
+Triple::Triple(Operand::ptr_t arg, Scope::ptr_t scope)
+    : Triple(Operator(OperatorName::NOP), arg, scope) {
   // check if it is a terminal
   assert(arg->isLeaf() && "Operand is non-terminal!");
 }
 
 // constructor needed for Label
-Triple::Triple(OperatorName op) : Triple(Operator(op), nullptr) {
+Triple::Triple(OperatorName op, Scope::ptr_t scope)
+    : Triple(Operator(op), nullptr, scope) {
   assert(this->op.getType() == OperatorType::NONE && "Operator not NONE!");
 }
 
-Triple::Triple(Operator op, Operand::ptr_t arg) : Triple(op, arg, nullptr) {
+Triple::Triple(Operator op, Operand::ptr_t arg, Scope::ptr_t scope)
+    : Triple(op, arg, nullptr, scope) {
   // check if operator is UNARY or NONE (NOP)
   if (this->op.getType() != OperatorType::RETURN &&
       this->op.getType() != OperatorType::CALL) {
@@ -31,8 +34,9 @@ Triple::Triple(Operator op, Operand::ptr_t arg) : Triple(op, arg, nullptr) {
   }
 }
 
-Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
-    : Operand(),
+Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2,
+               Scope::ptr_t scope)
+    : Operand(scope),
       op(op),
       basicBlockId(0),
       arg1(arg1),
@@ -84,7 +88,8 @@ Triple::Triple(Operator op, Operand::ptr_t arg1, Operand::ptr_t arg2)
       break;
     default:
       // Creates a temp variable scope(0,0) that is used for the triple result
-      this->setTargetVariable(std::make_shared<Variable>(this->getType()));
+      this->setTargetVariable(
+          std::make_shared<Variable>(this->getType(), this->getScope()));
   }
 }
 
