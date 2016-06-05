@@ -38,8 +38,6 @@ std::vector<
     std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>::iterator
 lookupDeclaredArray(Label::ptr_t functionLabel, Array::ptr_t array);
 void declareArray(Gas *gas, Label::ptr_t functionLabel, Array::ptr_t arr);
-void computeAndStoreArrayStartAddress(Gas *gas, Label::ptr_t functionLabel,
-                                      Array::ptr_t arr);
 void cleanUpArrays(Gas *gas, Triple::ptr_t triple);
 }
 }

@@ -427,7 +427,9 @@ void declareArray(Gas *gas, Label::ptr_t functionLabel, Array::ptr_t arr) {
   auto esp = std::make_shared<Operand>(Register::ESP);
   auto tmp = gas->getRegisterManager()->getTmpRegister();
 
-  computeAndStoreArrayStartAddress(gas, functionLabel, arr);
+  // store start address
+  auto arrOp = gas->loadOperand(functionLabel, arr);
+  gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::MOV, arrOp, esp));
 
   // make space on stack for new array
   auto arrLength = arr->length();
@@ -444,55 +446,6 @@ void declareArray(Gas *gas, Label::ptr_t functionLabel, Array::ptr_t arr) {
 
   // store as defined
   declaredArrays.push_back(std::make_tuple(functionLabel, arr, arrLengthOp));
-}
-
-void computeAndStoreArrayStartAddress(Gas *gas, Label::ptr_t functionLabel,
-                                      Array::ptr_t arr) {
-  // store start address on defined stack position
-  auto newArrOp = gas->loadOperand(functionLabel, arr);
-  if (!declaredArrays.empty()) {
-    auto tmp = gas->getRegisterManager()->getTmpRegister();
-    // last defined array
-    auto lastArrTuple = declaredArrays.back();
-    auto lastArr = std::get<1>(lastArrTuple);
-    auto lastArrLengthOp = std::get<2>(lastArrTuple);
-
-    auto lastArrOp = gas->loadOperand(functionLabel, lastArr);
-
-    // load last arr start point to new arr start point
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::MOV, tmp, lastArrOp));
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::MOV, newArrOp, tmp));
-
-    auto lastArrTypeSize =
-        gas->getRegisterManager()->getSize(lastArr->getType());
-    auto lastArrTypeSizeOp =
-        std::make_shared<Operand>(std::to_string(lastArrTypeSize));
-
-    // calc stack usage of last array
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::MOV, tmp, lastArrLengthOp));
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::IMUL, tmp, lastArrTypeSizeOp));
-
-    // store new arr start pointer
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::SUB, newArrOp, tmp));
-  } else {
-    auto ebp = std::make_shared<Operand>(Register::EBP);
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::MOV, newArrOp, ebp));
-
-    auto functionStackSpace =
-        gas->getRegisterManager()->lookupFunctionStackSpace(functionLabel);
-    // TODO replace +4 with some lookup - which is the initial offset of local
-    // stack offsets
-    auto functionStackSpaceOp =
-        std::make_shared<Operand>(std::to_string(functionStackSpace + 4));
-    gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::SUB, newArrOp,
-                                                functionStackSpaceOp));
-  }
 }
 
 void cleanUpArrays(Gas *gas, Triple::ptr_t triple) {
