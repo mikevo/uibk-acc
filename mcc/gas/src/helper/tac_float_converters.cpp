@@ -15,7 +15,7 @@ extern OperatorName lastOperator;
 
 extern std::vector<
     std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>
-    definedArrays;
+    declaredArrays;
 
 namespace mcc {
 namespace gas {

@@ -23,7 +23,7 @@ Label::ptr_t currentFunction;
 OperatorName lastOperator;
 
 std::vector<std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>
-    definedArrays;
+    declaredArrays;
 
 namespace mcc {
 namespace gas {
@@ -116,12 +116,26 @@ void convertTac(Gas *gas, Tac &tac) {
         convertReturn(gas, triple);
         break;
     }
+
+    // declare arrays
+    auto arrayDeclMap = tac.getArrayDeclMap();
+    for (auto arrayDecl : arrayDeclMap) {
+      auto declLine = arrayDecl.second;
+      if (declLine == nullptr || triple == declLine) {
+        // if array not already declared
+        auto arr = arrayDecl.first;
+        if (lookupDeclaredArray(currentFunction, arr) == declaredArrays.end()) {
+          std::cout << triple->toString() << std::endl;
+          declareArray(gas, currentFunction, arr);
+        }
+      }
+    }
   }
 
-  for (auto arr : definedArrays) {
+  for (auto arr : declaredArrays) {
     std::cout << std::get<1>(arr)->getValue() << std::endl;
   }
-  assert(definedArrays.empty() && "Arrays are not fully cleaned up!");
+  assert(declaredArrays.empty() && "Arrays are not fully cleaned up!");
 }
 
 void convertArithmetic(Gas *gas, Triple::ptr_t triple) {
@@ -395,9 +409,9 @@ void createFunctionEpilog(Gas *gas, Label::ptr_t functionLabel) {
 
 std::vector<
     std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>::iterator
-lookupDefinedArray(Label::ptr_t functionLabel, Array::ptr_t array) {
+lookupDeclaredArray(Label::ptr_t functionLabel, Array::ptr_t array) {
   auto searchPair = std::make_pair(functionLabel, array);
-  for (auto pairIt = definedArrays.begin(); pairIt != definedArrays.end();
+  for (auto pairIt = declaredArrays.begin(); pairIt != declaredArrays.end();
        ++pairIt) {
     auto curPair = std::make_pair(std::get<0>(*pairIt), std::get<1>(*pairIt));
     if (!mcc::gas::labelArrayPairLess()(searchPair, curPair) &&
@@ -406,13 +420,10 @@ lookupDefinedArray(Label::ptr_t functionLabel, Array::ptr_t array) {
     }
   }
 
-  return definedArrays.end();
+  return declaredArrays.end();
 }
 
-void defineArray(Gas *gas, Label::ptr_t functionLabel,
-                 ArrayAccess::ptr_t arrAcc) {
-  // TODO refactor for variable length array
-  auto arr = arrAcc->getArray();
+void declareArray(Gas *gas, Label::ptr_t functionLabel, Array::ptr_t arr) {
   auto esp = std::make_shared<Operand>(Register::ESP);
   auto tmp = gas->getRegisterManager()->getTmpRegister();
 
@@ -432,17 +443,17 @@ void defineArray(Gas *gas, Label::ptr_t functionLabel,
   gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::SUB, esp, tmp));
 
   // store as defined
-  definedArrays.push_back(std::make_tuple(functionLabel, arr, arrLengthOp));
+  declaredArrays.push_back(std::make_tuple(functionLabel, arr, arrLengthOp));
 }
 
 void computeAndStoreArrayStartAddress(Gas *gas, Label::ptr_t functionLabel,
                                       Array::ptr_t arr) {
   // store start address on defined stack position
   auto newArrOp = gas->loadOperand(functionLabel, arr);
-  if (!definedArrays.empty()) {
+  if (!declaredArrays.empty()) {
     auto tmp = gas->getRegisterManager()->getTmpRegister();
     // last defined array
-    auto lastArrTuple = definedArrays.back();
+    auto lastArrTuple = declaredArrays.back();
     auto lastArr = std::get<1>(lastArrTuple);
     auto lastArrLengthOp = std::get<2>(lastArrTuple);
 
@@ -487,19 +498,13 @@ void computeAndStoreArrayStartAddress(Gas *gas, Label::ptr_t functionLabel,
 void cleanUpArrays(Gas *gas, Triple::ptr_t triple) {
   // clean up arrays
   auto tripleScope = triple->getScope();
-  for (auto definedArrIt = definedArrays.rbegin();
-       definedArrIt != definedArrays.rend(); ++definedArrIt) {
+  for (auto definedArrIt = declaredArrays.rbegin();
+       definedArrIt != declaredArrays.rend(); ++definedArrIt) {
     auto definedArrFunc = std::get<0>(*definedArrIt);
     auto definedArr = std::get<1>(*definedArrIt);
     auto definedArrLength = std::get<2>(*definedArrIt);
 
     auto arrScope = definedArr->getScope();
-    std::cout << triple->toString() << ": ";
-    std::cout << tripleScope->getDepth() << ", " << tripleScope->getIndex()
-              << std::endl;
-    std::cout << definedArr->getValue() << ": ";
-    std::cout << arrScope->getDepth() << ", " << arrScope->getIndex()
-              << std::endl;
     if (*tripleScope <= *arrScope) {
       // clean
       auto esp = std::make_shared<Operand>(Register::ESP);
@@ -517,8 +522,8 @@ void cleanUpArrays(Gas *gas, Triple::ptr_t triple) {
 
       gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::ADD, esp, tmp));
 
-      // delete current array from definedArrays vector
-      definedArrays.erase(std::next(definedArrIt).base());
+      // delete current array from declaredArrays vector
+      declaredArrays.erase(std::next(definedArrIt).base());
     }
   }
 }

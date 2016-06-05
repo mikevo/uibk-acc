@@ -17,7 +17,7 @@ extern OperatorName lastOperator;
 
 extern std::vector<
     std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>
-    definedArrays;
+    declaredArrays;
 
 namespace mcc {
 namespace gas {
@@ -72,11 +72,10 @@ void convertIntAssign(Gas *gas, Triple::ptr_t triple) {
           currentFunction, destVar);
     } else if (tac::helper::isType<ArrayAccess>(arg1)) {
       auto arrAcc = std::static_pointer_cast<ArrayAccess>(arg1);
+      auto arr = arrAcc->getArray();
 
-      // if array not already defined
-      if (lookupDefinedArray(currentFunction, arrAcc->getArray()) ==
-          definedArrays.end()) {
-        defineArray(gas, currentFunction, arrAcc);
+      if (lookupDeclaredArray(currentFunction, arr) == declaredArrays.end()) {
+        assert(false && "Use of array before declaration!");
       }
 
       arg1Op = gas->loadOperand(currentFunction, arrAcc);

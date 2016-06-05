@@ -1,9 +1,9 @@
 void print_int(int out);
 
 int main(void) {
-  int[5] a;
-  int[5] b;
-  int[5] c;
+  int a[5];
+  int b[5];
+  int c[5];
 
   int i = 0;
 

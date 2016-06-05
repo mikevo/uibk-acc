@@ -457,8 +457,10 @@ Operand::ptr_t convertReturnStmt(Tac *t, AstNode n) {
 Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n) {
   auto a = std::static_pointer_cast<ast::array_decl_stmt>(n);
   auto array = convertArray(t, a->decl_array);
+
   auto codeLines = t->codeLines;
-  t->addToArrayDeclMap(array, codeLines.empty() ? nullptr : codeLines.back());
+  auto triple = codeLines.empty() ? nullptr : codeLines.back();
+  t->addToArrayDeclMap(array, triple);
 
   return array;
 }
