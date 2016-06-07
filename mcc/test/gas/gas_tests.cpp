@@ -252,12 +252,6 @@ fibonacci:
 
 )" + *curLabel++ +
                   R"(:
-	pop esi
-	pop edi
-	pop ebx
-	add esp, 20
-	mov esp, ebp
-	pop ebp
 
 main:
 	push ebp
@@ -326,9 +320,9 @@ main:
 	push ebx
 	push edi
 	push esi
-	mov ebx, 10
-	add ebx, 15
-	mov ecx, ebx
+	mov eax, 10
+	add eax, 15
+	mov ecx, eax
 	pop esi
 	pop edi
 	pop ebx
@@ -408,9 +402,9 @@ main:
 	push ebx
 	push edi
 	push esi
-	mov ebx, 10
-	imul ebx, 15
-	mov ecx, ebx
+	mov eax, 10
+	imul eax, 15
+	mov ecx, eax
 	pop esi
 	pop edi
 	pop ebx
@@ -499,8 +493,8 @@ main:
 	fld DWORD PTR .FC1
 	fsubp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ebx, DWORD PTR [ebp - 4]
-	mov DWORD PTR [ebp - 4], ebx
+	mov eax, DWORD PTR [ebp - 4]
+	mov DWORD PTR [ebp - 4], eax
 	pop esi
 	pop edi
 	pop ebx
@@ -591,8 +585,8 @@ main:
 	fld DWORD PTR .FC1
 	fdivp st(1), st
 	fstp DWORD PTR [ebp - 4]
-	mov ebx, DWORD PTR [ebp - 4]
-	mov DWORD PTR [ebp - 4], ebx
+	mov eax, DWORD PTR [ebp - 4]
+	mov DWORD PTR [ebp - 4], eax
 	pop esi
 	pop edi
 	pop ebx
