@@ -469,7 +469,7 @@ Operand::ptr_t convertArrayDeclStmt(Tac *t, AstNode n) {
 
   auto codeLines = t->codeLines;
   auto triple = codeLines.empty() ? nullptr : codeLines.back();
-  t->addToArrayDeclMap(array, triple);
+  t->addToArrayDeclVec(array, triple);
 
   return array;
 }
@@ -499,9 +499,9 @@ Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a) {
         type, name, size, t->getVariableStore()->getCurrentScope());
 
     // use same array again
-    auto arrayDeclMap = t->getArrayDeclMap();
-    auto result = arrayDeclMap.find(array);
-    if (result != arrayDeclMap.end()) {
+    auto arrayDeclVec = t->getArrayDeclVec();
+    auto result = t->findArrayDecl(array);
+    if (result != t->getArrayDeclVec()->end()) {
       return result->first;
     }
 

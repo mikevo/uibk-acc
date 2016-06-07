@@ -118,8 +118,8 @@ void convertTac(Gas *gas, Tac &tac) {
     }
 
     // declare arrays
-    auto arrayDeclMap = tac.getArrayDeclMap();
-    for (auto arrayDecl : arrayDeclMap) {
+    auto arrayDeclVec = tac.getArrayDeclVec();
+    for (auto arrayDecl : *arrayDeclVec) {
       auto declLine = arrayDecl.second;
       if (declLine == nullptr || triple == declLine) {
         // if array not already declared

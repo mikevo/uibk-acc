@@ -23,6 +23,7 @@ Tac::Tac() : currentBasicBlock(0), currentBasicBlockUsed(false) {
   this->functionMap = std::make_shared<function_map_type>();
   this->functionPrototypeMap = std::make_shared<function_prototype_map_type>();
   this->functionReturnMap = std::make_shared<function_return_map_type>();
+  this->arrayDeclVec = std::make_shared<array_decl_vec_type>();
 }
 
 Tac::Tac(std::shared_ptr<ast::node> n)
@@ -32,6 +33,7 @@ Tac::Tac(std::shared_ptr<ast::node> n)
   this->functionMap = std::make_shared<function_map_type>();
   this->functionPrototypeMap = std::make_shared<function_prototype_map_type>();
   this->functionReturnMap = std::make_shared<function_return_map_type>();
+  this->arrayDeclVec = std::make_shared<array_decl_vec_type>();
   this->convertAst(n);
 }
 
@@ -135,12 +137,24 @@ void Tac::addToVarTable(Variable::ptr_t value) {
   this->variableStore->addVariable(value);
 }
 
-void Tac::addToArrayDeclMap(Array::ptr_t array, Triple::ptr_t triple) {
-  this->arrayDeclMap.insert(std::make_pair(array, triple));
+void Tac::addToArrayDeclVec(Array::ptr_t array, Triple::ptr_t triple) {
+  this->arrayDeclVec->push_back(std::make_pair(array, triple));
 }
 
-Tac::array_decl_map_type const Tac::getArrayDeclMap() {
-  return this->arrayDeclMap;
+Tac::array_decl_vec_ptr_type const Tac::getArrayDeclVec() {
+  return this->arrayDeclVec;
+}
+
+Tac::array_decl_vec_type::iterator Tac::findArrayDecl(Array::ptr_t arr) {
+  for (auto arrDeclIt = arrayDeclVec->begin(); arrDeclIt != arrayDeclVec->end();
+       ++arrDeclIt) {
+    auto curArr = arrDeclIt->first;
+    if (!Array::less()(arr, curArr) && !Array::less()(curArr, arr)) {
+      return arrDeclIt;
+    }
+  }
+
+  return arrayDeclVec->end();
 }
 
 void Tac::removeFromVarTable(Variable::ptr_t const value) {

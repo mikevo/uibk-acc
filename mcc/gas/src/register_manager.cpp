@@ -175,8 +175,8 @@ void RegisterManager::analyzeStackUsages() {
         }
       }
     }
-    
-    for (auto arrDecl : tac.getArrayDeclMap()) {
+
+    for (auto arrDecl : *(tac.getArrayDeclVec())) {
       auto arr = arrDecl.first;
       auto arrDeclLine = arrDecl.second;
 

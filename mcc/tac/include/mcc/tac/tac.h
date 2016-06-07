@@ -39,7 +39,9 @@ class Tac {
   typedef std::vector<Triple::ptr_t>::iterator code_lines_iter;
   typedef boost::iterator_range<code_lines_iter> code_lines_range;
   typedef std::map<Label::ptr_t, code_lines_range> function_range_map_type;
-  typedef std::map<Array::ptr_t, Triple::ptr_t> array_decl_map_type;
+  typedef std::vector<std::pair<Array::ptr_t, Triple::ptr_t>>
+      array_decl_vec_type;
+  typedef std::shared_ptr<array_decl_vec_type> array_decl_vec_ptr_type;
 
   Tac();
   Tac(std::shared_ptr<ast::node> n);
@@ -56,8 +58,9 @@ class Tac {
   const bb_type getBasicBlockIndex();
   void createBasicBlockIndex();
   void addToVarTable(Variable::ptr_t value);
-  void addToArrayDeclMap(Array::ptr_t array, Triple::ptr_t triple);
-  array_decl_map_type const getArrayDeclMap();
+  void addToArrayDeclVec(Array::ptr_t array, Triple::ptr_t triple);
+  array_decl_vec_ptr_type const getArrayDeclVec();
+  array_decl_vec_type::iterator findArrayDecl(Array::ptr_t arr);
   Variable::ptr_t addVarRenaming(Variable::ptr_t const key);
   void removeFromVarTable(Variable::ptr_t const value);
   void addFunction(std::string key, Label::ptr_t);
@@ -86,7 +89,7 @@ class Tac {
   unsigned currentBasicBlock;
   bool currentBasicBlockUsed;
   bb_type basicBlockIndex;
-  array_decl_map_type arrayDeclMap;
+  array_decl_vec_ptr_type arrayDeclVec;
 };
 }
 }
