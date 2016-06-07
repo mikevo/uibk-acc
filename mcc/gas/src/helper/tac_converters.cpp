@@ -35,21 +35,24 @@ void convertTac(Gas *gas, Tac &tac) {
     auto triple = *tripleIt;
     auto op = triple->getOperator();
 
-    // check if array schould be cleaned
-    auto nextTripleIt = std::next(tripleIt);
-    bool isScopeEnd = (nextTripleIt == codeLines.end());
-    if (!isScopeEnd) {
-      auto curScope = triple->getScope();
-      auto nextScope = (*nextTripleIt)->getScope();
+    // check if array should be cleaned
+    if (op.getName() != OperatorName::RET) {
+      // return is handled separately
+      auto nextTripleIt = std::next(tripleIt);
+      bool isScopeEnd = (nextTripleIt == codeLines.end());
+      if (!isScopeEnd) {
+        auto curScope = triple->getScope();
+        auto nextScope = (*nextTripleIt)->getScope();
 
-      if (*nextScope < *curScope) {
-        isScopeEnd = true;
+        if (*nextScope < *curScope) {
+          isScopeEnd = true;
+        }
       }
-    }
 
-    if (isScopeEnd && op.getName() != OperatorName::RET) {
-      // clean up arrays
-      cleanUpArrays(gas, triple);
+      if (isScopeEnd) {
+        // clean up arrays
+        cleanUpArrays(gas, triple);
+      }
     }
 
     switch (op.getName()) {

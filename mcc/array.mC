@@ -6,8 +6,7 @@ int main(void) {
   int c[5];
 
   int i = 0;
-
-  while (i <= 5) {
+  while (i < 5) {
     a[i] = i + 1;
     b[i] = i + 2;
     i = i + 1;
