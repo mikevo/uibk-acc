@@ -154,24 +154,7 @@ void RegisterManager::analyzeStackUsages() {
     } else if (codeLine->containsTargetVar()) {
       auto targetVar = codeLine->getTargetVariable();
       auto funcVarPair = std::make_pair(currentFunctionLabel, targetVar);
-      if (targetVar->isArray()) {
-        funcArg = false;
-
-        // if target is array
-        // reserve fixed place to store start address of array
-        auto arrAcc = std::static_pointer_cast<ArrayAccess>(targetVar);
-        auto arr = arrAcc->getArray();
-        auto funcArrPair = std::make_pair(currentFunctionLabel, arr);
-        if (arrayStackOffsetMap->find(funcArrPair) ==
-            arrayStackOffsetMap->end()) {
-          arrayStackOffsetMap->emplace(funcArrPair, curLocalOffset);
-
-          auto targetVarSize = 4;  // to store start address of array
-          curLocalOffset -= targetVarSize;
-
-          stackSpace += targetVarSize;
-        }
-      } else if (variableStackOffsetMap->find(funcVarPair) ==
+      if (variableStackOffsetMap->find(funcVarPair) ==
                  variableStackOffsetMap->end()) {
         if (funcArg && codeLine->getOperator().getName() == OperatorName::POP) {
           // variable is function parameter
@@ -190,6 +173,24 @@ void RegisterManager::analyzeStackUsages() {
 
           stackSpace += targetVarSize;
         }
+      }
+    }
+    
+    for (auto arrDecl : tac.getArrayDeclMap()) {
+      auto arr = arrDecl.first;
+      auto arrDeclLine = arrDecl.second;
+
+      if(arrDeclLine == codeLine) {
+        auto funcArrPair = std::make_pair(currentFunctionLabel, arr);
+        if (arrayStackOffsetMap->find(funcArrPair) ==
+            arrayStackOffsetMap->end()) {
+          arrayStackOffsetMap->emplace(funcArrPair, curLocalOffset);
+
+          auto targetVarSize = 4;  // to store start address of array
+          curLocalOffset -= targetVarSize;
+
+          stackSpace += targetVarSize;
+        }            
       }
     }
   }

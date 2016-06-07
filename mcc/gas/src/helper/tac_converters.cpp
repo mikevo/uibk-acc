@@ -125,7 +125,6 @@ void convertTac(Gas *gas, Tac &tac) {
         // if array not already declared
         auto arr = arrayDecl.first;
         if (lookupDeclaredArray(currentFunction, arr) == declaredArrays.end()) {
-          std::cout << triple->toString() << std::endl;
           declareArray(gas, currentFunction, arr);
         }
       }
