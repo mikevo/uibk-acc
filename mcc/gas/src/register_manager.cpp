@@ -180,7 +180,7 @@ void RegisterManager::analyzeStackUsages() {
       auto arr = arrDecl.first;
       auto arrDeclLine = arrDecl.second;
 
-      if(arrDeclLine == codeLine) {
+      if (arrDeclLine == nullptr || arrDeclLine == codeLine) {
         auto funcArrPair = std::make_pair(currentFunctionLabel, arr);
         if (arrayStackOffsetMap->find(funcArrPair) ==
             arrayStackOffsetMap->end()) {
@@ -190,7 +190,7 @@ void RegisterManager::analyzeStackUsages() {
           curLocalOffset -= targetVarSize;
 
           stackSpace += targetVarSize;
-        }            
+        }
       }
     }
   }
@@ -230,13 +230,26 @@ signed RegisterManager::lookupVariableStackOffset(Label::ptr_t functionLabel,
 
 signed RegisterManager::lookupArrayStackOffset(Label::ptr_t functionLabel,
                                                Array::ptr_t arr) {
-  auto found = arrayStackOffsetMap->find(std::make_pair(functionLabel, arr));
-
-  if (found != arrayStackOffsetMap->end()) {
-    return found->second;
-  } else {
-    return 0;
+  auto searchPair = std::make_pair(functionLabel, arr);
+  for (auto arrOffElem : *arrayStackOffsetMap) {
+    auto curPair = arrOffElem.first;
+    if (!labelArrayPairLess()(searchPair, curPair) &&
+        !labelArrayPairLess()(curPair, searchPair)) {
+      return arrOffElem.second;
+    }
   }
+
+  return 0;
+
+  // TODO check why this does not work:
+  //  auto found = arrayStackOffsetMap->find(std::make_pair(functionLabel,
+  //  arr));
+  //
+  //  if (found != arrayStackOffsetMap->end()) {
+  //    return found->second;
+  //  } else {
+  //    return 0;
+  //  }
 }
 
 unsigned RegisterManager::lookupFunctionArgSize(Label::ptr_t functionLabel) {
