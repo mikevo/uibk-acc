@@ -501,7 +501,7 @@ Array::ptr_t convertArray(Tac *t, std::shared_ptr<ast::array> a) {
     // use same array again
     auto arrayDeclVec = t->getArrayDeclVec();
     auto result = t->findArrayDecl(array);
-    if (result != t->getArrayDeclVec()->end()) {
+    if (result != arrayDeclVec->end()) {
       return result->first;
     }
 

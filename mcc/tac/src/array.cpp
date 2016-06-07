@@ -14,15 +14,15 @@ Array::Array(Type t, std::string name, Operand::ptr_t size, Scope::ptr_t scope)
     : Operand(t, scope), name(name), size(size) {}
 
 bool Array::operator<(Array const other) const {
-  return (this->getName() < other.getName());
+  return (this->getValue() < other.getValue());
 }
 
 bool Array::operator==(Array const other) const {
-  return (this->getName() == other.getName());
+  return (this->getValue() == other.getValue());
 }
 
 bool Array::operator!=(Array const other) const {
-  return (this->getName() != other.getName());
+  return (this->getValue() != other.getValue());
 }
 
 std::string Array::getName() const { return this->name; }

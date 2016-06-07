@@ -170,17 +170,6 @@ void convertAssign(Gas *gas, Triple::ptr_t triple) {
 
 void convertLabel(Gas *gas, Triple::ptr_t triple) {
   auto labelTriple = std::static_pointer_cast<Label>(triple);
-
-  if (currentFunction && labelTriple->isFunctionEntry()) {
-    // TODO maybe there is a nicer way to check if prev instruction was RET
-    auto asmInstructions = gas->getAsmInstructions();
-    if (asmInstructions.size() > 0 &&
-        asmInstructions.back()->getInstruction() != Instruction::RET) {
-      // old function ends here
-      createFunctionEpilog(gas, currentFunction);
-    }
-  }
-
   auto label = std::make_shared<Mnemonic>(labelTriple->getName());
   gas->addMnemonic(label);
 
@@ -310,6 +299,8 @@ void convertReturn(Gas *gas, Triple::ptr_t triple) {
     auto eax = std::make_shared<Operand>(Register::EAX);
     gas->addMnemonic(std::make_shared<Mnemonic>(Instruction::MOV, eax, reg));
   }
+
+  cleanUpArrays(gas, triple);
 
   createFunctionEpilog(gas, currentFunction);
 
