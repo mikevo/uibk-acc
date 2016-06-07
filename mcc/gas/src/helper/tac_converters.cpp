@@ -33,6 +33,7 @@ void convertTac(Gas *gas, Tac &tac) {
   for (auto tripleIt = codeLines.begin(); tripleIt != codeLines.end();
        ++tripleIt) {
     auto triple = *tripleIt;
+    auto op = triple->getOperator();
 
     // check if array schould be cleaned
     auto nextTripleIt = std::next(tripleIt);
@@ -46,12 +47,11 @@ void convertTac(Gas *gas, Tac &tac) {
       }
     }
 
-    if (isScopeEnd) {
+    if (isScopeEnd && op.getName() != OperatorName::RET) {
       // clean up arrays
       cleanUpArrays(gas, triple);
     }
 
-    auto op = triple->getOperator();
     switch (op.getName()) {
       case OperatorName::NOP:
         /*Do nothing*/
@@ -452,6 +452,12 @@ void cleanUpArrays(Gas *gas, Triple::ptr_t triple) {
       // clean
       auto esp = std::make_shared<Operand>(Register::ESP);
       auto tmp = gas->getRegisterManager()->getTmpRegister();
+
+      // if return and tmp is EAX, get new temp to not overwrite EAX
+      if (triple->getOperator().getName() == OperatorName::RET &&
+          tmp->getRegister() == Register::EAX) {
+        tmp = gas->getRegisterManager()->getTmpRegister();
+      }
 
       auto arrTypeSize =
           gas->getRegisterManager()->getSize(definedArr->getType());

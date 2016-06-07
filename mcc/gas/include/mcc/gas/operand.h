@@ -34,6 +34,8 @@ class Operand {
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Operand& op);
 
+  Register getRegister() const;
+
   bool isTempRegister() const;
   bool isRegister() const;
   bool isAddress() const;
