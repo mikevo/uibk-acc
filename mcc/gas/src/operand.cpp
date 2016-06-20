@@ -1,5 +1,6 @@
 #include "mcc/gas/operand.h"
 #include <cassert>
+#include <sstream>
 
 namespace mcc {
 namespace gas {
@@ -66,6 +67,14 @@ std::ostream& operator<<(std::ostream& os, const mcc::gas::Operand& op) {
       assert(false && "Unknown assembly operand type");
       return os;
   }
+}
+
+std::string Operand::toString() const {
+  std::ostringstream stream;
+
+  stream << *this;
+
+  return stream.str();
 }
 
 Register Operand::getRegister() const { return mRegister; }

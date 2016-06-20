@@ -15,9 +15,8 @@ extern bool resultAvailable;
 extern Label::ptr_t currentFunction;
 extern OperatorName lastOperator;
 
-extern std::vector<
-    std::tuple<Label::ptr_t, Array::ptr_t, mcc::gas::Operand::ptr_t>>
-    declaredArrays;
+extern std::vector<std::tuple<Label::ptr_t, Array::ptr_t,
+                              mcc::gas::Operand::ptr_t>> declaredArrays;
 
 namespace mcc {
 namespace gas {

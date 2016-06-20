@@ -155,7 +155,7 @@ void RegisterManager::analyzeStackUsages() {
       auto targetVar = codeLine->getTargetVariable();
       auto funcVarPair = std::make_pair(currentFunctionLabel, targetVar);
       if (variableStackOffsetMap->find(funcVarPair) ==
-                 variableStackOffsetMap->end()) {
+          variableStackOffsetMap->end()) {
         if (funcArg && codeLine->getOperator().getName() == OperatorName::POP) {
           // variable is function parameter
           variableStackOffsetMap->emplace(funcVarPair, curParamOffset);

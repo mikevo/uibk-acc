@@ -375,8 +375,10 @@ void createFunctionProlog(Gas *gas, Label::ptr_t functionLabel) {
         functionLabel, var);
     auto argAddrOp = std::make_shared<Operand>(varOffset);
 
-    gas->addMnemonic(
-        std::make_shared<Mnemonic>(Instruction::MOV, targetReg, argAddrOp));
+    if (targetReg->toString() != argAddrOp->toString()) {
+      gas->addMnemonic(
+          std::make_shared<Mnemonic>(Instruction::MOV, targetReg, argAddrOp));
+    }
   }
 }
 

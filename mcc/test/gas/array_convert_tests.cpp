@@ -392,7 +392,8 @@ main:
 	push esi
 	mov edx, 0
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	cmp edx, 10
 	jge )" + *curLabel++ +
                   R"(
@@ -410,7 +411,8 @@ main:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	pop esi
 	pop edi
 	pop ebx
@@ -592,7 +594,8 @@ main:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	mov ebx, 0
 	imul ebx, 4
 	sub ebx, DWORD PTR [ebp - 4]
@@ -608,7 +611,8 @@ main:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	mov eax, 0
 	imul eax, 4
 	sub eax, DWORD PTR [ebp - 4]
@@ -624,7 +628,8 @@ main:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	mov ebx, 0
 	imul ebx, 4
 	sub ebx, DWORD PTR [ebp - 4]
@@ -640,7 +645,8 @@ main:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	mov eax, 0
 	imul eax, 4
 	sub eax, DWORD PTR [ebp - 4]
@@ -656,7 +662,8 @@ main:
 	jmp )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	mov ebx, 0
 	imul ebx, 4
 	sub ebx, DWORD PTR [ebp - 4]
@@ -670,17 +677,23 @@ main:
 	je )" + *curLabel++ +
                   R"(
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 
-)" + *curLabel++ + R"(:
+)" + *curLabel++ +
+                  R"(:
 	mov ebx, 1
 	imul ebx, 4
 	add esp, ebx

@@ -33,6 +33,7 @@ class Operand {
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const mcc::gas::Operand& op);
+  std::string toString() const;
 
   Register getRegister() const;
 

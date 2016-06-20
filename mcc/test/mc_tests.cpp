@@ -80,28 +80,28 @@ TEST(Libmc, ArrayAccess) {
   {
     parser::parser_state p(str_array_access.cbegin(), str_array_access.cend());
     sptr<ast::array> testarray = std::make_shared<ast::array>(
-            std::make_shared<ast::int_type>(), std::make_shared<ast::int_literal>(5), "testarray");
-    
+        std::make_shared<ast::int_type>(),
+        std::make_shared<ast::int_literal>(5), "testarray");
+
     p.scopes.back().declareArray(p, "testarray", testarray);
     sptr<ast::expression> position = std::make_shared<ast::int_literal>(5);
-    sptr<ast::array_access> access = std::make_shared<ast::array_access>(
-            testarray, position);
-    
-    //freestanding
+    sptr<ast::array_access> access =
+        std::make_shared<ast::array_access>(testarray, position);
+
+    // freestanding
     auto match = parser::array_access(p);
     EXPECT(match);
     EXPECT(*match->m_array == *testarray);
     EXPECT(*match->access_expr == *position)
     EXPECT(p.e == str_array_access.cend())
-    
-    //in expression
+
+    // in expression
     string str_array_access_expr{"testarray[5]+5"};
     p.set_string(str_array_access_expr);
     auto match2 = parser::binary_operation(p);
     EXPECT(match2);
     EXPECT(*match2->lhs == *access);
     EXPECT(p.e == str_array_access_expr.cend())
-    
   }
 }
 
@@ -163,11 +163,11 @@ TEST(Libmc, statements) {
     return res->var->name == "test" &&
            typeid(*res->var->var_type) == typeid(ast::int_type);
   });
-  
-   EXPECT_MATCH(parser::array_decl_stmt, str_array_decl, [](auto res) {
+
+  EXPECT_MATCH(parser::array_decl_stmt, str_array_decl, [](auto res) {
     return res->decl_array->name == "testarray" &&
            typeid(*res->decl_array->array_type) == typeid(ast::int_type) &&
-            *res->decl_array->array_size == ast::int_literal{10};
+           *res->decl_array->array_size == ast::int_literal{10};
   });
 
   EXPECT(parser::parse(R"(

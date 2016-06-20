@@ -15,8 +15,7 @@
 typedef std::map<mcc::tac::Variable::ptr_t, mcc::tac::Tac::code_lines_iter,
                  mcc::tac::Variable::less> var_iter_map;
 typedef std::map<mcc::tac::Array::ptr_t, mcc::tac::Tac::code_lines_iter,
-                 mcc::tac::Array::less>
-    arr_iter_map;
+                 mcc::tac::Array::less> arr_iter_map;
 
 namespace mcc {
 namespace cfg {
