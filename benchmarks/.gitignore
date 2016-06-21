@@ -1,11 +1,2 @@
-fib_const
-fib_input
-pi_iter
-pi_rec
-sort
-dot_product.c.s
-fib_const.c.s
-fib_input.c.s
-pi_iter.c.s
-pi_rec.c.s
-sort.c.s
+bin/
+*.c.s
